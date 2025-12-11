@@ -1,0 +1,156 @@
+# Tutorial 6-2-4: Docker Composeの基礎
+
+## 🎯 このセクションで学ぶこと
+
+*   複数のコンテナを、連携させて管理する必要性を理解する。
+*   Docker Composeが、どのような問題を解決するためのツールなのかを学ぶ。
+*   `docker-compose.yml`という、設定ファイルの、基本的な構造と書き方を理解する。
+
+---
+
+## 導入
+
+これまでのセクションで、`docker run`コマンドを使って、Nginxのような、単体のコンテナを起動する方法を学びました。しかし、実際のWebアプリケーションは、一つのコンテナだけで、完結することは、ほとんどありません。
+
+例えば、典型的なLaravelアプリケーションを動かすには、最低でも、以下の3つのコンポーネント（サービス）が必要です。
+
+1.  **Webサーバー**: Nginxなど。ユーザーからのリクエストを受け付け、PHPに処理を渡す。
+2.  **PHP実行環境**: PHP-FPMなど。Laravelアプリケーション本体のコードを実行する。
+3.  **データベース**: MySQLやPostgreSQLなど。アプリケーションのデータを永続的に保存する。
+
+これらのサービスを、それぞれ、別々のコンテナとして、起動し、互いに連携させる必要があります。これを、`docker run`コマンドだけでやろうとすると、どうなるでしょうか？
+
+```bash
+# まず、DBコンテナを起動
+docker run --name some-mysql -e MYSQL_ROOT_PASSWORD=my-secret-pw -d mysql
+
+# 次に、PHPコンテナを起動し、DBコンテナにリンクする
+docker run --name some-php --link some-mysql:mysql -d php:fpm
+
+# 最後に、Webサーバーコンテナを起動し、PHPコンテナにリンクし、ポートを公開する
+docker run --name some-nginx --link some-php:php -p 8080:80 -d nginx
+```
+
+...このように、コマンドは、非常に長く、複雑になり、コンテナ間の連携（ネットワーク設定など）も、手動で管理しなければなりません。コンテナが、3つ、4つと増えていくと、この管理は、すぐに、破綻してしまいます。
+
+この、「**複数のコンテナから構成される、アプリケーション全体を、一つの単位として、簡単に定義し、管理したい**」という、切実なニーズに応えるのが、**Docker Compose** です。
+
+---
+
+## 詳細解説
+
+### 🎼 Docker Composeとは？
+
+Docker Composeは、複数のコンテナを定義し、実行する、Dockerアプリケーションのためのツールです。Composeを使えば、`YAML`ファイル（後述）を使って、アプリケーションのサービス（コンテナ）群を、設定することができます。そして、**たった一つのコマンド**で、設定ファイルから、全てのサービスを、一度に、作成し、起動することができるのです。
+
+先ほどの、Webサーバー、PHP、データベースの3つのコンテナを、Docker Composeで管理する場合、`docker-compose.yml`という名前の、設定ファイルを、以下のように記述します。
+
+### 📝 `docker-compose.yml` の基本構造
+
+`docker-compose.yml`は、`YAML` (YAML Ain't Markup Language) という、人間が読み書きしやすい、データフォーマットで記述します。インデント（字下げ）が、構造を表現する上で、非常に重要な意味を持つのが特徴です。
+
+```yaml
+# docker-compose.yml
+
+# Composeファイルのバージョンを指定
+version: '3.8'
+
+# ここに、アプリケーションを構成する「サービス（コンテナ）」を定義していく
+services:
+
+  # サービス1: Webサーバー (nginx)
+  web:
+    image: nginx:latest
+    ports:
+      - "8080:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+      - ./src:/var/www/html
+    depends_on:
+      - app
+
+  # サービス2: PHP実行環境 (php)
+  app:
+    build: .
+    volumes:
+      - ./src:/var/www/html
+    depends_on:
+      - db
+
+  # サービス3: データベース (mysql)
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: my-secret-pw
+      MYSQL_DATABASE: my_database
+    volumes:
+      - db-data:/var/lib/mysql
+
+# データの永続化に使用する「ボリューム」を定義
+volumes:
+  db-data:
+```
+
+このファイルは、一見、複雑に見えますが、構造はシンプルです。
+
+*   `version`: 使用するComposeファイルの、バージョンを指定します。通常は、最新のものを指定します。
+*   `services`: **ここが、最も重要な部分です。** `web`, `app`, `db` のように、アプリケーションを構成する、各サービス（コンテナ）を、名前を付けて定義します。
+*   `image`: サービスの元になる、Dockerイメージを指定します。（例: `nginx:latest`）
+*   `build`: `Dockerfile`から、イメージをビルドする場合に、そのパスを指定します。
+*   `ports`: ホストOSとコンテナの、ポートフォワーディングを設定します。（`ホスト側:コンテナ側`）
+*   `volumes`: ホストOSのディレクトリと、コンテナのディレクトリを、同期（マウント）させます。これにより、ホストOS側で、ソースコードを編集すると、即座に、コンテナ内に反映されます。また、データベースのデータを、コンテナが削除されても、消えないように、永続化するためにも使います。
+*   `environment`: コンテナ内で使用する、環境変数を設定します。データベースのパスワードなどに使います。
+*   `depends_on`: サービスの起動順序を、制御します。例えば、`web`サービスは、`app`サービスが起動した後に、起動するようになります。
+*   `volumes` (トップレベル): 名前付きボリュームを定義します。データベースのデータを、永続化するためによく使われます。
+
+### 🚀 Docker Composeの基本コマンド
+
+`docker-compose.yml`ファイルを作成したら、あとは、以下のコマンドを実行するだけです。
+
+*   **起動: `docker-compose up`**
+
+    `docker-compose.yml`が置かれているディレクトリで、以下のコマンドを実行します。
+
+    ```bash
+    docker-compose up -d
+    ```
+
+    `-d`は、`docker run`の時と同じく、バックグラウンドで起動する、Detachedモードのオプションです。このコマンド一つで、`web`, `app`, `db` の、3つのコンテナが、設定通りに、ビルドまたはプルされ、互いにリンクされた状態で、一斉に起動します。
+
+*   **停止: `docker-compose down`**
+
+    アプリケーション全体を、停止するには、以下のコマンドを実行します。
+
+    ```bash
+    docker-compose down
+    ```
+
+    このコマンドは、コンテナを停止するだけでなく、`up`で作成された、ネットワークなども、一緒に、クリーンアップしてくれます。
+
+*   **その他のコマンド**
+    *   `docker-compose ps`: Composeで管理されている、コンテナの状態を表示します。
+    *   `docker-compose logs`: 全てのサービスのログを、まとめて表示します。
+    *   `docker-compose exec <サービス名> <コマンド>`: 指定したサービスのコンテナ内で、コマンドを実行します。（例: `docker-compose exec app bash`）
+
+---
+
+## ✨ まとめ
+
+このセクションでは、複数のコンテナを、効率的に管理するためのツール、Docker Composeの基礎について学びました。
+
+*   **Docker Composeの役割**: 複数のコンテナから成る、アプリケーション全体を、**一つの設定ファイル (`docker-compose.yml`)** で定義し、**一つのコマンド**で、管理するためのツール。
+*   **`docker-compose.yml`**: `YAML`形式で、各サービス（コンテナ）の、イメージ、ポート、ボリューム、依存関係などを定義する。
+*   **基本コマンド**: `docker-compose up -d` で、アプリケーション全体を起動し、`docker-compose down` で、全体を停止・クリーンアップする。
+
+Docker Composeは、`docker run`コマンドの、長く、複雑なオプションを、宣言的で、再利用可能な、設定ファイルに置き換えてくれる、非常に強力なツールです。
+
+次のセクションでは、いよいよ、このDocker Composeを使って、Laravelの、完全な開発環境を、ゼロから構築していきます。
+
+---
+
+## 📝 学習のポイント
+
+- [ ] なぜ単体の`docker run`コマンドだけでは、複雑なアプリケーションの管理が難しいのかを説明できる。
+- [ ] Docker Composeが、どのような問題を解決するツールなのかを説明できる。
+- [ ] `docker-compose.yml`ファイルの、`services`, `image`, `ports`, `volumes` といった、基本的なキーの役割を理解している。
+- [ ] `docker-compose up` と `docker-compose down` の、基本的な使い方を理解している。
