@@ -1,0 +1,288 @@
+# Tutorial 9-3-3: マイグレーションの実行とロールバック
+
+## 🎯 このセクションで学ぶこと
+
+*   `php artisan migrate`でマイグレーションを実行できるようになる。
+*   `php artisan migrate:rollback`でマイグレーションを元に戻せるようになる。
+*   マイグレーションの状態を確認し、適切に管理できるようになる。
+
+---
+
+## 導入：マイグレーションは「データベースのバージョン管理」
+
+前のセクションで、マイグレーションファイルを作成し、テーブルを定義する方法を学びました。しかし、マイグレーションファイルを作成しただけでは、データベースには何も変更が加わりません。
+
+マイグレーションを**実行**することで、初めてデータベースにテーブルが作成されます。また、間違ったマイグレーションを実行してしまった場合は、**ロールバック**して元に戻すことができます。
+
+このセクションでは、マイグレーションの実行とロールバックの方法を学びます。
+
+---
+
+## 詳細解説
+
+### 🚀 マイグレーションの実行
+
+#### 基本コマンド
+
+```bash
+docker compose exec php php artisan migrate
+```
+
+このコマンドを実行すると、まだ実行されていないマイグレーションファイルが順番に実行されます。
+
+**実行結果のイメージ**
+
+```
+INFO  Running migrations.
+
+2024_12_11_000001_create_users_table .............. 25ms DONE
+2024_12_11_000002_create_posts_table .............. 18ms DONE
+```
+
+#### マイグレーションの仕組み
+
+Laravelは、`migrations`というテーブルを使って、どのマイグレーションが実行済みかを管理しています。
+
+```sql
+SELECT * FROM migrations;
+```
+
+**結果**
+
+| id | migration | batch |
+|:---|:---|:---|
+| 1 | 2024_12_11_000001_create_users_table | 1 |
+| 2 | 2024_12_11_000002_create_posts_table | 1 |
+
+*   `migration`: 実行されたマイグレーションファイル名
+*   `batch`: 実行されたバッチ番号（同時に実行されたマイグレーションは同じバッチ番号を持つ）
+
+---
+
+### 🔄 マイグレーションのロールバック
+
+#### 最後のバッチをロールバックする
+
+```bash
+docker compose exec php php artisan migrate:rollback
+```
+
+このコマンドを実行すると、最後に実行されたバッチのマイグレーションが元に戻されます。
+
+**実行結果のイメージ**
+
+```
+INFO  Rolling back migrations.
+
+2024_12_11_000002_create_posts_table .............. 12ms DONE
+2024_12_11_000001_create_users_table .............. 10ms DONE
+```
+
+#### 特定のステップ数だけロールバックする
+
+```bash
+docker compose exec php php artisan migrate:rollback --step=2
+```
+
+これにより、最後の2バッチ分のマイグレーションがロールバックされます。
+
+#### 全てのマイグレーションをロールバックする
+
+```bash
+docker compose exec php php artisan migrate:reset
+```
+
+これにより、全てのマイグレーションがロールバックされます。
+
+---
+
+### 🔄 マイグレーションのリフレッシュ
+
+開発中は、マイグレーションを何度も修正することがあります。その場合、以下のコマンドが便利です。
+
+#### 全てロールバックしてから再実行する
+
+```bash
+docker compose exec php php artisan migrate:refresh
+```
+
+これは、以下の2つのコマンドを実行するのと同じです。
+
+```bash
+docker compose exec php php artisan migrate:reset
+docker compose exec php php artisan migrate
+```
+
+#### シーダーも一緒に実行する
+
+```bash
+docker compose exec php php artisan migrate:refresh --seed
+```
+
+---
+
+### 🗑️ マイグレーションのフレッシュ
+
+開発環境をリセットしたい場合は、以下のコマンドを使います。
+
+```bash
+docker compose exec php php artisan migrate:fresh
+```
+
+このコマンドは、**全てのテーブルを削除してから、マイグレーションを実行**します。
+
+**`migrate:reset`との違い**
+
+| コマンド | 動作 |
+|:---|:---|
+| `migrate:reset` | マイグレーションの`down()`メソッドを実行してロールバック |
+| `migrate:fresh` | 全てのテーブルを削除してから、マイグレーションを実行 |
+
+`migrate:fresh`の方が、確実にクリーンな状態にできます。
+
+#### シーダーも一緒に実行する
+
+```bash
+docker compose exec php php artisan migrate:fresh --seed
+```
+
+開発中は、このコマンドを頻繁に使います。
+
+---
+
+### 🔍 マイグレーションの状態を確認する
+
+#### 実行済みのマイグレーションを確認する
+
+```bash
+docker compose exec php php artisan migrate:status
+```
+
+**実行結果のイメージ**
+
+```
+Migration name .................................................. Batch / Status
+2024_12_11_000001_create_users_table ............................ [1] Ran
+2024_12_11_000002_create_posts_table ............................ [1] Ran
+2024_12_11_000003_create_comments_table ......................... Pending
+```
+
+*   `Ran`: 実行済み
+*   `Pending`: 未実行
+
+---
+
+### ⚠️ 本番環境でのマイグレーション
+
+本番環境では、マイグレーションを慎重に実行する必要があります。
+
+#### 本番環境でマイグレーションを実行する前に
+
+1. **バックアップを取る**: データベースのバックアップを必ず取る
+2. **ステージング環境でテストする**: 本番と同じ環境でマイグレーションをテストする
+3. **ロールバック計画を立てる**: 問題が発生した場合の対処法を事前に決めておく
+
+#### 本番環境でのマイグレーション実行
+
+```bash
+php artisan migrate --force
+```
+
+本番環境では、`--force`オプションを付けないと、確認プロンプトが表示されます。
+
+---
+
+### 🚨 よくあるエラーと対処法
+
+#### エラー1: `SQLSTATE[42S01]: Base table or view already exists`
+
+**原因**: テーブルが既に存在している
+
+**対処法**:
+
+```bash
+docker compose exec php php artisan migrate:fresh
+```
+
+#### エラー2: `SQLSTATE[42S02]: Base table or view not found`
+
+**原因**: ロールバックしようとしているテーブルが存在しない
+
+**対処法**:
+
+```bash
+docker compose exec php php artisan migrate:fresh
+```
+
+#### エラー3: `Nothing to rollback`
+
+**原因**: ロールバックするマイグレーションがない
+
+**対処法**: 問題ありません。既に全てロールバックされています。
+
+---
+
+### 💡 TIP: マイグレーションファイルの命名規則
+
+マイグレーションファイルは、タイムスタンプ順に実行されます。そのため、以下の命名規則を守ることが重要です。
+
+*   **作成**: `create_テーブル名_table`
+*   **変更**: `add_カラム名_to_テーブル名_table`
+*   **削除**: `remove_カラム名_from_テーブル名_table`
+
+**例**
+
+```bash
+docker compose exec php php artisan make:migration add_published_at_to_posts_table
+```
+
+---
+
+### 🔧 マイグレーションの修正方法
+
+マイグレーションを実行した後に、間違いに気づいた場合の対処法です。
+
+#### 方法1: ロールバックして修正する（推奨）
+
+```bash
+# ロールバック
+docker compose exec php php artisan migrate:rollback
+
+# マイグレーションファイルを修正
+
+# 再実行
+docker compose exec php php artisan migrate
+```
+
+#### 方法2: 新しいマイグレーションを作成する
+
+既に本番環境で実行されているマイグレーションは、修正してはいけません。代わりに、新しいマイグレーションを作成します。
+
+```bash
+docker compose exec php php artisan make:migration add_description_to_posts_table
+```
+
+---
+
+## ✨ まとめ
+
+このセクションでは、マイグレーションの実行とロールバックの方法を学びました。
+
+*   `php artisan migrate`でマイグレーションを実行できる。
+*   `php artisan migrate:rollback`で最後のバッチをロールバックできる。
+*   `php artisan migrate:fresh --seed`で、データベースをリセットして初期データを投入できる。
+*   `php artisan migrate:status`でマイグレーションの状態を確認できる。
+*   本番環境では、マイグレーションを慎重に実行する必要がある。
+*   マイグレーションファイルは、タイムスタンプ順に実行される。
+
+次のセクションでは、シーダーを使って初期データを投入する方法を学びます。
+
+---
+
+## 📝 学習のポイント
+
+- [ ] `php artisan migrate`でマイグレーションを実行できる。
+- [ ] `php artisan migrate:rollback`でマイグレーションをロールバックできる。
+- [ ] `php artisan migrate:fresh --seed`でデータベースをリセットできる。
+- [ ] `php artisan migrate:status`でマイグレーションの状態を確認できる。
+- [ ] 本番環境では、マイグレーションを慎重に実行する必要がある。
