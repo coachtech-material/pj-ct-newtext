@@ -352,7 +352,6 @@ $request->user()->tokens()->delete();
 *   `$request->user()`で、現在認証されているユーザーを取得できる。
 *   `$request->user()->currentAccessToken()->delete()`で、トークンを削除（ログアウト）できる。
 
-これで、Tutorial 9の各チャプターの最初の1〜2セクションの執筆が順調に進んでいます。次は、Chapter 8以降のセクションを執筆していきます。
 
 ---
 

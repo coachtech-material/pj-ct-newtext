@@ -311,7 +311,7 @@ protected $fillable = ['name', 'email', 'password'];
 *   `$fillable`を使う方が、セキュリティ的に安全である。
 *   バリデーション済みのデータのみを使うことが重要である。
 
-これで、Chapter 4「Eloquent ORMの基礎」の全6セクションが完了しました。次は、Chapter 5「Eloquent ORMとリレーションシップ」の残りのセクションを執筆します。
+これで、Chapter 4「Eloquent ORMの基礎」の全6セクションが完了しました。次は、Chapter 5「Eloquent ORMとリレーションシップ」の残りのセクションに進みます。
 
 ---
 

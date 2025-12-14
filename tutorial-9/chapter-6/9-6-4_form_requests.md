@@ -418,7 +418,7 @@ $data = $request->validated(); // OK: バリデーション済みのデータの
 *   `messages()`や`attributes()`を使って、エラーメッセージをカスタマイズできる。
 *   `prepareForValidation()`や`passedValidation()`を使って、バリデーション前後の処理を実装できる。
 
-これで、Chapter 6「バリデーション」の全4セクションが完了しました。次は、Chapter 7「認証機能」の残りのセクションを執筆します。
+これで、Chapter 6「バリデーション」の全4セクションが完了しました。次は、Chapter 7「認証機能」の残りのセクションに進みます。
 
 ---
 
