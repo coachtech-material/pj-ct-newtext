@@ -1,4 +1,4 @@
-# Tutorial 11-1-6: Git/GitHubの準備
+# Tutorial 11-1-5: Git/GitHubの準備
 
 ## 🎯 このセクションで学ぶこと
 
