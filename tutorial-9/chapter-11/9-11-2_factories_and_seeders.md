@@ -308,7 +308,6 @@ docker compose exec php php artisan migrate:fresh --seed
 *   Fakerライブラリを使うと、リアルなダミーデータを生成できる。
 *   `migrate:fresh --seed`で、データベースをリセットして、ダミーデータを再生成できる。
 
-これで、Tutorial 9の各チャプターの最初の1〜2セクションの執筆が完了しました。次は、これらのファイルをGitHubにアップロードします。
 
 ---
 
