@@ -149,6 +149,278 @@ WHERE orders.order_id IS NULL;
 
 ---
 
+## 🏃 実践: 一緒に作ってみましょう！
+
+ちゃんとできましたか？リレーションシップとJOINはデータベースの最も重要な機能の一つです。一緒に手を動かしながら、ECサイトの注文管理システムを構築していきましょう。
+
+### 💭 実装の思考プロセス
+
+ECサイトの注文管理システムを構築する際、以下の順番で考えると効率的です：
+
+1. **テーブル間の関係を理解**：顧客、商品、注文の3つのエンティティとその関係
+2. **外部キーで関係を構築**：ordersテーブルにcustomer_idとproduct_id
+3. **INNER JOINで関連データを取得**：注文情報と顧客・商品情報を結合
+4. **LEFT JOINで全データを取得**：注文がない顧客も含めて取得
+5. **集計関数で統計情報を取得**：合計金額や注文数を計算
+
+JOINのポイントは「どのカラムでテーブルを結合するかを明確にする」ことです。
+
+---
+
+### 📝 ステップバイステップで実装
+
+#### ステップ1: テーブルを作成する
+
+**何を考えているか**：
+- 「顧客テーブルと商品テーブルを先に作ろう」
+- 「注文テーブルは外部キーで他のテーブルを参照しよう」
+- 「外部キー制約でデータの整合性を保とう」
+
+まず、customersテーブルを作成します：
+
+```sql
+CREATE TABLE customers (
+    customer_id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(100) NOT NULL,
+    email VARCHAR(150) UNIQUE NOT NULL,
+    phone VARCHAR(20)
+);
+```
+
+**コードリーディング**：
+
+```sql
+CREATE TABLE customers (
+```
+→ customersテーブルを作成します。
+
+```sql
+    customer_id INT PRIMARY KEY AUTO_INCREMENT,
+```
+→ 顧客IDを主キーとして定義し、自動採番します。
+
+```sql
+    name VARCHAR(100) NOT NULL,
+    email VARCHAR(150) UNIQUE NOT NULL,
+    phone VARCHAR(20)
+);
+```
+→ 顧客名、メール、電話番号を定義します。メールは重複不可にします。
+
+次に、productsテーブルを作成します：
+
+```sql
+CREATE TABLE products (
+    product_id INT PRIMARY KEY AUTO_INCREMENT,
+    product_name VARCHAR(200) NOT NULL,
+    price INT NOT NULL
+);
+```
+
+最後に、ordersテーブルを作成します：
+
+```sql
+CREATE TABLE orders (
+    order_id INT PRIMARY KEY AUTO_INCREMENT,
+    customer_id INT NOT NULL,
+    product_id INT NOT NULL,
+    quantity INT NOT NULL,
+    order_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (customer_id) REFERENCES customers(customer_id),
+    FOREIGN KEY (product_id) REFERENCES products(product_id)
+);
+```
+
+**コードリーディング**：
+
+```sql
+    customer_id INT NOT NULL,
+    product_id INT NOT NULL,
+```
+→ 顧客IDと商品IDを定義します。これらは外部キーとして使用されます。
+
+```sql
+    FOREIGN KEY (customer_id) REFERENCES customers(customer_id),
+    FOREIGN KEY (product_id) REFERENCES products(product_id)
+```
+→ 外部キー制約を設定します。`customer_id`はcustomersテーブルの`customer_id`を、`product_id`はproductsテーブルの`product_id`を参照します。これにより、存在しない顧客や商品を注文に登録することを防ぎます。
+
+---
+
+#### ステップ2: データを挿入する
+
+**何を考えているか**：
+- 「親テーブル（customers, products）から先にデータを入れよう」
+- 「外部キー制約があるので、順番が重要」
+- 「テストデータを複数件挿入しよう」
+
+データを挿入します：
+
+```sql
+-- 顧客データを挿入
+INSERT INTO customers (name, email, phone) VALUES
+('田中太郎', 'tanaka@example.com', '090-1234-5678'),
+('佐藤花子', 'sato@example.com', '080-2345-6789'),
+('鈴木一郎', 'suzuki@example.com', '070-3456-7890');
+
+-- 商品データを挿入
+INSERT INTO products (product_name, price) VALUES
+('ノートPC', 120000),
+('マウス', 2000),
+('キーボード', 5000),
+('モニター', 30000);
+
+-- 注文データを挿入
+INSERT INTO orders (customer_id, product_id, quantity) VALUES
+(1, 1, 1),  -- 田中太郎がノートPCを1台注文
+(1, 2, 2),  -- 田中太郎がマウスを2個注文
+(2, 3, 1),  -- 佐藤花子がキーボードを1個注文
+(3, 1, 1),  -- 鈴木一郎がノートPCを1台注文
+(3, 4, 2);  -- 鈴木一郎がモニターを2台注文
+```
+
+**コードリーディング**：
+
+```sql
+INSERT INTO customers (name, email, phone) VALUES
+('田中太郎', 'tanaka@example.com', '090-1234-5678'),
+...
+```
+→ まず、customersテーブルに顧客データを挿入します。外部キー制約があるため、親テーブルから先にデータを入れる必要があります。
+
+```sql
+INSERT INTO orders (customer_id, product_id, quantity) VALUES
+(1, 1, 1),  -- 田中太郎がノートPCを1台注文
+```
+→ ordersテーブルに注文データを挿入します。`customer_id`と1、`product_id`と1を指定することで、外部キー制約により、存在する顧客と商品を参照します。
+
+---
+
+#### ステップ3: INNER JOINで関連データを取得する
+
+**何を考えているか**：
+- 「注文情報だけではIDしかわからない」
+- 「顧客名や商品名も一緒に表示したい」
+- 「INNER JOINでテーブルを結合しよう」
+
+すべての注文情報を取得します：
+
+```sql
+SELECT 
+    customers.name,
+    products.product_name,
+    orders.quantity,
+    orders.order_date
+FROM orders
+INNER JOIN customers ON orders.customer_id = customers.customer_id
+INNER JOIN products ON orders.product_id = products.product_id;
+```
+
+**コードリーディング**：
+
+```sql
+SELECT 
+    customers.name,
+    products.product_name,
+    orders.quantity,
+    orders.order_date
+```
+→ 取得するカラムを指定します。`テーブル名.カラム名`の形式で、どのテーブルのカラムかを明確にします。
+
+```sql
+FROM orders
+```
+→ メインのテーブルとしてordersテーブルを指定します。
+
+```sql
+INNER JOIN customers ON orders.customer_id = customers.customer_id
+```
+→ `INNER JOIN`でcustomersテーブルを結合します。`ON`以降に結合条件を指定します。`orders.customer_id = customers.customer_id`で、両テーブルの`customer_id`が一致する行を結合します。
+
+```sql
+INNER JOIN products ON orders.product_id = products.product_id;
+```
+→ さらにproductsテーブルを結合します。複数のテーブルを結合する場合、`INNER JOIN`を繰り返します。
+
+---
+
+#### ステップ4: LEFT JOINで全データを取得する
+
+**何を考えているか**：
+- 「注文がない顧客も表示したい」
+- 「LEFT JOINを使うと左側のテーブルの全データが取得される」
+- 「注文数をカウントして確認しよう」
+
+各顧客の注文数を取得します：
+
+```sql
+SELECT 
+    customers.name,
+    COUNT(orders.order_id) AS order_count
+FROM customers
+LEFT JOIN orders ON customers.customer_id = orders.customer_id
+GROUP BY customers.customer_id;
+```
+
+**コードリーディング**：
+
+```sql
+FROM customers
+LEFT JOIN orders ON customers.customer_id = orders.customer_id
+```
+→ `LEFT JOIN`を使用することで、左側のテーブル（customers）の全データを取得します。注文がない顧客も結果に含まれ、ordersのカラムはNULLになります。
+
+```sql
+    COUNT(orders.order_id) AS order_count
+```
+→ `COUNT`関数で注文数をカウントします。`AS order_count`で別名を付けます。
+
+```sql
+GROUP BY customers.customer_id;
+```
+→ `GROUP BY`で顧客ごとにグループ化します。集計関数を使用する場合、`GROUP BY`が必要です。
+
+---
+
+#### ステップ5: 集計関数で合計金額を計算する
+
+**何を考えているか**：
+- 「各顧客の注文合計金額を知りたい」
+- 「商品価格×数量を計算して、SUMで合計しよう」
+- 「JOINと集計関数を組み合わせよう」
+
+各顧客の注文合計金額を取得します：
+
+```sql
+SELECT 
+    customers.name,
+    SUM(products.price * orders.quantity) AS total
+FROM orders
+INNER JOIN customers ON orders.customer_id = customers.customer_id
+INNER JOIN products ON orders.product_id = products.product_id
+GROUP BY customers.customer_id;
+```
+
+**コードリーディング**：
+
+```sql
+    SUM(products.price * orders.quantity) AS total
+```
+→ `SUM`関数で合計金額を計算します。`products.price * orders.quantity`で各注文の金額を計算し、`SUM`で合計します。
+
+```sql
+GROUP BY customers.customer_id;
+```
+→ 顧客ごとにグループ化して、各顧客の合計金額を計算します。
+
+---
+
+### ✨ 完成！
+
+これでECサイトの注文管理システムが完成しました！リレーションシップ、外部キー、INNER JOIN、LEFT JOIN、集計関数を実践できましたね。
+
+---
+
 ## ✅ 完成イメージ
 
 ### クエリ1: すべての注文情報

@@ -159,6 +159,248 @@ Chapter 4で学んだTailwind CSSの知識を実際に手を動かして確認�
 
 ---
 
+## 🏃 実践: 一緒に作ってみましょう！
+
+ちゃんとできましたか？Tailwind CSSはユーティリティクラスを組み合わせることがポイントです。一緒に手を動かしながら、Tailwind CSSで自己紹介ページを作っていきましょう。
+
+### 💭 実装の思考プロセス
+
+Tailwind CSSでページを作る際、以下の順番で考えると効率的です：
+
+1. **HTMLファイルを作成してCDNを読み込む**：Tailwind CSSを使えるようにする
+2. **大きなレイアウトから作る**：body、containerなどの全体構造
+3. **見出しをスタイリング**：h1、h2のデザイン
+4. **テキスト要素を調整**：p、ul、olのスタイル
+5. **インタラクティブ要素を追加**：リンクのホバー効果など
+6. **画像を装飾**：角丸や影を追加
+7. **レスポンシブ対応**：md:、lg:などのプレフィックスを使う
+8. **ブラウザで確認**：意図通りに表示されているかチェック
+
+Tailwind CSSの良いところは、CSSファイルを別途作らずに、HTMLに直接クラスを書いていくだけでスタイリングできることです。
+
+---
+
+### 📝 ステップバイステップで実装
+
+#### ステップ1: HTMLファイルを作成してTailwind CSSを読み込む
+
+**何を考えているか**：
+- 「`self-introduction-tailwind.html`というファイルを作ろう」
+- 「`<head>`内にTailwind CSSのCDNを読み込む必要がある」
+- 「スクリプトタグでCDNを読み込む」
+
+まず、基本的なHTML構造を作ります：
+
+```html
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>自己紹介 - 山田太郎</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+    <!-- ここにコンテンツを追加していく -->
+</body>
+</html>
+```
+
+**コードリーディング**：
+
+```html
+    <script src="https://cdn.tailwindcss.com"></script>
+```
+→ Tailwind CSSをCDN経由で読み込みます。これだけでTailwindのすべてのユーティリティクラスが使えるようになります。
+
+---
+
+#### ステップ2: bodyとcontainerを作る
+
+**何を考えているか**：
+- 「`body`に背景色とパディングを設定しよう」
+- 「コンテンツを囲む`div`を作って、白いカードのようにしよう」
+
+```html
+<body class="bg-gray-100 p-5">
+    <div class="max-w-3xl mx-auto bg-white p-10 rounded-lg shadow-lg">
+        <h1>自己紹介</h1>
+        <!-- 以下、コンテンツ -->
+    </div>
+</body>
+```
+
+**コードリーディング（1クラスずつ）**：
+
+```html
+<body class="bg-gray-100 p-5">
+```
+→ `body`タグに2つのクラスを適用します：
+- `bg-gray-100`: 背景色を薄いグレーに設定
+- `p-5`: パディングを四方に20px（1.25rem）設定
+
+```html
+<div class="max-w-3xl mx-auto bg-white p-10 rounded-lg shadow-lg">
+```
+→ コンテナ用の`div`に複数のクラスを適用します：
+- `max-w-3xl`: 最大幅を768pxに制限
+- `mx-auto`: 左右のマージンをautoにして中央揃え
+- `bg-white`: 背景色を白に設定
+- `p-10`: パディングを四方に40px（2.5rem）設定
+- `rounded-lg`: 角を大きく丸める（border-radius: 0.5rem）
+- `shadow-lg`: 大きめの影を追加
+
+---
+
+#### ステップ3: 見出しをスタイリングする
+
+**何を考えているか**：
+- 「`h1`は大きくて中央揃え、青い色にしよう」
+- 「`h2`は青色で下線を付けよう」
+
+```html
+<h1 class="text-4xl font-bold text-center text-blue-600 mb-8">自己紹介</h1>
+
+<h2 class="text-2xl font-semibold text-blue-600 border-b-2 border-blue-600 pb-2 mb-6">基本情報</h2>
+```
+
+**コードリーディング（h1）**：
+
+```html
+<h1 class="text-4xl font-bold text-center text-blue-600 mb-8">
+```
+→ `h1`に複数のクラスを適用します：
+- `text-4xl`: フォントサイズを2.25rem（36px）に設定
+- `font-bold`: フォントウェイトを太字に設定
+- `text-center`: テキストを中央揃え
+- `text-blue-600`: 文字色を青（#2563eb）に設定
+- `mb-8`: 下マージンを2rem（32px）設定
+
+**コードリーディング（h2）**：
+
+```html
+<h2 class="text-2xl font-semibold text-blue-600 border-b-2 border-blue-600 pb-2 mb-6">
+```
+→ `h2`に複数のクラスを適用します：
+- `text-2xl`: フォントサイズを1.5rem（24px）に設定
+- `font-semibold`: フォントウェイトを中太字に設定
+- `text-blue-600`: 文字色を青に設定
+- `border-b-2`: 下ボーダーを2pxに設定
+- `border-blue-600`: ボーダーの色を青に設定
+- `pb-2`: 下パディングを0.5rem（8px）設定
+- `mb-6`: 下マージンを1.5rem（24px）設定
+
+---
+
+#### ステップ4: 段落とリストをスタイリングする
+
+**何を考えているか**：
+- 「段落に適度な余白を設定しよう」
+- 「リストにインデントと余白を設定しよう」
+
+```html
+<p class="text-gray-700 mb-4">こんにちは！山田太郎です。</p>
+
+<ul class="list-disc list-inside ml-5 mb-6 text-gray-700">
+    <li>名前：山田太郎</li>
+    <li>年齢：25歳</li>
+</ul>
+```
+
+**コードリーディング**：
+
+```html
+<p class="text-gray-700 mb-4">
+```
+→ 段落にクラスを適用します：
+- `text-gray-700`: 文字色を中間のグレーに設定
+- `mb-4`: 下マージンを1rem（16px）設定
+
+```html
+<ul class="list-disc list-inside ml-5 mb-6 text-gray-700">
+```
+→ リストにクラスを適用します：
+- `list-disc`: リストマーカーを黒丸に設定
+- `list-inside`: リストマーカーをリストアイテムの内側に配置
+- `ml-5`: 左マージンを1.25rem（20px）設定
+- `mb-6`: 下マージンを1.5rem（24px）設定
+- `text-gray-700`: 文字色を中間のグレーに設定
+
+---
+
+#### ステップ5: リンクと画像をスタイリングする
+
+**何を考えているか**：
+- 「リンクに青色とホバー効果を付けよう」
+- 「画像に角丸と影を付けよう」
+
+```html
+<a href="https://example.com" class="text-blue-600 hover:text-blue-800 hover:underline">ポートフォリオ</a>
+
+<img src="landscape.jpg" alt="景色" class="w-full h-auto rounded-lg shadow-md">
+```
+
+**コードリーディング**：
+
+```html
+<a href="https://example.com" class="text-blue-600 hover:text-blue-800 hover:underline">
+```
+→ リンクにクラスを適用します：
+- `text-blue-600`: 文字色を青に設定
+- `hover:text-blue-800`: ホバー時に文字色を濃い青に変更
+- `hover:underline`: ホバー時に下線を表示
+
+```html
+<img src="landscape.jpg" alt="景色" class="w-full h-auto rounded-lg shadow-md">
+```
+→ 画像にクラスを適用します：
+- `w-full`: 幅を100%に設定（親要素いっぱい）
+- `h-auto`: 高さを自動調整（縦横比維持）
+- `rounded-lg`: 角を大きく丸める
+- `shadow-md`: 中程度の影を追加
+
+---
+
+#### ステップ6: レスポンシブ対応を追加する
+
+**何を考えているか**：
+- 「タブレット以上では見出しを大きくしよう」
+- 「スマホではパディングを小さくしよう」
+
+Tailwind CSSでは、`md:`や`lg:`などのプレフィックスを使ってレスポンシブ対応します：
+
+```html
+<h1 class="text-2xl md:text-3xl lg:text-4xl font-bold text-center text-blue-600 mb-8">自己紹介</h1>
+
+<div class="max-w-3xl mx-auto bg-white p-6 md:p-8 lg:p-10 rounded-lg shadow-lg">
+```
+
+**コードリーディング**：
+
+```html
+class="text-2xl md:text-3xl lg:text-4xl"
+```
+→ フォントサイズをデバイスごとに調整します：
+- `text-2xl`: デフォルト（スマホ）で24px
+- `md:text-3xl`: タブレット（768px以上）で30px
+- `lg:text-4xl`: デスクトップ（1024px以上）で36px
+
+```html
+class="p-6 md:p-8 lg:p-10"
+```
+→ パディングをデバイスごとに調整します：
+- `p-6`: デフォルト（スマホ）で24px
+- `md:p-8`: タブレットで32px
+- `lg:p-10`: デスクトップで40px
+
+---
+
+### ✨ 完成！
+
+これでTailwind CSSを使った自己紹介ページが完成しました！Tailwind CSSのユーティリティクラスを組み合わせることで、CSSファイルを書かずにスタイリングできることを実感できましたね。
+
+---
+
 ## ✅ 完成イメージ
 
 完成すると、以下のような見た目になります：

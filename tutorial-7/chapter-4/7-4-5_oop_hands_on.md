@@ -135,6 +135,324 @@ $account1->deposit(100000);
 
 ---
 
+## 🏃 実践: 一緒に作ってみましょう！
+
+ちゃんとできましたか？オブジェクト指向はデータと処理をまとめる強力な手法です。一緒に手を動かしながら、銀行口座管理システムを作っていきましょう。
+
+### 💭 実装の思考プロセス
+
+銀行口座管理システムを作る際、以下の順番で考えると効率的です：
+
+1. **クラスを設計する**：銀行口座に必要なデータ（プロパティ）と機能（メソッド）を考える
+2. **プロパティを定義**：口座番号、名義人、残高を変数として定義
+3. **コンストラクタを作る**：オブジェクト生成時に初期値を設定
+4. **メソッドを実装**：入金、出金、残高照会の機能を作る
+5. **オブジェクトを生成して使う**：クラスからオブジェクトを作成してメソッドを呼び出す
+
+オブジェクト指向のポイントは「データとそれを操作する機能を一つにまとめる」ことです。
+
+---
+
+### 📝 ステップバイステップで実装
+
+#### ステップ1: クラスを定義してプロパティを追加する
+
+**何を考えているか**：
+- 「`BankAccount`クラスを作ろう」
+- 「口座に必要なデータをプロパティとして定義しよう」
+- 「`private`で外部から直接アクセスできないようにしよう」
+
+まず、クラスを定義してプロパティを追加します：
+
+```php
+<?php
+class BankAccount {
+    private $account_number;
+    private $account_holder;
+    private $balance;
+}
+```
+
+**コードリーディング**：
+
+```php
+class BankAccount {
+```
+→ `class`キーワードでクラスを定義します。クラス名は大文字で始めるのが慣例です。
+
+```php
+    private $account_number;
+    private $account_holder;
+    private $balance;
+}
+```
+→ `private`でプロパティを定義します。`private`はクラス内部からしかアクセスできないことを意味します。これにより、データを保護します。
+
+---
+
+#### ステップ2: コンストラクタを作る
+
+**何を考えているか**：
+- 「オブジェクト生成時に口座番号と名義人を設定したい」
+- 「`__construct()`メソッドを使おう」
+- 「残高は0円で初期化しよう」
+
+次に、コンストラクタを追加します：
+
+```php
+class BankAccount {
+    private $account_number;
+    private $account_holder;
+    private $balance;
+    
+    public function __construct($account_number, $account_holder) {
+        $this->account_number = $account_number;
+        $this->account_holder = $account_holder;
+        $this->balance = 0;
+    }
+}
+```
+
+**コードリーディング**：
+
+```php
+    public function __construct($account_number, $account_holder) {
+```
+→ コンストラクタを定義します。`__construct()`はオブジェクト生成時に自動的に呼び出される特殊なメソッドです。`public`は外部からアクセス可能であることを意味します。
+
+```php
+        $this->account_number = $account_number;
+```
+→ `$this`は現在のオブジェクト自身を指します。`$this->account_number`でプロパティにアクセスし、引数で受け取った値を代入します。
+
+```php
+        $this->account_holder = $account_holder;
+        $this->balance = 0;
+    }
+```
+→ 同様に名義人を設定し、残高を0で初期化します。
+
+---
+
+#### ステップ3: 入金メソッドを作る
+
+**何を考えているか**：
+- 「入金額を受け取って残高に加算しよう」
+- 「負の値は入金できないようにチェックしよう」
+- 「成功メッセージを表示しよう」
+
+次に、入金メソッドを追加します：
+
+```php
+    public function deposit($amount) {
+        if ($amount > 0) {
+            $this->balance += $amount;
+            echo "入金: " . number_format($amount) . "円<br>";
+        } else {
+            echo "エラー: 正の金額を指定してください<br>";
+        }
+    }
+```
+
+**コードリーディング**：
+
+```php
+    public function deposit($amount) {
+```
+→ `public`メソッド`deposit`を定義します。引数として入金額を受け取ります。
+
+```php
+        if ($amount > 0) {
+```
+→ 入金額が正の値かどうかをチェックします。負の値やゼロは入金できません。
+
+```php
+            $this->balance += $amount;
+```
+→ 残高に入金額を加算します。`+=`は加算代入演算子です。
+
+```php
+            echo "入金: " . number_format($amount) . "円<br>";
+        } else {
+            echo "エラー: 正の金額を指定してください<br>";
+        }
+    }
+```
+→ 成功メッセージまたはエラーメッセージを表示します。
+
+---
+
+#### ステップ4: 出金メソッドを作る
+
+**何を考えているか**：
+- 「出金額を受け取って残高から減算しよう」
+- 「残高不足の場合はエラーを表示しよう」
+- 「負の値は出金できないようにチェックしよう」
+
+次に、出金メソッドを追加します：
+
+```php
+    public function withdraw($amount) {
+        if ($amount <= 0) {
+            echo "エラー: 正の金額を指定してください<br>";
+        } elseif ($amount > $this->balance) {
+            echo "出金失敗: 残高不足です（残高: " . number_format($this->balance) . "円、出金額: " . number_format($amount) . "円）<br>";
+        } else {
+            $this->balance -= $amount;
+            echo "出金: " . number_format($amount) . "円<br>";
+        }
+    }
+```
+
+**コードリーディング**：
+
+```php
+    public function withdraw($amount) {
+```
+→ 出金メソッド`withdraw`を定義します。
+
+```php
+        if ($amount <= 0) {
+            echo "エラー: 正の金額を指定してください<br>";
+        }
+```
+→ 出金額がゼロ以下の場合、エラーを表示します。
+
+```php
+        } elseif ($amount > $this->balance) {
+            echo "出金失敗: 残高不足です...<br>";
+        }
+```
+→ 出金額が残高より大きい場合、残高不足エラーを表示します。
+
+```php
+        } else {
+            $this->balance -= $amount;
+            echo "出金: " . number_format($amount) . "円<br>";
+        }
+    }
+```
+→ 条件を満たす場合、残高から出金額を減算して、成功メッセージを表示します。
+
+---
+
+#### ステップ5: 口座情報表示メソッドを作る
+
+**何を考えているか**：
+- 「口座番号、名義人、残高を表示しよう」
+- 「`private`プロパティにアクセスするためのメソッドを作ろう」
+
+最後に、口座情報表示メソッドを追加します：
+
+```php
+    public function displayInfo() {
+        echo "<h3>口座情報:</h3>";
+        echo "口座番号: {$this->account_number}<br>";
+        echo "名義人: {$this->account_holder}<br>";
+        echo "残高: " . number_format($this->balance) . "円<br><br>";
+    }
+    
+    public function getBalance() {
+        return $this->balance;
+    }
+}
+```
+
+**コードリーディング**：
+
+```php
+    public function displayInfo() {
+```
+→ 口座情報を表示するメソッドを定義します。
+
+```php
+        echo "口座番号: {$this->account_number}<br>";
+        echo "名義人: {$this->account_holder}<br>";
+        echo "残高: " . number_format($this->balance) . "円<br><br>";
+    }
+```
+→ `$this`でプロパティにアクセスして、口座情報を表示します。
+
+```php
+    public function getBalance() {
+        return $this->balance;
+    }
+}
+```
+→ 残高を取得するメソッドを定義します。`private`プロパティに外部からアクセスするために、このようなメソッド（ゲッター）を作成します。
+
+---
+
+#### ステップ6: オブジェクトを生成して使う
+
+**何を考えているか**：
+- 「`new`キーワードでオブジェクトを生成しよう」
+- 「メソッドを呼び出して入出金を実行しよう」
+- 「複数のオブジェクトを作成して、それぞれ独立して管理しよう」
+
+最後に、オブジェクトを生成して使用します：
+
+```php
+echo "<h2>銀行口座管理システム</h2>";
+
+// 田中太郎さんの口座
+echo "<h3>【田中太郎さんの口座】</h3>";
+$account1 = new BankAccount("1001", "田中太郎");
+$account1->deposit(100000);
+$account1->withdraw(30000);
+echo "現在の残高: " . number_format($account1->getBalance()) . "円<br><br>";
+$account1->displayInfo();
+
+// 佐藤花子さんの口座
+echo "<h3>【佐藤花子さんの口座】</h3>";
+$account2 = new BankAccount("1002", "佐藤花子");
+$account2->deposit(50000);
+$account2->withdraw(60000);
+echo "現在の残高: " . number_format($account2->getBalance()) . "円<br><br>";
+$account2->displayInfo();
+?>
+```
+
+**コードリーディング**：
+
+```php
+$account1 = new BankAccount("1001", "田中太郎");
+```
+→ `new`キーワードで`BankAccount`クラスのオブジェクトを生成します。コンストラクタに口座番号と名義人を渡します。
+
+```php
+$account1->deposit(100000);
+```
+→ `->` 演算子でオブジェクトのメソッドを呼び出します。`deposit`メソッドで100,000円を入金します。
+
+```php
+$account1->withdraw(30000);
+```
+→ 同様に`withdraw`メソッドで30,000円を出金します。
+
+```php
+echo "現在の残高: " . number_format($account1->getBalance()) . "円<br><br>";
+```
+→ `getBalance()`メソッドで残高を取得して表示します。
+
+```php
+$account1->displayInfo();
+```
+→ `displayInfo()`メソッドで口座情報を表示します。
+
+```php
+$account2 = new BankAccount("1002", "佐藤花子");
+```
+→ 2番目のオブジェクトを生成します。`$account1`と`$account2`はそれぞれ独立したオブジェクトで、別々のデータを持ちます。
+
+---
+
+### ✨ 完成！
+
+これで銀行口座管理システムが完成しました！クラス、プロパティ、メソッド、コンストラクタ、オブジェクトの生成と使用を実践できましたね。
+
+---
+
 ## ✅ 完成イメージ
 
 完成すると、以下のような表示になります：

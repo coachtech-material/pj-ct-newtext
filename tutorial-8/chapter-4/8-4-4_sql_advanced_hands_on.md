@@ -117,6 +117,219 @@ WHERE (price * quantity) > (
 
 ---
 
+## 🏃 実践: 一緒に作ってみましょう！
+
+ちゃんとできましたか？SQL応用操作はデータ分析の強力なツールです。一緒に手を動かしながら、売上分析システムを構築していきましょう。
+
+### 💭 実装の思考プロセス
+
+売上分析システムを構築する際、以下の順番で考えると効率的です：
+
+1. **テーブルを作成してデータを準備**：分析対象のデータを用意
+2. **集計関数で合計を計算**：SUMで売上合計を取得
+3. **GROUP BYでカテゴリ別に集計**：カテゴリごとの売上を分析
+4. **ORDER BYで並び替え**：売上が高い順に表示
+5. **サブクエリで複雑な条件を指定**：平均以上の売上を抽出
+
+SQL応用操作のポイントは「集計関数とGROUP BYを組み合わせて、多角的にデータを分析する」ことです。
+
+---
+
+### 📝 ステップバイステップで実装
+
+#### ステップ1: テーブルを作成してデータを挿入する
+
+**何を考えているか**：
+- 「売上データを管理するテーブルを作ろう」
+- 「商品名、カテゴリ、価格、数量、売上日を管理しよう」
+- 「テストデータを複数件挿入しよう」
+
+まず、salesテーブルを作成してデータを挿入します：
+
+```sql
+CREATE TABLE sales (
+    sale_id INT PRIMARY KEY AUTO_INCREMENT,
+    product_name VARCHAR(100) NOT NULL,
+    category VARCHAR(50) NOT NULL,
+    price INT NOT NULL,
+    quantity INT NOT NULL,
+    sale_date DATE NOT NULL
+);
+
+INSERT INTO sales (product_name, category, price, quantity, sale_date) VALUES
+('ノートPC', '電子機器', 120000, 2, '2024-12-01'),
+('マウス', '電子機器', 2000, 5, '2024-12-02'),
+('キーボード', '電子機器', 5000, 3, '2024-12-03'),
+('モニター', '電子機器', 30000, 5, '2024-12-04'),
+('デスク', '家具', 50000, 2, '2024-12-05'),
+('チェア', '家具', 30000, 3, '2024-12-06');
+```
+
+**コードリーディング**：
+
+```sql
+CREATE TABLE sales (
+    sale_id INT PRIMARY KEY AUTO_INCREMENT,
+```
+→ salesテーブルを作成し、sale_idを主キーとして自動採番します。
+
+```sql
+    product_name VARCHAR(100) NOT NULL,
+    category VARCHAR(50) NOT NULL,
+    price INT NOT NULL,
+    quantity INT NOT NULL,
+    sale_date DATE NOT NULL
+);
+```
+→ 商品名、カテゴリ、価格、数量、売上日を定義します。すべて必須項目とします。
+
+```sql
+INSERT INTO sales (product_name, category, price, quantity, sale_date) VALUES
+('ノートPC', '電子機器', 120000, 2, '2024-12-01'),
+...
+```
+→ テストデータを複数件挿入します。カンマで区切って一度に複数行を挿入できます。
+
+---
+
+#### ステップ2: 売上合計金額を計算する
+
+**何を考えているか**：
+- 「全売上の合計金額を知りたい」
+- 「価格×数量を計算して、SUMで合計しよう」
+- 「SUM関数を使うと簡単に集計できる」
+
+売上合計金額を計算します：
+
+```sql
+SELECT SUM(price * quantity) AS total_sales FROM sales;
+```
+
+**コードリーディング**：
+
+```sql
+SELECT SUM(price * quantity) AS total_sales FROM sales;
+```
+→ `SUM`関数で合計金額を計算します。`price * quantity`で各売上の金額を計算し、`SUM`で全体を合計します。`AS total_sales`で別名を付けて、結果をわかりやすくします。
+
+---
+
+#### ステップ3: カテゴリ別の売上合計を計算する
+
+**何を考えているか**：
+- 「カテゴリごとの売上を知りたい」
+- 「GROUP BYでカテゴリごとにグループ化しよう」
+- 「売上が高い順に並べ替えよう」
+
+カテゴリ別の売上合計を計算します：
+
+```sql
+SELECT 
+    category,
+    SUM(price * quantity) AS total
+FROM sales
+GROUP BY category
+ORDER BY total DESC;
+```
+
+**コードリーディング**：
+
+```sql
+SELECT 
+    category,
+    SUM(price * quantity) AS total
+```
+→ カテゴリと合計金額を取得します。
+
+```sql
+FROM sales
+GROUP BY category
+```
+→ `GROUP BY category`でカテゴリごとにグループ化します。集計関数を使用する場合、`GROUP BY`が必要です。
+
+```sql
+ORDER BY total DESC;
+```
+→ `ORDER BY total DESC`で合計金額の降順（高い順）に並べ替えます。`DESC`は降順、`ASC`は昇順を意味します。
+
+---
+
+#### ステップ4: 最も売上が高い商品を取得する
+
+**何を考えているか**：
+- 「商品ごとの売上を集計しよう」
+- 「売上が高い順に並べて、上位1件だけ取得しよう」
+- 「LIMIT 1で上位1件に絞り込もう」
+
+最も売上が高い商品を取得します：
+
+```sql
+SELECT 
+    product_name,
+    SUM(price * quantity) AS total
+FROM sales
+GROUP BY product_name
+ORDER BY total DESC
+LIMIT 1;
+```
+
+**コードリーディング**：
+
+```sql
+GROUP BY product_name
+```
+→ 商品ごとにグループ化します。
+
+```sql
+ORDER BY total DESC
+```
+→ 合計金額の降順に並べ替えます。
+
+```sql
+LIMIT 1;
+```
+→ `LIMIT 1`で上位1件のみを取得します。これにより、最も売上が高い商品だけを取得できます。
+
+---
+
+#### ステップ5: 平均以上の売上を持つ商品を取得する
+
+**何を考えているか**：
+- 「平均売上を計算して、それ以上の商品を抽出したい」
+- 「サブクエリで平均値を計算しよう」
+- 「HAVING句で集計結果に条件を付けよう」
+
+平均以上の売上を持つ商品を取得します：
+
+```sql
+SELECT 
+    product_name,
+    SUM(price * quantity) AS total
+FROM sales
+GROUP BY product_name
+HAVING total >= (SELECT AVG(price * quantity) FROM sales);
+```
+
+**コードリーディング**：
+
+```sql
+HAVING total >= (SELECT AVG(price * quantity) FROM sales);
+```
+→ `HAVING`句で集計結果に条件を付けます。`WHERE`句は集計前のデータに条件を付けますが、`HAVING`句は集計後の結果に条件を付けます。
+
+```sql
+(SELECT AVG(price * quantity) FROM sales)
+```
+→ サブクエリで平均売上を計算します。`AVG`関数で平均値を取得し、それをHAVING句の条件として使用します。
+
+---
+
+### ✨ 完成！
+
+これで売上分析システムが完成しました！集計関数、GROUP BY、ORDER BY、LIMIT、HAVING、サブクエリを実践できましたね。
+
+---
+
 ## ✅ 完成イメージ
 
 ### クエリ1: 売上合計金額

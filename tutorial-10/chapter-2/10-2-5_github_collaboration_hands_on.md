@@ -32,9 +32,67 @@ git push origin feature/issue-1-add-contact-form
 
 ---
 
+## 🏃 実践: 一緒に作ってみましょう！
+
+ちゃんとできましたか？GitHubコラボレーションはチーム開発の基本です。一緒に手を動かしながら、IssueからPull Requestまでのワークフローを実践していきましょう。
+
+### 💭 実装の思考プロセス
+
+GitHubコラボレーションを進める際、以下の順番で考えると効率的です。Issueでタスクを管理し、Pull Requestでレビューを受けることが重要です。
+
+---
+
+### 📝 ステップバイステップで実装
+
+#### ステップ1: GitHubでIssueを作成する
+
+タスクを管理するためにGitHubでIssueを作成します。要件を明確に記載し、チームで共有します。
+
+---
+
+#### ステップ2: Issueに対応するブランチを作成する
+
+Issue番号をブランチ名に含めることで、どのIssueに対応しているかがわかりやすくなります。
+
+```bash
+git checkout -b feature/issue-1-add-contact-form
+```
+
+---
+
+#### ステップ3: 機能を実装する
+
+Issueの要件に従って機能を実装します。お問い合わせフォームを作成します。
+
+---
+
+#### ステップ4: コミット・プッシュする
+
+コミットメッセージに`Fix #1`を含めることで、マージ時に自動的にIssueがクローズされます。
+
+```bash
+git add contact.html
+git commit -m "Fix #1: Add contact form"
+git push origin feature/issue-1-add-contact-form
+```
+
+---
+
+#### ステップ5: Pull Requestを作成する
+
+GitHubでPull Requestを作成し、レビューを依頼します。変更内容を明確に説明します。
+
+---
+
+### ✨ 完成！
+
+これでGitHubコラボレーションが実践できました！IssueからPull Requestまでのワークフローを理解できましたね。
+
+---
+
 ## 📖 模範解答
 
-### 手順1: GitHubでIssue作成
+### 手順１: GitHubでIssue作成
 
 **タイトル**: お問い合わせフォームの追加
 

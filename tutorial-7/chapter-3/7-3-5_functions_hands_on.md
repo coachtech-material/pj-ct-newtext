@@ -120,6 +120,235 @@ $category = getBMICategory($bmi);
 
 ---
 
+## 🏃 実践: 一緒に作ってみましょう！
+
+ちゃんとできましたか？関数はコードを再利用可能にする強力な機能です。一緒に手を動かしながら、BMI計算プログラムを作っていきましょう。
+
+### 💭 実装の思考プロセス
+
+BMI計算プログラムを作る際、以下の順番で考えると効率的です：
+
+1. **BMI計算関数を作る**：体重と身長からBMIを計算
+2. **判定関数を作る**：BMI値から体型を判定
+3. **表示関数を作る**：結果を見やすく表示
+4. **ユーザーデータを定義**：複数人のデータを配列で管理
+5. **関数を組み合わせて実行**：各関数を呼び出して結果を表示
+
+関数のポイントは「1つの関数に1つの役割」を持たせることです。
+
+---
+
+### 📝 ステップバイステップで実装
+
+#### ステップ1: BMI計算関数を作る
+
+**何を考えているか**：
+- 「BMIの計算式は：体重(kg) ÷ (身長(m) × 身長(m))」
+- 「小数点第1位まで表示したい」
+- 「`round()`関数で四捨五入しよう」
+
+まず、BMIを計算する関数を作成します：
+
+```php
+<?php
+// BMI計算関数
+function calculateBMI($weight, $height) {
+    $bmi = $weight / ($height * $height);
+    return round($bmi, 1);
+}
+```
+
+**コードリーディング**：
+
+```php
+function calculateBMI($weight, $height) {
+```
+→ 関数`calculateBMI`を定義します。引数として`$weight`（体重）と`$height`（身長）を受け取ります。
+
+```php
+    $bmi = $weight / ($height * $height);
+```
+→ BMIを計算します。身長を二乗するために`$height * $height`とし、体重をそれで割ります。括弧で囲むことで、先に二乗の計算が行われます。
+
+```php
+    return round($bmi, 1);
+}
+```
+→ `round()`関数でBMI値を小数点第1位まで四捨五入して返します。第2引数の`1`が小数点以下の桁数を指定します。
+
+---
+
+#### ステップ2: BMI判定関数を作る
+
+**何を考えているか**：
+- 「BMI値に応じて体型を判定しよう」
+- 「if文で範囲をチェックしよう」
+- 「低い値から順番に判定するとわかりやすい」
+
+次に、BMI値から体型を判定する関数を作成します：
+
+```php
+// BMI判定関数
+function judgeBMI($bmi) {
+    if ($bmi < 18.5) {
+        return "低体重（痩せ型）";
+    } elseif ($bmi < 25) {
+        return "普通体重";
+    } elseif ($bmi < 30) {
+        return "肥満（1度）";
+    } elseif ($bmi < 35) {
+        return "肥満（2度）";
+    } else {
+        return "肥満（3度）";
+    }
+}
+```
+
+**コードリーディング**：
+
+```php
+function judgeBMI($bmi) {
+```
+→ 関数`judgeBMI`を定義します。引数としてBMI値を受け取ります。
+
+```php
+    if ($bmi < 18.5) {
+        return "低体重（痩せ型）";
+    }
+```
+→ BMIが18.5未満の場合、「低体重（痩せ型）」を返します。`<`は「未満」を意味します。
+
+```php
+    } elseif ($bmi < 25) {
+        return "普通体重";
+    }
+```
+→ BMIが18.5以上25未満の場合、「普通体重」を返します。前の条件ではじかれているので、18.5以上であることが保証されています。
+
+```php
+    } else {
+        return "肥満（3度）";
+    }
+}
+```
+→ どの条件にも当てはまらない場合（BMI 35以上）、「肥満（3度）」を返します。
+
+---
+
+#### ステップ3: 結果表示関数を作る
+
+**何を考えているか**：
+- 「複数の情報を受け取って見やすく表示しよう」
+- 「身長はcmに変換して表示しよう」
+- 「HTMLタグを使って整形しよう」
+
+次に、結果を表示する関数を作成します：
+
+```php
+// 結果表示関数
+function displayResult($name, $height, $weight, $bmi, $judgment) {
+    $height_cm = $height * 100;
+    echo "<h3>{$name}さんのBMI結果</h3>";
+    echo "身長: {$height_cm}cm<br>";
+    echo "体重: {$weight}kg<br>";
+    echo "BMI: {$bmi}<br>";
+    echo "判定: <strong>{$judgment}</strong><br><br>";
+}
+```
+
+**コードリーディング**：
+
+```php
+function displayResult($name, $height, $weight, $bmi, $judgment) {
+```
+→ 関数`displayResult`を定義します。5つの引数を受け取ります。
+
+```php
+    $height_cm = $height * 100;
+```
+→ 身長をm単位からcm単位に変換します。`1.75 * 100 = 175`という計算です。
+
+```php
+    echo "<h3>{$name}さんのBMI結果</h3>";
+```
+→ 名前を含む見出しを表示します。`<h3>`タグで見出しを作成します。
+
+```php
+    echo "判定: <strong>{$judgment}</strong><br><br>";
+}
+```
+→ 判定結果を`<strong>`タグで太字にして表示します。`<br><br>`で空行を入れます。
+
+---
+
+#### ステップ4: ユーザーデータを定義して関数を実行する
+
+**何を考えているか**：
+- 「複数人のデータを配列で管理しよう」
+- 「foreachでループして全員分を処理しよう」
+- 「作成した3つの関数を組み合わせよう」
+
+最後に、ユーザーデータを定義して、関数を実行します：
+
+```php
+// ユーザーデータの定義
+$users = [
+    ["name" => "田中太郎", "height" => 1.75, "weight" => 70],
+    ["name" => "佐藤花子", "height" => 1.60, "weight" => 52],
+    ["name" => "鈴木一郎", "height" => 1.70, "weight" => 85],
+    ["name" => "高橋美咲", "height" => 1.58, "weight" => 48],
+];
+
+echo "<h2>BMI計算システム</h2>";
+
+// 各ユーザーのBMIを計算して表示
+foreach ($users as $user) {
+    $bmi = calculateBMI($user["weight"], $user["height"]);
+    $judgment = judgeBMI($bmi);
+    displayResult($user["name"], $user["height"], $user["weight"], $bmi, $judgment);
+}
+?>
+```
+
+**コードリーディング**：
+
+```php
+$users = [
+    ["name" => "田中太郎", "height" => 1.75, "weight" => 70],
+    ...
+];
+```
+→ ユーザーデータを配列の配列で定義します。身長はm単位で格納します。
+
+```php
+foreach ($users as $user) {
+```
+→ 各ユーザーのデータを順番に処理します。
+
+```php
+    $bmi = calculateBMI($user["weight"], $user["height"]);
+```
+→ `calculateBMI`関数を呼び出してBMIを計算します。体重と身長を引数として渡します。
+
+```php
+    $judgment = judgeBMI($bmi);
+```
+→ `judgeBMI`関数を呼び出して体型を判定します。
+
+```php
+    displayResult($user["name"], $user["height"], $user["weight"], $bmi, $judgment);
+}
+```
+→ `displayResult`関数を呼び出して結果を表示します。必要な情報をすべて引数として渡します。
+
+---
+
+### ✨ 完成！
+
+これでBMI計算プログラムが完成しました！関数の定義、引数、戻り値、関数の組み合わせを実践できましたね。
+
+---
+
 ## ✅ 完成イメージ
 
 完成すると、以下のような表示になります：

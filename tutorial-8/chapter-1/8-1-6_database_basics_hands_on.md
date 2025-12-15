@@ -107,6 +107,248 @@ loans.member_id → members.member_id
 
 ---
 
+## 🏃 実践: 一緒に作ってみましょう！
+
+ちゃんとできましたか？データベース設計はシステム開発の土台となる重要な工程です。一緒に手を動かしながら、図書館管理システムのデータベースを設計していきましょう。
+
+### 💭 実装の思考プロセス
+
+図書館管理システムのデータベースを設計する際、以下の順番で考えると効率的です：
+
+1. **管理する対象を特定**：書籍、会員、貸出の3つのエンティティ
+2. **各エンティティの属性を洗い出す**：各テーブルに必要なカラムを考える
+3. **主キーを決める**：各レコードを一意に識別するIDを設定
+4. **リレーションを考える**：テーブル間の関係を1対多、多対多などで表現
+5. **外部キーを設定**：リレーションを実現するための外部キーを追加
+
+データベース設計のポイントは「データの重複を避け、整合性を保つ」ことです。
+
+---
+
+### 📝 ステップバイステップで実装
+
+#### ステップ1: booksテーブルを設計する
+
+**何を考えているか**：
+- 「書籍にはどんな情報が必要？」
+- 「タイトル、著者、出版社、出版年、ISBNを管理しよう」
+- 「主キーはbook_idで、AUTO_INCREMENTで自動採番しよう」
+
+まず、booksテーブルを設計します：
+
+```sql
+CREATE TABLE books (
+    book_id INT PRIMARY KEY AUTO_INCREMENT,
+    title VARCHAR(200) NOT NULL,
+    author VARCHAR(100) NOT NULL,
+    publisher VARCHAR(100),
+    published_year INT,
+    isbn VARCHAR(20) UNIQUE
+);
+```
+
+**コードリーディング**：
+
+```sql
+CREATE TABLE books (
+```
+→ `CREATE TABLE`文でbooksテーブルを作成します。
+
+```sql
+    book_id INT PRIMARY KEY AUTO_INCREMENT,
+```
+→ `book_id`カラムを主キーとして定義します。`INT`は整数型、`PRIMARY KEY`は主キー、`AUTO_INCREMENT`は自動採番を意味します。これにより、1, 2, 3...と自動で番号が振られます。
+
+```sql
+    title VARCHAR(200) NOT NULL,
+```
+→ `title`カラムを定義します。`VARCHAR(200)`は最大200文字の可変長文字列、`NOT NULL`はNULL値を許可しない制約です。タイトルは必須項目なので`NOT NULL`を設定します。
+
+```sql
+    author VARCHAR(100) NOT NULL,
+    publisher VARCHAR(100),
+    published_year INT,
+```
+→ 著者、出版社、出版年を定義します。著者は必須、出版社と出版年は任意項目とします。
+
+```sql
+    isbn VARCHAR(20) UNIQUE
+);
+```
+→ ISBNカラムを定義します。`UNIQUE`制約により、同じISBNが重複して登録されることを防ぎます。
+
+---
+
+#### ステップ2: membersテーブルを設計する
+
+**何を考えているか**：
+- 「会員にはどんな情報が必要？」
+- 「名前、メール、電話番号、入会日を管理しよう」
+- 「メールは重複不可にしよう」
+
+次に、membersテーブルを設計します：
+
+```sql
+CREATE TABLE members (
+    member_id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(100) NOT NULL,
+    email VARCHAR(150) UNIQUE NOT NULL,
+    phone VARCHAR(20),
+    joined_date DATE NOT NULL
+);
+```
+
+**コードリーディング**：
+
+```sql
+CREATE TABLE members (
+```
+→ membersテーブルを作成します。
+
+```sql
+    member_id INT PRIMARY KEY AUTO_INCREMENT,
+```
+→ 会員IDを主キーとして定義し、自動採番します。
+
+```sql
+    name VARCHAR(100) NOT NULL,
+```
+→ 会員名を必須項目として定義します。
+
+```sql
+    email VARCHAR(150) UNIQUE NOT NULL,
+```
+→ メールアドレスを定義します。`UNIQUE`で重複不可、`NOT NULL`で必須項目とします。メールアドレスはログインIDとして使用することが多いため、重複不可にします。
+
+```sql
+    phone VARCHAR(20),
+    joined_date DATE NOT NULL
+);
+```
+→ 電話番号は任意項目、入会日は必須項目とします。`DATE`型は日付を格納するデータ型です。
+
+---
+
+#### ステップ3: loansテーブルを設計する
+
+**何を考えているか**：
+- 「貸出は書籍と会員を結びつける中間テーブル」
+- 「外部キーでbooksとmembersを参照しよう」
+- 「貸出日、返却日、返却期限を管理しよう」
+
+最後に、loansテーブルを設計します：
+
+```sql
+CREATE TABLE loans (
+    loan_id INT PRIMARY KEY AUTO_INCREMENT,
+    book_id INT NOT NULL,
+    member_id INT NOT NULL,
+    loan_date DATE NOT NULL,
+    return_date DATE,
+    due_date DATE NOT NULL,
+    FOREIGN KEY (book_id) REFERENCES books(book_id),
+    FOREIGN KEY (member_id) REFERENCES members(member_id)
+);
+```
+
+**コードリーディング**：
+
+```sql
+CREATE TABLE loans (
+```
+→ loansテーブルを作成します。
+
+```sql
+    loan_id INT PRIMARY KEY AUTO_INCREMENT,
+```
+→ 貸出IDを主キーとして定義し、自動採番します。
+
+```sql
+    book_id INT NOT NULL,
+    member_id INT NOT NULL,
+```
+→ 書籍IDと会員IDを定義します。これらは外部キーとして使用されます。`NOT NULL`で必須項目とします。
+
+```sql
+    loan_date DATE NOT NULL,
+    return_date DATE,
+    due_date DATE NOT NULL,
+```
+→ 貸出日、返却日、返却期限を定義します。`return_date`は返却前はNULLなので、`NOT NULL`制約を付けません。
+
+```sql
+    FOREIGN KEY (book_id) REFERENCES books(book_id),
+```
+→ `book_id`を外部キーとして定義し、booksテーブルの`book_id`を参照します。これにより、存在しない書籍IDを登録することを防ぎます。
+
+```sql
+    FOREIGN KEY (member_id) REFERENCES members(member_id)
+);
+```
+→ `member_id`を外部キーとして定義し、membersテーブルの`member_id`を参照します。
+
+---
+
+#### ステップ4: サンプルデータを挿入する
+
+**何を考えているか**：
+- 「テーブルを作成したら、テストデータを入れて確認しよう」
+- 「外部キーの制約が機能するか確認しよう」
+- 「親テーブル（books, members）から先にデータを入れよう」
+
+サンプルデータを挿入します：
+
+```sql
+-- booksテーブルにデータ挿入
+INSERT INTO books (title, author, publisher, published_year, isbn) VALUES
+('PHPの教科書', '山田太郎', '技術評論社', 2023, '978-4-1234-5678-9'),
+('Laravelマスター', '佐藤花子', '翔泳社', 2024, '978-4-2345-6789-0'),
+('データベース入門', '鈴木一郎', 'オライリー', 2022, '978-4-3456-7890-1');
+
+-- membersテーブルにデータ挿入
+INSERT INTO members (name, email, phone, joined_date) VALUES
+('田中太郎', 'tanaka@example.com', '090-1234-5678', '2024-01-15'),
+('高橋美咲', 'takahashi@example.com', '080-2345-6789', '2024-02-20'),
+('伊藤健太', 'ito@example.com', '070-3456-7890', '2024-03-10');
+
+-- loansテーブルにデータ挿入
+INSERT INTO loans (book_id, member_id, loan_date, return_date, due_date) VALUES
+(1, 1, '2024-12-01', '2024-12-08', '2024-12-15'),
+(2, 2, '2024-12-05', NULL, '2024-12-19'),
+(3, 1, '2024-12-10', NULL, '2024-12-24');
+```
+
+**コードリーディング**：
+
+```sql
+INSERT INTO books (title, author, publisher, published_year, isbn) VALUES
+```
+→ `INSERT INTO`文でbooksテーブルにデータを挿入します。カラム名を指定して、`VALUES`以降に値を指定します。
+
+```sql
+('PHPの教科書', '山田太郎', '技術評論社', 2023, '978-4-1234-5678-9'),
+```
+→ 1行目のデータを挿入します。カンマで区切って複数行を一度に挿入できます。
+
+```sql
+INSERT INTO loans (book_id, member_id, loan_date, return_date, due_date) VALUES
+(1, 1, '2024-12-01', '2024-12-08', '2024-12-15'),
+```
+→ loansテーブルにデータを挿入します。`book_id`と1、`member_id`と1を指定することで、外部キー制約により、存在する書籍と会員を参照します。
+
+```sql
+(2, 2, '2024-12-05', NULL, '2024-12-19'),
+```
+→ `return_date`に`NULL`を指定することで、まだ返却されていない貸出を表現します。
+
+---
+
+### ✨ 完成！
+
+これで図書館管理システムのデータベース設計が完成しました！テーブル設計、主キー、外部キー、リレーションの設定を実践できましたね。
+
+---
+
 ## ✅ 完成イメージ
 
 ### ER図
