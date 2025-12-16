@@ -1,4 +1,4 @@
-# 9-7-1 Laravel Fortifyとは
+# Tutorial 9-7-1: Laravel Fortifyとは
 
 ## 🎯 このセクションで学ぶこと
 

@@ -1,4 +1,4 @@
-# Tutorial 9-5-5: 多対多のリレーションシップ（belongsToMany）
+# Tutorial 9-5-2: 多対多のリレーションシップ（belongsToMany）
 
 ## 🎯 このセクションで学ぶこと
 

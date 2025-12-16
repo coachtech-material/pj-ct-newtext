@@ -1,4 +1,4 @@
-# 9-7-2 Fortifyで認証機能を実装する
+# Tutorial 9-7-2: Fortifyで認証機能を実装する
 
 ## 🎯 このセクションで学ぶこと
 
@@ -160,7 +160,7 @@ class FortifyServiceProvider extends ServiceProvider
 }
 ```
 
-**コード解説**：
+**コードリーディング**：
 
 *   `Fortify::loginView()`：ログインフォームのビューを指定
 *   `Fortify::registerView()`：ユーザー登録フォームのビューを指定
@@ -207,7 +207,7 @@ class CreateNewUser implements CreatesNewUsers
 }
 ```
 
-**コード解説**：
+**コードリーディング**：
 
 1. **バリデーション**：名前、メールアドレス、パスワードをバリデーション
 2. **パスワードのハッシュ化**：`Hash::make()`でパスワードを暗号化
@@ -281,7 +281,7 @@ Route::middleware('auth')->group(function () {
 });
 ```
 
-**コード解説**：
+**コードリーディング**：
 
 *   `middleware('auth')`：このルートにアクセスするには、ログインが必要
 *   ログインしていない場合、自動的に`/login`にリダイレクト

@@ -1,4 +1,4 @@
-# Tutorial 9-5-6: Eager Loadingとレイジーローディング
+# Tutorial 9-5-3: Eager Loadingとレイジーローディング
 
 ## 🎯 このセクションで学ぶこと
 

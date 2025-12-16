@@ -1,4 +1,4 @@
-# 9-12-1 CSRF保護
+# Tutorial 9-12-1: CSRF保護
 
 ## 🎯 このセクションで学ぶこと
 
@@ -92,7 +92,7 @@ Laravelでは、フォームに`@csrf`ディレクティブを追加するだけ
 </form>
 ```
 
-**コード解説**：
+**コードリーディング**：
 
 *   `@csrf`：CSRFトークンを含む隠しフィールドを自動生成
 *   `<input type="hidden" name="_token" value="...">`：Laravelが自動的に検証するトークン
@@ -127,7 +127,7 @@ protected $middlewareGroups = [
 ];
 ```
 
-**コード解説**：
+**コードリーディング**：
 
 *   `VerifyCsrfToken`ミドルウェアが、すべてのPOST/PUT/PATCH/DELETEリクエストでCSRFトークンを検証します
 *   GETリクエストは検証されません（GETは「読み取り専用」であるべきため）
@@ -195,7 +195,7 @@ axios.post('/posts', {
 });
 ```
 
-**コード解説**：
+**コードリーディング**：
 
 *   `X-CSRF-TOKEN`ヘッダーにトークンを含めることで、Laravelが自動的に検証します
 
@@ -214,7 +214,7 @@ axios.post('/posts', {
 </form>
 ```
 
-**コード解説**：
+**コードリーディング**：
 
 *   `@csrf`：CSRF保護
 *   `@method('DELETE')`：HTMLフォームはGETとPOSTしかサポートしないため、DELETEメソッドを指定

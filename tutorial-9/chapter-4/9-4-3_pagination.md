@@ -1,4 +1,4 @@
-# 9-4-4 ページネーションの実装
+# Tutorial 9-4-3: ページネーションの実装
 
 ## 🎯 このセクションで学ぶこと
 
@@ -68,7 +68,7 @@ class PostController extends Controller
 }
 ```
 
-**コード解説**：
+**コードリーディング**：
 
 *   `Post::paginate(15)`：1ページに15件ずつ表示するページネーションを生成
 *   Laravelが自動的に、現在のページ番号（`?page=2`など）を取得し、適切なデータを取得します
@@ -102,7 +102,7 @@ class PostController extends Controller
 </html>
 ```
 
-**コード解説**：
+**コードリーディング**：
 
 *   `{{ $posts->links() }}`：ページネーションリンクを自動生成
 *   Laravelが、現在のページ、前後のページ、最初・最後のページへのリンクを生成します
@@ -254,7 +254,7 @@ $posts->hasMorePages(); // 次のページがあるか
 ?keyword=Laravel&page=2
 ```
 
-**コード解説**：
+**コードリーディング**：
 
 *   `appends(['keyword' => request('keyword')])`：URLクエリパラメータを追加
 *   ページネーションリンクをクリックしても、検索条件が保持されます
@@ -345,7 +345,7 @@ class PostController extends Controller
 </html>
 ```
 
-**コード解説**：
+**コードリーディング**：
 
 *   `request()->query()`：現在のURLクエリパラメータを全て取得
 *   `appends(request()->query())`：検索条件を保持したままページネーション

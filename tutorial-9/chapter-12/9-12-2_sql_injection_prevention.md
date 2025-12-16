@@ -1,4 +1,4 @@
-# 9-12-2 SQLインジェクション対策
+# Tutorial 9-12-2: SQLインジェクション対策
 
 ## 🎯 このセクションで学ぶこと
 
@@ -254,7 +254,7 @@ class PostController extends Controller
 }
 ```
 
-**コード解説**：
+**コードリーディング**：
 
 *   `where('title', 'like', '%' . $keyword . '%')`：Eloquentが自動的にエスケープ
 *   `in_array($sort, $allowedSorts)`：ホワイトリストで検証
@@ -274,7 +274,7 @@ $request->validate([
 ]);
 ```
 
-**コード解説**：
+**コードリーディング**：
 
 *   `in:title,created_at,views`：許可された値のみを受け付ける
 

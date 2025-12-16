@@ -1,4 +1,4 @@
-# 9-12-5 パスワードのハッシュ化
+# Tutorial 9-12-5: パスワードのハッシュ化
 
 ## 🎯 このセクションで学ぶこと
 
@@ -102,7 +102,7 @@ $hashedPassword = Hash::make('password123');
 $2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi
 ```
 
-**コード解説**：
+**コードリーディング**：
 
 *   `Hash::make()`：パスワードをハッシュ化
 *   `$2y$`：bcryptアルゴリズムを使用
@@ -120,7 +120,7 @@ if (Hash::check('password123', $hashedPassword)) {
 }
 ```
 
-**コード解説**：
+**コードリーディング**：
 
 *   `Hash::check()`：平文のパスワードとハッシュ値を比較
 *   ハッシュ値から元のパスワードを復元するのではなく、入力されたパスワードをハッシュ化して比較します
@@ -237,7 +237,7 @@ class RegisterController extends Controller
 }
 ```
 
-**コード解説**：
+**コードリーディング**：
 
 *   `Hash::make($request->password)`：パスワードをハッシュ化
 *   `confirmed`：`password_confirmation`フィールドと一致するか検証
@@ -281,7 +281,7 @@ class User extends Authenticatable
 }
 ```
 
-**コード解説**：
+**コードリーディング**：
 
 *   `Attribute::make(set: ...)`：セット時に自動的にハッシュ化
 *   これにより、`User::create(['password' => 'password123'])`と書くだけで、自動的にハッシュ化されます
@@ -325,7 +325,7 @@ $request->validate([
 ]);
 ```
 
-**コード解説**：
+**コードリーディング**：
 
 *   `Password::min(8)`：最低8文字
 *   `letters()`：文字を含む
@@ -362,7 +362,7 @@ public function changePassword(Request $request)
 }
 ```
 
-**コード解説**：
+**コードリーディング**：
 
 *   `Hash::check()`：現在のパスワードを検証
 *   `Hash::make()`：新しいパスワードをハッシュ化

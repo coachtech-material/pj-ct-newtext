@@ -1,4 +1,4 @@
-# 9-8-3 HTTPライフサイクルの詳細解説
+# Tutorial 9-8-3: HTTPライフサイクルの詳細解説
 
 ## 🎯 このセクションで学ぶこと
 
@@ -78,7 +78,7 @@ $response->send();
 $kernel->terminate($request, $response);
 ```
 
-**コード解説**：
+**コードリーディング**：
 
 1. **Composerのオートローダー**：クラスの自動読み込み機能を有効化します。これにより、`use`文でクラスをインポートするだけで使えるようになります。
 2. **アプリケーションのブートストラップ**：Laravelの初期化処理を実行します。サービスプロバイダーの登録、設定ファイルの読み込みなどが行われます。
@@ -152,7 +152,7 @@ class Kernel extends HttpKernel
 }
 ```
 
-**コード解説**：
+**コードリーディング**：
 
 *   **$middleware**：すべてのリクエストに適用されるミドルウェア。CORS対応、メンテナンスモードチェック、文字列のトリミングなどが含まれます。
 *   **$middlewareGroups**：`web`や`api`などのグループごとのミドルウェア。`web`グループにはセッション管理やCSRF保護が含まれます。
@@ -210,7 +210,7 @@ Route::get('/posts', [PostController::class, 'index']);
 Route::get('/posts/{id}', [PostController::class, 'show']);
 ```
 
-**コード解説**：
+**コードリーディング**：
 
 *   `GET /posts`：`PostController`の`index`メソッドを呼び出す
 *   `GET /posts/{id}`：`PostController`の`show`メソッドを呼び出す
@@ -280,7 +280,7 @@ class PostController extends Controller
 }
 ```
 
-**コード解説**：
+**コードリーディング**：
 
 1. **データベースからデータを取得**：`Post::all()`で全ての投稿を取得、`Post::findOrFail($id)`でIDに対応する投稿を取得
 2. **ビューを返す**：`view('posts.index', ['posts' => $posts])`でBladeテンプレートにデータを渡す
