@@ -2,10 +2,10 @@
 
 ## 🎯 このセクションで学ぶこと
 
-*   レート制限の設定方法を学ぶ。
-*   HTTPSの重要性を理解する。
-*   APIキー管理のベストプラクティスを学ぶ。
-*   その他のセキュリティ対策を理解する。
+- レート制限の設定方法を学ぶ
+- HTTPSの重要性を理解する
+- APIキー管理のベストプラクティスを学ぶ
+- その他のセキュリティ対策を理解する
 
 ---
 
@@ -27,10 +27,11 @@ API認証を実装したら、最後は「ベストプラクティス」です�
 
 開発環境と本番環境では、**セキュリティの要件が異なります**。
 
-- HTTPSの強制
-- 環境変数の管理
-- ログの設定
-- エラーメッセージの制御
+| 項目 | 開発環境 | 本番環境 |
+|------|----------|----------|
+| HTTPS | 任意 | 必須 |
+| デバッグ | 有効 | 無効 |
+| エラーメッセージ | 詳細 | 簡潔 |
 
 ---
 
@@ -38,9 +39,11 @@ API認証を実装したら、最後は「ベストプラクティス」です�
 
 セキュリティは**一度設定して終わり**ではありません。
 
-- 定期的なアップデート
-- 脆弱性のチェック
-- ログの監視
+| 対策 | 説明 |
+|------|------|
+| 定期的なアップデート | 脆弱性の修正 |
+| 脆弱性のチェック | セキュリティ監査 |
+| ログの監視 | 不正アクセスの検知 |
 
 ---
 
@@ -48,42 +51,29 @@ API認証を実装したら、最後は「ベストプラクティス」です�
 
 | 順番 | 作業 | 理由 |
 |------|------|------|
-| 1 | 本番環境の設定 | HTTPSの強制、デバッグの無効化 |
-| 2 | 環境変数の管理 | 機密情報の保護 |
-| 3 | セキュリティチェックリスト | 確認すべき項目の整理 |
+| Step 1 | レート制限の設定 | DoS攻撃対策 |
+| Step 2 | HTTPSの強制 | 通信の暗号化 |
+| Step 3 | その他のセキュリティ対策 | 総合的な防御 |
 
 > 💡 **ポイント**: セキュリティは「完璧」を目指すのではなく、「継続的な改善」が重要です。
 
 ---
 
-## 導入：なぜAPIセキュリティが重要なのか
+## Step 1: レート制限の設定
 
-APIは、**外部からアクセスできる**ため、セキュリティ対策が重要です。
-
-*   **レート制限**: 過度なリクエストを防ぐ
-*   **HTTPS**: 通信を暗号化する
-*   **APIキー管理**: 機密情報を保護する
-
-**適切なセキュリティ対策**を行うことで、APIを安全に運用できます。
-
----
-
-## 詳細解説
-
-### 🔍 レート制限とは
+### 1-1. レート制限とは
 
 **レート制限**は、**一定時間内のリクエスト数を制限する**仕組みです。
 
-**目的**:
-*   **DoS攻撃を防ぐ**: 過度なリクエストを防ぐ
-*   **サーバーの負荷を軽減する**: リソースを保護する
-*   **不正な利用を防ぐ**: APIの悪用を防ぐ
+| 目的 | 説明 |
+|------|------|
+| DoS攻撃を防ぐ | 過度なリクエストを防ぐ |
+| サーバーの負荷を軽減 | リソースを保護する |
+| 不正な利用を防ぐ | APIの悪用を防ぐ |
 
 ---
 
-### 🔍 Laravelでのレート制限
-
-Laravelでは、**throttleミドルウェア**を使って、レート制限を設定できます。
+### 1-2. Laravelでのレート制限
 
 **ファイル**: `routes/api.php`
 
@@ -93,17 +83,34 @@ Route::middleware(['auth:sanctum', 'throttle:60,1'])->group(function () {
 });
 ```
 
-**ポイント**:
-*   `throttle:60,1`: 1分間に60リクエストまで
-*   制限を超えると、**429 Too Many Requests**が返される
+| 設定 | 説明 |
+|------|------|
+| `throttle:60,1` | 1分間に60リクエストまで |
+| 制限超過時 | 429 Too Many Requests |
 
 ---
 
-### 🔍 HTTPステータスコード: 429 Too Many Requests
+### 1-3. レート制限のカスタマイズ
 
-**429 Too Many Requests**は、**リクエスト数が多すぎる**ことを示します。
+**ファイル**: `app/Providers/AppServiceProvider.php`
 
-**レスポンス例**:
+```php
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Support\Facades\RateLimiter;
+
+public function boot(): void
+{
+    RateLimiter::for('api', function (Request $request) {
+        return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
+    });
+}
+```
+
+---
+
+### 1-4. 429 Too Many Requests
+
+レート制限を超えた場合のレスポンス:
 
 ```json
 {
@@ -113,76 +120,38 @@ Route::middleware(['auth:sanctum', 'throttle:60,1'])->group(function () {
 
 **ヘッダー**:
 
-*   `X-RateLimit-Limit`: 制限数
-*   `X-RateLimit-Remaining`: 残りのリクエスト数
-*   `Retry-After`: 再試行までの秒数
+| ヘッダー | 説明 |
+|----------|------|
+| X-RateLimit-Limit | 制限数 |
+| X-RateLimit-Remaining | 残りのリクエスト数 |
+| Retry-After | 再試行までの秒数 |
 
 ---
 
-### 🔍 実践演習: レート制限をテストしてください
+## Step 2: HTTPSの強制
 
-Thunder Clientで、以下のリクエストを60回以上連続で送信してください。
-
-*   メソッド: `GET`
-*   URL: `http://localhost:8000/api/tasks`
-*   Headers:
-    *   キー: `Authorization`
-    *   値: `Bearer トークン`
-
-**期待されるレスポンス（61回目）**:
-
-*   ステータスコード: `429 Too Many Requests`
-*   ボディ: `{"message": "Too Many Requests"}`
-
----
-
-### 🔍 レート制限をカスタマイズする
-
-レート制限をカスタマイズできます。
-
-**ファイル**: `app/Providers/RouteServiceProvider.php`
-
-```php
-use Illuminate\Cache\RateLimiting\Limit;
-use Illuminate\Support\Facades\RateLimiter;
-
-protected function configureRateLimiting()
-{
-    RateLimiter::for('api', function (Request $request) {
-        return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
-    });
-}
-```
-
-**ポイント**:
-*   `perMinute(60)`: 1分間に60リクエストまで
-*   `by($request->user()?->id ?: $request->ip())`: ユーザーIDまたはIPアドレスで制限
-
----
-
-### 🔍 HTTPSとは
+### 2-1. HTTPSとは
 
 **HTTPS**は、**HTTP over SSL/TLS**の略で、**通信を暗号化する**プロトコルです。
 
-**なぜHTTPSが必要なのか**:
-*   **盗聴を防ぐ**: 通信内容を暗号化する
-*   **改ざんを防ぐ**: 通信内容の改ざんを検知する
-*   **なりすましを防ぐ**: サーバーの正当性を確認する
+| メリット | 説明 |
+|----------|------|
+| 盗聴を防ぐ | 通信内容を暗号化 |
+| 改ざんを防ぐ | 通信内容の改ざんを検知 |
+| なりすましを防ぐ | サーバーの正当性を確認 |
 
 **本番環境では、必ずHTTPSを使う**
 
 ---
 
-### 🔍 HTTPSを強制する
-
-Laravelでは、HTTPSを強制できます。
+### 2-2. HTTPSを強制する
 
 **ファイル**: `app/Providers/AppServiceProvider.php`
 
 ```php
 use Illuminate\Support\Facades\URL;
 
-public function boot()
+public function boot(): void
 {
     if ($this->app->environment('production')) {
         URL::forceScheme('https');
@@ -192,35 +161,19 @@ public function boot()
 
 ---
 
-### 🔍 APIキー管理のベストプラクティス
+### 2-3. APIキー管理のベストプラクティス
 
-**APIキー**は、**外部APIにアクセスするための認証情報**です。
-
-**ベストプラクティス**:
-
-1.  **環境変数に保存する**: `.env`ファイルに保存する
-2.  **コードに書かない**: ハードコーディングしない
-3.  **Gitにコミットしない**: `.gitignore`に追加する
-4.  **本番環境と開発環境で分ける**: 異なるAPIキーを使う
-
----
-
-### 🔍 環境変数の使い方
+| ルール | 説明 |
+|--------|------|
+| 環境変数に保存する | `.env`ファイルに保存 |
+| コードに書かない | ハードコーディングしない |
+| Gitにコミットしない | `.gitignore`に追加 |
+| 環境ごとに分ける | 本番と開発で異なるキー |
 
 **ファイル**: `.env`
 
 ```
 STRIPE_KEY=sk_test_abcdefghijklmnopqrstuvwxyz
-STRIPE_SECRET=sk_live_abcdefghijklmnopqrstuvwxyz
-```
-
-**ファイル**: `config/services.php`
-
-```php
-'stripe' => [
-    'key' => env('STRIPE_KEY'),
-    'secret' => env('STRIPE_SECRET'),
-],
 ```
 
 **使い方**:
@@ -231,9 +184,9 @@ $stripeKey = config('services.stripe.key');
 
 ---
 
-### 🔍 その他のセキュリティ対策
+## Step 3: その他のセキュリティ対策
 
-**1. CORS設定を適切に行う**
+### 3-1. CORS設定を適切に行う
 
 本番環境では、特定のオリジンだけを許可します。
 
@@ -245,20 +198,20 @@ $stripeKey = config('services.stripe.key');
 
 ---
 
-**2. バリデーションを徹底する**
+### 3-2. バリデーションを徹底する
 
 すべてのリクエストでバリデーションを行います。
 
 ```php
 $validated = $request->validate([
     'title' => 'required|max:255',
-    'priority' => 'required|integer|min:1|max:5',
+    'status' => 'required|in:pending,in_progress,completed',
 ]);
 ```
 
 ---
 
-**3. SQLインジェクションを防ぐ**
+### 3-3. SQLインジェクションを防ぐ
 
 Eloquent ORMを使うと、SQLインジェクションを防げます。
 
@@ -272,34 +225,7 @@ $tasks = DB::select("SELECT * FROM tasks WHERE user_id = $userId");
 
 ---
 
-**4. XSS攻撃を防ぐ**
-
-Bladeテンプレートでは、`{{ }}`を使うと、自動的にエスケープされます。
-
-```blade
-{{-- ✅ 正しい --}}
-{{ $task->title }}
-
-{{-- ❌ 間違い --}}
-{!! $task->title !!}
-```
-
----
-
-**5. CSRF攻撃を防ぐ**
-
-APIでは、CSRFトークンは不要ですが、Webページでは必要です。
-
-```blade
-<form method="POST" action="/tasks">
-    @csrf
-    ...
-</form>
-```
-
----
-
-**6. ログを記録する**
+### 3-4. ログを記録する
 
 重要な操作は、ログに記録します。
 
@@ -311,23 +237,7 @@ Log::info('Task created', ['task_id' => $task->id, 'user_id' => $user->id]);
 
 ---
 
-**7. エラーメッセージを適切に返す**
-
-本番環境では、詳細なエラーメッセージを隠します。
-
-```php
-if ($this->app->environment('production')) {
-    return response()->json([
-        'message' => 'An error occurred'
-    ], 500);
-}
-```
-
----
-
-### 💡 TIP: セキュリティヘッダーを追加する
-
-セキュリティヘッダーを追加すると、セキュリティが向上します。
+### 3-5. セキュリティヘッダーを追加する
 
 **ファイル**: `app/Http/Middleware/SecurityHeaders.php`
 
@@ -337,10 +247,11 @@ if ($this->app->environment('production')) {
 namespace App\Http\Middleware;
 
 use Closure;
+use Illuminate\Http\Request;
 
 class SecurityHeaders
 {
-    public function handle($request, Closure $next)
+    public function handle(Request $request, Closure $next)
     {
         $response = $next($request);
         
@@ -353,22 +264,31 @@ class SecurityHeaders
 }
 ```
 
-**ファイル**: `app/Http/Kernel.php`
+---
+
+### 3-6. エラーメッセージを適切に返す
+
+本番環境では、詳細なエラーメッセージを隠します。
 
 ```php
-protected $middleware = [
-    // ...
-    \App\Http\Middleware\SecurityHeaders::class,
-];
+// ❌ 危険（本番環境）
+{
+  "message": "SQLSTATE[42S02]: Base table or view not found"
+}
+
+// ✅ 安全（本番環境）
+{
+  "message": "An error occurred"
+}
 ```
 
 ---
 
-### 🚨 よくある間違い
+## 🚨 よくある間違い
 
-#### 間違い1: HTTPSを使わない
+### 間違い1: HTTPSを使わない
 
-本番環境では、必ずHTTPSを使います。
+**問題**: 通信内容が盗聴される
 
 ```
 // ❌ 間違い（本番環境）
@@ -380,9 +300,9 @@ https://example.com/api/tasks
 
 ---
 
-#### 間違い2: APIキーをコードに書く
+### 間違い2: APIキーをコードに書く
 
-APIキーは、環境変数に保存します。
+**問題**: APIキーが漏洩する
 
 ```php
 // ❌ 間違い
@@ -394,9 +314,9 @@ $stripeKey = config('services.stripe.key');
 
 ---
 
-#### 間違い3: レート制限を設定しない
+### 間違い3: レート制限を設定しない
 
-レート制限を設定しないと、DoS攻撃を受ける可能性があります。
+**問題**: DoS攻撃を受ける可能性
 
 ```php
 // ❌ 間違い
@@ -412,26 +332,41 @@ Route::middleware(['auth:sanctum', 'throttle:60,1'])->group(function () {
 
 ---
 
+## 💡 TIP: セキュリティチェックリスト
+
+| 項目 | 確認 |
+|------|------|
+| HTTPSを使用している | [ ] |
+| レート制限を設定している | [ ] |
+| APIキーを環境変数に保存している | [ ] |
+| バリデーションを行っている | [ ] |
+| Eloquent ORMを使用している | [ ] |
+| ログを記録している | [ ] |
+| 本番環境でデバッグを無効にしている | [ ] |
+
+---
+
 ## ✨ まとめ
 
 このセクションでは、APIセキュリティのベストプラクティスを学びました。
 
-*   レート制限を設定した。
-*   HTTPSの重要性を理解した。
-*   APIキー管理のベストプラクティスを学んだ。
-*   その他のセキュリティ対策を理解した。
+| Step | 学んだこと |
+|------|-----------|
+| Step 1 | レート制限の設定とカスタマイズ |
+| Step 2 | HTTPSの強制とAPIキー管理 |
+| Step 3 | その他のセキュリティ対策 |
 
-これで、Chapter 3（API認証とセキュリティ）は完了です。Tutorial 12（API開発基礎）の全19セクションが完成しました！
+これで、Chapter 3（API認証とセキュリティ）は完了です。
 
 ---
 
 ## 📝 学習のポイント
 
-- [ ] レート制限を設定した。
-- [ ] 429 Too Many Requestsを理解した。
-- [ ] HTTPSの重要性を理解した。
-- [ ] APIキーを環境変数に保存した。
-- [ ] セキュリティヘッダーを追加した。
+- [ ] レート制限を設定した
+- [ ] 429 Too Many Requestsを理解した
+- [ ] HTTPSの重要性を理解した
+- [ ] APIキーを環境変数に保存した
+- [ ] セキュリティヘッダーを追加した
 
 ---
 
@@ -441,9 +376,11 @@ Tutorial 12（API開発基礎）を完了しました！
 
 このチュートリアルでは、以下のことを学びました。
 
-*   **Chapter 1**: API開発の基礎（6セクション）
-*   **Chapter 2**: RESTful APIの実装（7セクション）
-*   **Chapter 3**: API認証とセキュリティ（5セクション）
-*   **Chapter 4**: 外部API利用の実装（1セクション）
+| Chapter | 内容 |
+|---------|------|
+| Chapter 1 | API開発の基礎（6セクション） |
+| Chapter 2 | RESTful APIの実装（7セクション） |
+| Chapter 3 | API認証とセキュリティ（5セクション） |
+| Chapter 4 | 外部API利用の実装（5セクション） |
 
 次のTutorial 13では、より高度なLaravelの機能について学びます。

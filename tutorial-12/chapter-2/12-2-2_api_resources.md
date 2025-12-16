@@ -2,9 +2,9 @@
 
 ## 🎯 このセクションで学ぶこと
 
-*   APIリソース（API Resource）の概念と使い方を学ぶ。
-*   レスポンスの整形方法を理解する。
-*   リソースコレクションの使い方を学ぶ。
+- APIリソース（API Resource）の概念と使い方を学ぶ
+- レスポンスの整形方法を理解する
+- リソースコレクションの使い方を学ぶ
 
 ---
 
@@ -50,43 +50,29 @@ return [
 
 | 順番 | 作業 | 理由 |
 |------|------|------|
-| 1 | API Resourceの作成 | `php artisan make:resource` |
-| 2 | toArray()メソッドの定義 | 返すフィールドを指定 |
-| 3 | コントローラーで使用 | `return new TaskResource($task)` |
+| Step 1 | API Resourceの作成 | `php artisan make:resource` |
+| Step 2 | コントローラーで使用 | `return new TaskResource($task)` |
+| Step 3 | 高度な機能 | リレーションや条件付き属性 |
 
 > 💡 **ポイント**: API Resourcesは、モデルとJSONレスポンスの間の「変換層」です。
 
 ---
 
-## 導入：なぜAPIリソースが必要なのか
+## Step 1: APIリソースの作成
 
-前のセクションでは、`response()->json()`を使ってレスポンスを返しました。
-
-しかし、この方法には以下のような問題があります。
-
-*   **レスポンスの形式が統一されない**: コントローラーごとに異なる形式になる可能性がある
-*   **コードの重複**: 同じような処理を何度も書く必要がある
-*   **変更に弱い**: レスポンスの形式を変更する際に、全てのコントローラーを修正する必要がある
-
-**APIリソース（API Resource）**を使うことで、これらの問題を解決できます。
-
----
-
-## 詳細解説
-
-### 🔍 APIリソースとは
+### 1-1. APIリソースとは
 
 **APIリソース**とは、**モデルをJSON形式に変換するためのクラス**です。
 
-APIリソースを使うことで、以下のようなメリットがあります。
-
-*   **レスポンスの形式が統一される**: 全てのAPIで同じ形式のレスポンスを返せる
-*   **コードの重複が減る**: 変換ロジックを一箇所にまとめられる
-*   **変更に強い**: レスポンスの形式を変更する際に、リソースクラスのみを修正すればよい
+| メリット | 説明 |
+|----------|------|
+| レスポンスの形式が統一される | 全てのAPIで同じ形式 |
+| コードの重複が減る | 変換ロジックを一箇所に |
+| 変更に強い | リソースクラスのみを修正 |
 
 ---
 
-### 🔍 APIリソースの作成
+### 1-2. リソースクラスを生成する
 
 ```bash
 php artisan make:resource TaskResource
@@ -95,6 +81,8 @@ php artisan make:resource TaskResource
 これにより、`app/Http/Resources/TaskResource.php`が作成されます。
 
 ---
+
+### 1-3. リソースクラスの実装
 
 **ファイル**: `app/Http/Resources/TaskResource.php`
 
@@ -108,11 +96,6 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class TaskResource extends JsonResource
 {
-    /**
-     * Transform the resource into an array.
-     *
-     * @return array<string, mixed>
-     */
     public function toArray(Request $request): array
     {
         return [
@@ -130,24 +113,18 @@ class TaskResource extends JsonResource
 
 ---
 
-### 🔍 コードリーディング
+### 1-4. コードリーディング
 
-#### `$this->id`
-
-*   `$this`は、Taskモデルのインスタンスを指します。
-*   `$this->id`は、タスクのIDを取得します。
-
----
-
-#### `$this->due_date?->format('Y-m-d')`
-
-*   `?->`は、**Null Safe Operator**です。
-*   `due_date`がnullの場合、nullを返します。
-*   `due_date`がnullでない場合、`format('Y-m-d')`を実行します。
+| コード | 説明 |
+|--------|------|
+| `$this->id` | Taskモデルのインスタンスからidを取得 |
+| `$this->due_date?->format('Y-m-d')` | Null Safe Operator（nullの場合はnullを返す） |
 
 ---
 
-### 🔍 APIリソースの使い方
+## Step 2: コントローラーでの使用
+
+### 2-1. コントローラーの修正
 
 **ファイル**: `app/Http/Controllers/Api/TaskController.php`
 
@@ -160,13 +137,11 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\TaskResource;
 use App\Models\Task;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 
 class TaskController extends Controller
 {
-    /**
-     * タスク一覧を取得する
-     */
     public function index()
     {
         $tasks = Task::where('user_id', Auth::id())->get();
@@ -174,9 +149,6 @@ class TaskController extends Controller
         return TaskResource::collection($tasks);
     }
 
-    /**
-     * タスクを作成する
-     */
     public function store(Request $request)
     {
         $request->validate([
@@ -196,9 +168,6 @@ class TaskController extends Controller
         return new TaskResource($task);
     }
 
-    /**
-     * タスク詳細を取得する
-     */
     public function show(string $id)
     {
         $task = Task::where('user_id', Auth::id())->find($id);
@@ -212,9 +181,6 @@ class TaskController extends Controller
         return new TaskResource($task);
     }
 
-    /**
-     * タスクを更新する
-     */
     public function update(Request $request, string $id)
     {
         $task = Task::where('user_id', Auth::id())->find($id);
@@ -237,10 +203,7 @@ class TaskController extends Controller
         return new TaskResource($task);
     }
 
-    /**
-     * タスクを削除する
-     */
-    public function destroy(string $id)
+    public function destroy(string $id): JsonResponse
     {
         $task = Task::where('user_id', Auth::id())->find($id);
 
@@ -259,23 +222,16 @@ class TaskController extends Controller
 
 ---
 
-### 🔍 コードリーディング
+### 2-2. 使い分け
 
-#### `return new TaskResource($task);`
-
-*   単一のタスクを返す場合は、`new TaskResource($task)`を使います。
-
----
-
-#### `return TaskResource::collection($tasks);`
-
-*   複数のタスクを返す場合は、`TaskResource::collection($tasks)`を使います。
+| 用途 | コード |
+|------|--------|
+| 単一のタスク | `return new TaskResource($task);` |
+| 複数のタスク | `return TaskResource::collection($tasks);` |
 
 ---
 
-### 🔍 レスポンスの形式
-
-APIリソースを使うと、以下のような形式のレスポンスが返されます。
+### 2-3. レスポンスの形式
 
 **単一のタスク**:
 
@@ -293,8 +249,6 @@ APIリソースを使うと、以下のような形式のレスポンスが返�
 }
 ```
 
----
-
 **複数のタスク**:
 
 ```json
@@ -303,20 +257,12 @@ APIリソースを使うと、以下のような形式のレスポンスが返�
     {
       "id": 1,
       "title": "タスク1",
-      "description": "これはタスク1です",
-      "status": "pending",
-      "due_date": "2024-12-31",
-      "created_at": "2024-01-01 00:00:00",
-      "updated_at": "2024-01-01 00:00:00"
+      "status": "pending"
     },
     {
       "id": 2,
       "title": "タスク2",
-      "description": "これはタスク2です",
-      "status": "completed",
-      "due_date": "2024-11-30",
-      "created_at": "2024-01-01 00:00:00",
-      "updated_at": "2024-01-01 00:00:00"
+      "status": "completed"
     }
   ]
 }
@@ -324,9 +270,9 @@ APIリソースを使うと、以下のような形式のレスポンスが返�
 
 ---
 
-### 🔍 リソースに追加情報を含める
+## Step 3: 高度な機能
 
-APIリソースでは、モデルのデータだけでなく、追加情報を含めることもできます。
+### 3-1. 追加情報を含める
 
 **ファイル**: `app/Http/Resources/TaskResource.php`
 
@@ -355,9 +301,6 @@ class TaskResource extends JsonResource
         ];
     }
 
-    /**
-     * ステータスのラベルを取得する
-     */
     private function getStatusLabel(): string
     {
         return match ($this->status) {
@@ -368,9 +311,6 @@ class TaskResource extends JsonResource
         };
     }
 
-    /**
-     * 期限切れかどうかを判定する
-     */
     private function isOverdue(): bool
     {
         if (!$this->due_date) {
@@ -384,11 +324,7 @@ class TaskResource extends JsonResource
 
 ---
 
-### 🔍 リレーションシップを含める
-
-APIリソースでは、リレーションシップも簡単に含めることができます。
-
-**ファイル**: `app/Http/Resources/TaskResource.php`
+### 3-2. リレーションシップを含める
 
 ```php
 public function toArray(Request $request): array
@@ -396,24 +332,19 @@ public function toArray(Request $request): array
     return [
         'id' => $this->id,
         'title' => $this->title,
-        'description' => $this->description,
         'status' => $this->status,
-        'due_date' => $this->due_date?->format('Y-m-d'),
         'user' => [
             'id' => $this->user->id,
             'name' => $this->user->name,
         ],
         'created_at' => $this->created_at->format('Y-m-d H:i:s'),
-        'updated_at' => $this->updated_at->format('Y-m-d H:i:s'),
     ];
 }
 ```
 
 ---
 
-### 🔍 条件付きで属性を含める
-
-`when()`メソッドを使うことで、条件付きで属性を含めることができます。
+### 3-3. 条件付きで属性を含める
 
 ```php
 public function toArray(Request $request): array
@@ -421,24 +352,18 @@ public function toArray(Request $request): array
     return [
         'id' => $this->id,
         'title' => $this->title,
-        'description' => $this->description,
         'status' => $this->status,
-        'due_date' => $this->due_date?->format('Y-m-d'),
         'user' => $this->when($request->user()->isAdmin(), [
             'id' => $this->user->id,
             'name' => $this->user->name,
         ]),
-        'created_at' => $this->created_at->format('Y-m-d H:i:s'),
-        'updated_at' => $this->updated_at->format('Y-m-d H:i:s'),
     ];
 }
 ```
 
 ---
 
-### 💡 TIP: リソースコレクションのカスタマイズ
-
-リソースコレクションをカスタマイズする場合は、`ResourceCollection`を作成します。
+### 3-4. リソースコレクションのカスタマイズ
 
 ```bash
 php artisan make:resource TaskCollection
@@ -472,21 +397,27 @@ class TaskCollection extends ResourceCollection
 
 ---
 
-### 🚨 よくある間違い
+## 🚨 よくある間違い
 
-#### 間違い1: リソースを使わずに、直接モデルを返す
+### 間違い1: リソースを使わずに、直接モデルを返す
+
+**問題**: レスポンス形式が統一されない
 
 **対処法**: APIリソースを使って、レスポンスの形式を統一します。
 
 ---
 
-#### 間違い2: リソースに複雑なロジックを書く
+### 間違い2: リソースに複雑なロジックを書く
+
+**問題**: リソースクラスが肥大化する
 
 **対処法**: 複雑なロジックは、モデルやサービスクラスに移動します。
 
 ---
 
-#### 間違い3: リレーションシップをEager Loadingしない
+### 間違い3: リレーションシップをEager Loadingしない
+
+**問題**: N+1問題が発生する
 
 **対処法**: `with()`を使って、Eager Loadingを行います。
 
@@ -500,17 +431,18 @@ $tasks = Task::with('user')->where('user_id', Auth::id())->get();
 
 このセクションでは、APIリソースによるレスポンスの整形について学びました。
 
-*   APIリソースは、モデルをJSON形式に変換するためのクラスである。
-*   APIリソースを使うことで、レスポンスの形式が統一される。
-*   `new TaskResource($task)`で単一のタスクを返し、`TaskResource::collection($tasks)`で複数のタスクを返す。
-*   リソースに追加情報やリレーションシップを含めることができる。
+| Step | 学んだこと |
+|------|-----------|
+| Step 1 | APIリソースの作成とtoArray()メソッド |
+| Step 2 | コントローラーでの使用方法 |
+| Step 3 | リレーションや条件付き属性などの高度な機能 |
 
-次のセクションでは、API認証について学びます。
+次のセクションでは、GET APIの詳細実装について学びます。
 
 ---
 
 ## 📝 学習のポイント
 
-- [ ] APIリソース（API Resource）の概念と使い方を学んだ。
-- [ ] レスポンスの整形方法を理解した。
-- [ ] リソースコレクションの使い方を学んだ。
+- [ ] APIリソース（API Resource）の概念と使い方を学んだ
+- [ ] レスポンスの整形方法を理解した
+- [ ] リソースコレクションの使い方を学んだ

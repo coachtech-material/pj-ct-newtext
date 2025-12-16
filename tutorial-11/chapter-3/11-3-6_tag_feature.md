@@ -2,9 +2,9 @@
 
 ## 🎯 このセクションで学ぶこと
 
-*   タグテーブルと中間テーブルを作成し、タスクとの多対多のリレーションシップを実装する方法を学ぶ。
-*   belongsToMany()を使って、多対多のリレーションシップを定義する方法を学ぶ。
-*   attach()とdetach()を使って、リレーションシップを管理する方法を学ぶ。
+- タグテーブルと中間テーブルを作成し、タスクとの多対多のリレーションシップを実装する方法を学ぶ
+- `belongsToMany()`を使って、多対多のリレーションシップを定義する方法を学ぶ
+- `attach()`と`detach()`と`sync()`を使って、リレーションシップを管理する方法を学ぶ
 
 ---
 
@@ -57,46 +57,18 @@ tasks ← task_tag → tags
 
 | 順番 | 作業 | 理由 |
 |------|------|------|
-| 1 | タグと中間テーブルのマイグレーション | データベースを準備 |
-| 2 | 多対多リレーションシップ定義 | `belongsToMany`を使用 |
-| 3 | タスクフォームにタグ選択追加 | 複数選択のUI |
-| 4 | タグで絞り込み | 検索機能を拡張 |
+| Step 1 | タグと中間テーブルのマイグレーション | データベースを準備 |
+| Step 2 | 多対多リレーションシップ定義 | `belongsToMany`を使用 |
+| Step 3 | タスクフォームにタグ選択追加 | 複数選択のUI |
+| Step 4 | タグの保存と表示 | attach/syncを使用 |
 
 > 💡 **ポイント**: 多対多では、両方のモデルに`belongsToMany`を定義します。
 
 ---
 
-## 導入：なぜタグ機能が重要なのか
+## Step 1: タグと中間テーブルのマイグレーション
 
-**タグ機能**は、タスクに複数のタグを付ける機能です。
-
-タグ機能を実装することで、タスクをより柔軟に分類できるようになります。
-
----
-
-## 詳細解説
-
-### 🔍 多対多のリレーションシップ
-
-**多対多のリレーションシップ**は、**1つのタスクが複数のタグを持ち、1つのタグが複数のタスクに属する**関係です。
-
-例:
-*   タスク「Laravelの勉強」→ タグ「プログラミング」「勉強」
-*   タスク「買い物」→ タグ「プライベート」「買い物」
-
----
-
-### 🔍 テーブル構造
-
-多対多のリレーションシップには、**中間テーブル**が必要です。
-
-*   `tasks`テーブル
-*   `tags`テーブル
-*   `task_tag`テーブル（中間テーブル）
-
----
-
-### 🔍 tagsテーブルの作成
+### 1-1. tagsテーブルを作成する
 
 ```bash
 php artisan make:model Tag -m
@@ -105,19 +77,35 @@ php artisan make:model Tag -m
 **ファイル**: `database/migrations/xxxx_xx_xx_create_tags_table.php`
 
 ```php
-public function up()
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
 {
-    Schema::create('tags', function (Blueprint $table) {
-        $table->id();
-        $table->string('name')->unique();
-        $table->timestamps();
-    });
-}
+    public function up(): void
+    {
+        Schema::create('tags', function (Blueprint $table) {
+            $table->id();
+            $table->string('name')->unique();
+            $table->timestamps();
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::dropIfExists('tags');
+    }
+};
 ```
 
 ---
 
-### 🔍 中間テーブルの作成
+### 1-2. 中間テーブルを作成する
+
+多対多リレーションシップには、**中間テーブル**が必要です。
 
 ```bash
 php artisan make:migration create_task_tag_table
@@ -126,20 +114,55 @@ php artisan make:migration create_task_tag_table
 **ファイル**: `database/migrations/xxxx_xx_xx_create_task_tag_table.php`
 
 ```php
-public function up()
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
 {
-    Schema::create('task_tag', function (Blueprint $table) {
-        $table->id();
-        $table->foreignId('task_id')->constrained()->onDelete('cascade');
-        $table->foreignId('tag_id')->constrained()->onDelete('cascade');
-        $table->timestamps();
-    });
-}
+    public function up(): void
+    {
+        Schema::create('task_tag', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('task_id')->constrained()->onDelete('cascade');
+            $table->foreignId('tag_id')->constrained()->onDelete('cascade');
+            $table->timestamps();
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::dropIfExists('task_tag');
+    }
+};
 ```
 
 ---
 
-### 🔍 マイグレーションの実行
+### 1-3. コードリーディング
+
+#### 中間テーブルの命名規則
+
+中間テーブルの名前は、**アルファベット順**で`task_tag`のようにします。
+
+| テーブルA | テーブルB | 中間テーブル |
+|-----------|-----------|--------------|
+| tasks | tags | task_tag |
+| posts | users | post_user |
+| roles | users | role_user |
+
+---
+
+#### `onDelete('cascade')`
+
+- タスクが削除されたら、中間テーブルのレコードも削除されます
+- タグが削除されたら、中間テーブルのレコードも削除されます
+
+---
+
+### 1-4. マイグレーションを実行する
 
 ```bash
 php artisan migrate
@@ -147,52 +170,7 @@ php artisan migrate
 
 ---
 
-### 🔍 Tagモデル
-
-**ファイル**: `app/Models/Tag.php`
-
-```php
-<?php
-
-namespace App\Models;
-
-use Illuminate\Database\Eloquent\Model;
-
-class Tag extends Model
-{
-    protected $fillable = [
-        'name',
-    ];
-
-    /**
-     * このタグが付いているタスク
-     */
-    public function tasks()
-    {
-        return $this->belongsToMany(Task::class);
-    }
-}
-```
-
----
-
-### 🔍 Taskモデルにリレーションシップを追加
-
-**ファイル**: `app/Models/Task.php`
-
-```php
-/**
- * このタスクに付いているタグ
- */
-public function tags()
-{
-    return $this->belongsToMany(Tag::class);
-}
-```
-
----
-
-### 🔍 シーダーでタグを作成
+### 1-5. シーダーでタグを作成する
 
 **ファイル**: `database/seeders/TagSeeder.php`
 
@@ -206,7 +184,7 @@ use Illuminate\Database\Seeder;
 
 class TagSeeder extends Seeder
 {
-    public function run()
+    public function run(): void
     {
         $tags = [
             'プログラミング',
@@ -225,13 +203,86 @@ class TagSeeder extends Seeder
 }
 ```
 
+シーダーを実行します。
+
 ```bash
 php artisan db:seed --class=TagSeeder
 ```
 
 ---
 
-### 🔍 タスク作成フォームにタグを追加
+## Step 2: 多対多リレーションシップ定義
+
+### 2-1. Tagモデルを編集する
+
+**ファイル**: `app/Models/Tag.php`
+
+```php
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class Tag extends Model
+{
+    use HasFactory;
+
+    protected $fillable = [
+        'name',
+    ];
+
+    /**
+     * このタグが付いているタスク
+     */
+    public function tasks()
+    {
+        return $this->belongsToMany(Task::class);
+    }
+}
+```
+
+---
+
+### 2-2. Taskモデルにリレーションシップを追加する
+
+**ファイル**: `app/Models/Task.php`
+
+```php
+/**
+ * このタスクに付いているタグ
+ */
+public function tags()
+{
+    return $this->belongsToMany(Tag::class);
+}
+```
+
+---
+
+### 2-3. コードリーディング
+
+#### `$this->belongsToMany(Tag::class)`
+
+- 多対多リレーションシップを定義します
+- Eloquentは自動的に`task_tag`中間テーブルを使用します
+- 両方のモデルに`belongsToMany`を定義します
+
+---
+
+#### リレーションシップの全体像
+
+| モデル | メソッド | 関係 |
+|--------|----------|------|
+| Task | `tags()` | 1つのタスクは複数のタグを持つ |
+| Tag | `tasks()` | 1つのタグは複数のタスクに属する |
+
+---
+
+## Step 3: タスクフォームにタグ選択追加
+
+### 3-1. コントローラーを修正する
 
 **ファイル**: `app/Http/Controllers/TaskController.php`
 
@@ -256,45 +307,74 @@ public function edit(Task $task)
 
 ---
 
-### 🔍 ビューにタグのチェックボックスを追加
+### 3-2. 作成フォームにタグのチェックボックスを追加する
 
 **ファイル**: `resources/views/tasks/create.blade.php`
 
 ```blade
-<div>
-    <label>タグ</label>
-    @foreach ($tags as $tag)
-        <label>
-            <input type="checkbox" name="tags[]" value="{{ $tag->id }}" {{ in_array($tag->id, old('tags', [])) ? 'checked' : '' }}>
-            {{ $tag->name }}
-        </label>
-    @endforeach
+<div class="form-group" style="margin-bottom: 15px;">
+    <label style="display: block; margin-bottom: 5px; font-weight: bold;">タグ</label>
+    <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+        @foreach ($tags as $tag)
+            <label style="display: flex; align-items: center; gap: 5px;">
+                <input type="checkbox" name="tags[]" value="{{ $tag->id }}" {{ in_array($tag->id, old('tags', [])) ? 'checked' : '' }}>
+                {{ $tag->name }}
+            </label>
+        @endforeach
+    </div>
     @error('tags')
-        <div style="color: red;">{{ $message }}</div>
-    @enderror
-</div>
-```
-
-**ファイル**: `resources/views/tasks/edit.blade.php`
-
-```blade
-<div>
-    <label>タグ</label>
-    @foreach ($tags as $tag)
-        <label>
-            <input type="checkbox" name="tags[]" value="{{ $tag->id }}" {{ in_array($tag->id, old('tags', $task->tags->pluck('id')->toArray())) ? 'checked' : '' }}>
-            {{ $tag->name }}
-        </label>
-    @endforeach
-    @error('tags')
-        <div style="color: red;">{{ $message }}</div>
+        <div style="color: red; margin-top: 5px;">{{ $message }}</div>
     @enderror
 </div>
 ```
 
 ---
 
-### 🔍 コントローラーでタグを保存
+### 3-3. 編集フォームにタグのチェックボックスを追加する
+
+**ファイル**: `resources/views/tasks/edit.blade.php`
+
+```blade
+<div class="form-group" style="margin-bottom: 15px;">
+    <label style="display: block; margin-bottom: 5px; font-weight: bold;">タグ</label>
+    <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+        @foreach ($tags as $tag)
+            <label style="display: flex; align-items: center; gap: 5px;">
+                <input type="checkbox" name="tags[]" value="{{ $tag->id }}" {{ in_array($tag->id, old('tags', $task->tags->pluck('id')->toArray())) ? 'checked' : '' }}>
+                {{ $tag->name }}
+            </label>
+        @endforeach
+    </div>
+    @error('tags')
+        <div style="color: red; margin-top: 5px;">{{ $message }}</div>
+    @enderror
+</div>
+```
+
+---
+
+### 3-4. コードリーディング
+
+#### `name="tags[]"`
+
+- 配列形式でデータを送信します
+- PHPでは`$request->tags`で配列として受け取れます
+
+---
+
+#### `$task->tags->pluck('id')->toArray()`
+
+- `$task->tags`: タスクに関連付けられたタグのコレクション
+- `pluck('id')`: IDだけを抽出
+- `toArray()`: 配列に変換
+
+これにより、編集時に既存のタグがチェックされた状態で表示されます。
+
+---
+
+## Step 4: タグの保存と表示
+
+### 4-1. storeメソッドを修正する
 
 **ファイル**: `app/Http/Controllers/TaskController.php`
 
@@ -306,7 +386,7 @@ public function store(Request $request)
         'category_id' => 'nullable|exists:categories,id',
         'description' => 'nullable',
         'due_date' => 'nullable|date',
-        'status' => 'required|in:未完了,完了',
+        'status' => 'required|in:pending,in_progress,completed',
         'tags' => 'nullable|array',
         'tags.*' => 'exists:tags,id',
     ]);
@@ -322,7 +402,13 @@ public function store(Request $request)
 
     return redirect()->route('tasks.index')->with('success', 'タスクを作成しました。');
 }
+```
 
+---
+
+### 4-2. updateメソッドを修正する
+
+```php
 public function update(Request $request, Task $task)
 {
     $this->authorize('update', $task);
@@ -332,7 +418,7 @@ public function update(Request $request, Task $task)
         'category_id' => 'nullable|exists:categories,id',
         'description' => 'nullable',
         'due_date' => 'nullable|date',
-        'status' => 'required|in:未完了,完了',
+        'status' => 'required|in:pending,in_progress,completed',
         'tags' => 'nullable|array',
         'tags.*' => 'exists:tags,id',
     ]);
@@ -348,11 +434,15 @@ public function update(Request $request, Task $task)
 
 ---
 
-### 🔍 attach()とdetach()とsync()
+### 4-3. コードリーディング
 
-*   `attach()`: リレーションシップを追加する
-*   `detach()`: リレーションシップを削除する
-*   `sync()`: リレーションシップを同期する（既存のリレーションシップを削除し、新しいリレーションシップを追加する）
+#### `attach()`、`detach()`、`sync()`の違い
+
+| メソッド | 動作 | 使用場面 |
+|----------|------|----------|
+| `attach()` | 関連を追加 | 新規作成時 |
+| `detach()` | 関連を削除 | 特定のタグを外す |
+| `sync()` | 関連を同期 | 更新時（既存を削除して新しいものを追加） |
 
 ```php
 // タグを追加
@@ -367,112 +457,92 @@ $task->tags()->sync([3, 4, 5]);
 
 ---
 
-### 🔍 タスク詳細にタグを表示
+### 4-4. タスク詳細にタグを表示する
 
 **ファイル**: `resources/views/tasks/show.blade.php`
 
 ```blade
-<table border="1">
-    <tr>
-        <th>ID</th>
-        <td>{{ $task->id }}</td>
-    </tr>
-    <tr>
-        <th>タイトル</th>
-        <td>{{ $task->title }}</td>
-    </tr>
-    <tr>
-        <th>カテゴリー</th>
-        <td>{{ $task->category?->name ?? '未分類' }}</td>
-    </tr>
-    <tr>
-        <th>タグ</th>
-        <td>
-            @foreach ($task->tags as $tag)
-                <span style="background-color: #eee; padding: 2px 5px; margin-right: 5px;">{{ $tag->name }}</span>
-            @endforeach
-        </td>
-    </tr>
-    <!-- ... -->
-</table>
+<tr>
+    <th style="padding: 10px; background-color: #f5f5f5;">タグ</th>
+    <td style="padding: 10px;">
+        @forelse ($task->tags as $tag)
+            <span style="display: inline-block; background-color: #e0e0e0; padding: 4px 8px; margin: 2px; border-radius: 4px; font-size: 0.9em;">{{ $tag->name }}</span>
+        @empty
+            <span style="color: #999;">タグなし</span>
+        @endforelse
+    </td>
+</tr>
 ```
 
 ---
 
-### 🔍 タスク一覧にタグを表示
+### 4-5. タスク一覧にタグを表示する
 
 **ファイル**: `resources/views/tasks/index.blade.php`
 
 ```blade
-<table border="1">
-    <thead>
-        <tr>
-            <th>ID</th>
-            <th>タイトル</th>
-            <th>カテゴリー</th>
-            <th>タグ</th>
-            <th>期限</th>
-            <th>ステータス</th>
-            <th>操作</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach ($tasks as $task)
-            <tr>
-                <td>{{ $task->id }}</td>
-                <td>{{ $task->title }}</td>
-                <td>{{ $task->category?->name ?? '未分類' }}</td>
-                <td>
-                    @foreach ($task->tags as $tag)
-                        <span style="background-color: #eee; padding: 2px 5px; margin-right: 5px;">{{ $tag->name }}</span>
-                    @endforeach
-                </td>
-                <td>{{ $task->due_date }}</td>
-                <td>{{ $task->status }}</td>
-                <td>
-                    <a href="{{ route('tasks.show', $task) }}">詳細</a>
-                    <a href="{{ route('tasks.edit', $task) }}">編集</a>
-                    <form method="POST" action="{{ route('tasks.destroy', $task) }}" style="display:inline;" onsubmit="return confirm('本当に削除しますか?');">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit">削除</button>
-                    </form>
-                </td>
-            </tr>
-        @endforeach
-    </tbody>
-</table>
+<td style="padding: 10px;">
+    @foreach ($task->tags as $tag)
+        <span style="display: inline-block; background-color: #e0e0e0; padding: 2px 6px; margin: 1px; border-radius: 3px; font-size: 0.85em;">{{ $tag->name }}</span>
+    @endforeach
+</td>
 ```
 
 ---
 
-### 💡 TIP: 中間テーブルに追加情報を保存
+### 4-6. 動作確認
 
-中間テーブルに追加情報を保存できます。
-
-```php
-$task->tags()->attach($tagId, ['created_by' => auth()->id()]);
-```
+1. タスク作成ページにアクセスする
+2. タグを複数選択してタスクを作成する
+3. タスク詳細ページでタグが表示されることを確認する
+4. タスク編集ページでタグを変更して保存する
+5. 変更が反映されていることを確認する
 
 ---
 
-### 🚨 よくある間違い
+## 🚨 よくある間違い
 
-#### 間違い1: 中間テーブルの命名規則を間違える
+### 間違い1: 中間テーブルの命名規則を間違える
+
+**エラー**:
+
+```
+SQLSTATE[42S02]: Base table or view not found: 1146 Table 'task_tag' doesn't exist
+```
 
 **対処法**: 中間テーブルの名前は、アルファベット順で`task_tag`のようにします。
 
 ---
 
-#### 間違い2: sync()を使わずにattach()を使う
+### 間違い2: sync()を使わずにattach()を使う
+
+**問題**: 更新時に既存のタグが残ってしまう
 
 **対処法**: 更新時は`sync()`を使います。`attach()`を使うと、既存のタグが残ります。
 
 ---
 
-#### 間違い3: Eager Loadingを忘れる
+### 間違い3: Eager Loadingを忘れる
+
+**問題**: N+1問題が発生してパフォーマンスが低下する
 
 **対処法**: 次のセクションで学ぶEager Loadingを使います。
+
+---
+
+## 💡 TIP: 中間テーブルに追加情報を保存
+
+中間テーブルに追加情報を保存できます。
+
+```php
+// 追加情報を付けてattach
+$task->tags()->attach($tagId, ['created_by' => auth()->id()]);
+
+// 追加情報を取得
+foreach ($task->tags as $tag) {
+    echo $tag->pivot->created_by;
+}
+```
 
 ---
 
@@ -480,9 +550,12 @@ $task->tags()->attach($tagId, ['created_by' => auth()->id()]);
 
 このセクションでは、タグ機能を実装しました。
 
-*   タグテーブルと中間テーブルを作成し、タスクとの多対多のリレーションシップを実装した。
-*   belongsToMany()を使って、多対多のリレーションシップを定義した。
-*   attach()、detach()、sync()を使って、リレーションシップを管理した。
+| Step | 学んだこと |
+|------|-----------|
+| Step 1 | タグテーブルと中間テーブルの作成 |
+| Step 2 | `belongsToMany`で多対多リレーションシップを定義 |
+| Step 3 | チェックボックスでタグを選択 |
+| Step 4 | `attach()`と`sync()`でリレーションシップを管理 |
 
 次のセクションでは、Eager Loadingによるパフォーマンス改善について学びます。
 
@@ -490,7 +563,7 @@ $task->tags()->attach($tagId, ['created_by' => auth()->id()]);
 
 ## 📝 学習のポイント
 
-- [ ] 多対多のリレーションシップを実装した。
-- [ ] 中間テーブルを作成した。
-- [ ] attach()、detach()、sync()を使った。
-- [ ] チェックボックスでタグを選択できるようにした。
+- [ ] 多対多のリレーションシップを実装した
+- [ ] 中間テーブルを作成した
+- [ ] `attach()`、`detach()`、`sync()`を使った
+- [ ] チェックボックスでタグを選択できるようにした

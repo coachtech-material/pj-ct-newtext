@@ -2,9 +2,9 @@
 
 ## 🎯 このセクションで学ぶこと
 
-*   Eager Loadingを使って、N+1問題を解決し、パフォーマンスを改善する方法を学ぶ。
-*   with()メソッドを使って、リレーションシップを事前に読み込む方法を学ぶ。
-*   Laravel Debugbarを使って、実行されたクエリを確認する方法を学ぶ。
+- Eager Loadingを使って、N+1問題を解決し、パフォーマンスを改善する方法を学ぶ
+- `with()`メソッドを使って、リレーションシップを事前に読み込む方法を学ぶ
+- Laravel Debugbarを使って、実行されたクエリを確認する方法を学ぶ
 
 ---
 
@@ -50,25 +50,18 @@ Eager Loadingを使って解決する方法を、ここでしっかり学びま�
 
 | 順番 | 作業 | 理由 |
 |------|------|------|
-| 1 | N+1問題の確認 | Debugbarでクエリ数を確認 |
-| 2 | Eager Loadingの適用 | `with()`を使って解決 |
-| 3 | パフォーマンス改善の確認 | クエリ数が減ったことを確認 |
+| Step 1 | N+1問題の確認 | 問題を理解する |
+| Step 2 | Laravel Debugbarのインストール | クエリ数を確認 |
+| Step 3 | Eager Loadingの適用 | `with()`を使って解決 |
+| Step 4 | パフォーマンス改善の確認 | クエリ数が減ったことを確認 |
 
 > 💡 **ポイント**: `with()`を使うと、関連データを事前に取得できます。
 
 ---
 
-## 導入：なぜEager Loadingが重要なのか
+## Step 1: N+1問題の確認
 
-**N+1問題**は、**リレーションシップを持つデータを取得する際に、大量のクエリが実行される問題**です。
-
-Eager Loadingを使うことで、N+1問題を解決し、パフォーマンスを改善できます。
-
----
-
-## 詳細解説
-
-### 🔍 N+1問題とは
+### 1-1. N+1問題とは
 
 タスク一覧で、各タスクのカテゴリー名を表示する場合を考えます。
 
@@ -91,7 +84,59 @@ foreach ($tasks as $task) {
 
 ---
 
-### 🔍 Eager Loadingの実装
+### 1-2. なぜN+1問題が起こるのか
+
+Eloquentは**遅延読み込み（Lazy Loading）**がデフォルトです。
+
+```php
+$task->category  // このタイミングでクエリが発行される
+```
+
+リレーションシップにアクセスするたびに、クエリが発行されます。
+
+---
+
+### 1-3. N+1問題の影響
+
+| タスク数 | クエリ数 | 影響 |
+|----------|----------|------|
+| 10件 | 11回 | 軽微 |
+| 100件 | 101回 | 遅い |
+| 1000件 | 1001回 | 非常に遅い |
+
+---
+
+## Step 2: Laravel Debugbarのインストール
+
+### 2-1. Debugbarをインストールする
+
+**Laravel Debugbar**は、実行されたクエリを確認できるツールです。
+
+```bash
+composer require barryvdh/laravel-debugbar --dev
+```
+
+---
+
+### 2-2. インストールの確認
+
+インストール後、ブラウザでページを開くと、画面下部にデバッグバーが表示されます。
+
+---
+
+### 2-3. クエリの確認
+
+デバッグバーの「Queries」タブをクリックすると、実行されたクエリが表示されます。
+
+- クエリの数
+- 各クエリの実行時間
+- クエリの内容
+
+---
+
+## Step 3: Eager Loadingの適用
+
+### 3-1. with()メソッドを使う
 
 `with()`メソッドを使うと、リレーションシップを事前に読み込めます。
 
@@ -112,13 +157,14 @@ foreach ($tasks as $task) {
 
 ---
 
-### 🔍 コントローラーでEager Loadingを使う
+### 3-2. コントローラーでEager Loadingを使う
 
 **ファイル**: `app/Http/Controllers/TaskController.php`
 
 ```php
 public function index(Request $request)
 {
+    // Eager Loadingでカテゴリーとタグを事前に読み込む
     $query = Task::with(['category', 'tags']);
 
     // 検索条件
@@ -144,43 +190,70 @@ public function index(Request $request)
 
 ---
 
-### 🔍 複数のリレーションシップを読み込む
+### 3-3. コードリーディング
+
+#### `Task::with(['category', 'tags'])`
+
+- 複数のリレーションシップを配列で指定できます
+- クエリビルダーを返すので、後から条件を追加できます
+
+---
+
+#### ページネーションとEager Loading
 
 ```php
+$tasks = Task::with(['category', 'tags'])->paginate(10);
+```
+
+`paginate()`の前に`with()`を使うことで、ページネーションされたデータにもEager Loadingが適用されます。
+
+---
+
+### 3-4. 複数のリレーションシップを読み込む
+
+```php
+// 複数のリレーションシップを読み込む
 $tasks = Task::with(['category', 'tags', 'user'])->get();
 ```
 
 ---
 
-### 🔍 ネストしたリレーションシップを読み込む
+### 3-5. ネストしたリレーションシップを読み込む
 
 ```php
+// カテゴリーの親カテゴリーも読み込む
 $tasks = Task::with(['category.parent', 'tags'])->get();
 ```
 
----
-
-### 🔍 Laravel Debugbarのインストール
-
-**Laravel Debugbar**は、実行されたクエリを確認できるツールです。
-
-```bash
-composer require barryvdh/laravel-debugbar --dev
-```
-
-インストール後、ブラウザでページを開くと、画面下部にデバッグバーが表示されます。
+ドット記法で、ネストしたリレーションシップを指定できます。
 
 ---
 
-### 🔍 クエリの確認
+## Step 4: パフォーマンス改善の確認
 
-デバッグバーの「Queries」タブをクリックすると、実行されたクエリが表示されます。
+### 4-1. Debugbarでクエリ数を比較する
 
-Eager Loadingを使う前と後で、クエリの数を比較してみましょう。
+**Eager Loading前**:
+
+- タスク10件の場合: 21回のクエリ（1 + 10 + 10）
+- タスク100件の場合: 201回のクエリ
+
+**Eager Loading後**:
+
+- タスク10件の場合: 3回のクエリ
+- タスク100件の場合: 3回のクエリ
 
 ---
 
-### 🔍 load()メソッド
+### 4-2. 動作確認
+
+1. ブラウザでタスク一覧ページにアクセスする
+2. Debugbarの「Queries」タブを確認する
+3. クエリ数が少ないことを確認する
+
+---
+
+### 4-3. load()メソッド
 
 既に取得したモデルに対して、リレーションシップを読み込めます。
 
@@ -191,7 +264,7 @@ $task->load('category', 'tags');
 
 ---
 
-### 🔍 loadMissing()メソッド
+### 4-4. loadMissing()メソッド
 
 まだ読み込まれていないリレーションシップのみを読み込めます。
 
@@ -202,7 +275,7 @@ $task->loadMissing('tags');  // categoryは既に読み込まれているので�
 
 ---
 
-### 🔍 条件付きEager Loading
+### 4-5. 条件付きEager Loading
 
 リレーションシップに条件を付けて読み込めます。
 
@@ -214,7 +287,42 @@ $tasks = Task::with(['tags' => function ($query) {
 
 ---
 
-### 💡 TIP: Lazy Eager Loading
+## 🚨 よくある間違い
+
+### 間違い1: with()を忘れる
+
+**問題**: N+1問題が発生してパフォーマンスが低下する
+
+**対処法**: リレーションシップを使う場合は、必ず`with()`を使います。
+
+---
+
+### 間違い2: ページネーションでEager Loadingを忘れる
+
+**問題**: ページネーションされたデータでN+1問題が発生する
+
+**対処法**: `paginate()`の前に`with()`を使います。
+
+```php
+// 正しい
+$tasks = Task::with(['category', 'tags'])->paginate(10);
+
+// 間違い
+$tasks = Task::paginate(10);
+$tasks->load('category', 'tags');  // これでも動くが、with()の方が効率的
+```
+
+---
+
+### 間違い3: N+1問題に気づかない
+
+**問題**: 開発環境では気づかないが、本番環境で遅くなる
+
+**対処法**: Laravel Debugbarを使って、クエリの数を確認します。
+
+---
+
+## 💡 TIP: Lazy Eager Loading
 
 `load()`メソッドを使うと、**Lazy Eager Loading**ができます。
 
@@ -226,29 +334,19 @@ if ($someCondition) {
 }
 ```
 
----
-
-### 🚨 よくある間違い
-
-#### 間違い1: with()を忘れる
-
-**対処法**: リレーションシップを使う場合は、必ず`with()`を使います。
+条件によってリレーションシップを読み込むかどうかを決められます。
 
 ---
 
-#### 間違い2: ページネーションでEager Loadingを忘れる
+## 💡 TIP: N+1問題の自動検出
 
-**対処法**: `paginate()`の前に`with()`を使います。
+開発環境でN+1問題を自動検出するパッケージがあります。
 
-```php
-$tasks = Task::with(['category', 'tags'])->paginate(10);
+```bash
+composer require beyondcode/laravel-query-detector --dev
 ```
 
----
-
-#### 間違い3: N+1問題に気づかない
-
-**対処法**: Laravel Debugbarを使って、クエリの数を確認します。
+N+1問題が発生すると、警告が表示されます。
 
 ---
 
@@ -256,9 +354,12 @@ $tasks = Task::with(['category', 'tags'])->paginate(10);
 
 このセクションでは、Eager Loadingによるパフォーマンス改善を学びました。
 
-*   N+1問題を理解し、Eager Loadingで解決した。
-*   with()メソッドを使って、リレーションシップを事前に読み込んだ。
-*   Laravel Debugbarを使って、実行されたクエリを確認した。
+| Step | 学んだこと |
+|------|-----------|
+| Step 1 | N+1問題の原因と影響 |
+| Step 2 | Laravel Debugbarでクエリを確認 |
+| Step 3 | `with()`でEager Loadingを適用 |
+| Step 4 | パフォーマンス改善の確認 |
 
 次のセクションでは、リレーションシップを使った検索機能について学びます。
 
@@ -266,7 +367,7 @@ $tasks = Task::with(['category', 'tags'])->paginate(10);
 
 ## 📝 学習のポイント
 
-- [ ] N+1問題を理解した。
-- [ ] with()メソッドを使った。
-- [ ] Laravel Debugbarをインストールした。
-- [ ] クエリの数を確認した。
+- [ ] N+1問題を理解した
+- [ ] `with()`メソッドを使った
+- [ ] Laravel Debugbarをインストールした
+- [ ] クエリの数を確認した

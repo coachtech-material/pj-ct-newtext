@@ -2,9 +2,9 @@
 
 ## 🎯 このセクションで学ぶこと
 
-*   tasksテーブルのマイグレーションファイルを作成する方法を学ぶ。
-*   Taskモデルを作成し、データベースとの連携を理解する。
-*   マイグレーションとモデルの関係を理解する。
+- tasksテーブルのマイグレーションファイルを作成する方法を学ぶ
+- Taskモデルを作成し、データベースとの連携を理解する
+- マイグレーションとモデルの関係を理解する
 
 ---
 
@@ -60,45 +60,22 @@ $ php artisan tinker
 
 ---
 
-### 実装の順番（全体像）
+### このセクションでやること
 
-このChapterでは、以下の順番で実装を進めます：
+| 順番 | 作業 | 理由 |
+|------|------|------|
+| Step 1 | tasksテーブルのマイグレーション作成 | テーブル構造を定義する |
+| Step 2 | Taskモデルの作成 | データ操作の準備をする |
+| Step 3 | categoriesテーブルの作成 | 関連テーブルも用意する |
+| Step 4 | 動作確認 | Tinkerでデータ操作をテストする |
 
-| 順番 | 実装内容 | 理由 |
-|------|----------|------|
-| 1 | マイグレーション・モデル | データの「箱」を用意する |
-| 2 | 一覧表示（Read） | データを表示できるか確認 |
-| 3 | 新規作成（Create） | データを追加できるか確認 |
-| 4 | 詳細表示（Read） | 個別データを表示できるか確認 |
-| 5 | 編集（Update） | データを更新できるか確認 |
-| 6 | 削除（Delete） | データを削除できるか確認 |
-| 7 | 検索 | 応用機能を追加 |
-
-この順番は「**CRUD**」（Create, Read, Update, Delete）の基本に沿っています。
-
-> 💡 **ポイント**: 「Read」を先にするのは、データが正しく保存されているか確認するためです。
+> 💡 **ポイント**: 「データファースト」の考え方で、まずはデータ層から構築します。
 
 ---
 
-## 導入：マイグレーションとモデルの役割
+## Step 1: tasksテーブルのマイグレーション作成
 
-**マイグレーション（Migration）**は、**データベースのテーブル構造を管理するファイル**です。
-
-**モデル（Model）**は、**データベースのテーブルとやり取りするためのクラス**です。
-
-この2つを作成することで、**データベースとLaravelアプリケーションを連携**させることができます。
-
----
-
-## 詳細解説
-
-### 🔍 マイグレーションファイルの作成
-
-まず、tasksテーブルのマイグレーションファイルを作成します。
-
----
-
-#### ステップ1: マイグレーションファイルを生成する
+### 1-1. マイグレーションファイルを生成する
 
 以下のコマンドを実行します。
 
@@ -106,9 +83,7 @@ $ php artisan tinker
 php artisan make:migration create_tasks_table
 ```
 
----
-
-#### 実行結果
+**実行結果**:
 
 ```
 Created Migration: 2024_01_15_123456_create_tasks_table
@@ -118,7 +93,7 @@ Created Migration: 2024_01_15_123456_create_tasks_table
 
 ---
 
-#### ステップ2: マイグレーションファイルを編集する
+### 1-2. マイグレーションファイルを編集する
 
 作成されたマイグレーションファイルを開き、以下のように編集します。
 
@@ -162,84 +137,53 @@ return new class extends Migration
 
 ---
 
-### 🔍 コードリーディング
+### 1-3. コードリーディング
 
 #### `Schema::create('tasks', function (Blueprint $table) { ... })`
 
-*   `tasks`という名前のテーブルを作成します。
+- `tasks`という名前のテーブルを作成します
 
 ---
 
 #### `$table->id()`
 
-*   `id`カラムを作成します。
-*   データ型は`BIGINT UNSIGNED`で、主キー（PRIMARY KEY）、自動増分（AUTO_INCREMENT）が設定されます。
+- `id`カラムを作成します
+- データ型は`BIGINT UNSIGNED`で、主キー（PRIMARY KEY）、自動増分（AUTO_INCREMENT）が設定されます
 
 ---
 
 #### `$table->foreignId('user_id')->constrained()->onDelete('cascade')`
 
-*   `user_id`カラムを作成します。
-*   データ型は`BIGINT UNSIGNED`です。
-*   `constrained()`は、外部キー制約を設定します。デフォルトでは、`users`テーブルの`id`カラムを参照します。
-*   `onDelete('cascade')`は、ユーザーが削除されたら、そのユーザーのタスクも削除されることを意味します。
+- `user_id`カラムを作成します
+- `constrained()`は、外部キー制約を設定します（デフォルトで`users`テーブルの`id`を参照）
+- `onDelete('cascade')`は、ユーザーが削除されたら、そのユーザーのタスクも削除されることを意味します
 
 ---
 
 #### `$table->foreignId('category_id')->nullable()->constrained()->onDelete('set null')`
 
-*   `category_id`カラムを作成します。
-*   `nullable()`は、NULLを許可することを意味します。
-*   `onDelete('set null')`は、カテゴリーが削除されたら、そのカテゴリーに属するタスクの`category_id`をNULLに設定することを意味します。
-
----
-
-#### `$table->string('title')`
-
-*   `title`カラムを作成します。
-*   データ型は`VARCHAR(255)`です。
-
----
-
-#### `$table->text('description')->nullable()`
-
-*   `description`カラムを作成します。
-*   データ型は`TEXT`です。
-*   `nullable()`は、NULLを許可することを意味します。
+- `category_id`カラムを作成します
+- `nullable()`は、NULLを許可することを意味します
+- `onDelete('set null')`は、カテゴリーが削除されたら、`category_id`をNULLに設定することを意味します
 
 ---
 
 #### `$table->enum('status', ['pending', 'in_progress', 'completed'])->default('pending')`
 
-*   `status`カラムを作成します。
-*   データ型は`ENUM`で、`pending`、`in_progress`、`completed`のいずれかの値を取ります。
-*   `default('pending')`は、デフォルト値を`pending`に設定します。
-
----
-
-#### `$table->date('due_date')->nullable()`
-
-*   `due_date`カラムを作成します。
-*   データ型は`DATE`です。
-*   `nullable()`は、NULLを許可することを意味します。
+- `status`カラムを作成します
+- データ型は`ENUM`で、指定した値のみを取ります
+- `default('pending')`は、デフォルト値を`pending`に設定します
 
 ---
 
 #### `$table->timestamps()`
 
-*   `created_at`と`updated_at`カラムを作成します。
-*   データ型は`TIMESTAMP`です。
+- `created_at`と`updated_at`カラムを作成します
+- Laravelが自動的に値を管理します
 
 ---
 
-#### `Schema::dropIfExists('tasks')`
-
-*   `tasks`テーブルが存在する場合、削除します。
-*   マイグレーションをロールバックする際に使用されます。
-
----
-
-### 🔍 マイグレーションの実行
+### 1-4. マイグレーションを実行する
 
 マイグレーションファイルを作成したら、以下のコマンドを実行して、データベースにテーブルを作成します。
 
@@ -247,9 +191,7 @@ return new class extends Migration
 php artisan migrate
 ```
 
----
-
-#### 実行結果
+**実行結果**:
 
 ```
 Migrating: 2024_01_15_123456_create_tasks_table
@@ -260,24 +202,9 @@ Migrated:  2024_01_15_123456_create_tasks_table (50.23ms)
 
 ---
 
-### 💡 TIP: phpMyAdminで確認する
+## Step 2: Taskモデルの作成
 
-phpMyAdminを開き、`tasks`テーブルが作成されているか確認しましょう。
-
-1. ブラウザで`http://localhost:8080`を開く
-2. データベースを選択
-3. `tasks`テーブルをクリック
-4. テーブルの構造を確認
-
----
-
-### 🔍 モデルの作成
-
-次に、Taskモデルを作成します。
-
----
-
-#### ステップ1: モデルを生成する
+### 2-1. モデルを生成する
 
 以下のコマンドを実行します。
 
@@ -285,9 +212,7 @@ phpMyAdminを開き、`tasks`テーブルが作成されているか確認しま
 php artisan make:model Task
 ```
 
----
-
-#### 実行結果
+**実行結果**:
 
 ```
 Model created successfully.
@@ -297,7 +222,7 @@ Model created successfully.
 
 ---
 
-#### ステップ2: モデルを編集する
+### 2-2. モデルを編集する
 
 作成されたモデルファイルを開き、以下のように編集します。
 
@@ -342,51 +267,33 @@ class Task extends Model
 
 ---
 
-### 🔍 コードリーディング
+### 2-3. コードリーディング
 
 #### `class Task extends Model`
 
-*   `Task`クラスは、`Model`クラスを継承しています。
-*   これにより、`Task`クラスは、Eloquent ORMの機能を使えるようになります。
-
----
-
-#### `use HasFactory`
-
-*   `HasFactory`トレイトを使用しています。
-*   これにより、ファクトリーを使ってテストデータを作成できるようになります。
+- `Task`クラスは、`Model`クラスを継承しています
+- これにより、Eloquent ORMの機能を使えるようになります
 
 ---
 
 #### `protected $fillable`
 
-*   **マスアサインメント（Mass Assignment）**を許可するカラムを指定します。
-*   マスアサインメントとは、`create()`や`update()`メソッドで、配列を使ってデータを一括で登録・更新することです。
-*   `$fillable`に指定されていないカラムは、マスアサインメントできません。
+- **マスアサインメント（Mass Assignment）** を許可するカラムを指定します
+- マスアサインメントとは、`create()`や`update()`メソッドで、配列を使ってデータを一括で登録・更新することです
+- `$fillable`に指定されていないカラムは、マスアサインメントできません
 
 ---
 
 #### `protected $casts`
 
-*   カラムのデータ型を指定します。
-*   `due_date`カラムを`date`型にキャストすることで、Carbonオブジェクトとして扱えるようになります。
+- カラムのデータ型を指定します
+- `due_date`カラムを`date`型にキャストすることで、Carbonオブジェクトとして扱えるようになります
 
 ---
 
-### 💡 TIP: $fillableと$guarded
+## Step 3: categoriesテーブルの作成
 
-**$fillable**と**$guarded**は、マスアサインメントを制御するためのプロパティです。
-
-*   **$fillable**: マスアサインメントを許可するカラムを指定する（ホワイトリスト方式）
-*   **$guarded**: マスアサインメントを禁止するカラムを指定する（ブラックリスト方式）
-
-実務では、**$fillable**を使うことが推奨されます。
-
----
-
-### 🚀 実践: マイグレーションとモデルを作成しよう
-
-#### ステップ1: categoriesテーブルのマイグレーションを作成する
+### 3-1. categoriesテーブルのマイグレーションを作成する
 
 ```bash
 php artisan make:migration create_categories_table
@@ -394,7 +301,7 @@ php artisan make:migration create_categories_table
 
 ---
 
-#### ステップ2: マイグレーションファイルを編集する
+### 3-2. マイグレーションファイルを編集する
 
 **ファイル**: `database/migrations/2024_01_15_123457_create_categories_table.php`
 
@@ -425,7 +332,7 @@ return new class extends Migration
 
 ---
 
-#### ステップ3: マイグレーションを実行する
+### 3-3. マイグレーションを実行する
 
 ```bash
 php artisan migrate
@@ -433,7 +340,7 @@ php artisan migrate
 
 ---
 
-#### ステップ4: Categoryモデルを作成する
+### 3-4. Categoryモデルを作成する
 
 ```bash
 php artisan make:model Category
@@ -441,7 +348,7 @@ php artisan make:model Category
 
 ---
 
-#### ステップ5: モデルを編集する
+### 3-5. モデルを編集する
 
 **ファイル**: `app/Models/Category.php`
 
@@ -465,9 +372,42 @@ class Category extends Model
 
 ---
 
-### 🚨 よくある間違い
+## Step 4: 動作確認
 
-#### 間違い1: $fillableを設定し忘れる
+### 4-1. phpMyAdminで確認する
+
+phpMyAdminを開き、テーブルが作成されているか確認しましょう。
+
+1. ブラウザで`http://localhost:8080`を開く
+2. データベースを選択
+3. `tasks`テーブルと`categories`テーブルが存在することを確認
+4. テーブルの構造を確認
+
+---
+
+### 4-2. Tinkerでデータ操作をテストする
+
+```bash
+php artisan tinker
+```
+
+```php
+// カテゴリーを作成
+>>> App\Models\Category::create(['name' => '仕事']);
+>>> App\Models\Category::create(['name' => 'プライベート']);
+
+// タスクを作成
+>>> App\Models\Task::create(['user_id' => 1, 'title' => 'テストタスク']);
+
+// タスクを取得
+>>> App\Models\Task::all();
+```
+
+---
+
+## 🚨 よくある間違い
+
+### 間違い1: $fillableを設定し忘れる
 
 **エラー**:
 
@@ -480,19 +420,23 @@ Add [title] to fillable property to allow mass assignment on [App\Models\Task].
 
 ---
 
-#### 間違い2: 外部キー制約を設定し忘れる
+### 間違い2: 外部キー制約を設定し忘れる
+
+**問題**: 関連するテーブルのデータが削除されても、参照しているデータが残ってしまう
 
 **対処法**: `foreignId()`と`constrained()`を使って、外部キー制約を設定します。
 
 ---
 
-#### 間違い3: マイグレーションを実行し忘れる
+### 間違い3: マイグレーションを実行し忘れる
+
+**問題**: テーブルが作成されず、エラーになる
 
 **対処法**: `php artisan migrate`を実行して、テーブルを作成します。
 
 ---
 
-### 💡 TIP: マイグレーションとモデルを同時に作成する
+## 💡 TIP: マイグレーションとモデルを同時に作成する
 
 以下のコマンドを使うと、マイグレーションとモデルを同時に作成できます。
 
@@ -500,18 +444,31 @@ Add [title] to fillable property to allow mass assignment on [App\Models\Task].
 php artisan make:model Task -m
 ```
 
-*   `-m`オプションは、マイグレーションファイルも同時に作成することを意味します。
+`-m`オプションを付けると、モデルと一緒にマイグレーションファイルも作成されます。
+
+---
+
+## 💡 TIP: $fillableと$guarded
+
+**$fillable**と**$guarded**は、マスアサインメントを制御するためのプロパティです。
+
+- **$fillable**: マスアサインメントを許可するカラムを指定する（ホワイトリスト方式）
+- **$guarded**: マスアサインメントを禁止するカラムを指定する（ブラックリスト方式）
+
+実務では、**$fillable**を使うことが推奨されます。
 
 ---
 
 ## ✨ まとめ
 
-このセクションでは、tasksテーブルのマイグレーションとTaskモデルの作成について学びました。
+このセクションでは、マイグレーションとモデルの作成について学びました。
 
-*   マイグレーションファイルを作成し、テーブルの構造を定義する。
-*   `php artisan migrate`を実行して、データベースにテーブルを作成する。
-*   モデルを作成し、`$fillable`でマスアサインメントを許可するカラムを指定する。
-*   外部キー制約を設定することで、データの整合性を保つ。
+| Step | 学んだこと |
+|------|-----------|
+| Step 1 | `php artisan make:migration`でテーブル構造を定義 |
+| Step 2 | `php artisan make:model`でデータ操作クラスを作成 |
+| Step 3 | 関連テーブル（categories）も同様に作成 |
+| Step 4 | phpMyAdminとTinkerで動作確認 |
 
 次のセクションでは、タスク一覧の実装について学びます。
 
@@ -519,6 +476,8 @@ php artisan make:model Task -m
 
 ## 📝 学習のポイント
 
-- [ ] tasksテーブルのマイグレーションファイルを作成する方法を学んだ。
-- [ ] Taskモデルを作成し、データベースとの連携を理解した。
-- [ ] マイグレーションとモデルの関係を理解した。
+- [ ] マイグレーションファイルの作成方法を理解した
+- [ ] マイグレーションファイルの編集方法を理解した
+- [ ] モデルの作成方法を理解した
+- [ ] `$fillable`の役割を理解した
+- [ ] 外部キー制約の設定方法を理解した

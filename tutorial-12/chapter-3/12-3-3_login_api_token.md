@@ -2,10 +2,10 @@
 
 ## 🎯 このセクションで学ぶこと
 
-*   ログインAPIを実装する方法を学ぶ。
-*   トークンを発行する方法を学ぶ。
-*   トークンを使った認証の流れを理解する。
-*   ログアウトAPIを実装する方法を学ぶ。
+- ログインAPIを実装する方法を学ぶ
+- トークンを発行する方法を学ぶ
+- トークンを使った認証の流れを理解する
+- ログアウトAPIを実装する方法を学ぶ
 
 ---
 
@@ -27,11 +27,13 @@
 
 ### 理由2: 認証フロー
 
-1. ユーザーがメールアドレスとパスワードを送信
-2. サーバーが認証情報を検証
-3. 正しければトークンを発行
-4. クライアントはトークンを保存
-5. 以降のリクエストでトークンを送信
+| 順番 | 処理 |
+|------|------|
+| 1 | ユーザーがメールアドレスとパスワードを送信 |
+| 2 | サーバーが認証情報を検証 |
+| 3 | 正しければトークンを発行 |
+| 4 | クライアントはトークンを保存 |
+| 5 | 以降のリクエストでトークンを送信 |
 
 ---
 
@@ -49,33 +51,17 @@ $token = $user->createToken('api-token')->plainTextToken;
 
 | 順番 | 作業 | 理由 |
 |------|------|------|
-| 1 | ログインAPIの作成 | メールとパスワードで認証 |
-| 2 | トークンの発行 | `createToken()`を使用 |
-| 3 | レスポンスの設計 | トークンとユーザー情報を返す |
+| Step 1 | ログインAPIの実装 | メールとパスワードで認証 |
+| Step 2 | トークンを使ったリクエスト | 認証済みAPIへのアクセス |
+| Step 3 | ログアウトAPIの実装 | トークンの削除 |
 
 > 💡 **ポイント**: トークンは「パスワードの代わり」として使われます。
 
 ---
 
-## 導入：なぜトークンが必要なのか
+## Step 1: ログインAPIの実装
 
-APIでは、**セッションを使わない**ため、**トークン**を使って認証を行います。
-
-**トークンベース認証の流れ**:
-
-1.  ユーザーがログインする
-2.  サーバーがトークンを発行する
-3.  クライアントがトークンを保存する
-4.  クライアントがリクエストにトークンを含める
-5.  サーバーがトークンを検証する
-
----
-
-## 詳細解説
-
-### 🔍 ログインAPIの実装
-
-ログインAPIを実装します。
+### 1-1. ログインAPIの仕様
 
 **エンドポイント**: `POST /api/login`
 
@@ -103,7 +89,7 @@ APIでは、**セッションを使わない**ため、**トークン**を使っ
 
 ---
 
-### 🔍 コントローラーの作成
+### 1-2. コントローラーの作成
 
 ```bash
 php artisan make:controller Api/AuthController
@@ -119,12 +105,13 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
-    public function login(Request $request)
+    public function login(Request $request): JsonResponse
     {
         $request->validate([
             'email' => 'required|email',
@@ -149,15 +136,19 @@ class AuthController extends Controller
 }
 ```
 
-**ポイント**:
-*   `User::where('email', $request->email)->first()`で、ユーザーを取得する
-*   `Hash::check()`で、パスワードを検証する
-*   `$user->createToken()`で、トークンを発行する
-*   `plainTextToken`で、トークンの文字列を取得する
+---
+
+### 1-3. コードリーディング
+
+| コード | 説明 |
+|--------|------|
+| `User::where('email', $request->email)->first()` | ユーザーを取得 |
+| `Hash::check($request->password, $user->password)` | パスワードを検証 |
+| `$user->createToken('api-token')->plainTextToken` | トークンを発行 |
 
 ---
 
-### 🔍 ルートの定義
+### 1-4. ルートの定義
 
 **ファイル**: `routes/api.php`
 
@@ -169,15 +160,13 @@ Route::post('/login', [AuthController::class, 'login']);
 
 ---
 
-### 🔍 実践演習: ログインAPIをテストしてください
-
-Thunder Clientで、以下のリクエストを送信してください。
+### 1-5. Thunder Clientでテスト
 
 **1. 成功する場合**
 
-*   メソッド: `POST`
-*   URL: `http://localhost:8000/api/login`
-*   Body（JSON）:
+- メソッド: `POST`
+- URL: `http://localhost:8000/api/login`
+- Body（JSON）:
 
 ```json
 {
@@ -186,18 +175,13 @@ Thunder Clientで、以下のリクエストを送信してください。
 }
 ```
 
-**期待されるレスポンス**:
-
-*   ステータスコード: `200 OK`
-*   ボディ: トークンとユーザー情報
-
----
+- 期待: ステータスコード `200 OK`
 
 **2. 失敗する場合**
 
-*   メソッド: `POST`
-*   URL: `http://localhost:8000/api/login`
-*   Body（JSON）:
+- メソッド: `POST`
+- URL: `http://localhost:8000/api/login`
+- Body（JSON）:
 
 ```json
 {
@@ -206,14 +190,13 @@ Thunder Clientで、以下のリクエストを送信してください。
 }
 ```
 
-**期待されるレスポンス**:
-
-*   ステータスコード: `422 Unprocessable Entity`
-*   ボディ: エラーメッセージ
+- 期待: ステータスコード `422 Unprocessable Entity`
 
 ---
 
-### 🔍 トークンの保存（クライアント側）
+## Step 2: トークンを使ったリクエスト
+
+### 2-1. トークンの保存（クライアント側）
 
 クライアント側では、トークンを保存します。
 
@@ -243,17 +226,17 @@ fetch('http://localhost:8000/api/login', {
 
 ---
 
-### 🔍 トークンを使ったリクエスト
+### 2-2. トークンを使ったリクエスト
 
 トークンを使って、認証が必要なAPIにリクエストを送信します。
 
 **Thunder Client**:
 
-1.  メソッド: `GET`
-2.  URL: `http://localhost:8000/api/tasks`
-3.  「Headers」タブをクリック
-4.  キー: `Authorization`
-5.  値: `Bearer トークン`
+1. メソッド: `GET`
+2. URL: `http://localhost:8000/api/tasks`
+3. 「Headers」タブをクリック
+4. キー: `Authorization`
+5. 値: `Bearer トークン`
 
 **JavaScript**:
 
@@ -277,16 +260,16 @@ fetch('http://localhost:8000/api/tasks', {
 
 ---
 
-### 🔍 ログアウトAPIの実装
+## Step 3: ログアウトAPIの実装
 
-ログアウトAPIを実装します。
+### 3-1. ログアウトAPIの仕様
 
 **エンドポイント**: `POST /api/logout`
 
 **ファイル**: `app/Http/Controllers/Api/AuthController.php`
 
 ```php
-public function logout(Request $request)
+public function logout(Request $request): JsonResponse
 {
     $request->user()->currentAccessToken()->delete();
     
@@ -296,13 +279,18 @@ public function logout(Request $request)
 }
 ```
 
-**ポイント**:
-*   `$request->user()`で、認証済みユーザーを取得する
-*   `currentAccessToken()->delete()`で、現在のトークンを削除する
+---
+
+### 3-2. コードリーディング
+
+| コード | 説明 |
+|--------|------|
+| `$request->user()` | 認証済みユーザーを取得 |
+| `currentAccessToken()->delete()` | 現在のトークンを削除 |
 
 ---
 
-### 🔍 ルートの定義（ログアウト）
+### 3-3. ルートの定義（ログアウト）
 
 **ファイル**: `routes/api.php`
 
@@ -312,35 +300,16 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 ```
 
-**ポイント**:
-*   `auth:sanctum`ミドルウェアを適用する
-*   認証が必要なAPIは、このグループ内に定義する
+> 💡 **ポイント**: `auth:sanctum`ミドルウェアを適用し、認証が必要なAPIはこのグループ内に定義します。
 
 ---
 
-### 🔍 実践演習: ログアウトAPIをテストしてください
-
-Thunder Clientで、以下のリクエストを送信してください。
-
-*   メソッド: `POST`
-*   URL: `http://localhost:8000/api/logout`
-*   Headers:
-    *   キー: `Authorization`
-    *   値: `Bearer トークン`
-
-**期待されるレスポンス**:
-
-*   ステータスコード: `200 OK`
-*   ボディ: `{"message": "Logged out successfully"}`
-
----
-
-### 🔍 すべてのトークンを削除する
+### 3-4. すべてのトークンを削除する
 
 すべてのトークンを削除する場合は、以下のようにします。
 
 ```php
-public function logout(Request $request)
+public function logout(Request $request): JsonResponse
 {
     $request->user()->tokens()->delete();
     
@@ -352,9 +321,7 @@ public function logout(Request $request)
 
 ---
 
-### 🔍 トークンの有効期限を設定する
-
-トークンの有効期限を設定できます。
+### 3-5. トークンの有効期限を設定する
 
 **ファイル**: `config/sanctum.php`
 
@@ -362,28 +329,18 @@ public function logout(Request $request)
 'expiration' => 60, // 60分
 ```
 
-**ポイント**:
-*   `expiration`を設定すると、トークンの有効期限が設定される
-*   `null`の場合は、有効期限なし
+| 設定 | 説明 |
+|------|------|
+| 数値 | 有効期限（分） |
+| null | 有効期限なし |
 
 ---
 
-### 💡 TIP: トークンの名前を変える
+## 🚨 よくある間違い
 
-トークンに名前を付けることができます。
+### 間違い1: パスワードをそのまま比較する
 
-```php
-$token = $user->createToken('mobile-app')->plainTextToken;
-$token = $user->createToken('web-app')->plainTextToken;
-```
-
----
-
-### 🚨 よくある間違い
-
-#### 間違い1: パスワードをそのまま比較する
-
-パスワードは、`Hash::check()`で検証します。
+**問題**: パスワードはハッシュ化されている
 
 ```php
 // ❌ 間違い
@@ -399,9 +356,9 @@ if (!Hash::check($request->password, $user->password)) {
 
 ---
 
-#### 間違い2: トークンをそのまま返す
+### 間違い2: トークンをそのまま返す
 
-トークンは、`plainTextToken`で取得します。
+**問題**: オブジェクトではなく文字列を返す
 
 ```php
 // ❌ 間違い
@@ -413,9 +370,9 @@ $token = $user->createToken('api-token')->plainTextToken;
 
 ---
 
-#### 間違い3: Bearerを忘れる
+### 間違い3: Bearerを忘れる
 
-Authorizationヘッダーには、`Bearer`を付けます。
+**問題**: Authorizationヘッダーの形式が間違い
 
 ```
 // ❌ 間違い
@@ -427,14 +384,26 @@ Authorization: Bearer トークン
 
 ---
 
+## 💡 TIP: トークンの名前を変える
+
+トークンに名前を付けることができます。
+
+```php
+$token = $user->createToken('mobile-app')->plainTextToken;
+$token = $user->createToken('web-app')->plainTextToken;
+```
+
+---
+
 ## ✨ まとめ
 
 このセクションでは、ログインAPIとトークン発行を学びました。
 
-*   ログインAPIを実装した。
-*   トークンを発行した。
-*   トークンを使った認証の流れを理解した。
-*   ログアウトAPIを実装した。
+| Step | 学んだこと |
+|------|-----------|
+| Step 1 | ログインAPIの実装とトークン発行 |
+| Step 2 | トークンを使ったリクエストの送信 |
+| Step 3 | ログアウトAPIの実装とトークン削除 |
 
 次のセクションでは、認証が必要なAPIの実装について学びます。
 
@@ -442,8 +411,8 @@ Authorization: Bearer トークン
 
 ## 📝 学習のポイント
 
-- [ ] ログインAPIを実装した。
-- [ ] トークンを発行した。
-- [ ] トークンを使ったリクエストを送信した。
-- [ ] ログアウトAPIを実装した。
-- [ ] トークンの有効期限を設定した。
+- [ ] ログインAPIを実装した
+- [ ] トークンを発行した
+- [ ] トークンを使ったリクエストを送信した
+- [ ] ログアウトAPIを実装した
+- [ ] トークンの有効期限を設定した

@@ -2,10 +2,10 @@
 
 ## 🎯 このセクションで学ぶこと
 
-*   routes/api.phpとは何かを理解する。
-*   APIルートの基本的な書き方を学ぶ。
-*   routes/web.phpとroutes/api.phpの違いを理解する。
-*   APIコントローラーの作成方法を学ぶ。
+- routes/api.phpとは何かを理解する
+- APIルートの基本的な書き方を学ぶ
+- routes/web.phpとroutes/api.phpの違いを理解する
+- APIコントローラーの作成方法を学ぶ
 
 ---
 
@@ -54,51 +54,41 @@ REST APIでは、**リソースとHTTPメソッドの組み合わせ**でルー�
 
 | 順番 | 作業 | 理由 |
 |------|------|------|
-| 1 | api.phpの確認 | APIルートファイルの特徴を理解 |
-| 2 | RESTfulルートの定義 | CRUD用のルートを作成 |
-| 3 | ルートの確認 | `php artisan route:list`で確認 |
+| Step 1 | api.phpの確認 | APIルートファイルの特徴を理解 |
+| Step 2 | APIコントローラーの作成 | CRUD用のコントローラー |
+| Step 3 | ルートの定義と確認 | `apiResource`の使い方 |
 
 > 💡 **ポイント**: `Route::apiResource()`を使うと、CRUD用のルートを一括で定義できます。
 
 ---
 
-## 導入：なぜroutes/api.phpを使うのか
+## Step 1: routes/api.phpの理解
 
-Laravelには、**routes/web.php**と**routes/api.php**の2つのルートファイルがあります。
-
-*   **routes/web.php**: Webページ用のルート
-*   **routes/api.php**: API用のルート
-
-API開発では、**routes/api.php**を使います。
-
----
-
-## 詳細解説
-
-### 🔍 routes/api.phpとは
+### 1-1. routes/api.phpとは
 
 **routes/api.php**は、**API用のルート**を定義するファイルです。
 
-**特徴**:
-*   **URLの先頭に`/api`が自動的に付く**
-*   **セッションを使わない**（ステートレス）
-*   **CSRFトークンのチェックがない**
+| 特徴 | 説明 |
+|------|------|
+| URLの先頭に`/api`が自動的に付く | `/tasks`は`/api/tasks`になる |
+| セッションを使わない | ステートレス |
+| CSRFトークンのチェックがない | APIはトークン認証を使う |
 
 ---
 
-### 🔍 routes/web.phpとroutes/api.phpの違い
+### 1-2. routes/web.phpとの違い
 
 | 項目 | routes/web.php | routes/api.php |
 |------|----------------|----------------|
-| **用途** | Webページ | API |
-| **URLの先頭** | なし | `/api` |
-| **セッション** | あり | なし |
-| **CSRFトークン** | あり | なし |
-| **ミドルウェア** | `web` | `api` |
+| 用途 | Webページ | API |
+| URLの先頭 | なし | `/api` |
+| セッション | あり | なし |
+| CSRFトークン | あり | なし |
+| ミドルウェア | `web` | `api` |
 
 ---
 
-### 🔍 APIルートの基本的な書き方
+### 1-3. APIルートの基本的な書き方
 
 **ファイル**: `routes/api.php`
 
@@ -106,31 +96,31 @@ API開発では、**routes/api.php**を使います。
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\TaskController;
+use App\Http\Controllers\Api\TaskController;
 
 Route::get('/tasks', [TaskController::class, 'index']);
 ```
-
-**ポイント**:
-*   `Route::get()`で、GETリクエストのルートを定義する
-*   第1引数は、URL（`/api`は自動的に付く）
-*   第2引数は、コントローラーとメソッド
 
 **アクセス**: `http://localhost:8000/api/tasks`
 
 ---
 
-### 🔍 APIコントローラーの作成
+## Step 2: APIコントローラーの作成
 
-APIコントローラーを作成します。
+### 2-1. コントローラーを生成する
 
 ```bash
 php artisan make:controller Api/TaskController --api
 ```
 
 **ポイント**:
-*   `--api`オプションを付けると、API用のメソッドが生成される
-*   `Api/`ディレクトリに作成すると、整理しやすい
+
+- `--api`オプションを付けると、API用のメソッドが生成される
+- `Api/`ディレクトリに作成すると、整理しやすい
+
+---
+
+### 2-2. コントローラーの実装
 
 **ファイル**: `app/Http/Controllers/Api/TaskController.php`
 
@@ -142,32 +132,33 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Task;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 
 class TaskController extends Controller
 {
-    public function index()
+    public function index(): JsonResponse
     {
         $tasks = Task::all();
         return response()->json($tasks);
     }
 
-    public function store(Request $request)
+    public function store(Request $request): JsonResponse
     {
         // タスクを作成
     }
 
-    public function show($id)
+    public function show(string $id): JsonResponse
     {
-        $task = Task::find($id);
+        $task = Task::findOrFail($id);
         return response()->json($task);
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request, string $id): JsonResponse
     {
         // タスクを更新
     }
 
-    public function destroy($id)
+    public function destroy(string $id): JsonResponse
     {
         // タスクを削除
     }
@@ -176,7 +167,9 @@ class TaskController extends Controller
 
 ---
 
-### 🔍 ルートを定義する
+## Step 3: ルートの定義と確認
+
+### 3-1. 個別にルートを定義する
 
 **ファイル**: `routes/api.php`
 
@@ -195,7 +188,7 @@ Route::delete('/tasks/{id}', [TaskController::class, 'destroy']);
 
 ---
 
-### 🔍 Route::apiResourceを使う
+### 3-2. Route::apiResourceを使う
 
 上記のルートは、`Route::apiResource()`で一括定義できます。
 
@@ -209,18 +202,16 @@ Route::apiResource('tasks', TaskController::class);
 |-------------|-----|---------|------|
 | GET | /api/tasks | index | 一覧取得 |
 | POST | /api/tasks | store | 作成 |
-| GET | /api/tasks/{id} | show | 詳細取得 |
-| PUT/PATCH | /api/tasks/{id} | update | 更新 |
-| DELETE | /api/tasks/{id} | destroy | 削除 |
+| GET | /api/tasks/{task} | show | 詳細取得 |
+| PUT/PATCH | /api/tasks/{task} | update | 更新 |
+| DELETE | /api/tasks/{task} | destroy | 削除 |
 
 ---
 
-### 🔍 ルートを確認する
-
-定義したルートを確認するには、以下のコマンドを実行します。
+### 3-3. ルートを確認する
 
 ```bash
-php artisan route:list
+php artisan route:list --path=api
 ```
 
 **出力例**:
@@ -235,15 +226,13 @@ DELETE     api/tasks/{task} ......... tasks.destroy › Api\TaskController@destr
 
 ---
 
-### 🔍 実践演習: APIルートを定義してください
+### 3-4. 実践演習
 
 以下のルートを定義してください。
 
-*   **GET /api/users**: ユーザー一覧を取得
-*   **POST /api/users**: ユーザーを作成
-*   **GET /api/users/{id}**: ユーザー詳細を取得
-
----
+- **GET /api/users**: ユーザー一覧を取得
+- **POST /api/users**: ユーザーを作成
+- **GET /api/users/{id}**: ユーザー詳細を取得
 
 **解答例**:
 
@@ -251,27 +240,13 @@ DELETE     api/tasks/{task} ......... tasks.destroy › Api\TaskController@destr
 php artisan make:controller Api/UserController --api
 ```
 
-**ファイル**: `routes/api.php`
-
-```php
-use App\Http\Controllers\Api\UserController;
-
-Route::get('/users', [UserController::class, 'index']);
-Route::post('/users', [UserController::class, 'store']);
-Route::get('/users/{id}', [UserController::class, 'show']);
-```
-
-または、`Route::apiResource()`を使う:
-
 ```php
 Route::apiResource('users', UserController::class)->only(['index', 'store', 'show']);
 ```
 
 ---
 
-### 🔍 APIのバージョニング
-
-APIのバージョンを管理するには、URLに`/v1`を付けます。
+### 3-5. APIのバージョニング
 
 ```php
 Route::prefix('v1')->group(function () {
@@ -283,9 +258,7 @@ Route::prefix('v1')->group(function () {
 
 ---
 
-### 🔍 ミドルウェアを適用する
-
-APIルートには、ミドルウェアを適用できます。
+### 3-6. ミドルウェアを適用する
 
 ```php
 Route::middleware('auth:sanctum')->group(function () {
@@ -293,27 +266,13 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 ```
 
-**ポイント**:
-*   `auth:sanctum`は、Laravel Sanctumの認証ミドルウェア
-*   認証が必要なAPIに適用する
-
 ---
 
-### 💡 TIP: ルート名を付ける
+## 🚨 よくある間違い
 
-ルートに名前を付けると、リダイレクトやURLの生成が簡単になります。
+### 間違い1: routes/web.phpにAPIルートを書く
 
-```php
-Route::get('/tasks', [TaskController::class, 'index'])->name('api.tasks.index');
-```
-
----
-
-### 🚨 よくある間違い
-
-#### 間違い1: routes/web.phpにAPIルートを書く
-
-APIルートは、**routes/api.php**に書きます。
+**問題**: セッションやCSRF保護が適用されてしまう
 
 ```php
 // ❌ 間違い（routes/web.php）
@@ -325,9 +284,9 @@ Route::get('/tasks', [TaskController::class, 'index']);
 
 ---
 
-#### 間違い2: /apiを付ける
+### 間違い2: /apiを付ける
 
-routes/api.phpでは、**URLの先頭に`/api`が自動的に付く**ので、付ける必要はありません。
+**問題**: routes/api.phpでは、URLの先頭に`/api`が自動的に付く
 
 ```php
 // ❌ 間違い
@@ -339,9 +298,9 @@ Route::get('/tasks', [TaskController::class, 'index']);
 
 ---
 
-#### 間違い3: --apiオプションを付けない
+### 間違い3: --apiオプションを付けない
 
-APIコントローラーを作成する際は、`--api`オプションを付けます。
+**問題**: API用のメソッドが生成されない
 
 ```bash
 # ❌ 間違い
@@ -353,14 +312,25 @@ php artisan make:controller Api/TaskController --api
 
 ---
 
+## 💡 TIP: ルート名を付ける
+
+ルートに名前を付けると、リダイレクトやURLの生成が簡単になります。
+
+```php
+Route::get('/tasks', [TaskController::class, 'index'])->name('api.tasks.index');
+```
+
+---
+
 ## ✨ まとめ
 
 このセクションでは、LaravelでのAPI開発の準備を学びました。
 
-*   routes/api.phpとは何かを理解した。
-*   APIルートの基本的な書き方を学んだ。
-*   APIコントローラーの作成方法を学んだ。
-*   Route::apiResourceを使った。
+| Step | 学んだこと |
+|------|-----------|
+| Step 1 | routes/api.phpの特徴とweb.phpとの違い |
+| Step 2 | APIコントローラーの作成 |
+| Step 3 | Route::apiResourceの使い方とルートの確認 |
 
 次のセクションでは、CORSについて学びます。
 
@@ -368,8 +338,8 @@ php artisan make:controller Api/TaskController --api
 
 ## 📝 学習のポイント
 
-- [ ] routes/api.phpを理解した。
-- [ ] APIルートを定義した。
-- [ ] APIコントローラーを作成した。
-- [ ] Route::apiResourceを使った。
-- [ ] ルートを確認した。
+- [ ] routes/api.phpを理解した
+- [ ] APIルートを定義した
+- [ ] APIコントローラーを作成した
+- [ ] Route::apiResourceを使った
+- [ ] ルートを確認した

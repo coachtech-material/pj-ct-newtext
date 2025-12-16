@@ -2,10 +2,10 @@
 
 ## 🎯 このセクションで学ぶこと
 
-*   タスクを作成するPOST APIを実装する方法を学ぶ。
-*   HTTPステータスコード（201 Created、422 Unprocessable Entity）を理解する。
-*   なぜそのステータスコードを使うのかを学ぶ。
-*   バリデーションの実装方法を学ぶ。
+- タスクを作成するPOST APIを実装する方法を学ぶ
+- HTTPステータスコード（201 Created、422 Unprocessable Entity）を理解する
+- なぜそのステータスコードを使うのかを学ぶ
+- バリデーションの実装方法を学ぶ
 
 ---
 
@@ -52,30 +52,17 @@ return response()->json($task, 201);
 
 | 順番 | 作業 | 理由 |
 |------|------|------|
-| 1 | storeメソッドの実装 | 作成のロジック |
-| 2 | バリデーションの追加 | 不正なデータを弾く |
-| 3 | 適切なレスポンス | 201ステータスコードを返す |
+| Step 1 | storeメソッドの実装 | 作成のロジック |
+| Step 2 | HTTPステータスコード | 201と422の使い分け |
+| Step 3 | テストと改善 | 正常系と異常系を確認 |
 
 > 💡 **ポイント**: POSTリクエストは「新規作成」に使います。
 
 ---
 
-## 導入：なぜ201 Createdを使うのか
+## Step 1: storeメソッドの実装
 
-リソースを作成した場合、**200 OK**ではなく、**201 Created**を返すのが正しいです。
-
-*   **200 OK**: リクエストが成功した（一般的な成功）
-*   **201 Created**: リソースが作成された（作成の成功）
-
-**201 Created**を使うことで、**リソースが作成された**ことを明確に伝えられます。
-
----
-
-## 詳細解説
-
-### 🔍 タスクを作成するAPI
-
-タスクを作成するAPIを実装します。
+### 1-1. タスクを作成するAPI
 
 **エンドポイント**: `POST /api/tasks`
 
@@ -85,8 +72,7 @@ return response()->json($task, 201);
 {
   "title": "新しいタスク",
   "description": "テスト説明",
-  "status": "pending",
-  "priority": 3
+  "status": "pending"
 }
 ```
 
@@ -94,59 +80,67 @@ return response()->json($task, 201);
 
 ```json
 {
-  "id": 1,
-  "title": "新しいタスク",
-  "description": "テスト説明",
-  "status": "pending",
-  "priority": 3,
-  "created_at": "2024-01-01T00:00:00.000000Z",
-  "updated_at": "2024-01-01T00:00:00.000000Z"
+  "data": {
+    "id": 1,
+    "title": "新しいタスク",
+    "description": "テスト説明",
+    "status": "pending",
+    "created_at": "2024-01-01 00:00:00",
+    "updated_at": "2024-01-01 00:00:00"
+  }
 }
 ```
 
 ---
 
-### 🔍 コントローラーの実装
+### 1-2. コントローラーの実装
 
 **ファイル**: `app/Http/Controllers/Api/TaskController.php`
 
 ```php
-public function store(Request $request)
+public function store(Request $request): JsonResponse
 {
     $validated = $request->validate([
         'title' => 'required|max:255',
         'description' => 'nullable',
         'status' => 'required|in:pending,in_progress,completed',
-        'priority' => 'required|integer|min:1|max:5',
+        'due_date' => 'nullable|date',
     ]);
     
-    $task = Task::create($validated);
+    $task = Task::create([
+        'user_id' => Auth::id(),
+        ...$validated,
+    ]);
     
-    return response()->json($task, 201);
+    return response()->json([
+        'message' => 'タスクを作成しました',
+        'data' => $task
+    ], 201);
 }
 ```
 
-**ポイント**:
-*   `$request->validate()`で、バリデーションを行う
-*   `Task::create()`で、タスクを作成する
-*   **201 Created**を返す
+---
+
+### 1-3. コードリーディング
+
+| コード | 説明 |
+|--------|------|
+| `$request->validate([...])` | バリデーションを行う |
+| `Task::create($validated)` | タスクを作成する |
+| `response()->json([...], 201)` | 201 Createdを返す |
 
 ---
 
-### 🔍 HTTPステータスコード: 201 Created
+## Step 2: HTTPステータスコード
+
+### 2-1. 201 Created
 
 **201 Created**は、**リソースが作成された**ことを示します。
 
-**いつ使うか**:
-*   POSTリクエストでリソースが作成された
-*   PUTリクエストでリソースが作成された（稀）
-
-**なぜ201を使うのか**:
-*   クライアント側で「リソースが作成された」と判断できる
-*   200 OKとは区別できる
-*   RESTful APIの標準
-
-**例**:
+| 使用場面 | 説明 |
+|----------|------|
+| POSTリクエストでリソースが作成された | タスクが作成された |
+| 200 OKとは区別できる | 作成の成功を明確に伝える |
 
 ```php
 return response()->json($task, 201);
@@ -154,49 +148,14 @@ return response()->json($task, 201);
 
 ---
 
-### 🔍 HTTPステータスコード: 422 Unprocessable Entity
+### 2-2. 422 Unprocessable Entity
 
 **422 Unprocessable Entity**は、**リクエストは正しいが、内容が不正**であることを示します。
 
-**いつ使うか**:
-*   バリデーションエラーが発生した
-*   リクエストボディの内容が不正
-
-**なぜ422を使うのか**:
-*   クライアント側で「バリデーションエラーが発生した」と判断できる
-*   400 Bad Requestとは区別できる（400は構文エラー、422は意味エラー）
-
-**例**:
-
-```json
-{
-  "message": "The given data was invalid.",
-  "errors": {
-    "title": [
-      "The title field is required."
-    ],
-    "priority": [
-      "The priority must be between 1 and 5."
-    ]
-  }
-}
-```
-
----
-
-### 🔍 200、201、422の使い分け
-
-| ステータスコード | 状況 | レスポンスボディ |
-|----------------|------|----------------|
-| **200 OK** | リクエストが成功した（更新など） | リソースのデータ |
-| **201 Created** | リソースが作成された | 作成されたリソースのデータ |
-| **422 Unprocessable Entity** | バリデーションエラー | エラーメッセージ |
-
----
-
-### 🔍 バリデーションエラーのレスポンス
-
-Laravelでは、バリデーションエラーが発生すると、自動的に**422 Unprocessable Entity**が返されます。
+| 使用場面 | 説明 |
+|----------|------|
+| バリデーションエラーが発生した | 必須項目が空など |
+| リクエストボディの内容が不正 | 形式は正しいが値が不正 |
 
 **レスポンス例**:
 
@@ -213,65 +172,113 @@ Laravelでは、バリデーションエラーが発生すると、自動的に*
 
 ---
 
-### 🔍 実践演習: タスク作成APIをテストしてください
+### 2-3. 200、201、422の使い分け
 
-Thunder Clientで、以下のリクエストを送信してください。
+| ステータスコード | 状況 | レスポンスボディ |
+|----------------|------|----------------|
+| 200 OK | リクエストが成功した（更新など） | リソースのデータ |
+| 201 Created | リソースが作成された | 作成されたリソースのデータ |
+| 422 Unprocessable Entity | バリデーションエラー | エラーメッセージ |
+
+---
+
+## Step 3: テストと改善
+
+### 3-1. Thunder Clientでテスト
 
 **1. 成功する場合**
 
-*   メソッド: `POST`
-*   URL: `http://localhost:8000/api/tasks`
-*   Body（JSON）:
+- メソッド: `POST`
+- URL: `http://localhost:8000/api/tasks`
+- Body（JSON）:
 
 ```json
 {
   "title": "新しいタスク",
   "description": "テスト説明",
-  "status": "pending",
-  "priority": 3
+  "status": "pending"
 }
 ```
 
-**期待されるレスポンス**:
-
-*   ステータスコード: `201 Created`
-*   ボディ: 作成されたタスクのデータ
-
----
+- 期待: ステータスコード `201 Created`
 
 **2. バリデーションエラーが発生する場合**
 
-*   メソッド: `POST`
-*   URL: `http://localhost:8000/api/tasks`
-*   Body（JSON）:
+- メソッド: `POST`
+- URL: `http://localhost:8000/api/tasks`
+- Body（JSON）:
 
 ```json
 {
   "title": "",
-  "description": "テスト説明",
-  "status": "pending",
-  "priority": 10
+  "status": "invalid"
 }
 ```
 
-**期待されるレスポンス**:
-
-*   ステータスコード: `422 Unprocessable Entity`
-*   ボディ: エラーメッセージ
+- 期待: ステータスコード `422 Unprocessable Entity`
 
 ---
 
-### 🔍 ステータスコードの重要性
+### 3-2. Locationヘッダーを返す
 
-**適切なステータスコードを返す**ことで、クライアント側で以下のことができます。
+201 Createdを返す場合、**Locationヘッダー**を返すのが推奨されます。
 
-*   **成功・失敗を判断する**: 201なら作成成功、422ならバリデーションエラー
-*   **エラー処理を行う**: 422の場合はエラーメッセージを表示
-*   **リトライを判断する**: 422の場合はリトライしない（ユーザーに修正を促す）
+```php
+public function store(Request $request): JsonResponse
+{
+    $validated = $request->validate([...]);
+    
+    $task = Task::create([
+        'user_id' => Auth::id(),
+        ...$validated,
+    ]);
+    
+    return response()->json(['data' => $task], 201)
+        ->header('Location', url("/api/tasks/{$task->id}"));
+}
+```
 
 ---
 
-### 🔍 クライアント側での処理例（JavaScript）
+### 3-3. FormRequestを使う
+
+バリデーションロジックを分離するには、FormRequestを使います。
+
+```bash
+php artisan make:request TaskRequest
+```
+
+**ファイル**: `app/Http/Requests/TaskRequest.php`
+
+```php
+public function rules(): array
+{
+    return [
+        'title' => 'required|max:255',
+        'description' => 'nullable',
+        'status' => 'required|in:pending,in_progress,completed',
+        'due_date' => 'nullable|date',
+    ];
+}
+```
+
+**コントローラー**:
+
+```php
+public function store(TaskRequest $request): JsonResponse
+{
+    $task = Task::create([
+        'user_id' => Auth::id(),
+        ...$request->validated(),
+    ]);
+    
+    return response()->json(['data' => $task], 201);
+}
+```
+
+---
+
+### 3-4. クライアント側での処理例（JavaScript）
 
 ```javascript
 fetch('http://localhost:8000/api/tasks', {
@@ -283,7 +290,6 @@ fetch('http://localhost:8000/api/tasks', {
     title: '新しいタスク',
     description: 'テスト説明',
     status: 'pending',
-    priority: 3,
   }),
 })
   .then(response => {
@@ -305,70 +311,11 @@ fetch('http://localhost:8000/api/tasks', {
 
 ---
 
-### 🔍 Locationヘッダーを返す
+## 🚨 よくある間違い
 
-201 Createdを返す場合、**Locationヘッダー**を返すのが推奨されます。
+### 間違い1: 200 OKを返す
 
-**Locationヘッダー**は、**作成されたリソースのURL**を示します。
-
-```php
-public function store(Request $request)
-{
-    $validated = $request->validate([
-        'title' => 'required|max:255',
-        'description' => 'nullable',
-        'status' => 'required|in:pending,in_progress,completed',
-        'priority' => 'required|integer|min:1|max:5',
-    ]);
-    
-    $task = Task::create($validated);
-    
-    return response()->json($task, 201)
-        ->header('Location', url("/api/tasks/{$task->id}"));
-}
-```
-
----
-
-### 💡 TIP: FormRequestを使う
-
-バリデーションロジックを分離するには、FormRequestを使います。
-
-```bash
-php artisan make:request TaskRequest
-```
-
-**ファイル**: `app/Http/Requests/TaskRequest.php`
-
-```php
-public function rules()
-{
-    return [
-        'title' => 'required|max:255',
-        'description' => 'nullable',
-        'status' => 'required|in:pending,in_progress,completed',
-        'priority' => 'required|integer|min:1|max:5',
-    ];
-}
-```
-
-**コントローラー**:
-
-```php
-public function store(TaskRequest $request)
-{
-    $task = Task::create($request->validated());
-    return response()->json($task, 201);
-}
-```
-
----
-
-### 🚨 よくある間違い
-
-#### 間違い1: 200 OKを返す
-
-リソースを作成した場合は、**201 Created**を返します。
+**問題**: リソースを作成した場合は201を返すべき
 
 ```php
 // ❌ 間違い
@@ -380,25 +327,37 @@ return response()->json($task, 201);
 
 ---
 
-#### 間違い2: バリデーションエラーで200を返す
+### 間違い2: バリデーションエラーで200を返す
 
-バリデーションエラーの場合は、**422 Unprocessable Entity**を返します。
+**問題**: バリデーションエラーの場合は422を返すべき
 
 Laravelでは、`$request->validate()`を使うと、自動的に422が返されます。
 
 ---
 
-#### 間違い3: ステータスコードを省略する
+### 間違い3: ステータスコードを省略する
 
-ステータスコードを省略すると、デフォルトで200が返されます。
+**問題**: デフォルトで200が返される
 
 ```php
 // ❌ 間違い
-return response()->json($task); // 200が返される
+return response()->json($task);
 
 // ✅ 正しい
-return response()->json($task, 201); // 明示的に201を指定
+return response()->json($task, 201);
 ```
+
+---
+
+## 💡 TIP: ステータスコードの重要性
+
+適切なステータスコードを返すことで、クライアント側で以下のことができます。
+
+| 判断 | 説明 |
+|------|------|
+| 成功・失敗を判断する | 201なら作成成功、422ならバリデーションエラー |
+| エラー処理を行う | 422の場合はエラーメッセージを表示 |
+| リトライを判断する | 422の場合はリトライしない |
 
 ---
 
@@ -406,9 +365,11 @@ return response()->json($task, 201); // 明示的に201を指定
 
 このセクションでは、タスクを作成するPOST APIを実装しました。
 
-*   **201 Created**: リソースが作成された場合に返す
-*   **422 Unprocessable Entity**: バリデーションエラーの場合に返す
-*   適切なステータスコードを返すことで、クライアント側で適切な処理ができる
+| Step | 学んだこと |
+|------|-----------|
+| Step 1 | storeメソッドの実装とバリデーション |
+| Step 2 | 201 Createdと422 Unprocessable Entityの使い分け |
+| Step 3 | FormRequestとLocationヘッダー |
 
 次のセクションでは、PUT APIの実装について学びます。
 
@@ -416,8 +377,8 @@ return response()->json($task, 201); // 明示的に201を指定
 
 ## 📝 学習のポイント
 
-- [ ] タスクを作成するAPIを実装した。
-- [ ] 201 Createdを理解した。
-- [ ] 422 Unprocessable Entityを理解した。
-- [ ] なぜそのステータスコードを使うのかを理解した。
-- [ ] バリデーションを実装した。
+- [ ] タスクを作成するAPIを実装した
+- [ ] 201 Createdを理解した
+- [ ] 422 Unprocessable Entityを理解した
+- [ ] なぜそのステータスコードを使うのかを理解した
+- [ ] バリデーションを実装した

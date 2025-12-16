@@ -2,9 +2,9 @@
 
 ## 🎯 このセクションで学ぶこと
 
-*   ログインユーザーのタスクのみを表示する方法を学ぶ。
-*   グローバルスコープを使って、自動的にフィルタリングする方法を学ぶ。
-*   認証ミドルウェアを使って、未ログインユーザーをリダイレクトする方法を学ぶ。
+- ログインユーザーのタスクのみを表示する方法を学ぶ
+- グローバルスコープを使って、自動的にフィルタリングする方法を学ぶ
+- 認証ミドルウェアを使って、未ログインユーザーをリダイレクトする方法を学ぶ
 
 ---
 
@@ -50,25 +50,18 @@ $tasks = auth()->user()->tasks;
 
 | 順番 | 作業 | 理由 |
 |------|------|------|
-| 1 | 一覧表示の修正 | リレーションシップを使って取得 |
-| 2 | タスク作成の修正 | ログインユーザーのIDを自動設定 |
-| 3 | 動作確認 | 他のユーザーのタスクが見えないことを確認 |
+| Step 1 | 現在の実装を確認 | whereでフィルタリング |
+| Step 2 | グローバルスコープの実装 | 自動的にフィルタリング |
+| Step 3 | コントローラーの簡素化 | コードを簡潔に |
+| Step 4 | 動作確認 | 他のユーザーのタスクが見えないことを確認 |
 
 > 💡 **ポイント**: `auth()->user()->tasks`で、ログインユーザーのタスクのみを取得できます。
 
 ---
 
-## 導入：なぜログインユーザーのタスクのみ表示するのか
+## Step 1: 現在の実装を確認する
 
-**マルチテナント**なアプリケーションでは、**ログインユーザーのデータのみを表示**する必要があります。
-
-ログインユーザーのタスクのみを表示することで、セキュリティとプライバシーを保護できます。
-
----
-
-## 詳細解説
-
-### 🔍 現在の実装の確認
+### 1-1. indexメソッドの確認
 
 現在の`index`メソッドでは、`where('user_id', auth()->id())`を使って、ログインユーザーのタスクのみを取得しています。
 
@@ -96,26 +89,27 @@ public function index(Request $request)
 
 ---
 
-### 🔍 すべてのメソッドに適用
+### 1-2. 問題点
 
-`show`、`edit`、`update`、`destroy`メソッドでも、ログインユーザーのタスクかどうかをチェックしています。
+現在の実装には、以下の問題があります。
 
-```php
-public function show(Task $task)
-{
-    if ($task->user_id !== auth()->id()) {
-        abort(403, 'このタスクにアクセスする権限がありません。');
-    }
-
-    return view('tasks.show', compact('task'));
-}
-```
+- **毎回`where('user_id', auth()->id())`を書く必要がある**
+- **書き忘れると、他のユーザーのタスクが見えてしまう**
+- **コードが冗長になる**
 
 ---
 
-### 🔍 グローバルスコープの実装
+## Step 2: グローバルスコープの実装
+
+### 2-1. グローバルスコープとは
 
 **グローバルスコープ**を使うと、**すべてのクエリに自動的に条件を追加**できます。
+
+これにより、`where('user_id', auth()->id())`を毎回書く必要がなくなります。
+
+---
+
+### 2-2. スコープクラスを作成する
 
 **ファイル**: `app/Models/Scopes/UserScope.php`
 
@@ -130,31 +124,107 @@ use Illuminate\Database\Eloquent\Scope;
 
 class UserScope implements Scope
 {
-    public function apply(Builder $builder, Model $model)
+    /**
+     * Apply the scope to a given Eloquent query builder.
+     */
+    public function apply(Builder $builder, Model $model): void
     {
-        $builder->where('user_id', auth()->id());
+        if (auth()->check()) {
+            $builder->where('user_id', auth()->id());
+        }
     }
 }
 ```
 
 ---
 
-### 🔍 モデルにグローバルスコープを追加
+### 2-3. コードリーディング
+
+#### `implements Scope`
+
+- `Scope`インターフェースを実装することで、グローバルスコープとして使えるようになります
+
+---
+
+#### `auth()->check()`
+
+- ユーザーがログインしているかどうかを確認します
+- ログインしていない場合は、条件を追加しません（エラー防止）
+
+---
+
+#### `$builder->where('user_id', auth()->id())`
+
+- すべてのクエリに、`user_id = ログインユーザーのID`という条件を追加します
+
+---
+
+### 2-4. モデルにグローバルスコープを追加する
 
 **ファイル**: `app/Models/Task.php`
 
 ```php
-use App\Models\Scopes\UserScope;
+<?php
 
-protected static function booted()
+namespace App\Models;
+
+use App\Models\Scopes\UserScope;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class Task extends Model
 {
-    static::addGlobalScope(new UserScope());
+    use HasFactory;
+
+    protected $fillable = [
+        'user_id',
+        'category_id',
+        'title',
+        'description',
+        'status',
+        'due_date',
+    ];
+
+    protected $casts = [
+        'due_date' => 'date',
+    ];
+
+    /**
+     * The "booted" method of the model.
+     */
+    protected static function booted(): void
+    {
+        static::addGlobalScope(new UserScope());
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }
 ```
 
 ---
 
-### 🔍 コントローラーを簡潔にする
+### 2-5. コードリーディング
+
+#### `protected static function booted()`
+
+- モデルが起動されたときに実行されるメソッドです
+- グローバルスコープの追加など、初期化処理を行います
+
+---
+
+#### `static::addGlobalScope(new UserScope())`
+
+- `UserScope`をグローバルスコープとして追加します
+- これにより、すべてのクエリに自動的に条件が追加されます
+
+---
+
+## Step 3: コントローラーの簡素化
+
+### 3-1. indexメソッドを修正する
 
 グローバルスコープを使うと、コントローラーから`where('user_id', auth()->id())`を削除できます。
 
@@ -163,7 +233,8 @@ protected static function booted()
 ```php
 public function index(Request $request)
 {
-    $query = Task::query();  // where('user_id', auth()->id())が自動的に追加される
+    // where('user_id', auth()->id())が自動的に追加される
+    $query = Task::query();
 
     // 検索条件
     if ($request->filled('keyword')) {
@@ -178,7 +249,13 @@ public function index(Request $request)
 
     return view('tasks.index', compact('tasks'));
 }
+```
 
+---
+
+### 3-2. showメソッドを修正する
+
+```php
 public function show(Task $task)
 {
     // グローバルスコープにより、自動的にログインユーザーのタスクかチェックされる
@@ -189,56 +266,129 @@ public function show(Task $task)
 
 ---
 
-### 🔍 グローバルスコープの無効化
+### 3-3. コードリーディング
 
-グローバルスコープを一時的に無効化できます。
+#### ルートモデルバインディングとグローバルスコープ
+
+グローバルスコープが適用されている場合、ルートモデルバインディングでも自動的にフィルタリングされます。
+
+```
+GET /tasks/5
+```
+
+このリクエストでは、以下のSQLが実行されます。
+
+```sql
+SELECT * FROM tasks WHERE id = 5 AND user_id = 1;
+```
+
+他のユーザーのタスクにアクセスしようとすると、**404エラー**が返されます。
+
+---
+
+### 3-4. グローバルスコープを無効化する
+
+管理者画面など、全ユーザーのデータを表示したい場合は、グローバルスコープを無効化できます。
 
 ```php
+// 特定のスコープを無効化
 $allTasks = Task::withoutGlobalScope(UserScope::class)->get();
+
+// すべてのグローバルスコープを無効化
+$allTasks = Task::withoutGlobalScopes()->get();
 ```
 
 ---
 
-### 🔍 認証ミドルウェア
+## Step 4: 動作確認
 
-`auth`ミドルウェアを使うと、未ログインユーザーをログインページにリダイレクトできます。
+### 4-1. 認証ミドルウェアの確認
 
-**ファイル**: `routes/web.php`
-
-```php
-Route::middleware(['auth'])->group(function () {
-    Route::get('/tasks', [TaskController::class, 'index'])->name('tasks.index');
-    Route::get('/tasks/create', [TaskController::class, 'create'])->name('tasks.create');
-    Route::post('/tasks', [TaskController::class, 'store'])->name('tasks.store');
-    Route::get('/tasks/{task}', [TaskController::class, 'show'])->name('tasks.show');
-    Route::get('/tasks/{task}/edit', [TaskController::class, 'edit'])->name('tasks.edit');
-    Route::put('/tasks/{task}', [TaskController::class, 'update'])->name('tasks.update');
-    Route::delete('/tasks/{task}', [TaskController::class, 'destroy'])->name('tasks.destroy');
-});
-```
-
----
-
-### 🔍 動作確認
+未ログインユーザーがタスクページにアクセスできないことを確認します。
 
 1. ログアウトする
-2. ブラウザで `http://localhost/tasks` にアクセスする
+2. ブラウザで`http://localhost/tasks`にアクセスする
 3. ログインページにリダイレクトされる
 
 ---
 
-### 💡 TIP: ローカルスコープとの違い
+### 4-2. 他のユーザーのタスクにアクセスする
+
+1. ユーザーAでログインし、タスクを作成する（例: ID = 1）
+2. ログアウトする
+3. ユーザーBでログインする
+4. ブラウザで`http://localhost/tasks/1`にアクセスする
+5. 404エラーが表示される（グローバルスコープにより、ユーザーBのタスクとして検索されるため）
+
+---
+
+### 4-3. Tinkerで確認する
+
+```bash
+php artisan tinker
+```
+
+```php
+// ログインをシミュレート
+>>> auth()->loginUsingId(1);
+
+// グローバルスコープが適用される
+>>> App\Models\Task::all();  // user_id = 1 のタスクのみ
+
+// グローバルスコープを無効化
+>>> App\Models\Task::withoutGlobalScopes()->get();  // 全タスク
+```
+
+---
+
+## 🚨 よくある間違い
+
+### 間違い1: グローバルスコープを適用し忘れる
+
+**問題**: 他のユーザーのタスクが見えてしまう
+
+**対処法**: モデルの`booted()`メソッドで、グローバルスコープを追加します。
+
+---
+
+### 間違い2: 管理者画面で全ユーザーのデータを表示できない
+
+**問題**: グローバルスコープが適用されて、管理者でも自分のデータしか見えない
+
+**対処法**: `withoutGlobalScope()`を使って、グローバルスコープを無効化します。
+
+---
+
+### 間違い3: auth()->check()を忘れる
+
+**エラー**:
+
+```
+Attempt to read property "id" on null
+```
+
+**対処法**: `auth()->check()`でログイン状態を確認してから、`auth()->id()`を使います。
+
+---
+
+## 💡 TIP: ローカルスコープとの違い
 
 **ローカルスコープ**は、必要なときだけ適用されるスコープです。
 
 **グローバルスコープ**は、すべてのクエリに自動的に適用されるスコープです。
 
+| スコープ | 適用タイミング | 使い分け |
+|----------|---------------|----------|
+| ローカル | 明示的に呼び出したとき | 特定の条件でフィルタリング |
+| グローバル | 常に自動的に | セキュリティ、マルチテナント |
+
 **ローカルスコープの例**:
 
 ```php
+// モデルに定義
 public function scopeCompleted($query)
 {
-    return $query->where('status', '完了');
+    return $query->where('status', 'completed');
 }
 
 // 使用例
@@ -247,33 +397,16 @@ $completedTasks = Task::completed()->get();
 
 ---
 
-### 🚨 よくある間違い
-
-#### 間違い1: グローバルスコープを適用し忘れる
-
-**対処法**: モデルの`booted()`メソッドで、グローバルスコープを追加します。
-
----
-
-#### 間違い2: 管理者画面で全ユーザーのデータを表示できない
-
-**対処法**: `withoutGlobalScope()`を使って、グローバルスコープを無効化します。
-
----
-
-#### 間違い3: 認証ミドルウェアを適用し忘れる
-
-**対処法**: ルーティングに`middleware(['auth'])`を追加します。
-
----
-
 ## ✨ まとめ
 
 このセクションでは、ログインユーザーのタスクのみを表示する方法を学びました。
 
-*   グローバルスコープを使って、自動的にフィルタリングできるようにした。
-*   認証ミドルウェアを使って、未ログインユーザーをリダイレクトした。
-*   コントローラーのコードを簡潔にした。
+| Step | 学んだこと |
+|------|-----------|
+| Step 1 | 現在の実装の問題点を確認 |
+| Step 2 | グローバルスコープで自動フィルタリング |
+| Step 3 | コントローラーのコードを簡潔に |
+| Step 4 | 動作確認と認証ミドルウェア |
 
 次のセクションでは、タスクの所有者チェックについて学びます。
 
@@ -281,7 +414,7 @@ $completedTasks = Task::completed()->get();
 
 ## 📝 学習のポイント
 
-- [ ] グローバルスコープを実装した。
-- [ ] 認証ミドルウェアを適用した。
-- [ ] withoutGlobalScope()を学んだ。
-- [ ] ローカルスコープとの違いを理解した。
+- [ ] グローバルスコープを実装した
+- [ ] `booted()`メソッドでスコープを追加した
+- [ ] `withoutGlobalScope()`を学んだ
+- [ ] ローカルスコープとの違いを理解した

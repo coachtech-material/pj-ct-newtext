@@ -2,9 +2,9 @@
 
 ## 🎯 このセクションで学ぶこと
 
-*   抽象的な変数名・メソッド名が、なぜコードを読みにくくするのかを理解する。
-*   具体的な命名に変更することで、コードの可読性を高める方法を学ぶ。
-*   命名力を高めるための実践演習を行う。
+- 抽象的な変数名・メソッド名が、なぜコードを読みにくくするのかを理解する
+- 具体的な命名に変更することで、コードの可読性を高める方法を学ぶ
+- 命名力を高めるための実践演習を行う
 
 ---
 
@@ -50,25 +50,18 @@ $tasks = Task::all();
 
 | 順番 | 作業 | 理由 |
 |------|------|------|
-| 1 | 曖昧な名前を特定 | `$data`、`$temp`などを探す |
-| 2 | 具体的な名前に変更 | 何を表しているかが明確な名前に |
-| 3 | 一貫性を確保 | 同じ概念には同じ名前を使う |
+| Step 1 | 抽象的な命名の問題を理解 | なぜ悪いのかを把握 |
+| Step 2 | 変数名を具体的に変更 | 何を表しているかを明確に |
+| Step 3 | メソッド名を具体的に変更 | 何をするかを明確に |
+| Step 4 | 命名規則を学ぶ | Boolean、配列、メソッドの規則 |
 
 > 💡 **ポイント**: 良い名前は、コメントがなくても意図が伝わります。
 
 ---
 
-## 導入：なぜ具体的な命名が重要なのか
+## Step 1: 抽象的な命名の問題を理解する
 
-**抽象的な命名**（例：`$data`、`check()`）は、**コードを読む人に「これは何？」と考えさせてしまいます**。
-
-**具体的な命名**（例：`$activeUsers`、`fetchLatestTasks()`）は、**コードを読むだけで意図が伝わります**。
-
----
-
-## 詳細解説
-
-### 🔍 抽象的な命名の問題点
+### 1-1. 抽象的な命名とは
 
 以下のコードは、抽象的な命名を使っています。
 
@@ -81,14 +74,37 @@ public function index()
 ```
 
 **問題点**:
-*   `$data`が何を表しているのか分からない
-*   コードを読む人が、コードを追って確認する必要がある
+
+- `$data`が何を表しているのか分からない
+- コードを読む人が、コードを追って確認する必要がある
 
 ---
 
-### 🔍 具体的な命名への変更
+### 1-2. よくある抽象的な命名
+
+| 抽象的な命名 | 問題点 |
+|------------|--------|
+| `$data` | 何のデータか分からない |
+| `$result` | 何の結果か分からない |
+| `$temp` | 一時的な何か？ |
+| `$flag` | 何のフラグか分からない |
+| `$i`、`$j` | ループ変数以外では避ける |
+
+---
+
+## Step 2: 変数名を具体的に変更する
+
+### 2-1. 基本的な変更
 
 ```php
+// Before（抽象的）
+public function index()
+{
+    $data = Task::all();
+    return view('tasks.index', compact('data'));
+}
+
+// After（具体的）
 public function index()
 {
     $tasks = Task::all();
@@ -97,62 +113,15 @@ public function index()
 ```
 
 **改善点**:
-*   `$tasks`が「タスクの一覧」を表していることが一目で分かる
+
+- `$tasks`が「タスクの一覧」を表していることが一目で分かる
 
 ---
 
-### 🔍 メソッド名の改善
-
-以下のコードは、抽象的なメソッド名を使っています。
+### 2-2. 複雑な例の変更
 
 ```php
-public function check()
-{
-    $tasks = Task::where('status', 'pending')->get();
-    return $tasks;
-}
-```
-
-**問題点**:
-*   `check()`が何をチェックしているのか分からない
-
----
-
-### 🔍 具体的なメソッド名への変更
-
-```php
-public function fetchPendingTasks()
-{
-    $tasks = Task::where('status', 'pending')->get();
-    return $tasks;
-}
-```
-
-**改善点**:
-*   `fetchPendingTasks()`が「保留中のタスクを取得する」ことが一目で分かる
-
----
-
-### 🔍 よくある抽象的な命名
-
-| 抽象的な命名 | 具体的な命名の例 |
-|------------|---------------|
-| `$data` | `$users`、`$tasks`、`$products` |
-| `$result` | `$searchResults`、`$filteredTasks` |
-| `$temp` | `$sortedUsers`、`$formattedDate` |
-| `$flag` | `$isActive`、`$hasPermission` |
-| `$i`、`$j` | `$userIndex`、`$taskIndex` |
-| `get()` | `fetchLatestTasks()`、`getUserById()` |
-| `check()` | `validateInput()`、`isUserActive()` |
-| `process()` | `sendEmail()`、`calculateTotal()` |
-
----
-
-### 🔍 実践: 抽象的なコードを具体的に書き換える
-
-**Before（抽象的な命名）**:
-
-```php
+// Before（抽象的）
 public function index()
 {
     $data = User::all();
@@ -166,11 +135,8 @@ public function index()
     
     return view('users.index', compact('result'));
 }
-```
 
-**After（具体的な命名）**:
-
-```php
+// After（具体的）
 public function index()
 {
     $allUsers = User::all();
@@ -186,7 +152,9 @@ public function index()
 }
 ```
 
-さらに改善（Collectionメソッドを使う）:
+---
+
+### 2-3. さらに改善（Eloquentを活用）
 
 ```php
 public function index()
@@ -196,9 +164,59 @@ public function index()
 }
 ```
 
+具体的な命名 + Eloquentの活用で、コードがさらに簡潔になりました。
+
 ---
 
-### 🔍 Boolean変数の命名
+## Step 3: メソッド名を具体的に変更する
+
+### 3-1. 抽象的なメソッド名の問題
+
+```php
+public function check()
+{
+    $tasks = Task::where('status', 'pending')->get();
+    return $tasks;
+}
+```
+
+**問題点**:
+
+- `check()`が何をチェックしているのか分からない
+
+---
+
+### 3-2. 具体的なメソッド名への変更
+
+```php
+public function fetchPendingTasks()
+{
+    $tasks = Task::where('status', 'pending')->get();
+    return $tasks;
+}
+```
+
+**改善点**:
+
+- `fetchPendingTasks()`が「保留中のタスクを取得する」ことが一目で分かる
+
+---
+
+### 3-3. よくある抽象的なメソッド名と改善例
+
+| 抽象的 | 具体的な例 |
+|--------|-----------|
+| `get()` | `fetchLatestTasks()`、`getUserById()` |
+| `check()` | `validateInput()`、`isUserActive()` |
+| `process()` | `sendEmail()`、`calculateTotal()` |
+| `handle()` | `handleTaskCreation()`、`handleUserLogin()` |
+| `do()` | `executePayment()`、`performSearch()` |
+
+---
+
+## Step 4: 命名規則を学ぶ
+
+### 4-1. Boolean変数の命名
 
 Boolean変数は、`is`、`has`、`can`などの接頭辞を使います。
 
@@ -211,13 +229,21 @@ $check = false;
 $isActive = true;
 $hasPermission = false;
 $canEdit = true;
+$shouldNotify = false;
 ```
+
+| 接頭辞 | 用途 | 例 |
+|--------|------|-----|
+| `is` | 状態を表す | `$isActive`、`$isCompleted` |
+| `has` | 所有を表す | `$hasPermission`、`$hasTasks` |
+| `can` | 能力を表す | `$canEdit`、`$canDelete` |
+| `should` | 条件を表す | `$shouldNotify`、`$shouldRedirect` |
 
 ---
 
-### 🔍 配列・コレクションの命名
+### 4-2. 配列・コレクションの命名
 
-配列やコレクションは、複数形を使います。
+配列やコレクションは、**複数形**を使います。
 
 ```php
 // ❌ 抽象的
@@ -227,31 +253,43 @@ $list = User::all();
 // ✅ 具体的
 $tasks = Task::all();
 $users = User::all();
+$completedTasks = Task::where('status', 'completed')->get();
 ```
 
 ---
 
-### 🔍 メソッド名の動詞
+### 4-3. メソッド名の動詞
 
-メソッド名は、動詞で始めます。
+メソッド名は、**動詞で始める**のが基本です。
 
 ```php
-// ❌ 抽象的
+// ❌ 名詞で始まる
 public function tasks()
 {
     return Task::all();
 }
 
-// ✅ 具体的
+// ✅ 動詞で始まる
 public function fetchAllTasks()
 {
     return Task::all();
 }
 ```
 
+| 動詞 | 用途 | 例 |
+|------|------|-----|
+| `fetch` / `get` | 取得 | `fetchTasks()`、`getUserById()` |
+| `create` / `store` | 作成 | `createTask()`、`storeUser()` |
+| `update` | 更新 | `updateTask()`、`updateStatus()` |
+| `delete` / `destroy` | 削除 | `deleteTask()`、`destroyUser()` |
+| `validate` | 検証 | `validateInput()`、`validateEmail()` |
+| `calculate` | 計算 | `calculateTotal()`、`calculateTax()` |
+
 ---
 
-### 🔍 実践演習: 以下のコードを具体的な命名に書き換えてください
+### 4-4. 実践演習
+
+以下のコードを具体的な命名に書き換えてください。
 
 ```php
 public function show($id)
@@ -287,18 +325,9 @@ public function show($id)
 
 ---
 
-### 💡 TIP: 命名の一貫性
+## 🚨 よくある間違い
 
-プロジェクト全体で、命名の一貫性を保ちます。
-
-*   `fetch`、`get`、`retrieve`を混在させない
-*   `is`、`has`、`can`を統一する
-
----
-
-### 🚨 よくある間違い
-
-#### 間違い1: 省略しすぎる
+### 間違い1: 省略しすぎる
 
 ```php
 // ❌ 省略しすぎ
@@ -312,7 +341,7 @@ $tasks = Task::all();
 
 ---
 
-#### 間違い2: 長すぎる命名
+### 間違い2: 長すぎる命名
 
 ```php
 // ❌ 長すぎる
@@ -324,7 +353,7 @@ $activeUsersWithCompletedTasks = User::where('status', 'active')->get();
 
 ---
 
-#### 間違い3: 日本語のローマ字表記
+### 間違い3: 日本語のローマ字表記
 
 ```php
 // ❌ ローマ字
@@ -338,13 +367,26 @@ $users = User::all();
 
 ---
 
+## 💡 TIP: 命名の一貫性
+
+プロジェクト全体で、命名の一貫性を保ちます。
+
+- `fetch`、`get`、`retrieve`を混在させない
+- `is`、`has`、`can`を統一する
+- 同じ概念には同じ名前を使う
+
+---
+
 ## ✨ まとめ
 
 このセクションでは、具体的な命名への変更を学びました。
 
-*   抽象的な命名が、コードを読みにくくすることを理解した。
-*   `$data`を`$activeUsers`に、`check()`を`fetchLatestTasks()`に変更した。
-*   Boolean変数、配列、メソッド名の命名規則を学んだ。
+| Step | 学んだこと |
+|------|-----------|
+| Step 1 | 抽象的な命名の問題点を理解 |
+| Step 2 | 変数名を具体的に変更 |
+| Step 3 | メソッド名を具体的に変更 |
+| Step 4 | Boolean、配列、メソッドの命名規則 |
 
 次のセクションでは、foreachからCollectionメソッドへの書き換えを学びます。
 
@@ -352,7 +394,7 @@ $users = User::all();
 
 ## 📝 学習のポイント
 
-- [ ] 抽象的な命名の問題点を理解した。
-- [ ] 具体的な命名に変更した。
-- [ ] Boolean変数の命名規則を学んだ。
-- [ ] 命名の一貫性を保つことを学んだ。
+- [ ] 抽象的な命名の問題点を理解した
+- [ ] 具体的な命名に変更した
+- [ ] Boolean変数の命名規則を学んだ
+- [ ] 命名の一貫性を保つことを学んだ

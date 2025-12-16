@@ -22,7 +22,7 @@ Docker環境を使うことで、以下のようなメリットがあります�
 
 ## 詳細解説
 
-### 🔍 必要なツール
+## Step 1: 必要なツール
 
 開発環境を構築するために、以下のツールが必要です。
 
@@ -32,7 +32,7 @@ Docker環境を使うことで、以下のようなメリットがあります�
 
 ---
 
-### 🔍 Docker Desktopのインストール
+## Step 2: Docker Desktopのインストール
 
 Docker Desktopをインストールします。
 
@@ -52,7 +52,7 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io
 
 ---
 
-### 🔍 Laravelプロジェクトの作成
+## Step 3: Laravelプロジェクトの作成
 
 Laravelプロジェクトを作成します。
 
@@ -63,7 +63,7 @@ cd task-manager
 
 ---
 
-### 🔍 Laravel Sailのインストール
+## Step 4: Laravel Sailのインストール
 
 **Laravel Sail**は、**Laravelの公式Docker環境**です。
 
@@ -75,7 +75,7 @@ composer require laravel/sail --dev
 
 ---
 
-### 🔍 Sailの初期化
+## Step 5: Sailの初期化
 
 Sailを初期化します。
 
@@ -94,7 +94,7 @@ php artisan sail:install
 
 ---
 
-### 🔍 docker-compose.ymlの確認
+## Step 6: docker-compose.ymlの確認
 
 `docker-compose.yml`ファイルが作成されます。
 
@@ -159,7 +159,7 @@ volumes:
 
 ---
 
-### 🔍 phpMyAdminの追加
+## Step 7: phpMyAdminの追加
 
 **phpMyAdmin**は、**データベースを視覚的に管理するツール**です。
 
@@ -195,7 +195,7 @@ volumes:
 
 ---
 
-### 🔍 .envファイルの設定
+## Step 8: .envファイルの設定
 
 `.env`ファイルで、データベースの設定を確認します。
 
@@ -212,7 +212,7 @@ DB_PASSWORD=password
 
 ---
 
-### 🔍 Docker環境の起動
+## Step 9: Docker環境の起動
 
 Docker環境を起動します。
 
@@ -224,7 +224,7 @@ Docker環境を起動します。
 
 ---
 
-### 🔍 エイリアスの設定（オプション）
+## Step 10: エイリアスの設定（オプション）
 
 毎回`./vendor/bin/sail`と入力するのは面倒なので、エイリアスを設定します。
 
@@ -246,13 +246,13 @@ source ~/.zshrc
 
 ---
 
-### 🔍 Laravelの動作確認
+## Step 11: Laravelの動作確認
 
 ブラウザで `http://localhost` にアクセスし、Laravelのウェルカムページが表示されることを確認します。
 
 ---
 
-### 🔍 phpMyAdminの動作確認
+## Step 12: phpMyAdminの動作確認
 
 ブラウザで `http://localhost:8080` にアクセスし、phpMyAdminが表示されることを確認します。
 
@@ -265,7 +265,7 @@ source ~/.zshrc
 
 ---
 
-### 🔍 マイグレーションの実行
+## Step 13: マイグレーションの実行
 
 データベースにテーブルを作成します。
 
@@ -277,7 +277,7 @@ phpMyAdminで、`users`テーブルなどが作成されていることを確認
 
 ---
 
-### 🔍 Docker環境の停止
+## Step 14: Docker環境の停止
 
 Docker環境を停止します。
 

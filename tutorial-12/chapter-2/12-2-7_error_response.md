@@ -2,10 +2,10 @@
 
 ## 🎯 このセクションで学ぶこと
 
-*   親切なエラーレスポンスとは何かを理解する。
-*   単に500エラーを返すのではなく、クライアントが使いやすいエラー形式を定義する方法を学ぶ。
-*   404 Not Found時にJSONで`{ "message": "User not found" }`を返す設定を学ぶ。
-*   エラーハンドリングのベストプラクティスを理解する。
+- 親切なエラーレスポンスとは何かを理解する
+- クライアントが使いやすいエラー形式を定義する方法を学ぶ
+- 404 Not Found時にJSONでエラーを返す設定を学ぶ
+- エラーハンドリングのベストプラクティスを理解する
 
 ---
 
@@ -23,10 +23,12 @@ CRUD APIが完成したら、次は「エラーレスポンス」です。
 
 しかし、実際のAPIでは**エラーが発生する**ことがあります。
 
-- バリデーションエラー
-- 認証エラー
-- 存在しないリソース
-- サーバーエラー
+| エラーの種類 | 説明 |
+|-------------|------|
+| バリデーションエラー | 入力値が不正 |
+| 認証エラー | ログインが必要 |
+| 存在しないリソース | 404 Not Found |
+| サーバーエラー | 500 Internal Server Error |
 
 ---
 
@@ -36,13 +38,9 @@ CRUD APIが完成したら、次は「エラーレスポンス」です。
 
 ```json
 {
-    "error": {
-        "code": "VALIDATION_ERROR",
-        "message": "入力内容に誤りがあります",
-        "details": {
-            "title": ["タイトルは必須です"]
-        }
-    }
+    "message": "入力内容に誤りがあります",
+    "error": "VALIDATION_ERROR",
+    "status": 422
 }
 ```
 
@@ -60,49 +58,23 @@ CRUD APIが完成したら、次は「エラーレスポンス」です。
 
 | 順番 | 作業 | 理由 |
 |------|------|------|
-| 1 | エラーレスポンスの設計 | 統一フォーマットを決める |
-| 2 | 例外ハンドラーのカスタマイズ | `Handler.php`の編集 |
-| 3 | 各種エラーのテスト | バリデーション、404など |
+| Step 1 | エラーレスポンスの設計 | 統一フォーマットを決める |
+| Step 2 | 例外ハンドラーのカスタマイズ | Handler.phpの編集 |
+| Step 3 | ベストプラクティス | 本番環境での対応 |
 
 > 💡 **ポイント**: 良いAPIは、エラー時にも適切な情報を返します。
 
 ---
 
-## 導入：なぜ親切なエラーレスポンスが重要なのか
+## Step 1: エラーレスポンスの設計
 
-**エラーレスポンス**は、**クライアント側でエラー処理を行うために重要**です。
-
-**悪い例**:
-
-```
-Internal Server Error
-```
-
-**良い例**:
-
-```json
-{
-  "message": "Task not found",
-  "error": "TASK_NOT_FOUND",
-  "status": 404
-}
-```
-
-**親切なエラーレスポンス**を返すことで、クライアント側で適切なエラー処理ができます。
-
----
-
-## 詳細解説
-
-### 🔍 エラーレスポンスの基本形式
-
-エラーレスポンスは、以下の形式で返すのが一般的です。
+### 1-1. エラーレスポンスの基本形式
 
 ```json
 {
   "message": "エラーメッセージ",
   "error": "エラーコード",
-  "status": HTTPステータスコード
+  "status": 404
 }
 ```
 
@@ -118,12 +90,12 @@ Internal Server Error
 
 ---
 
-### 🔍 404 Not Foundのエラーレスポンス
+### 1-2. 404 Not Foundのエラーレスポンス
 
 **ファイル**: `app/Http/Controllers/Api/TaskController.php`
 
 ```php
-public function show($id)
+public function show(string $id): JsonResponse
 {
     $task = Task::find($id);
     
@@ -135,13 +107,13 @@ public function show($id)
         ], 404);
     }
     
-    return response()->json($task, 200);
+    return response()->json(['data' => $task], 200);
 }
 ```
 
 ---
 
-### 🔍 バリデーションエラーのレスポンス
+### 1-3. バリデーションエラーのレスポンス
 
 Laravelでは、バリデーションエラーが発生すると、以下の形式でレスポンスが返されます。
 
@@ -151,45 +123,34 @@ Laravelでは、バリデーションエラーが発生すると、以下の形�
   "errors": {
     "title": [
       "The title field is required."
-    ],
-    "priority": [
-      "The priority must be between 1 and 5."
     ]
   }
 }
 ```
 
-**ポイント**:
-*   `message`: エラーの概要
-*   `errors`: フィールドごとのエラーメッセージ
+| フィールド | 説明 |
+|-----------|------|
+| message | エラーの概要 |
+| errors | フィールドごとのエラーメッセージ |
 
 ---
 
-### 🔍 500 Internal Server Errorのエラーレスポンス
+### 1-4. エラーコードの一覧
 
-**500 Internal Server Error**は、**サーバー側のエラー**を示します。
-
-**悪い例**:
-
-```
-Internal Server Error
-```
-
-**良い例**:
-
-```json
-{
-  "message": "An error occurred while processing your request",
-  "error": "INTERNAL_SERVER_ERROR",
-  "status": 500
-}
-```
+| エラーコード | HTTPステータス | 説明 |
+|------------|--------------|------|
+| TASK_NOT_FOUND | 404 | タスクが見つからない |
+| USER_NOT_FOUND | 404 | ユーザーが見つからない |
+| VALIDATION_ERROR | 422 | バリデーションエラー |
+| UNAUTHORIZED | 401 | 認証エラー |
+| FORBIDDEN | 403 | 権限エラー |
+| INTERNAL_SERVER_ERROR | 500 | サーバーエラー |
 
 ---
 
-### 🔍 例外ハンドラーをカスタマイズする
+## Step 2: 例外ハンドラーのカスタマイズ
 
-Laravelでは、例外ハンドラーをカスタマイズして、エラーレスポンスを統一できます。
+### 2-1. Handler.phpの編集
 
 **ファイル**: `app/Exceptions/Handler.php`
 
@@ -205,7 +166,7 @@ use Throwable;
 
 class Handler extends ExceptionHandler
 {
-    public function register()
+    public function register(): void
     {
         $this->renderable(function (ModelNotFoundException $e, $request) {
             if ($request->is('api/*')) {
@@ -230,23 +191,25 @@ class Handler extends ExceptionHandler
 }
 ```
 
-**ポイント**:
-*   `ModelNotFoundException`: モデルが見つからない場合
-*   `NotFoundHttpException`: エンドポイントが見つからない場合
-*   `$request->is('api/*')`: APIリクエストの場合だけ適用
+---
+
+### 2-2. コードリーディング
+
+| コード | 説明 |
+|--------|------|
+| `ModelNotFoundException` | モデルが見つからない場合 |
+| `NotFoundHttpException` | エンドポイントが見つからない場合 |
+| `$request->is('api/*')` | APIリクエストの場合だけ適用 |
 
 ---
 
-### 🔍 実践演習: エラーレスポンスをテストしてください
-
-Thunder Clientで、以下のリクエストを送信してください。
+### 2-3. Thunder Clientでテスト
 
 **1. リソースが見つからない場合**
 
-*   メソッド: `GET`
-*   URL: `http://localhost:8000/api/tasks/9999`
-
-**期待されるレスポンス**:
+- メソッド: `GET`
+- URL: `http://localhost:8000/api/tasks/9999`
+- 期待:
 
 ```json
 {
@@ -256,14 +219,11 @@ Thunder Clientで、以下のリクエストを送信してください。
 }
 ```
 
----
-
 **2. エンドポイントが見つからない場合**
 
-*   メソッド: `GET`
-*   URL: `http://localhost:8000/api/invalid-endpoint`
-
-**期待されるレスポンス**:
+- メソッド: `GET`
+- URL: `http://localhost:8000/api/invalid-endpoint`
+- 期待:
 
 ```json
 {
@@ -275,24 +235,9 @@ Thunder Clientで、以下のリクエストを送信してください。
 
 ---
 
-### 🔍 エラーコードの一覧
+## Step 3: ベストプラクティス
 
-エラーコードを定義しておくと、クライアント側で処理しやすくなります。
-
-| エラーコード | HTTPステータス | 説明 |
-|------------|--------------|------|
-| `TASK_NOT_FOUND` | 404 | タスクが見つからない |
-| `USER_NOT_FOUND` | 404 | ユーザーが見つからない |
-| `VALIDATION_ERROR` | 422 | バリデーションエラー |
-| `UNAUTHORIZED` | 401 | 認証エラー |
-| `FORBIDDEN` | 403 | 権限エラー |
-| `INTERNAL_SERVER_ERROR` | 500 | サーバーエラー |
-
----
-
-### 🔍 エラーレスポンスのベストプラクティス
-
-**1. 一貫性を保つ**
+### 3-1. 一貫性を保つ
 
 すべてのエラーレスポンスで、同じ形式を使います。
 
@@ -300,13 +245,13 @@ Thunder Clientで、以下のリクエストを送信してください。
 {
   "message": "エラーメッセージ",
   "error": "エラーコード",
-  "status": HTTPステータスコード
+  "status": 404
 }
 ```
 
 ---
 
-**2. 詳細なエラーメッセージを返す**
+### 3-2. 詳細なエラーメッセージを返す
 
 ユーザーが理解しやすいエラーメッセージを返します。
 
@@ -320,23 +265,18 @@ Thunder Clientで、以下のリクエストを送信してください。
 
 ---
 
-**3. エラーコードを使う**
-
-エラーコードを使うと、クライアント側で処理しやすくなります。
-
-```json
-{
-  "message": "Task not found",
-  "error": "TASK_NOT_FOUND",
-  "status": 404
-}
-```
-
----
-
-**4. 本番環境では詳細なエラーを隠す**
+### 3-3. 本番環境では詳細なエラーを隠す
 
 本番環境では、詳細なエラーメッセージを隠します。
+
+**ファイル**: `.env`
+
+```
+APP_DEBUG=true  # 開発環境
+APP_DEBUG=false # 本番環境
+```
+
+**本番環境のエラーレスポンス**:
 
 ```json
 {
@@ -348,7 +288,7 @@ Thunder Clientで、以下のリクエストを送信してください。
 
 ---
 
-### 🔍 クライアント側での処理例（JavaScript）
+### 3-4. クライアント側での処理例（JavaScript）
 
 ```javascript
 fetch('http://localhost:8000/api/tasks/9999')
@@ -370,24 +310,11 @@ fetch('http://localhost:8000/api/tasks/9999')
 
 ---
 
-### 💡 TIP: デバッグモードを切り替える
+## 🚨 よくある間違い
 
-開発環境では、詳細なエラーメッセージを表示し、本番環境では隠します。
+### 間違い1: エラーメッセージを返さない
 
-**ファイル**: `.env`
-
-```
-APP_DEBUG=true  # 開発環境
-APP_DEBUG=false # 本番環境
-```
-
----
-
-### 🚨 よくある間違い
-
-#### 間違い1: エラーメッセージを返さない
-
-エラーが発生した場合は、エラーメッセージを返します。
+**問題**: クライアントがエラーの内容を判断できない
 
 ```php
 // ❌ 間違い
@@ -403,9 +330,9 @@ return response()->json([
 
 ---
 
-#### 間違い2: 500エラーをそのまま返す
+### 間違い2: 500エラーをそのまま返す
 
-500エラーの場合は、親切なエラーメッセージを返します。
+**問題**: ユーザーに不親切
 
 ```php
 // ❌ 間違い
@@ -421,25 +348,32 @@ return response()->json([
 
 ---
 
-#### 間違い3: 本番環境で詳細なエラーを返す
+### 間違い3: 本番環境で詳細なエラーを返す
 
-本番環境では、詳細なエラーメッセージを隠します。
+**問題**: セキュリティリスク
 
 ```php
 // ❌ 間違い（本番環境）
 return response()->json([
     'message' => 'SQLSTATE[42S02]: Base table or view not found',
-    'error' => 'DATABASE_ERROR',
-    'status' => 500
 ], 500);
 
 // ✅ 正しい（本番環境）
 return response()->json([
     'message' => 'An error occurred while processing your request',
-    'error' => 'INTERNAL_SERVER_ERROR',
-    'status' => 500
 ], 500);
 ```
+
+---
+
+## 💡 TIP: デバッグモードを切り替える
+
+開発環境では詳細なエラーメッセージを表示し、本番環境では隠します。
+
+| 環境 | APP_DEBUG | 詳細なエラー |
+|------|-----------|-------------|
+| 開発環境 | true | 表示する |
+| 本番環境 | false | 隠す |
 
 ---
 
@@ -447,9 +381,11 @@ return response()->json([
 
 このセクションでは、親切なエラーレスポンスの作成を学びました。
 
-*   単に500エラーを返すのではなく、クライアントが使いやすいエラー形式を定義した。
-*   404 Not Found時にJSONで`{ "message": "Task not found" }`を返す設定を学んだ。
-*   エラーハンドリングのベストプラクティスを理解した。
+| Step | 学んだこと |
+|------|-----------|
+| Step 1 | エラーレスポンスの基本形式とエラーコード |
+| Step 2 | 例外ハンドラーのカスタマイズ |
+| Step 3 | 本番環境でのベストプラクティス |
 
 これで、Chapter 2（RESTful APIの実装）は完了です。次のChapter 3では、API認証とセキュリティについて学びます。
 
@@ -457,8 +393,8 @@ return response()->json([
 
 ## 📝 学習のポイント
 
-- [ ] 親切なエラーレスポンスを作成した。
-- [ ] 404 Not Foundのエラーレスポンスを返した。
-- [ ] 例外ハンドラーをカスタマイズした。
-- [ ] エラーコードを定義した。
-- [ ] エラーレスポンスのベストプラクティスを理解した。
+- [ ] 親切なエラーレスポンスを作成した
+- [ ] 404 Not Foundのエラーレスポンスを返した
+- [ ] 例外ハンドラーをカスタマイズした
+- [ ] エラーコードを定義した
+- [ ] エラーレスポンスのベストプラクティスを理解した

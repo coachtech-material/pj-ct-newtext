@@ -2,9 +2,9 @@
 
 ## 🎯 このセクションで学ぶこと
 
-*   foreachを使ったコードの問題点を理解する。
-*   Collectionメソッド（`pluck()`、`map()`、`filter()`）を使って、コードを簡潔にする方法を学ぶ。
-*   「foreachおじさん」から脱却する実践演習を行う。
+- foreachを使ったコードの問題点を理解する
+- Collectionメソッド（`pluck()`、`map()`、`filter()`）を使って、コードを簡潔にする方法を学ぶ
+- 「foreachおじさん」から脱却する実践演習を行う
 
 ---
 
@@ -59,25 +59,18 @@ $completedTaskNames = $tasks
 
 | 順番 | 作業 | 理由 |
 |------|------|------|
-| 1 | foreachを特定 | Collectionメソッドで置き換えられるか確認 |
-| 2 | 適切なメソッドを選択 | filter、map、pluckなど |
-| 3 | リファクタリング | より簡潔なコードに |
+| Step 1 | foreachの問題点を理解 | なぜ改善が必要か |
+| Step 2 | pluck()を学ぶ | 特定のカラムを抜き出す |
+| Step 3 | map()を学ぶ | 各要素を変換する |
+| Step 4 | filter()を学ぶ | 条件でフィルタリング |
 
 > 💡 **ポイント**: 全てのforeachを置き換える必要はありません。可読性が上がる場合に使いましょう。
 
 ---
 
-## 導入：なぜCollectionメソッドを使うのか
+## Step 1: foreachの問題点を理解する
 
-**foreach**は、配列を処理する基本的な方法ですが、**コードが冗長になりがち**です。
-
-**Collectionメソッド**を使うと、**コードを簡潔に、読みやすく**書けます。
-
----
-
-## 詳細解説
-
-### 🔍 foreachの問題点
+### 1-1. foreachの冗長さ
 
 以下のコードは、foreachを使って、ユーザーの名前だけを取得しています。
 
@@ -91,26 +84,30 @@ foreach ($users as $user) {
 ```
 
 **問題点**:
-*   3行かかっている
-*   `$names = [];`の初期化が必要
-*   コードが冗長
+
+- 3行かかっている
+- `$names = [];`の初期化が必要
+- コードが冗長
 
 ---
 
-### 🔍 pluck()を使った書き換え
+### 1-2. Collectionメソッドで解決
 
 ```php
 $names = User::all()->pluck('name');
 ```
 
 **改善点**:
-*   1行で書ける
-*   初期化が不要
-*   コードが簡潔
+
+- 1行で書ける
+- 初期化が不要
+- コードが簡潔
 
 ---
 
-### 🔍 pluck()の使い方
+## Step 2: pluck()を学ぶ
+
+### 2-1. pluck()の基本
 
 `pluck()`は、**特定のカラムだけを抜き出す**メソッドです。
 
@@ -126,7 +123,7 @@ $emails = User::all()->pluck('email');
 
 ---
 
-### 🔍 pluck()でキーを指定する
+### 2-2. pluck()でキーを指定する
 
 `pluck()`の第2引数で、キーを指定できます。
 
@@ -136,11 +133,25 @@ $names = User::all()->pluck('name', 'id');
 // 結果: [1 => 'John', 2 => 'Jane', 3 => 'Bob']
 ```
 
+これは、フォームのセレクトボックスを作るときに便利です。
+
+```blade
+<select name="user_id">
+    @foreach($users->pluck('name', 'id') as $id => $name)
+        <option value="{{ $id }}">{{ $name }}</option>
+    @endforeach
+</select>
+```
+
 ---
 
-### 🔍 map()を使った書き換え
+## Step 3: map()を学ぶ
 
-以下のコードは、foreachを使って、ユーザーの名前を大文字に変換しています。
+### 3-1. map()の基本
+
+`map()`は、**配列の中身を加工する**メソッドです。
+
+**foreachを使った場合**:
 
 ```php
 $users = User::all();
@@ -151,7 +162,7 @@ foreach ($users as $user) {
 }
 ```
 
-**map()を使った書き換え**:
+**map()を使った場合**:
 
 ```php
 $upperNames = User::all()->map(function ($user) {
@@ -161,25 +172,7 @@ $upperNames = User::all()->map(function ($user) {
 
 ---
 
-### 🔍 map()の使い方
-
-`map()`は、**配列の中身を加工する**メソッドです。
-
-```php
-// ユーザーの名前を大文字に変換
-$upperNames = User::all()->map(function ($user) {
-    return strtoupper($user->name);
-});
-
-// ユーザーの名前とメールアドレスを結合
-$combined = User::all()->map(function ($user) {
-    return $user->name . ' (' . $user->email . ')';
-});
-```
-
----
-
-### 🔍 アロー関数を使った簡潔な書き方
+### 3-2. アロー関数を使った簡潔な書き方
 
 PHP 7.4以降では、アロー関数を使って、さらに簡潔に書けます。
 
@@ -189,9 +182,28 @@ $upperNames = User::all()->map(fn($user) => strtoupper($user->name));
 
 ---
 
-### 🔍 filter()を使った書き換え
+### 3-3. map()の活用例
 
-以下のコードは、foreachを使って、アクティブなユーザーだけを抽出しています。
+```php
+// ユーザーの名前とメールアドレスを結合
+$combined = User::all()->map(function ($user) {
+    return $user->name . ' (' . $user->email . ')';
+});
+// 結果: ['John (john@example.com)', 'Jane (jane@example.com)', ...]
+
+// タスクのタイトルに接頭辞を追加
+$prefixedTitles = Task::all()->map(fn($task) => '[タスク] ' . $task->title);
+```
+
+---
+
+## Step 4: filter()を学ぶ
+
+### 4-1. filter()の基本
+
+`filter()`は、**条件に合うものだけを残す**メソッドです。
+
+**foreachを使った場合**:
 
 ```php
 $users = User::all();
@@ -204,7 +216,7 @@ foreach ($users as $user) {
 }
 ```
 
-**filter()を使った書き換え**:
+**filter()を使った場合**:
 
 ```php
 $activeUsers = User::all()->filter(function ($user) {
@@ -214,25 +226,30 @@ $activeUsers = User::all()->filter(function ($user) {
 
 ---
 
-### 🔍 filter()の使い方
-
-`filter()`は、**条件に合うものだけを残す**メソッドです。
+### 4-2. アロー関数を使った簡潔な書き方
 
 ```php
-// アクティブなユーザーだけを抽出
-$activeUsers = User::all()->filter(function ($user) {
-    return $user->status == 'active';
-});
+$activeUsers = User::all()->filter(fn($user) => $user->status == 'active');
+```
+
+---
+
+### 4-3. filter()の活用例
+
+```php
+// 完了したタスクだけを抽出
+$completedTasks = Task::all()->filter(fn($task) => $task->status == 'completed');
 
 // タスクが10個以上あるユーザーだけを抽出
-$busyUsers = User::all()->filter(function ($user) {
-    return $user->tasks->count() >= 10;
-});
+$busyUsers = User::all()->filter(fn($user) => $user->tasks->count() >= 10);
+
+// 期限が過ぎたタスクだけを抽出
+$overdueTasks = Task::all()->filter(fn($task) => $task->due_date < now());
 ```
 
 ---
 
-### 🔍 メソッドチェーン
+### 4-4. メソッドチェーン
 
 Collectionメソッドは、**メソッドチェーン**で繋げられます。
 
@@ -250,39 +267,35 @@ $upperNames = User::all()
 
 ---
 
-### 🔍 first()の使い方
+### 4-5. その他の便利なメソッド
 
-`first()`は、**最初の1つを取得**するメソッドです。
+| メソッド | 説明 | 例 |
+|----------|------|-----|
+| `first()` | 最初の1つを取得 | `$users->first()` |
+| `count()` | 数を数える | `$users->count()` |
+| `sum()` | 合計を計算 | `$tasks->sum('priority')` |
+| `avg()` | 平均を計算 | `$tasks->avg('priority')` |
+| `max()` | 最大値を取得 | `$tasks->max('priority')` |
+| `min()` | 最小値を取得 | `$tasks->min('priority')` |
 
 ```php
 // 最初のユーザーを取得
 $firstUser = User::all()->first();
 
-// アクティブなユーザーの最初の1人を取得
-$firstActiveUser = User::all()
-    ->filter(fn($user) => $user->status == 'active')
-    ->first();
-```
-
----
-
-### 🔍 count()の使い方
-
-`count()`は、**数を数える**メソッドです。
-
-```php
-// ユーザーの数を数える
-$userCount = User::all()->count();
-
 // アクティブなユーザーの数を数える
 $activeUserCount = User::all()
     ->filter(fn($user) => $user->status == 'active')
     ->count();
+
+// タスクの優先度の合計
+$totalPriority = Task::all()->sum('priority');
 ```
 
 ---
 
-### 🔍 実践演習: 以下のforeachをCollectionメソッドに書き換えてください
+### 4-6. 実践演習
+
+以下のforeachをCollectionメソッドに書き換えてください。
 
 **問題1**:
 
@@ -343,29 +356,9 @@ $uppercaseTitles = Task::all()->map(fn($task) => strtoupper($task->title));
 
 ---
 
-### 💡 TIP: sum()、avg()、max()、min()
+## 🚨 よくある間違い
 
-Collectionメソッドには、他にも便利なメソッドがあります。
-
-```php
-// タスクの優先度の合計
-$totalPriority = Task::all()->sum('priority');
-
-// タスクの優先度の平均
-$averagePriority = Task::all()->avg('priority');
-
-// タスクの優先度の最大値
-$maxPriority = Task::all()->max('priority');
-
-// タスクの優先度の最小値
-$minPriority = Task::all()->min('priority');
-```
-
----
-
-### 🚨 よくある間違い
-
-#### 間違い1: filter()の後にvalues()を忘れる
+### 間違い1: filter()の後にvalues()を忘れる
 
 `filter()`は、キーを保持します。キーをリセットするには、`values()`を使います。
 
@@ -377,16 +370,26 @@ $activeUsers = User::all()
 
 ---
 
-#### 間違い2: pluck()とmap()を混同する
+### 間違い2: pluck()とmap()を混同する
 
-*   `pluck()`: 特定のカラムだけを抜き出す
-*   `map()`: 配列の中身を加工する
+- `pluck()`: 特定のカラムだけを抜き出す
+- `map()`: 配列の中身を加工する
+
+```php
+// pluck: カラムを抜き出すだけ
+$names = $users->pluck('name');
+
+// map: 加工が必要な場合
+$upperNames = $users->map(fn($user) => strtoupper($user->name));
+```
 
 ---
 
-#### 間違い3: foreachを完全に避ける
+### 間違い3: foreachを完全に避ける
 
 Collectionメソッドで表現できない複雑な処理は、foreachを使っても問題ありません。
+
+可読性が上がる場合にCollectionメソッドを使いましょう。
 
 ---
 
@@ -394,9 +397,12 @@ Collectionメソッドで表現できない複雑な処理は、foreachを使っ
 
 このセクションでは、foreachからCollectionメソッドへの書き換えを学びました。
 
-*   `pluck()`を使って、特定のカラムだけを抜き出した。
-*   `map()`を使って、配列の中身を加工した。
-*   `filter()`を使って、条件に合うものだけを残した。
+| Step | 学んだこと |
+|------|-----------|
+| Step 1 | foreachの問題点を理解 |
+| Step 2 | `pluck()`で特定のカラムを抜き出す |
+| Step 3 | `map()`で各要素を変換する |
+| Step 4 | `filter()`で条件でフィルタリング |
 
 次のセクションでは、重複コードの削除について学びます。
 
@@ -404,8 +410,8 @@ Collectionメソッドで表現できない複雑な処理は、foreachを使っ
 
 ## 📝 学習のポイント
 
-- [ ] foreachの問題点を理解した。
-- [ ] pluck()を使った。
-- [ ] map()を使った。
-- [ ] filter()を使った。
-- [ ] メソッドチェーンを使った。
+- [ ] foreachの問題点を理解した
+- [ ] `pluck()`を使った
+- [ ] `map()`を使った
+- [ ] `filter()`を使った
+- [ ] メソッドチェーンを使った

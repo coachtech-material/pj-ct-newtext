@@ -2,9 +2,9 @@
 
 ## 🎯 このセクションで学ぶこと
 
-*   これまで学んだリファクタリングの技術を、実際のコードに適用する。
-*   リファクタリング前後のコードを比較して、改善点を理解する。
-*   リファクタリングの手順を学ぶ。
+- これまで学んだリファクタリングの技術を、実際のコードに適用する
+- リファクタリング前後のコードを比較して、改善点を理解する
+- リファクタリングの手順を学ぶ
 
 ---
 
@@ -38,29 +38,20 @@
 
 | 順番 | 作業 | 理由 |
 |------|------|------|
-| 1 | 問題点を特定 | コードを読んで改善点を見つける |
-| 2 | 優先順位をつける | 影響の大きいものから |
-| 3 | リファクタリング実施 | 学んだ技法を適用 |
+| Step 1 | コントローラーのリファクタリング | バリデーション分離、サービス導入 |
+| Step 2 | モデルのリファクタリング | スコープで再利用性向上 |
+| Step 3 | ビューのリファクタリング | パーシャルで重複排除 |
+| Step 4 | リファクタリングの手順を学ぶ | 安全な進め方 |
 
 > 💡 **ポイント**: 一度に全てを直そうとせず、少しずつ改善していきましょう。
 
 ---
 
-## 導入：リファクタリング演習の目的
+## Step 1: コントローラーのリファクタリング
 
-このセクションでは、**実際のコード**をリファクタリングします。
-
-これまで学んだ技術を、**実践的に使う**ことで、リファクタリングのスキルを身につけます。
-
----
-
-## 詳細解説
-
-### 🔍 演習1: コントローラーのリファクタリング
+### 1-1. リファクタリング前のコード
 
 以下のコントローラーをリファクタリングしてください。
-
-**リファクタリング前**:
 
 ```php
 <?php
@@ -120,14 +111,17 @@ class TaskController extends Controller
 
 ---
 
-**問題点**:
-*   バリデーションルールが重複している
-*   変数名が短すぎる（`$t`）
-*   ビジネスロジックがコントローラーに書かれている
+### 1-2. 問題点を特定する
+
+| 問題 | 説明 |
+|------|------|
+| バリデーション重複 | 同じルールが2箇所にある |
+| 変数名が短い | `$t`では何か分からない |
+| ビジネスロジック混在 | コントローラーが肥大化 |
 
 ---
 
-**リファクタリング後**:
+### 1-3. フォームリクエストを作成する
 
 **ファイル**: `app/Http/Requests/TaskRequest.php`
 
@@ -140,12 +134,12 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class TaskRequest extends FormRequest
 {
-    public function authorize()
+    public function authorize(): bool
     {
         return true;
     }
 
-    public function rules()
+    public function rules(): array
     {
         return [
             'title' => 'required|max:255',
@@ -155,7 +149,7 @@ class TaskRequest extends FormRequest
         ];
     }
 
-    public function messages()
+    public function messages(): array
     {
         return [
             'title.required' => 'タイトルは必須です。',
@@ -165,6 +159,10 @@ class TaskRequest extends FormRequest
     }
 }
 ```
+
+---
+
+### 1-4. サービスクラスを作成する
 
 **ファイル**: `app/Services/TaskService.php`
 
@@ -180,7 +178,7 @@ use App\Mail\TaskCreated;
 
 class TaskService
 {
-    public function createTask(array $data, int $userId)
+    public function createTask(array $data, int $userId): Task
     {
         $task = Task::create([
             'title' => $data['title'],
@@ -196,7 +194,7 @@ class TaskService
         return $task;
     }
     
-    public function updateTask(Task $task, array $data)
+    public function updateTask(Task $task, array $data): Task
     {
         $task->update([
             'title' => $data['title'],
@@ -208,17 +206,21 @@ class TaskService
         return $task;
     }
     
-    private function sendNotification(Task $task)
+    private function sendNotification(Task $task): void
     {
         Mail::to(auth()->user()->email)->send(new TaskCreated($task));
     }
     
-    private function logTaskCreation(Task $task)
+    private function logTaskCreation(Task $task): void
     {
         Log::info('Task created', ['task_id' => $task->id]);
     }
 }
 ```
+
+---
+
+### 1-5. リファクタリング後のコントローラー
 
 **ファイル**: `app/Http/Controllers/TaskController.php`
 
@@ -233,12 +235,9 @@ use App\Services\TaskService;
 
 class TaskController extends Controller
 {
-    private $taskService;
-    
-    public function __construct(TaskService $taskService)
-    {
-        $this->taskService = $taskService;
-    }
+    public function __construct(
+        private TaskService $taskService
+    ) {}
     
     public function store(TaskRequest $request)
     {
@@ -256,19 +255,21 @@ class TaskController extends Controller
 
 ---
 
-**改善点**:
-*   バリデーションルールがフォームリクエストに分離された
-*   ビジネスロジックがサービスクラスに分離された
-*   変数名が分かりやすくなった
-*   コントローラーがスリムになった
+### 1-6. 改善点
+
+| 改善 | 説明 |
+|------|------|
+| バリデーション分離 | フォームリクエストに移動 |
+| ビジネスロジック分離 | サービスクラスに移動 |
+| コントローラースリム化 | 各メソッドが2〜3行に |
 
 ---
 
-### 🔍 演習2: モデルのリファクタリング
+## Step 2: モデルのリファクタリング
+
+### 2-1. リファクタリング前のコード
 
 以下のクエリをリファクタリングしてください。
-
-**リファクタリング前**:
 
 ```php
 // コントローラー1
@@ -292,7 +293,7 @@ $tasks = Task::where('user_id', auth()->id())
 
 ---
 
-**リファクタリング後**:
+### 2-2. Eloquentスコープを追加する
 
 **ファイル**: `app/Models/Task.php`
 
@@ -305,6 +306,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class Task extends Model
 {
+    protected $fillable = [
+        'user_id', 'title', 'description', 'status', 'priority'
+    ];
+
     public function scopeForUser($query, $userId)
     {
         return $query->where('user_id', $userId);
@@ -327,7 +332,9 @@ class Task extends Model
 }
 ```
 
-**コントローラー**:
+---
+
+### 2-3. リファクタリング後のコントローラー
 
 ```php
 // コントローラー1
@@ -351,17 +358,19 @@ $tasks = Task::forUser(auth()->id())
 
 ---
 
-**改善点**:
-*   クエリが再利用可能になった
-*   クエリの意図が分かりやすくなった
+### 2-4. 改善点
+
+| 改善 | 説明 |
+|------|------|
+| 再利用性向上 | スコープを組み合わせて使える |
+| 可読性向上 | クエリの意図が明確 |
+| 保守性向上 | 変更が1箇所で済む |
 
 ---
 
-### 🔍 演習3: ビューのリファクタリング
+## Step 3: ビューのリファクタリング
 
-以下のビューをリファクタリングしてください。
-
-**リファクタリング前**:
+### 3-1. リファクタリング前のコード
 
 **ファイル**: `resources/views/tasks/index.blade.php`
 
@@ -388,34 +397,11 @@ $tasks = Task::forUser(auth()->id())
 </table>
 ```
 
-**ファイル**: `resources/views/tasks/completed.blade.php`
-
-```blade
-<table>
-    <thead>
-        <tr>
-            <th>タイトル</th>
-            <th>ステータス</th>
-            <th>優先度</th>
-            <th>作成日</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach ($tasks as $task)
-        <tr>
-            <td>{{ $task->title }}</td>
-            <td>{{ $task->status }}</td>
-            <td>{{ $task->priority }}</td>
-            <td>{{ $task->created_at->format('Y-m-d') }}</td>
-        </tr>
-        @endforeach
-    </tbody>
-</table>
-```
+**ファイル**: `resources/views/tasks/completed.blade.php`（同じコード）
 
 ---
 
-**リファクタリング後**:
+### 3-2. パーシャルを作成する
 
 **ファイル**: `resources/views/tasks/_table.blade.php`
 
@@ -442,78 +428,90 @@ $tasks = Task::forUser(auth()->id())
 </table>
 ```
 
+---
+
+### 3-3. パーシャルを使用する
+
 **ファイル**: `resources/views/tasks/index.blade.php`
 
 ```blade
+<h1>タスク一覧</h1>
 @include('tasks._table')
 ```
 
 **ファイル**: `resources/views/tasks/completed.blade.php`
 
 ```blade
+<h1>完了したタスク</h1>
 @include('tasks._table')
 ```
 
 ---
 
-**改善点**:
-*   重複コードが削除された
-*   パーシャルが再利用可能になった
+### 3-4. 改善点
+
+| 改善 | 説明 |
+|------|------|
+| 重複排除 | テーブルコードが1箇所に |
+| 再利用性向上 | 他のビューでも使える |
+| 保守性向上 | 変更が1箇所で済む |
 
 ---
 
-### 🔍 リファクタリングの手順
+## Step 4: リファクタリングの手順を学ぶ
 
-リファクタリングは、以下の手順で行います。
+### 4-1. 安全なリファクタリングの手順
 
-1.  **テストを書く**: リファクタリング前に、テストを書きます。
-2.  **小さく変更する**: 一度に大きく変更せず、小さく変更します。
-3.  **テストを実行する**: 変更後、テストを実行して、動作を確認します。
-4.  **繰り返す**: 1〜3を繰り返します。
-
----
-
-### 🔍 リファクタリングのタイミング
-
-リファクタリングは、以下のタイミングで行います。
-
-*   **新機能を追加する前**: コードを整理してから、新機能を追加します。
-*   **バグを修正する前**: コードを整理してから、バグを修正します。
-*   **コードレビューで指摘された時**: 指摘された箇所をリファクタリングします。
+| 順番 | 手順 | 説明 |
+|------|------|------|
+| 1 | テストを書く | リファクタリング前に動作を保証 |
+| 2 | 小さく変更する | 一度に大きく変更しない |
+| 3 | テストを実行する | 変更後に動作を確認 |
+| 4 | 繰り返す | 1〜3を繰り返す |
 
 ---
 
-### 💡 TIP: リファクタリングの本
+### 4-2. リファクタリングのタイミング
 
-リファクタリングについて、さらに学びたい場合は、以下の本がおすすめです。
-
-*   **リファクタリング 既存のコードを安全に改善する（第2版）** by Martin Fowler
+| タイミング | 説明 |
+|------------|------|
+| 新機能追加前 | コードを整理してから追加 |
+| バグ修正前 | コードを整理してから修正 |
+| コードレビュー後 | 指摘された箇所を改善 |
 
 ---
 
-### 🚨 よくある間違い
+## 🚨 よくある間違い
 
-#### 間違い1: テストを書かずにリファクタリングする
+### 間違い1: テストを書かずにリファクタリングする
 
-テストを書かずにリファクタリングすると、バグが発生しやすくなります。
+**問題**: バグが発生しても気づかない
 
 **対処法**: リファクタリング前に、テストを書きます。
 
 ---
 
-#### 間違い2: 一度に大きく変更する
+### 間違い2: 一度に大きく変更する
 
-一度に大きく変更すると、バグが発生しやすくなります。
+**問題**: 問題が発生したときに原因が特定しにくい
 
 **対処法**: 小さく変更して、テストを実行します。
 
 ---
 
-#### 間違い3: リファクタリングしすぎる
+### 間違い3: リファクタリングしすぎる
 
-リファクタリングしすぎると、時間がかかります。
+**問題**: 時間がかかりすぎる
 
 **対処法**: 必要な箇所だけをリファクタリングします。
+
+---
+
+## 💡 TIP: リファクタリングの本
+
+リファクタリングについて、さらに学びたい場合は、以下の本がおすすめです。
+
+**リファクタリング 既存のコードを安全に改善する（第2版）** by Martin Fowler
 
 ---
 
@@ -521,10 +519,12 @@ $tasks = Task::forUser(auth()->id())
 
 このセクションでは、リファクタリング演習を行いました。
 
-*   コントローラーをリファクタリングした。
-*   モデルをリファクタリングした。
-*   ビューをリファクタリングした。
-*   リファクタリングの手順を学んだ。
+| Step | 学んだこと |
+|------|-----------|
+| Step 1 | コントローラーのリファクタリング（Form Request、Service） |
+| Step 2 | モデルのリファクタリング（Eloquentスコープ） |
+| Step 3 | ビューのリファクタリング（パーシャル） |
+| Step 4 | リファクタリングの手順と注意点 |
 
 次の章では、テストについて学びます。
 
@@ -532,7 +532,7 @@ $tasks = Task::forUser(auth()->id())
 
 ## 📝 学習のポイント
 
-- [ ] コントローラーをリファクタリングした。
-- [ ] モデルをリファクタリングした。
-- [ ] ビューをリファクタリングした。
-- [ ] リファクタリングの手順を理解した。
+- [ ] コントローラーをリファクタリングした
+- [ ] モデルをリファクタリングした
+- [ ] ビューをリファクタリングした
+- [ ] リファクタリングの手順を理解した

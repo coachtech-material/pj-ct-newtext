@@ -2,9 +2,9 @@
 
 ## 🎯 このセクションで学ぶこと
 
-*   APIのセキュリティリスクを理解する。
-*   レート制限（Rate Limiting）の実装方法を学ぶ。
-*   APIのセキュリティベストプラクティスを理解する。
+- APIのセキュリティリスクを理解する
+- レート制限（Rate Limiting）の実装方法を学ぶ
+- APIのセキュリティベストプラクティスを理解する
 
 ---
 
@@ -22,10 +22,12 @@ Sanctumを導入したら、次は「APIセキュリティ」です。
 
 APIのセキュリティには、**他にも考慮すべき点**があります。
 
-- レート制限（DoS攻撃対策）
-- 入力値の検証
-- HTTPSの使用
-- 機密情報の保護
+| 対策 | 説明 |
+|------|------|
+| レート制限 | DoS攻撃対策 |
+| 入力値の検証 | インジェクション対策 |
+| HTTPSの使用 | 通信の暗号化 |
+| 機密情報の保護 | APIキーの管理 |
 
 ---
 
@@ -33,9 +35,11 @@ APIのセキュリティには、**他にも考慮すべき点**があります�
 
 APIに対する**一般的な攻撃パターン**を知っておくことが重要です。
 
-- インジェクション攻撃
-- 認証の突破
-- 過剰なデータ露出
+| 攻撃 | 説明 |
+|------|------|
+| インジェクション攻撃 | SQLインジェクションなど |
+| 認証の突破 | ブルートフォース攻撃 |
+| 過剰なデータ露出 | 不要な情報を返す |
 
 ---
 
@@ -51,43 +55,29 @@ Laravelには、多くのセキュリティ機能が組み込まれています�
 
 | 順番 | 作業 | 理由 |
 |------|------|------|
-| 1 | APIセキュリティの脅威を理解 | 何から守るべきかを知る |
-| 2 | レート制限の設定 | DoS攻撃対策 |
-| 3 | 入力値の検証 | インジェクション対策 |
+| Step 1 | レート制限の設定 | DoS攻撃対策 |
+| Step 2 | 入力値の検証 | インジェクション対策 |
+| Step 3 | 認可の実装 | 権限チェック |
 
 > 💡 **ポイント**: セキュリティは「後から追加」ではなく、最初から考慮すべきです。
 
 ---
 
-## 導入：APIのセキュリティ
+## Step 1: レート制限の設定
 
-APIは、外部からアクセスできるため、**セキュリティ対策が非常に重要**です。
+### 1-1. レート制限（Rate Limiting）とは
 
-適切なセキュリティ対策を行わないと、以下のようなリスクがあります。
+**レート制限**とは、**一定時間内にAPIにアクセスできる回数を制限する仕組み**です。
 
-*   **不正アクセス**: 認証されていないユーザーがデータにアクセスする
-*   **DDoS攻撃**: 大量のリクエストでサーバーをダウンさせる
-*   **データ漏洩**: 機密情報が外部に漏れる
-
-このセクションでは、APIのセキュリティ対策について学びます。
-
----
-
-## 詳細解説
-
-### 🔍 レート制限（Rate Limiting）とは
-
-**レート制限（Rate Limiting）**とは、**一定時間内にAPIにアクセスできる回数を制限する仕組み**です。
-
-レート制限を実装することで、以下のようなメリットがあります。
-
-*   **DDoS攻撃を防ぐ**: 大量のリクエストを防ぐことができる
-*   **サーバーの負荷を軽減する**: 過度なアクセスを防ぐことができる
-*   **公平性を保つ**: 特定のユーザーがAPIを独占することを防ぐ
+| メリット | 説明 |
+|----------|------|
+| DDoS攻撃を防ぐ | 大量のリクエストを防ぐ |
+| サーバーの負荷を軽減 | 過度なアクセスを防ぐ |
+| 公平性を保つ | 特定のユーザーがAPIを独占することを防ぐ |
 
 ---
 
-### 🔍 Laravelのレート制限
+### 1-2. Laravelのレート制限
 
 Laravelでは、デフォルトでAPIにレート制限が適用されています。
 
@@ -99,10 +89,6 @@ Laravelでは、デフォルトでAPIにレート制限が適用されていま�
         \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
     ]);
 
-    $middleware->alias([
-        'verified' => \App\Http\Middleware\EnsureEmailIsVerified::class,
-    ]);
-
     // レート制限の設定
     $middleware->throttleApi();
 })
@@ -110,11 +96,9 @@ Laravelでは、デフォルトでAPIにレート制限が適用されていま�
 
 ---
 
-### 🔍 レート制限の設定
+### 1-3. レート制限の設定
 
 デフォルトでは、**1分間に60回**までのリクエストが許可されています。
-
-この設定を変更する場合は、`app/Providers/AppServiceProvider.php`で設定します。
 
 **ファイル**: `app/Providers/AppServiceProvider.php`
 
@@ -141,45 +125,27 @@ class AppServiceProvider extends ServiceProvider
 
 ---
 
-### 🔍 コードリーディング
+### 1-4. コードリーディング
 
-#### `Limit::perMinute(60)`
-
-*   1分間に60回までのリクエストを許可します。
-
----
-
-#### `->by($request->user()?->id ?: $request->ip())`
-
-*   認証済みユーザーの場合は、ユーザーIDでレート制限を適用します。
-*   未認証ユーザーの場合は、IPアドレスでレート制限を適用します。
+| コード | 説明 |
+|--------|------|
+| `Limit::perMinute(60)` | 1分間に60回までのリクエストを許可 |
+| `->by($request->user()?->id ?: $request->ip())` | ユーザーIDまたはIPアドレスで制限 |
 
 ---
 
-### 🔍 レート制限のカスタマイズ
+### 1-5. レート制限のカスタマイズ
 
 特定のエンドポイントに対して、異なるレート制限を適用することもできます。
 
-**ファイル**: `app/Providers/AppServiceProvider.php`
-
 ```php
-public function boot(): void
-{
-    // 通常のAPIエンドポイント: 1分間に60回
-    RateLimiter::for('api', function (Request $request) {
-        return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
-    });
-
-    // ログインエンドポイント: 1分間に5回
-    RateLimiter::for('login', function (Request $request) {
-        return Limit::perMinute(5)->by($request->ip());
-    });
-}
+// ログインエンドポイント: 1分間に5回
+RateLimiter::for('login', function (Request $request) {
+    return Limit::perMinute(5)->by($request->ip());
+});
 ```
 
----
-
-**ファイル**: `routes/api.php`
+**ルーティング**:
 
 ```php
 Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:login');
@@ -187,7 +153,7 @@ Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:lo
 
 ---
 
-### 🔍 レート制限超過時のレスポンス
+### 1-6. レート制限超過時のレスポンス
 
 レート制限を超えた場合、以下のようなレスポンスが返されます。
 
@@ -201,27 +167,16 @@ HTTPステータスコード: `429 Too Many Requests`
 
 ---
 
-### 🔍 HTTPS の使用
+## Step 2: 入力値の検証
 
-APIは、**必ずHTTPSを使用**してください。
-
-HTTPSを使用することで、以下のようなメリットがあります。
-
-*   **通信内容が暗号化される**: 第三者に盗聴されない
-*   **中間者攻撃を防ぐ**: 通信内容が改ざんされない
-
----
-
-### 🔍 入力値のバリデーション
+### 2-1. バリデーションの重要性
 
 APIでは、**必ず入力値のバリデーション**を行ってください。
 
-バリデーションを行わないと、以下のようなリスクがあります。
-
-*   **SQLインジェクション**: データベースが不正に操作される
-*   **XSS（Cross-Site Scripting）**: 悪意のあるスクリプトが実行される
-
-Laravelでは、`validate()`メソッドを使って、簡単にバリデーションを実装できます。
+| リスク | 説明 |
+|--------|------|
+| SQLインジェクション | データベースが不正に操作される |
+| XSS | 悪意のあるスクリプトが実行される |
 
 ```php
 $request->validate([
@@ -233,37 +188,29 @@ $request->validate([
 
 ---
 
-### 🔍 SQLインジェクション対策
+### 2-2. SQLインジェクション対策
 
 Laravelの**Eloquent ORM**を使うことで、SQLインジェクションを防ぐことができます。
 
-**NG（危険）**:
-
 ```php
+// ❌ 危険
 $tasks = DB::select("SELECT * FROM tasks WHERE user_id = {$userId}");
-```
 
-**OK（安全）**:
-
-```php
+// ✅ 安全
 $tasks = Task::where('user_id', $userId)->get();
 ```
 
 ---
 
-### 🔍 XSS（Cross-Site Scripting）対策
+### 2-3. XSS（Cross-Site Scripting）対策
 
 Laravelでは、**Bladeテンプレート**を使うことで、XSSを防ぐことができます。
 
-**NG（危険）**:
-
 ```php
+// ❌ 危険
 {!! $task->title !!}
-```
 
-**OK（安全）**:
-
-```php
+// ✅ 安全
 {{ $task->title }}
 ```
 
@@ -271,34 +218,34 @@ Laravelでは、**Bladeテンプレート**を使うことで、XSSを防ぐこ�
 
 ---
 
-### 🔍 CSRF（Cross-Site Request Forgery）対策
+### 2-4. HTTPSの使用
 
-APIでは、通常**CSRFトークンは使用しません**。
+APIは、**必ずHTTPSを使用**してください。
 
-代わりに、**トークンベース認証**を使います。
+| メリット | 説明 |
+|----------|------|
+| 通信内容が暗号化される | 第三者に盗聴されない |
+| 中間者攻撃を防ぐ | 通信内容が改ざんされない |
 
-Sanctumを使うことで、CSRF対策が自動的に行われます。
+---
+
+## Step 3: 認可の実装
+
+### 3-1. 認証と認可の違い
+
+| 概念 | 説明 |
+|------|------|
+| 認証（Authentication） | ユーザーが誰であるかを確認する |
+| 認可（Authorization） | ユーザーが何をできるかを確認する |
 
 ---
 
-### 🔍 認可（Authorization）の実装
-
-APIでは、**認証（Authentication）**だけでなく、**認可（Authorization）**も重要です。
-
-**認証**: ユーザーが誰であるかを確認する
-**認可**: ユーザーが何をできるかを確認する
-
-例えば、以下のような認可を実装します。
-
-*   **自分のタスクのみを編集できる**: 他のユーザーのタスクは編集できない
-*   **管理者のみが全てのタスクを閲覧できる**: 一般ユーザーは自分のタスクのみを閲覧できる
-
----
+### 3-2. 認可の実装例
 
 **ファイル**: `app/Http/Controllers/Api/TaskController.php`
 
 ```php
-public function update(Request $request, string $id)
+public function update(Request $request, string $id): JsonResponse
 {
     $task = Task::findOrFail($id);
 
@@ -309,49 +256,37 @@ public function update(Request $request, string $id)
         ], 403);
     }
 
-    $request->validate([
+    $validated = $request->validate([
         'title' => 'required|string|max:255',
         'description' => 'nullable|string',
         'status' => 'required|in:pending,in_progress,completed',
-        'due_date' => 'nullable|date',
     ]);
 
-    $task->update($request->only(['title', 'description', 'status', 'due_date']));
+    $task->update($validated);
 
-    return new TaskResource($task);
+    return response()->json(['data' => $task], 200);
 }
 ```
 
 ---
 
-### 💡 TIP: APIキーの管理
+### 3-3. APIキーの管理
 
 APIキーやシークレットキーは、**絶対にコードに直接書かない**でください。
 
-環境変数（`.env`ファイル）に保存します。
-
-**NG（危険）**:
-
 ```php
+// ❌ 危険
 $apiKey = 'sk_live_abcdefghijklmnopqrstuvwxyz';
-```
 
-**OK（安全）**:
-
-```php
+// ✅ 安全
 $apiKey = env('STRIPE_API_KEY');
 ```
 
 ---
 
-### 💡 TIP: ログの記録
+### 3-4. ログの記録
 
 APIでは、**ログを記録する**ことが重要です。
-
-ログを記録することで、以下のようなメリットがあります。
-
-*   **不正アクセスを検知できる**: 異常なアクセスパターンを発見できる
-*   **デバッグがしやすい**: エラーの原因を特定できる
 
 ```php
 use Illuminate\Support\Facades\Log;
@@ -359,37 +294,42 @@ use Illuminate\Support\Facades\Log;
 Log::info('Task created', ['task_id' => $task->id, 'user_id' => Auth::id()]);
 ```
 
+| メリット | 説明 |
+|----------|------|
+| 不正アクセスを検知できる | 異常なアクセスパターンを発見 |
+| デバッグがしやすい | エラーの原因を特定 |
+
 ---
 
-### 🚨 よくある間違い
+## 🚨 よくある間違い
 
-#### 間違い1: HTTPSを使わない
+### 間違い1: HTTPSを使わない
+
+**問題**: 通信内容が盗聴される
 
 **対処法**: 本番環境では、必ずHTTPSを使用します。
 
 ---
 
-#### 間違い2: バリデーションを行わない
+### 間違い2: バリデーションを行わない
+
+**問題**: SQLインジェクションやXSSの危険性
 
 **対処法**: 全ての入力値に対して、バリデーションを行います。
 
 ---
 
-#### 間違い3: エラーメッセージに詳細な情報を含める
+### 間違い3: エラーメッセージに詳細な情報を含める
 
-**対処法**: エラーメッセージには、システムの内部情報を含めないようにします。
+**問題**: システムの内部情報が漏洩する
 
-**NG（危険）**:
-
-```json
+```php
+// ❌ 危険
 {
-  "message": "SQLSTATE[42S02]: Base table or view not found: 1146 Table 'database.tasks' doesn't exist"
+  "message": "SQLSTATE[42S02]: Base table or view not found"
 }
-```
 
-**OK（安全）**:
-
-```json
+// ✅ 安全
 {
   "message": "サーバーエラーが発生しました"
 }
@@ -397,21 +337,32 @@ Log::info('Task created', ['task_id' => $task->id, 'user_id' => Auth::id()]);
 
 ---
 
+## 💡 TIP: CSRF対策
+
+APIでは、通常**CSRFトークンは使用しません**。
+
+代わりに、**トークンベース認証**を使います。
+
+Sanctumを使うことで、CSRF対策が自動的に行われます。
+
+---
+
 ## ✨ まとめ
 
 このセクションでは、APIのセキュリティ対策について学びました。
 
-*   レート制限を実装することで、DDoS攻撃を防ぐことができる。
-*   HTTPSを使用することで、通信内容が暗号化される。
-*   入力値のバリデーションを行うことで、SQLインジェクションやXSSを防ぐことができる。
-*   認可を実装することで、ユーザーが適切な権限を持っているかを確認できる。
+| Step | 学んだこと |
+|------|-----------|
+| Step 1 | レート制限の設定とカスタマイズ |
+| Step 2 | 入力値の検証とインジェクション対策 |
+| Step 3 | 認可の実装とAPIキーの管理 |
 
-次のセクションでは、外部APIの利用について学びます。
+次のセクションでは、ログインAPIとトークンについて学びます。
 
 ---
 
 ## 📝 学習のポイント
 
-- [ ] APIのセキュリティリスクを理解した。
-- [ ] レート制限（Rate Limiting）の実装方法を学んだ。
-- [ ] APIのセキュリティベストプラクティスを理解した。
+- [ ] APIのセキュリティリスクを理解した
+- [ ] レート制限（Rate Limiting）の実装方法を学んだ
+- [ ] APIのセキュリティベストプラクティスを理解した

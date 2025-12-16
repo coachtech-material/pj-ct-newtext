@@ -2,9 +2,9 @@
 
 ## 🎯 このセクションで学ぶこと
 
-*   データベースを使ったRESTful APIの実装方法を学ぶ。
-*   CRUD操作（Create、Read、Update、Delete）をAPIで実装する。
-*   適切なHTTPステータスコードの選択方法を理解する。
+- データベースを使ったRESTful APIの実装方法を学ぶ
+- CRUD操作（Create、Read、Update、Delete）をAPIで実装する
+- 適切なHTTPステータスコードの選択方法を理解する
 
 ---
 
@@ -36,11 +36,13 @@ Tutorial 11で作ったタスク管理アプリを、APIで操作できるよう
 
 個別のAPIを詳しく見る前に、**CRUD全体の設計**を確認します。
 
-- 一覧取得（GET /api/tasks）
-- 詳細取得（GET /api/tasks/{id}）
-- 新規作成（POST /api/tasks）
-- 更新（PUT /api/tasks/{id}）
-- 削除（DELETE /api/tasks/{id}）
+| メソッド | URL | 処理 |
+|----------|-----|------|
+| GET | /api/tasks | 一覧取得 |
+| GET | /api/tasks/{id} | 詳細取得 |
+| POST | /api/tasks | 新規作成 |
+| PUT | /api/tasks/{id} | 更新 |
+| DELETE | /api/tasks/{id} | 削除 |
 
 ---
 
@@ -48,39 +50,25 @@ Tutorial 11で作ったタスク管理アプリを、APIで操作できるよう
 
 | 順番 | 作業 | 理由 |
 |------|------|------|
-| 1 | APIコントローラーの作成 | `--api`オプションで作成 |
-| 2 | ルートの定義 | `Route::apiResource()`を使用 |
-| 3 | 基本的なCRUD実装 | 各メソッドの雛形を作成 |
+| Step 1 | モデルとマイグレーション | データベースの準備 |
+| Step 2 | APIコントローラーの作成 | CRUD処理の実装 |
+| Step 3 | ルーティングとテスト | 動作確認 |
 
-> 💡 **ポイント**: `php artisan make:controller TaskApiController --api`でAPI用のコントローラーを作成できます。
-
----
-
-## 導入：RESTful APIの実装
-
-このセクションでは、**タスク管理システムのAPI**を実装します。
-
-実装する機能は以下の通りです。
-
-*   **タスク一覧の取得**: GET `/api/tasks`
-*   **タスク詳細の取得**: GET `/api/tasks/{id}`
-*   **タスクの作成**: POST `/api/tasks`
-*   **タスクの更新**: PUT `/api/tasks/{id}`
-*   **タスクの削除**: DELETE `/api/tasks/{id}`
+> 💡 **ポイント**: `php artisan make:controller Api/TaskController --api`でAPI用のコントローラーを作成できます。
 
 ---
 
-## 詳細解説
+## Step 1: モデルとマイグレーション
 
-### 🔍 マイグレーションとモデルの作成
-
-まず、タスクのマイグレーションとモデルを作成します。
+### 1-1. マイグレーションとモデルの作成
 
 ```bash
 php artisan make:model Task -m
 ```
 
 ---
+
+### 1-2. マイグレーションファイル
 
 **ファイル**: `database/migrations/xxxx_xx_xx_xxxxxx_create_tasks_table.php`
 
@@ -115,6 +103,8 @@ return new class extends Migration
 
 ---
 
+### 1-3. モデルファイル
+
 **ファイル**: `app/Models/Task.php`
 
 ```php
@@ -124,6 +114,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Task extends Model
 {
@@ -141,7 +132,7 @@ class Task extends Model
         'due_date' => 'date',
     ];
 
-    public function user()
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
@@ -150,13 +141,17 @@ class Task extends Model
 
 ---
 
-### 🔍 APIコントローラーの作成
+## Step 2: APIコントローラーの作成
+
+### 2-1. コントローラーを生成する
 
 ```bash
 php artisan make:controller Api/TaskController --api
 ```
 
 ---
+
+### 2-2. コントローラーの実装
 
 **ファイル**: `app/Http/Controllers/Api/TaskController.php`
 
@@ -168,14 +163,12 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Task;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 
 class TaskController extends Controller
 {
-    /**
-     * タスク一覧を取得する
-     */
-    public function index()
+    public function index(): JsonResponse
     {
         $tasks = Task::where('user_id', Auth::id())->get();
 
@@ -184,10 +177,7 @@ class TaskController extends Controller
         ], 200);
     }
 
-    /**
-     * タスクを作成する
-     */
-    public function store(Request $request)
+    public function store(Request $request): JsonResponse
     {
         $request->validate([
             'title' => 'required|string|max:255',
@@ -209,10 +199,7 @@ class TaskController extends Controller
         ], 201);
     }
 
-    /**
-     * タスク詳細を取得する
-     */
-    public function show(string $id)
+    public function show(string $id): JsonResponse
     {
         $task = Task::where('user_id', Auth::id())->find($id);
 
@@ -227,10 +214,7 @@ class TaskController extends Controller
         ], 200);
     }
 
-    /**
-     * タスクを更新する
-     */
-    public function update(Request $request, string $id)
+    public function update(Request $request, string $id): JsonResponse
     {
         $task = Task::where('user_id', Auth::id())->find($id);
 
@@ -255,10 +239,7 @@ class TaskController extends Controller
         ], 200);
     }
 
-    /**
-     * タスクを削除する
-     */
-    public function destroy(string $id)
+    public function destroy(string $id): JsonResponse
     {
         $task = Task::where('user_id', Auth::id())->find($id);
 
@@ -277,45 +258,19 @@ class TaskController extends Controller
 
 ---
 
-### 🔍 コードリーディング
+### 2-3. コードリーディング
 
-#### `Task::where('user_id', Auth::id())->get()`
-
-*   ログインユーザーのタスクのみを取得します。
-*   他のユーザーのタスクは取得できません。
-
----
-
-#### `return response()->json(['data' => $tasks], 200)`
-
-*   HTTPステータスコード200（OK）で、タスク一覧を返します。
+| コード | 説明 |
+|--------|------|
+| `Task::where('user_id', Auth::id())->get()` | ログインユーザーのタスクのみを取得 |
+| `response()->json(['data' => $tasks], 200)` | 200（OK）でタスク一覧を返す |
+| `response()->json([...], 201)` | 201（Created）で作成したタスクを返す |
+| `response()->json([...], 404)` | 404（Not Found）でエラーを返す |
+| `response()->json(null, 204)` | 204（No Content）でレスポンスボディなし |
 
 ---
 
-#### `return response()->json(['message' => 'タスクを作成しました', 'data' => $task], 201)`
-
-*   HTTPステータスコード201（Created）で、作成したタスクを返します。
-*   201は、リソースが正常に作成されたことを示します。
-
----
-
-#### `return response()->json(['message' => 'タスクが見つかりません'], 404)`
-
-*   HTTPステータスコード404（Not Found）で、エラーメッセージを返します。
-*   404は、リソースが見つからないことを示します。
-
----
-
-#### `return response()->json(null, 204)`
-
-*   HTTPステータスコード204（No Content）で、レスポンスボディなしで返します。
-*   204は、リクエストが成功したが、返すデータがないことを示します。
-
----
-
-### 🔍 HTTPステータスコードの選択
-
-APIでは、**適切なHTTPステータスコード**を返すことが重要です。
+### 2-4. HTTPステータスコードの選択
 
 | ステータスコード | 意味 | 使用場面 |
 |---|---|---|
@@ -331,17 +286,9 @@ APIでは、**適切なHTTPステータスコード**を返すことが重要で
 
 ---
 
-### 🔍 なぜ適切なステータスコードが重要なのか
+## Step 3: ルーティングとテスト
 
-適切なステータスコードを返すことで、以下のようなメリットがあります。
-
-1. **クライアントが適切に処理できる**: フロントエンドで、エラーの種類に応じた処理ができる
-2. **デバッグがしやすい**: ログを見たときに、何が起きたのかが分かりやすい
-3. **RESTful APIの原則に従う**: 標準的なAPIの設計になる
-
----
-
-### 🔍 ルーティングの設定
+### 3-1. ルーティングの設定
 
 **ファイル**: `routes/api.php`
 
@@ -358,9 +305,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
 ---
 
-### 🔍 APIのテスト
-
-#### curlでのテスト
+### 3-2. curlでのテスト
 
 ```bash
 # タスク一覧を取得
@@ -371,11 +316,7 @@ curl -X GET http://localhost/api/tasks \
 curl -X POST http://localhost/api/tasks \
   -H "Authorization: Bearer YOUR_TOKEN" \
   -H "Content-Type: application/json" \
-  -d '{
-    "title": "新しいタスク",
-    "description": "これは新しいタスクです",
-    "due_date": "2024-12-31"
-  }'
+  -d '{"title": "新しいタスク", "description": "これは新しいタスクです"}'
 
 # タスク詳細を取得
 curl -X GET http://localhost/api/tasks/1 \
@@ -385,12 +326,7 @@ curl -X GET http://localhost/api/tasks/1 \
 curl -X PUT http://localhost/api/tasks/1 \
   -H "Authorization: Bearer YOUR_TOKEN" \
   -H "Content-Type: application/json" \
-  -d '{
-    "title": "更新されたタスク",
-    "description": "更新しました",
-    "status": "completed",
-    "due_date": "2024-12-31"
-  }'
+  -d '{"title": "更新されたタスク", "status": "completed"}'
 
 # タスクを削除
 curl -X DELETE http://localhost/api/tasks/1 \
@@ -399,11 +335,9 @@ curl -X DELETE http://localhost/api/tasks/1 \
 
 ---
 
-### 🔍 バリデーションエラーのレスポンス
+### 3-3. バリデーションエラーのレスポンス
 
-バリデーションエラーが発生した場合、Laravelは自動的に422ステータスコードとエラーメッセージを返します。
-
-**例**:
+バリデーションエラーが発生した場合、Laravelは自動的に422ステータスコードを返します。
 
 ```json
 {
@@ -416,17 +350,40 @@ curl -X DELETE http://localhost/api/tasks/1 \
 }
 ```
 
-HTTPステータスコード: `422 Unprocessable Entity`
+---
+
+## 🚨 よくある間違い
+
+### 間違い1: 全てのエラーで500を返す
+
+**問題**: クライアントがエラーの種類を判別できない
+
+**対処法**: 適切なHTTPステータスコードを返します。
 
 ---
 
-### 💡 TIP: エラーハンドリングの改善
+### 間違い2: HTMLエラーページを返す
 
-より詳細なエラーメッセージを返すために、カスタムエラーハンドリングを実装することもできます。
+**問題**: APIクライアントがパースできない
 
-**ファイル**: `app/Exceptions/Handler.php`
+**対処法**: JSON形式でエラーを返します。
+
+---
+
+### 間違い3: 他のユーザーのタスクにアクセスできる
+
+**問題**: セキュリティリスク
+
+**対処法**: `where('user_id', Auth::id())`で、ログインユーザーのタスクのみを取得します。
+
+---
+
+## 💡 TIP: エラーハンドリングの改善
+
+より詳細なエラーメッセージを返すために、カスタムエラーハンドリングを実装できます。
 
 ```php
+// app/Exceptions/Handler.php
 public function render($request, Throwable $exception)
 {
     if ($request->is('api/*')) {
@@ -434,12 +391,6 @@ public function render($request, Throwable $exception)
             return response()->json([
                 'message' => 'リソースが見つかりません'
             ], 404);
-        }
-
-        if ($exception instanceof AuthenticationException) {
-            return response()->json([
-                'message' => '認証が必要です'
-            ], 401);
         }
     }
 
@@ -449,34 +400,15 @@ public function render($request, Throwable $exception)
 
 ---
 
-### 🚨 よくある間違い
-
-#### 間違い1: 全てのエラーで500を返す
-
-**対処法**: 適切なHTTPステータスコードを返します。
-
----
-
-#### 間違い2: HTMLエラーページを返す
-
-**対処法**: APIでは、JSON形式でエラーを返します。
-
----
-
-#### 間違い3: 他のユーザーのタスクにアクセスできる
-
-**対処法**: `where('user_id', Auth::id())`で、ログインユーザーのタスクのみを取得します。
-
----
-
 ## ✨ まとめ
 
 このセクションでは、タスクAPIの実装（CRUD）について学びました。
 
-*   データベースを使ったRESTful APIの実装方法を学んだ。
-*   CRUD操作（Create、Read、Update、Delete）をAPIで実装した。
-*   適切なHTTPステータスコード（200、201、204、404、422）の選択方法を理解した。
-*   バリデーションエラーは、自動的に422ステータスコードで返される。
+| Step | 学んだこと |
+|------|-----------|
+| Step 1 | モデルとマイグレーションの作成 |
+| Step 2 | APIコントローラーの実装とHTTPステータスコード |
+| Step 3 | ルーティングとAPIのテスト |
 
 次のセクションでは、APIリソースを使ったレスポンスの整形について学びます。
 
@@ -484,6 +416,6 @@ public function render($request, Throwable $exception)
 
 ## 📝 学習のポイント
 
-- [ ] データベースを使ったRESTful APIの実装方法を学んだ。
-- [ ] CRUD操作（Create、Read、Update、Delete）をAPIで実装した。
-- [ ] 適切なHTTPステータスコードの選択方法を理解した。
+- [ ] データベースを使ったRESTful APIの実装方法を学んだ
+- [ ] CRUD操作（Create、Read、Update、Delete）をAPIで実装した
+- [ ] 適切なHTTPステータスコードの選択方法を理解した

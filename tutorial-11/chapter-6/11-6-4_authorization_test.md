@@ -2,9 +2,9 @@
 
 ## 🎯 このセクションで学ぶこと
 
-*   ポリシーを使った認可機能のテストを書く方法を学ぶ。
-*   所有権チェックのテストを書く方法を学ぶ。
-*   ミドルウェアのテストを書く方法を学ぶ。
+- ポリシーを使った認可機能のテストを書く方法を学ぶ
+- 所有権チェックのテストを書く方法を学ぶ
+- ミドルウェアのテストを書く方法を学ぶ
 
 ---
 
@@ -18,8 +18,10 @@
 
 ### 理由1: 認証と認可は別物
 
-- **認証（Authentication）**: 「誰か」を確認する
-- **認可（Authorization）**: 「何ができるか」を確認する
+| 概念 | 説明 |
+|------|------|
+| 認証（Authentication） | 「誰か」を確認する |
+| 認可（Authorization） | 「何ができるか」を確認する |
 
 認証が通っても、**権限がなければアクセスできない**ことを確認します。
 
@@ -49,31 +51,26 @@ Policyで定義した認可ロジックが**正しく動作する**ことを確�
 
 | 順番 | 作業 | 理由 |
 |------|------|------|
-| 1 | 自分のデータへのアクセステスト | 正常にアクセスできることを確認 |
-| 2 | 他人のデータへのアクセステスト | 403エラーになることを確認 |
-| 3 | Policyのテスト | 認可ロジックをテスト |
+| Step 1 | ポリシーの作成 | 認可ロジックを定義 |
+| Step 2 | 閲覧の認可テスト | 正常系・異常系を確認 |
+| Step 3 | 更新・削除の認可テスト | 所有権チェックを確認 |
+| Step 4 | ポリシーのユニットテスト | 認可ロジックを直接テスト |
 
 > 💡 **ポイント**: 認可テストは、セキュリティ上非常に重要です。
 
 ---
 
-## 導入：なぜ認可機能をテストするのか
+## Step 1: ポリシーの作成
 
-**認可機能**は、**誰が何をできるか**を制御する仕組みです。
-
-認可機能をテストすることで、**不正な操作を防ぎ、データの安全性を保つ**ことができます。
-
----
-
-## 詳細解説
-
-### 🔍 ポリシーの作成
-
-まず、ポリシーを作成します。
+### 1-1. ポリシーを生成する
 
 ```bash
 php artisan make:policy TaskPolicy --model=Task
 ```
+
+---
+
+### 1-2. ポリシーを定義する
 
 **ファイル**: `app/Policies/TaskPolicy.php`
 
@@ -87,17 +84,17 @@ use App\Models\User;
 
 class TaskPolicy
 {
-    public function view(User $user, Task $task)
+    public function view(User $user, Task $task): bool
     {
         return $user->id === $task->user_id;
     }
 
-    public function update(User $user, Task $task)
+    public function update(User $user, Task $task): bool
     {
         return $user->id === $task->user_id;
     }
 
-    public function delete(User $user, Task $task)
+    public function delete(User $user, Task $task): bool
     {
         return $user->id === $task->user_id;
     }
@@ -106,35 +103,83 @@ class TaskPolicy
 
 ---
 
-### 🔍 コントローラーでポリシーを使う
-
-コントローラーで、ポリシーを使います。
+### 1-3. コントローラーでポリシーを使う
 
 ```php
+public function show(Task $task)
+{
+    $this->authorize('view', $task);
+    return view('tasks.show', compact('task'));
+}
+
 public function update(TaskRequest $request, Task $task)
 {
     $this->authorize('update', $task);
-    
     $this->taskService->updateTask($task, $request->validated());
-    
     return redirect()->route('tasks.index');
 }
 
 public function destroy(Task $task)
 {
     $this->authorize('delete', $task);
-    
     $task->delete();
-    
     return redirect()->route('tasks.index');
 }
 ```
 
 ---
 
-### 🔍 所有権チェックのテスト（正常系）
+## Step 2: 閲覧の認可テスト
 
-自分のタスクを更新できることをテストします。
+### 2-1. 正常系: 自分のタスクを閲覧できる
+
+```php
+public function test_自分のタスクを閲覧できる()
+{
+    // 準備
+    $user = User::factory()->create();
+    $task = Task::factory()->create([
+        'user_id' => $user->id,
+        'title' => 'テストタスク',
+    ]);
+    
+    // 実行
+    $response = $this->actingAs($user)->get("/tasks/{$task->id}");
+    
+    // 検証
+    $response->assertStatus(200);
+    $response->assertSee('テストタスク');
+}
+```
+
+---
+
+### 2-2. 異常系: 他人のタスクを閲覧できない
+
+```php
+public function test_他人のタスクを閲覧できない()
+{
+    // 準備
+    $user = User::factory()->create();
+    $otherUser = User::factory()->create();
+    $task = Task::factory()->create([
+        'user_id' => $otherUser->id,
+        'title' => 'テストタスク',
+    ]);
+    
+    // 実行
+    $response = $this->actingAs($user)->get("/tasks/{$task->id}");
+    
+    // 検証
+    $response->assertStatus(403);
+}
+```
+
+---
+
+## Step 3: 更新・削除の認可テスト
+
+### 3-1. 正常系: 自分のタスクを更新できる
 
 ```php
 public function test_自分のタスクを更新できる()
@@ -162,9 +207,7 @@ public function test_自分のタスクを更新できる()
 
 ---
 
-### 🔍 所有権チェックのテスト（異常系）
-
-他人のタスクを更新できないことをテストします。
+### 3-2. 異常系: 他人のタスクを更新できない
 
 ```php
 public function test_他人のタスクを更新できない()
@@ -196,9 +239,7 @@ public function test_他人のタスクを更新できない()
 
 ---
 
-### 🔍 削除の認可テスト
-
-自分のタスクを削除できることをテストします。
+### 3-3. 正常系: 自分のタスクを削除できる
 
 ```php
 public function test_自分のタスクを削除できる()
@@ -220,9 +261,7 @@ public function test_自分のタスクを削除できる()
 
 ---
 
-### 🔍 削除の認可テスト（異常系）
-
-他人のタスクを削除できないことをテストします。
+### 3-4. 異常系: 他人のタスクを削除できない
 
 ```php
 public function test_他人のタスクを削除できない()
@@ -245,63 +284,17 @@ public function test_他人のタスクを削除できない()
 
 ---
 
-### 🔍 閲覧の認可テスト
+## Step 4: ポリシーのユニットテスト
 
-自分のタスクを閲覧できることをテストします。
-
-```php
-public function test_自分のタスクを閲覧できる()
-{
-    // 準備
-    $user = User::factory()->create();
-    $task = Task::factory()->create([
-        'user_id' => $user->id,
-        'title' => 'テストタスク',
-    ]);
-    
-    // 実行
-    $response = $this->actingAs($user)->get("/tasks/{$task->id}");
-    
-    // 検証
-    $response->assertStatus(200);
-    $response->assertSee('テストタスク');
-}
-```
-
----
-
-### 🔍 閲覧の認可テスト（異常系）
-
-他人のタスクを閲覧できないことをテストします。
-
-```php
-public function test_他人のタスクを閲覧できない()
-{
-    // 準備
-    $user = User::factory()->create();
-    $otherUser = User::factory()->create();
-    $task = Task::factory()->create([
-        'user_id' => $otherUser->id,
-        'title' => 'テストタスク',
-    ]);
-    
-    // 実行
-    $response = $this->actingAs($user)->get("/tasks/{$task->id}");
-    
-    // 検証
-    $response->assertStatus(403);
-}
-```
-
----
-
-### 🔍 ポリシーのユニットテスト
-
-ポリシー自体をユニットテストすることもできます。
+### 4-1. ユニットテストを作成する
 
 ```bash
 php artisan make:test TaskPolicyTest --unit
 ```
+
+---
+
+### 4-2. ポリシーを直接テストする
 
 **ファイル**: `tests/Unit/TaskPolicyTest.php`
 
@@ -313,6 +306,7 @@ namespace Tests\Unit;
 use App\Models\Task;
 use App\Models\User;
 use App\Policies\TaskPolicy;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class TaskPolicyTest extends TestCase
@@ -352,29 +346,22 @@ class TaskPolicyTest extends TestCase
 
 ---
 
-### 🔍 実践演習: テストを作成してください
+### 4-3. 実践演習: 管理者のテスト
 
 以下のテストを作成してください。
 
-**テスト内容**:
-*   管理者は、すべてのタスクを削除できることを確認する
+**テスト内容**: 管理者は、すべてのタスクを削除できることを確認する
 
----
-
-**解答例**:
-
-まず、ポリシーを修正します。
-
-**ファイル**: `app/Policies/TaskPolicy.php`
+**ポリシーの修正**:
 
 ```php
-public function delete(User $user, Task $task)
+public function delete(User $user, Task $task): bool
 {
     return $user->id === $task->user_id || $user->is_admin;
 }
 ```
 
-次に、テストを作成します。
+**テスト**:
 
 ```php
 public function test_管理者はすべてのタスクを削除できる()
@@ -397,39 +384,61 @@ public function test_管理者はすべてのタスクを削除できる()
 
 ---
 
-### 🔍 ミドルウェアのテスト
+## 🚨 よくある間違い
 
-ミドルウェアをテストすることもできます。
+### 間違い1: authorize()を忘れる
+
+**問題**: 認可チェックがスキップされる
 
 ```php
-public function test_未ログインユーザーはタスク一覧にアクセスできない()
+// ❌ 間違い
+public function update(TaskRequest $request, Task $task)
 {
-    // 実行
-    $response = $this->get('/tasks');
-    
-    // 検証
-    $response->assertStatus(302);
-    $response->assertRedirect('/login');
+    // authorize()を忘れている
+    $this->taskService->updateTask($task, $request->validated());
+    return redirect()->route('tasks.index');
 }
 
-public function test_ログインユーザーはタスク一覧にアクセスできる()
+// ✅ 正しい
+public function update(TaskRequest $request, Task $task)
 {
-    // 準備
-    $user = User::factory()->create();
-    
-    // 実行
-    $response = $this->actingAs($user)->get('/tasks');
-    
-    // 検証
-    $response->assertStatus(200);
+    $this->authorize('update', $task);
+    $this->taskService->updateTask($task, $request->validated());
+    return redirect()->route('tasks.index');
 }
 ```
 
 ---
 
-### 💡 TIP: Gate::allowを使う
+### 間違い2: ポリシーを登録し忘れる
 
-`Gate::allow()`を使って、認可をテストすることもできます。
+**問題**: ポリシーが適用されない
+
+**ファイル**: `app/Providers/AuthServiceProvider.php`
+
+```php
+protected $policies = [
+    Task::class => TaskPolicy::class,
+];
+```
+
+---
+
+### 間違い3: 403エラーをテストしない
+
+**問題**: 認可の異常系を見逃す
+
+**対処法**: 必ず403エラーのテストを書きます。
+
+```php
+$response->assertStatus(403);
+```
+
+---
+
+## 💡 TIP: Gate::allowsを使う
+
+`Gate::allows()`を使って、認可をテストすることもできます。
 
 ```php
 use Illuminate\Support\Facades\Gate;
@@ -454,63 +463,16 @@ public function test_所有者以外はタスクを更新できない()
 
 ---
 
-### 🚨 よくある間違い
-
-#### 間違い1: authorize()を忘れる
-
-コントローラーで`authorize()`を忘れると、認可チェックがスキップされます。
-
-```php
-// ❌ 間違い
-public function update(TaskRequest $request, Task $task)
-{
-    // authorize()を忘れている
-    $this->taskService->updateTask($task, $request->validated());
-    return redirect()->route('tasks.index');
-}
-
-// ✅ 正しい
-public function update(TaskRequest $request, Task $task)
-{
-    $this->authorize('update', $task);
-    $this->taskService->updateTask($task, $request->validated());
-    return redirect()->route('tasks.index');
-}
-```
-
----
-
-#### 間違い2: ポリシーを登録し忘れる
-
-ポリシーを作成したら、`AuthServiceProvider`に登録します。
-
-**ファイル**: `app/Providers/AuthServiceProvider.php`
-
-```php
-protected $policies = [
-    Task::class => TaskPolicy::class,
-];
-```
-
----
-
-#### 間違い3: 403エラーをテストしない
-
-認可エラー（403）のテストを忘れないようにします。
-
-```php
-$response->assertStatus(403);
-```
-
----
-
 ## ✨ まとめ
 
 このセクションでは、認可機能のテストを学びました。
 
-*   ポリシーを使った認可機能のテストを書いた。
-*   所有権チェックのテストを書いた。
-*   ポリシーのユニットテストを書いた。
+| Step | 学んだこと |
+|------|-----------|
+| Step 1 | ポリシーの作成と使用 |
+| Step 2 | 閲覧の認可テスト（正常系・異常系） |
+| Step 3 | 更新・削除の認可テスト（正常系・異常系） |
+| Step 4 | ポリシーのユニットテスト |
 
 次のセクションでは、テストカバレッジの確認について学びます。
 
@@ -518,7 +480,7 @@ $response->assertStatus(403);
 
 ## 📝 学習のポイント
 
-- [ ] ポリシーを作成した。
-- [ ] 所有権チェックのテストを書いた。
-- [ ] 認可エラーのテストを書いた。
-- [ ] ポリシーのユニットテストを書いた。
+- [ ] ポリシーを作成した
+- [ ] 所有権チェックのテストを書いた
+- [ ] 認可エラー（403）のテストを書いた
+- [ ] ポリシーのユニットテストを書いた

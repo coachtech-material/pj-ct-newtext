@@ -2,9 +2,9 @@
 
 ## 🎯 このセクションで学ぶこと
 
-*   タスク編集フォームを実装する方法を学ぶ。
-*   既存のデータをフォームに表示する方法を学ぶ。
-*   タスクを更新する方法を学ぶ。
+- タスク編集フォームを実装する方法を学ぶ
+- 既存のデータをフォームに表示する方法を学ぶ
+- タスクを更新する方法を学ぶ
 
 ---
 
@@ -58,27 +58,22 @@ LaravelではBladeで`@method('PUT')`を使って、PUTリクエストを送信�
 
 | 順番 | 作業 | 理由 |
 |------|------|------|
-| 1 | ルーティング追加 | edit()とupdate()の2つ |
-| 2 | コントローラー実装 | 既存データを取得して更新 |
-| 3 | ビュー作成 | 既存データを表示したフォーム |
+| Step 1 | ルーティングの追加 | edit()とupdate()の2つのルート |
+| Step 2 | editメソッドの実装 | 既存データを取得してフォームに表示 |
+| Step 3 | 編集フォームのビュー作成 | 既存データを表示したフォーム |
+| Step 4 | updateメソッドの実装 | データを更新するメソッド |
+| Step 5 | 詳細ページに編集リンクを追加 | 編集ページへの導線を作る |
+| Step 6 | 動作確認 | 正しく動作するか確認する |
 
 > 💡 **ポイント**: 「作成」との違いは、①既存データの取得、②HTTPメソッド（PUT）、③更新処理の3点です。
 
 ---
 
-## 導入：なぜタスク編集機能が重要なのか
+## Step 1: ルーティングの追加
 
-**タスク編集機能**は、既存のタスクを更新する機能です。
+### 1-1. 編集用のルートを定義する
 
-タスク編集機能を実装することで、ユーザーはタスクの情報を変更できるようになります。
-
----
-
-## 詳細解説
-
-### 🔍 ルーティングの追加
-
-タスク編集のルーティングを追加します。
+タスク編集には2つのルートが必要です。
 
 **ファイル**: `routes/web.php`
 
@@ -95,7 +90,34 @@ Route::middleware(['auth'])->group(function () {
 
 ---
 
-### 🔍 コントローラーのeditメソッド
+### 1-2. コードリーディング
+
+#### `Route::get('/tasks/{task}/edit', ...)->name('tasks.edit')`
+
+- `GET /tasks/1/edit`にアクセスすると、`edit`メソッドが実行されます
+- このルートは**編集フォームを表示する**ためのものです
+
+---
+
+#### `Route::put('/tasks/{task}', ...)->name('tasks.update')`
+
+- `PUT /tasks/1`にデータを送信すると、`update`メソッドが実行されます
+- このルートは**データを更新する**ためのものです
+
+---
+
+#### 作成と編集の比較
+
+| 機能 | フォーム表示 | データ保存 |
+|------|-------------|-----------|
+| 作成 | GET `/tasks/create` | POST `/tasks` |
+| 編集 | GET `/tasks/{task}/edit` | PUT `/tasks/{task}` |
+
+---
+
+## Step 2: editメソッドの実装
+
+### 2-1. フォーム表示メソッドを追加する
 
 タスク編集フォームを表示する`edit`メソッドを追加します。
 
@@ -115,7 +137,25 @@ public function edit(Task $task)
 
 ---
 
-### 🔍 タスク編集フォームのビュー
+### 2-2. コードリーディング
+
+#### `edit(Task $task)`
+
+- ルートモデルバインディングで、URLのIDから自動的にタスクを取得します
+- 取得したタスクをビューに渡します
+
+---
+
+#### 認可チェック
+
+- `show`メソッドと同様に、ログインユーザーのタスクかどうかを確認します
+- 他のユーザーのタスクを編集できないようにします
+
+---
+
+## Step 3: 編集フォームのビュー作成
+
+### 3-1. ビューファイルを作成する
 
 タスク編集フォームのビューを作成します。
 
@@ -128,12 +168,53 @@ public function edit(Task $task)
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>タスク編集</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="text"],
+        input[type="date"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .error {
+            color: red;
+            margin-bottom: 15px;
+        }
+        button {
+            background-color: #2196f3;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .cancel-link {
+            margin-left: 10px;
+            color: #666;
+        }
+    </style>
 </head>
 <body>
     <h1>タスク編集</h1>
 
     @if ($errors->any())
-        <div style="color: red;">
+        <div class="error">
             <ul>
                 @foreach ($errors->all() as $error)
                     <li>{{ $error }}</li>
@@ -146,31 +227,32 @@ public function edit(Task $task)
         @csrf
         @method('PUT')
 
-        <div>
+        <div class="form-group">
             <label for="title">タイトル</label>
             <input type="text" id="title" name="title" value="{{ old('title', $task->title) }}" required>
         </div>
 
-        <div>
+        <div class="form-group">
             <label for="description">説明</label>
-            <textarea id="description" name="description">{{ old('description', $task->description) }}</textarea>
+            <textarea id="description" name="description" rows="4">{{ old('description', $task->description) }}</textarea>
         </div>
 
-        <div>
+        <div class="form-group">
             <label for="due_date">期限</label>
-            <input type="date" id="due_date" name="due_date" value="{{ old('due_date', $task->due_date) }}">
+            <input type="date" id="due_date" name="due_date" value="{{ old('due_date', $task->due_date?->format('Y-m-d')) }}">
         </div>
 
-        <div>
+        <div class="form-group">
             <label for="status">ステータス</label>
             <select id="status" name="status">
-                <option value="未完了" {{ old('status', $task->status) == '未完了' ? 'selected' : '' }}>未完了</option>
-                <option value="完了" {{ old('status', $task->status) == '完了' ? 'selected' : '' }}>完了</option>
+                <option value="pending" {{ old('status', $task->status) == 'pending' ? 'selected' : '' }}>未着手</option>
+                <option value="in_progress" {{ old('status', $task->status) == 'in_progress' ? 'selected' : '' }}>進行中</option>
+                <option value="completed" {{ old('status', $task->status) == 'completed' ? 'selected' : '' }}>完了</option>
             </select>
         </div>
 
         <button type="submit">更新</button>
-        <a href="{{ route('tasks.show', $task) }}">キャンセル</a>
+        <a href="{{ route('tasks.show', $task) }}" class="cancel-link">キャンセル</a>
     </form>
 </body>
 </html>
@@ -178,34 +260,35 @@ public function edit(Task $task)
 
 ---
 
-### 🔍 @method('PUT')
+### 3-2. コードリーディング
 
-HTMLフォームは、`GET`と`POST`しかサポートしていません。
+#### `@method('PUT')`
 
-`PUT`や`DELETE`を使うには、`@method('PUT')`を追加します。
-
-```blade
-@method('PUT')
-```
-
-これにより、Laravelは`POST`リクエストを`PUT`リクエストとして扱います。
+- HTMLフォームは、`GET`と`POST`しかサポートしていません
+- `@method('PUT')`を追加すると、Laravelは`POST`リクエストを`PUT`リクエストとして扱います
+- これにより、RESTfulなルーティングを実現できます
 
 ---
 
-### 🔍 old()の第2引数
+#### `old('title', $task->title)`
 
-`old()`関数の第2引数は、**デフォルト値**です。
-
-```blade
-<input type="text" id="title" name="title" value="{{ old('title', $task->title) }}" required>
-```
-
-*   バリデーションエラーがある場合: `old('title')`が返される
-*   バリデーションエラーがない場合: `$task->title`が返される
+- `old()`関数の第2引数は**デフォルト値**です
+- バリデーションエラーがある場合: `old('title')`が返される（ユーザーが入力した値）
+- バリデーションエラーがない場合: `$task->title`が返される（既存のデータ）
 
 ---
 
-### 🔍 コントローラーのupdateメソッド
+#### `$task->due_date?->format('Y-m-d')`
+
+- `?->`は**Nullセーフ演算子**です
+- `due_date`がNULLの場合、エラーにならずにNULLを返します
+- `<input type="date">`には`Y-m-d`形式の値が必要です
+
+---
+
+## Step 4: updateメソッドの実装
+
+### 4-1. データ更新メソッドを追加する
 
 タスクを更新する`update`メソッドを追加します。
 
@@ -223,7 +306,7 @@ public function update(Request $request, Task $task)
         'title' => 'required|string|max:255',
         'description' => 'nullable|string',
         'due_date' => 'nullable|date',
-        'status' => 'required|in:未完了,完了',
+        'status' => 'required|in:pending,in_progress,completed',
     ]);
 
     $task->update($validated);
@@ -234,45 +317,125 @@ public function update(Request $request, Task $task)
 
 ---
 
-### 🔍 タスク詳細ページに編集リンクを追加
+### 4-2. コードリーディング
+
+#### `update(Request $request, Task $task)`
+
+- 第1引数`$request`でフォームデータを受け取ります
+- 第2引数`$task`でルートモデルバインディングにより対象のタスクを取得します
+
+---
+
+#### `$task->update($validated)`
+
+- `update()`メソッドは、モデルのデータを更新します
+- バリデーション済みのデータのみを更新するので、安全です
+
+---
+
+#### `store()`と`update()`の違い
+
+| メソッド | 処理 |
+|---------|------|
+| `store()` | `Task::create($validated)` - 新規作成 |
+| `update()` | `$task->update($validated)` - 既存データを更新 |
+
+---
+
+## Step 5: 詳細ページに編集リンクを追加
+
+### 5-1. 編集リンクを追加する
 
 タスク詳細ページに、編集リンクを追加します。
 
 **ファイル**: `resources/views/tasks/show.blade.php`
 
-```blade
-<h1>タスク詳細</h1>
+テーブルの下に、以下のコードを追加します。
 
+```blade
 @if (session('success'))
-    <div style="color: green;">
+    <div style="color: green; margin-bottom: 15px; padding: 10px; background-color: #e8f5e9; border-radius: 4px;">
         {{ session('success') }}
     </div>
 @endif
 
-<table border="1">
-    <!-- ... -->
-</table>
-
-<a href="{{ route('tasks.edit', $task) }}">編集</a>
-<a href="{{ route('tasks.index') }}">一覧に戻る</a>
+<!-- テーブルの後に追加 -->
+<div style="margin-top: 20px;">
+    <a href="{{ route('tasks.edit', $task) }}" style="display: inline-block; padding: 10px 20px; background-color: #2196f3; color: white; text-decoration: none; border-radius: 4px;">編集</a>
+    <a href="{{ route('tasks.index') }}" style="margin-left: 10px; color: #666;">← 一覧に戻る</a>
+</div>
 ```
 
 ---
 
-### 🔍 動作確認
+### 5-2. コードリーディング
 
-ブラウザでタスク詳細ページにアクセスし、「編集」リンクをクリックします。
+#### `route('tasks.edit', $task)`
 
-タスク編集フォームが表示され、既存のデータが入力されていることを確認します。
-
-1. タイトルを「更新されたタスク」に変更
-2. 「更新」ボタンをクリック
-
-タスク詳細ページにリダイレクトされ、「タスクを更新しました。」というメッセージが表示されることを確認します。
+- `tasks.edit`という名前のルートにURLを生成します
+- 結果: `/tasks/1/edit`のようなURLが生成されます
 
 ---
 
-### 💡 TIP: fill()メソッド
+## Step 6: 動作確認
+
+### 6-1. 編集フォームを表示する
+
+1. ブラウザでタスク詳細ページにアクセスする
+2. 「編集」リンクをクリックする
+3. タスク編集フォームが表示され、既存のデータが入力されていることを確認する
+
+---
+
+### 6-2. タスクを更新する
+
+1. タイトルを「更新されたタスク」に変更
+2. 「更新」ボタンをクリック
+3. タスク詳細ページにリダイレクトされる
+4. 「タスクを更新しました。」というメッセージが表示される
+5. タイトルが「更新されたタスク」に変更されていることを確認する
+
+---
+
+### 6-3. バリデーションエラーを確認する
+
+1. タイトルを空にして「更新」ボタンをクリック
+2. エラーメッセージが表示される
+3. 他のフィールドの値が保持されていることを確認する
+
+---
+
+## 🚨 よくある間違い
+
+### 間違い1: @method('PUT')を忘れる
+
+**エラー**:
+
+```
+The PUT method is not supported for route tasks/{task}. Supported methods: GET, HEAD, POST.
+```
+
+**対処法**: フォームに`@method('PUT')`を追加します。
+
+---
+
+### 間違い2: old()の第2引数を忘れる
+
+**問題**: 編集画面を開いたとき、フォームが空になる
+
+**対処法**: `old('title', $task->title)`のように、第2引数にデフォルト値を指定します。
+
+---
+
+### 間違い3: 認可チェックを忘れる
+
+**問題**: 他のユーザーのタスクを編集できてしまう
+
+**対処法**: `edit`メソッドと`update`メソッドの両方で、認可チェックを行います。
+
+---
+
+## 💡 TIP: fill()メソッド
 
 `update()`メソッドの代わりに、`fill()`メソッドと`save()`メソッドを使うこともできます。
 
@@ -281,25 +444,7 @@ $task->fill($validated);
 $task->save();
 ```
 
----
-
-### 🚨 よくある間違い
-
-#### 間違い1: @method('PUT')を忘れる
-
-**対処法**: フォームに`@method('PUT')`を追加します。
-
----
-
-#### 間違い2: old()の第2引数を忘れる
-
-**対処法**: `old('title', $task->title)`のように、第2引数にデフォルト値を指定します。
-
----
-
-#### 間違い3: 認可チェックを忘れる
-
-**対処法**: `edit`メソッドと`update`メソッドで、ログインユーザーのタスクかどうかを確認します。
+`fill()`は値をセットするだけで、`save()`を呼ぶまでデータベースに保存されません。
 
 ---
 
@@ -307,9 +452,14 @@ $task->save();
 
 このセクションでは、タスク編集機能を実装しました。
 
-*   タスク編集フォームを実装し、既存のデータを表示できるようにした。
-*   タスクを更新する機能を実装した。
-*   認可を実装し、他のユーザーのタスクを編集できないようにした。
+| Step | 学んだこと |
+|------|-----------|
+| Step 1 | 編集機能には2つのルート（GET/PUT）が必要 |
+| Step 2 | `edit`メソッドで既存データを取得してフォームに表示 |
+| Step 3 | `@method('PUT')`でHTTPメソッドを指定 |
+| Step 4 | `$task->update()`でデータを更新 |
+| Step 5 | 詳細ページから編集ページへの導線を作る |
+| Step 6 | 動作確認とエラー確認の方法 |
 
 次のセクションでは、タスク削除の実装について学びます。
 
@@ -317,7 +467,8 @@ $task->save();
 
 ## 📝 学習のポイント
 
-- [ ] タスク編集フォームを実装した。
-- [ ] @method('PUT')を使った。
-- [ ] old()の第2引数を使った。
-- [ ] 認可チェックを実装した。
+- [ ] タスク編集フォームを実装した
+- [ ] `@method('PUT')`を使った
+- [ ] `old()`の第2引数を使った
+- [ ] 認可チェックを実装した
+- [ ] 作成と編集の違いを理解した

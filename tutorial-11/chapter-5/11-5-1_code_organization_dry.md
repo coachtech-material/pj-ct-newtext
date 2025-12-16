@@ -2,9 +2,9 @@
 
 ## 🎯 このセクションで学ぶこと
 
-*   コードの整理方法を学ぶ。
-*   DRY（Don't Repeat Yourself）原則を理解する。
-*   リファクタリングの重要性と実践方法を学ぶ。
+- コードの整理方法を学ぶ
+- DRY（Don't Repeat Yourself）原則を理解する
+- リファクタリングの重要性と実践方法を学ぶ
 
 ---
 
@@ -44,45 +44,32 @@ DRY（Don't Repeat Yourself）は、**最も基本的なリファクタリング
 
 | 順番 | 作業 | 理由 |
 |------|------|------|
-| 1 | 重複コードを特定 | 同じ処理を複数箇所で書いていないか確認 |
-| 2 | 共通メソッドに抽出 | 重複を1箇所にまとめる |
-| 3 | 動作確認 | リファクタリング後も正しく動くことを確認 |
+| Step 1 | DRY原則を理解 | 重複コードの問題を把握 |
+| Step 2 | Eloquentスコープで共通化 | クエリの重複を排除 |
+| Step 3 | Bladeコンポーネントで共通化 | ビューの重複を排除 |
+| Step 4 | サービスクラスで整理 | ビジネスロジックを分離 |
 
 > 💡 **ポイント**: リファクタリングは「動作を変えずにコードを改善する」ことです。
 
 ---
 
-## 導入：なぜリファクタリングが必要なのか
+## Step 1: DRY原則を理解する
 
-**リファクタリング（Refactoring）**とは、**コードの動作を変えずに、コードの構造を改善すること**です。
-
-リファクタリングを行うことで、以下のようなメリットがあります。
-
-*   **コードの可読性が向上する**: 他の開発者がコードを理解しやすくなる
-*   **メンテナンスが容易になる**: バグ修正や機能追加がしやすくなる
-*   **コードの重複が減る**: 同じコードを何度も書く必要がなくなる
-
-このセクションでは、**DRY原則**を学び、コードの整理方法を理解します。
-
----
-
-## 詳細解説
-
-### 🔍 DRY原則とは
+### 1-1. DRY原則とは
 
 **DRY（Don't Repeat Yourself）原則**とは、**同じコードを繰り返し書かない**という原則です。
 
 同じコードを繰り返し書くと、以下のような問題が発生します。
 
-*   **メンテナンスが大変**: 1箇所を修正すると、他の箇所も修正する必要がある
-*   **バグが発生しやすい**: 修正漏れが発生する
-*   **コードが長くなる**: 可読性が低下する
+| 問題 | 説明 |
+|------|------|
+| メンテナンスが大変 | 1箇所を修正すると、他の箇所も修正する必要がある |
+| バグが発生しやすい | 修正漏れが発生する |
+| コードが長くなる | 可読性が低下する |
 
 ---
 
-### 🔍 DRY原則の例
-
-#### 悪い例（コードの重複）
+### 1-2. 悪い例（コードの重複）
 
 ```php
 // タスク一覧
@@ -111,13 +98,13 @@ public function pending()
 
 ---
 
-#### 良い例（DRY原則を適用）
+### 1-3. 良い例（DRY原則を適用）
 
 ```php
 // タスク一覧
 public function index()
 {
-    $tasks = $this->getUserTasks();
+    $tasks = $this->getUserTasks()->get();
     return view('tasks.index', compact('tasks'));
 }
 
@@ -146,7 +133,9 @@ private function getUserTasks()
 
 ---
 
-### 🔍 Eloquentのスコープを使う
+## Step 2: Eloquentスコープで共通化
+
+### 2-1. スコープとは
 
 Eloquentの**スコープ（Scope）**を使うと、より簡潔にコードを書くことができます。
 
@@ -154,7 +143,7 @@ Eloquentの**スコープ（Scope）**を使うと、より簡潔にコードを
 
 ---
 
-#### Taskモデルにスコープを追加する
+### 2-2. Taskモデルにスコープを追加する
 
 **ファイル**: `app/Models/Task.php`
 
@@ -184,9 +173,6 @@ class Task extends Model
         'due_date' => 'date',
     ];
 
-    /**
-     * タスクが属するユーザー（多対1）
-     */
     public function user()
     {
         return $this->belongsTo(User::class);
@@ -220,17 +206,17 @@ class Task extends Model
 
 ---
 
-### 🔍 コードリーディング
+### 2-3. コードリーディング
 
 #### `public function scopeForCurrentUser($query)`
 
-*   `scope`で始まるメソッドは、スコープとして認識されます。
-*   メソッド名は、`scope`の後に続く部分（`ForCurrentUser`）がスコープ名になります。
-*   使用する際は、`Task::forCurrentUser()`のように呼び出します。
+- `scope`で始まるメソッドは、スコープとして認識されます
+- メソッド名は、`scope`の後に続く部分（`ForCurrentUser`）がスコープ名になります
+- 使用する際は、`Task::forCurrentUser()`のように呼び出します
 
 ---
 
-#### スコープを使ったコントローラー
+### 2-4. スコープを使ったコントローラー
 
 **ファイル**: `app/Http/Controllers/TaskController.php`
 
@@ -277,7 +263,7 @@ class TaskController extends Controller
 
 ---
 
-### 💡 TIP: スコープのチェーン
+### 2-5. スコープのチェーン
 
 スコープは、チェーンして使うことができます。
 
@@ -289,45 +275,51 @@ $tasks = Task::forCurrentUser()->pending()->get();
 
 ---
 
-### 🔍 Bladeコンポーネントを使う
+## Step 3: Bladeコンポーネントで共通化
 
-Bladeの**コンポーネント（Component）**を使うと、ビューのコードの重複を排除できます。
-
----
-
-#### 悪い例（コードの重複）
+### 3-1. 悪い例（コードの重複）
 
 **ファイル**: `resources/views/tasks/index.blade.php`
 
 ```blade
-<div class="alert alert-success">
-    {{ session('success') }}
-</div>
+@if(session('success'))
+    <div class="alert alert-success">
+        {{ session('success') }}
+    </div>
+@endif
 ```
 
 **ファイル**: `resources/views/tasks/create.blade.php`
 
 ```blade
-<div class="alert alert-success">
-    {{ session('success') }}
-</div>
+@if(session('success'))
+    <div class="alert alert-success">
+        {{ session('success') }}
+    </div>
+@endif
 ```
 
 同じコードが複数のビューに存在しています。
 
 ---
 
-#### 良い例（Bladeコンポーネントを使う）
+### 3-2. Bladeコンポーネントを作成する
 
 **ファイル**: `resources/views/components/alert.blade.php`
 
 ```blade
+@props(['type' => 'success'])
+
 @if(session($type))
-    <div class="alert alert-{{ $type }}">
+    <div class="alert alert-{{ $type }}" style="padding: 15px; margin-bottom: 15px; border-radius: 4px; {{ $type === 'success' ? 'background-color: #d4edda; color: #155724;' : 'background-color: #f8d7da; color: #721c24;' }}">
         {{ session($type) }}
     </div>
 @endif
 ```
+
+---
+
+### 3-3. コンポーネントを使用する
 
 **ファイル**: `resources/views/tasks/index.blade.php`
 
@@ -345,7 +337,9 @@ Bladeの**コンポーネント（Component）**を使うと、ビューのコ�
 
 ---
 
-### 🔍 サービスクラスを使う
+## Step 4: サービスクラスで整理
+
+### 4-1. サービスクラスとは
 
 **サービスクラス（Service Class）**を使うと、コントローラーのコードを整理できます。
 
@@ -353,7 +347,7 @@ Bladeの**コンポーネント（Component）**を使うと、ビューのコ�
 
 ---
 
-#### 悪い例（コントローラーにビジネスロジックが混在）
+### 4-2. 悪い例（コントローラーにビジネスロジックが混在）
 
 ```php
 public function store(Request $request)
@@ -386,7 +380,7 @@ public function store(Request $request)
 
 ---
 
-#### 良い例（サービスクラスを使う）
+### 4-3. サービスクラスを作成する
 
 **ファイル**: `app/Services/TaskService.php`
 
@@ -406,7 +400,7 @@ class TaskService
     /**
      * タスクを作成する
      */
-    public function createTask(array $data)
+    public function createTask(array $data): Task
     {
         $task = Task::create([
             'user_id' => Auth::id(),
@@ -427,6 +421,10 @@ class TaskService
 }
 ```
 
+---
+
+### 4-4. サービスクラスを使ったコントローラー
+
 **ファイル**: `app/Http/Controllers/TaskController.php`
 
 ```php
@@ -440,22 +438,19 @@ use Illuminate\Http\Request;
 
 class TaskController extends Controller
 {
-    protected $taskService;
-
-    public function __construct(TaskService $taskService)
-    {
-        $this->taskService = $taskService;
-    }
+    public function __construct(
+        protected TaskService $taskService
+    ) {}
 
     public function store(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'due_date' => 'nullable|date',
         ]);
 
-        $this->taskService->createTask($request->all());
+        $this->taskService->createTask($validated);
 
         return redirect()->route('tasks.index')->with('success', 'タスクを作成しました。');
     }
@@ -466,13 +461,14 @@ class TaskController extends Controller
 
 ---
 
-### 💡 TIP: 依存性注入（Dependency Injection）
+### 4-5. コードリーディング
+
+#### 依存性注入（Dependency Injection）
 
 ```php
-public function __construct(TaskService $taskService)
-{
-    $this->taskService = $taskService;
-}
+public function __construct(
+    protected TaskService $taskService
+) {}
 ```
 
 これは、**依存性注入（Dependency Injection）**と呼ばれる手法です。
@@ -481,21 +477,27 @@ Laravelは、自動的に`TaskService`のインスタンスを生成し、コン
 
 ---
 
-### 🚨 よくある間違い
+## 🚨 よくある間違い
 
-#### 間違い1: コードの重複を放置する
+### 間違い1: コードの重複を放置する
+
+**問題**: 同じコードが複数箇所に存在し、修正漏れが発生する
 
 **対処法**: DRY原則を意識し、共通処理をメソッドやクラスに切り出します。
 
 ---
 
-#### 間違い2: コントローラーにビジネスロジックを書きすぎる
+### 間違い2: コントローラーにビジネスロジックを書きすぎる
+
+**問題**: コントローラーが肥大化し、テストが難しくなる
 
 **対処法**: サービスクラスを作成し、ビジネスロジックを切り出します。
 
 ---
 
-#### 間違い3: リファクタリングを後回しにする
+### 間違い3: リファクタリングを後回しにする
+
+**問題**: 技術的負債が蓄積し、後で修正が困難になる
 
 **対処法**: 機能を実装したら、すぐにリファクタリングを行います。
 
@@ -505,17 +507,20 @@ Laravelは、自動的に`TaskService`のインスタンスを生成し、コン
 
 このセクションでは、コードの整理とDRY原則について学びました。
 
-*   DRY原則は、同じコードを繰り返し書かないという原則である。
-*   Eloquentのスコープを使うことで、クエリの条件を再利用できる。
-*   Bladeコンポーネントを使うことで、ビューのコードの重複を排除できる。
-*   サービスクラスを使うことで、コントローラーのコードを整理できる。
+| Step | 学んだこと |
+|------|-----------|
+| Step 1 | DRY原則の理解と重複コードの問題 |
+| Step 2 | Eloquentスコープでクエリの重複を排除 |
+| Step 3 | Bladeコンポーネントでビューの重複を排除 |
+| Step 4 | サービスクラスでビジネスロジックを分離 |
 
-次のセクションでは、テストについて学びます。
+次のセクションでは、具体的な命名規則について学びます。
 
 ---
 
 ## 📝 学習のポイント
 
-- [ ] コードの整理方法を学んだ。
-- [ ] DRY（Don't Repeat Yourself）原則を理解した。
-- [ ] リファクタリングの重要性と実践方法を学んだ。
+- [ ] DRY原則を理解した
+- [ ] Eloquentスコープを使った
+- [ ] Bladeコンポーネントを使った
+- [ ] サービスクラスを使った

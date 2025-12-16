@@ -2,9 +2,9 @@
 
 ## 🎯 このセクションで学ぶこと
 
-*   LaravelでAPI開発を行うための準備を学ぶ。
-*   APIルーティングの設定方法を理解する。
-*   APIレスポンスの基本的な返し方を学ぶ。
+- LaravelでAPI開発を行うための準備を学ぶ
+- APIルーティングの設定方法を理解する
+- APIレスポンスの基本的な返し方を学ぶ
 
 ---
 
@@ -26,9 +26,11 @@ APIの概念を理解したら、次は「環境構築」です。
 
 Laravelには**API開発用の機能**が用意されています。
 
-- `api.php`ルートファイル
-- APIミドルウェア
-- JSON レスポンス
+| 機能 | 説明 |
+|------|------|
+| `api.php`ルートファイル | API専用のルーティング |
+| APIミドルウェア | レート制限など |
+| JSON レスポンス | 自動的なJSON変換 |
 
 これらを有効化して、API開発の準備を整えます。
 
@@ -46,32 +48,17 @@ Laravelには**API開発用の機能**が用意されています。
 
 | 順番 | 作業 | 理由 |
 |------|------|------|
-| 1 | Laravelプロジェクトの確認 | 既存のプロジェクトを使用 |
-| 2 | API用の設定 | `api.php`ルートファイルの確認 |
-| 3 | 最初のAPIエンドポイント作成 | 動作確認 |
+| Step 1 | APIルーティングの設定 | `api.php`の使い方を学ぶ |
+| Step 2 | APIコントローラーの作成 | RESTfulなコントローラー |
+| Step 3 | APIレスポンスの返し方 | JSON形式のレスポンス |
 
 > 💡 **ポイント**: LaravelはAPI開発に必要な機能が最初から揃っています。
 
 ---
 
-## 導入：LaravelでのAPI開発
+## Step 1: APIルーティングの設定
 
-Laravelは、**API開発に適したフレームワーク**です。
-
-Laravelには、以下のようなAPI開発に便利な機能があります。
-
-*   **APIルーティング**: `/api`プレフィックスが自動的に付与される
-*   **APIリソース**: JSON形式のレスポンスを簡単に作成できる
-*   **Sanctum**: API認証を簡単に実装できる
-*   **レート制限**: APIへのアクセス回数を制限できる
-
-このセクションでは、LaravelでAPI開発を行うための準備を学びます。
-
----
-
-## 詳細解説
-
-### 🔍 APIルーティングの設定
+### 1-1. APIルートファイル
 
 Laravelでは、`routes/api.php`にAPIのルーティングを定義します。
 
@@ -90,19 +77,17 @@ Route::get('/user', function (Request $request) {
 
 ---
 
-### 🔍 APIルーティングの特徴
+### 1-2. APIルーティングの特徴
 
-`routes/api.php`に定義したルーティングは、以下のような特徴があります。
-
-*   **`/api`プレフィックスが自動的に付与される**: `/user`は`/api/user`になる
-*   **`api`ミドルウェアグループが適用される**: レート制限などが適用される
-*   **セッションは使用しない**: ステートレスなAPIを実現する
+| 特徴 | 説明 |
+|------|------|
+| `/api`プレフィックス | `/user`は`/api/user`になる |
+| `api`ミドルウェア | レート制限などが適用される |
+| ステートレス | セッションは使用しない |
 
 ---
 
-### 🔍 簡単なAPIの作成
-
-まずは、簡単なAPIを作成してみましょう。
+### 1-3. 簡単なAPIの作成
 
 **ファイル**: `routes/api.php`
 
@@ -120,7 +105,7 @@ Route::get('/hello', function () {
 });
 
 // パラメータを受け取るAPI
-Route::get('/hello/{name}', function ($name) {
+Route::get('/hello/{name}', function (string $name) {
     return response()->json([
         'message' => "Hello, {$name}!"
     ]);
@@ -136,17 +121,7 @@ Route::post('/echo', function (Request $request) {
 
 ---
 
-### 🔍 APIのテスト
-
-APIをテストするには、以下のツールを使います。
-
-*   **Postman**: GUIでAPIをテストできる
-*   **curl**: コマンドラインでAPIをテストできる
-*   **Laravelのテスト機能**: 自動テストを書ける
-
----
-
-#### curlでのテスト
+### 1-4. curlでのテスト
 
 ```bash
 # GETリクエスト
@@ -163,9 +138,9 @@ curl -X POST http://localhost/api/echo \
 
 ---
 
-### 🔍 APIコントローラーの作成
+## Step 2: APIコントローラーの作成
 
-実際のAPI開発では、コントローラーを使ってAPIを実装します。
+### 2-1. APIコントローラーを生成する
 
 ```bash
 php artisan make:controller Api/TaskController --api
@@ -174,6 +149,8 @@ php artisan make:controller Api/TaskController --api
 `--api`オプションを付けることで、API用のコントローラーが作成されます。
 
 ---
+
+### 2-2. コントローラーの実装
 
 **ファイル**: `app/Http/Controllers/Api/TaskController.php`
 
@@ -184,13 +161,11 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 
 class TaskController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(): JsonResponse
     {
         return response()->json([
             'data' => [
@@ -200,10 +175,7 @@ class TaskController extends Controller
         ]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function store(Request $request): JsonResponse
     {
         return response()->json([
             'message' => 'タスクを作成しました',
@@ -214,10 +186,7 @@ class TaskController extends Controller
         ], 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    public function show(string $id): JsonResponse
     {
         return response()->json([
             'data' => [
@@ -227,10 +196,7 @@ class TaskController extends Controller
         ]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
+    public function update(Request $request, string $id): JsonResponse
     {
         return response()->json([
             'message' => 'タスクを更新しました',
@@ -241,21 +207,16 @@ class TaskController extends Controller
         ]);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
+    public function destroy(string $id): JsonResponse
     {
-        return response()->json([
-            'message' => 'タスクを削除しました'
-        ], 204);
+        return response()->json(null, 204);
     }
 }
 ```
 
 ---
 
-### 🔍 APIルーティングの設定
+### 2-3. APIルーティングの設定
 
 **ファイル**: `routes/api.php`
 
@@ -268,7 +229,9 @@ use Illuminate\Support\Facades\Route;
 Route::apiResource('tasks', TaskController::class);
 ```
 
-`apiResource`を使うことで、以下のルーティングが自動的に作成されます。
+---
+
+### 2-4. apiResourceで作成されるルーティング
 
 | HTTPメソッド | URL | アクション |
 |---|---|---|
@@ -281,19 +244,17 @@ Route::apiResource('tasks', TaskController::class);
 
 ---
 
-### 🔍 ルーティングの確認
+### 2-5. ルーティングの確認
 
 ```bash
 php artisan route:list --path=api
 ```
 
-これにより、`/api`で始まるルーティングの一覧が表示されます。
-
 ---
 
-### 🔍 APIレスポンスの返し方
+## Step 3: APIレスポンスの返し方
 
-Laravelでは、`response()->json()`を使ってJSON形式のレスポンスを返します。
+### 3-1. 基本的な使い方
 
 ```php
 // 基本的な使い方
@@ -316,7 +277,7 @@ return response()->json([
 
 ---
 
-### 🔍 エラーレスポンスの返し方
+### 3-2. エラーレスポンスの返し方
 
 ```php
 // 404 Not Found
@@ -340,11 +301,55 @@ return response()->json([
 
 ---
 
-### 🔍 CORS（Cross-Origin Resource Sharing）の設定
+### 3-3. APIのバージョニング
+
+**方法1: URLにバージョンを含める**
+
+```php
+Route::prefix('v1')->group(function () {
+    Route::apiResource('tasks', TaskController::class);
+});
+
+// /api/v1/tasks
+```
+
+**方法2: ヘッダーでバージョンを指定する**
+
+```
+Header: Accept: application/vnd.api+json; version=v1
+```
+
+---
+
+## 🚨 よくある間違い
+
+### 間違い1: routes/web.phpにAPIを定義する
+
+**問題**: セッションやCSRF保護が適用されてしまう
+
+**対処法**: APIは`routes/api.php`に定義します。
+
+---
+
+### 間違い2: セッションを使おうとする
+
+**問題**: APIはステートレスであるべき
+
+**対処法**: 認証にはトークン（Sanctum）を使います。
+
+---
+
+### 間違い3: CORSの設定を忘れる
+
+**問題**: フロントエンドからAPIにアクセスできない
+
+**対処法**: `config/cors.php`でCORSを設定します。
+
+---
+
+## 💡 TIP: CORS（Cross-Origin Resource Sharing）の設定
 
 フロントエンドとバックエンドが異なるドメインで動作する場合、**CORS**の設定が必要です。
-
-Laravelでは、`config/cors.php`でCORSの設定を行います。
 
 **ファイル**: `config/cors.php`
 
@@ -365,70 +370,22 @@ return [
 
 ---
 
-### 💡 TIP: APIのバージョニング
-
-APIは、バージョンを管理することが重要です。
-
-**方法1: URLにバージョンを含める**
-
-```php
-Route::prefix('v1')->group(function () {
-    Route::apiResource('tasks', TaskController::class);
-});
-
-// /api/v1/tasks
-```
-
----
-
-**方法2: ヘッダーでバージョンを指定する**
-
-```php
-Route::middleware('api.version:v1')->group(function () {
-    Route::apiResource('tasks', TaskController::class);
-});
-
-// Header: Accept: application/vnd.api+json; version=v1
-```
-
----
-
-### 🚨 よくある間違い
-
-#### 間違い1: `routes/web.php`にAPIを定義する
-
-**対処法**: APIは`routes/api.php`に定義します。
-
----
-
-#### 間違い2: セッションを使おうとする
-
-**対処法**: APIはステートレスであるべきです。認証にはトークンを使います。
-
----
-
-#### 間違い3: CORSの設定を忘れる
-
-**対処法**: フロントエンドとバックエンドが異なるドメインの場合、CORSの設定が必要です。
-
----
-
 ## ✨ まとめ
 
 このセクションでは、LaravelでAPI開発を行うための準備を学びました。
 
-*   LaravelのAPIルーティングは、`routes/api.php`に定義する。
-*   `/api`プレフィックスが自動的に付与される。
-*   `response()->json()`を使ってJSON形式のレスポンスを返す。
-*   `apiResource`を使うことで、RESTful APIのルーティングを簡単に作成できる。
-*   CORSの設定が必要な場合がある。
+| Step | 学んだこと |
+|------|-----------|
+| Step 1 | APIルーティングの設定と特徴 |
+| Step 2 | APIコントローラーの作成とapiResource |
+| Step 3 | JSON形式のレスポンスとエラーハンドリング |
 
-次のセクションでは、実際にデータベースを使ったAPIを実装します。
+次のセクションでは、JSON形式について詳しく学びます。
 
 ---
 
 ## 📝 学習のポイント
 
-- [ ] LaravelでAPI開発を行うための準備を学んだ。
-- [ ] APIルーティングの設定方法を理解した。
-- [ ] APIレスポンスの基本的な返し方を学んだ。
+- [ ] LaravelでAPI開発を行うための準備を学んだ
+- [ ] APIルーティングの設定方法を理解した
+- [ ] APIレスポンスの基本的な返し方を学んだ

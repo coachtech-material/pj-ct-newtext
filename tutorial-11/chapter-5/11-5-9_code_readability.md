@@ -2,10 +2,10 @@
 
 ## 🎯 このセクションで学ぶこと
 
-*   可読性の高いコードとは何かを理解する。
-*   コメント、空行、メソッドの分割を使って、コードの可読性を高める方法を学ぶ。
-*   命名規則を守ることの重要性を理解する。
-*   マジックナンバーを避ける方法を学ぶ。
+- 可読性の高いコードとは何かを理解する
+- コメント、空行、メソッドの分割を使って、コードの可読性を高める方法を学ぶ
+- 命名規則を守ることの重要性を理解する
+- マジックナンバーを避ける方法を学ぶ
 
 ---
 
@@ -61,25 +61,18 @@ if ($task->user_id !== auth()->id()) {
 
 | 順番 | 作業 | 理由 |
 |------|------|------|
-| 1 | ネストを減らす | 早期リターンを活用 |
-| 2 | 長いメソッドを分割 | 1つのメソッドは1つのことだけ |
-| 3 | 不要なコメントを削除 | コードで意図を表現 |
+| Step 1 | 可読性の低いコードを理解 | 問題点を把握 |
+| Step 2 | 命名とコメントを改善 | 意図を明確に |
+| Step 3 | 早期リターンを活用 | ネストを減らす |
+| Step 4 | メソッドを分割 | 責任を分離 |
 
 > 💡 **ポイント**: 「このコードは何をしているか」ではなく「なぜこうしているか」をコメントしましょう。
 
 ---
 
-## 導入：なぜ可読性が重要なのか
+## Step 1: 可読性の低いコードを理解する
 
-**可読性の高いコード**は、**他の人が読みやすく、理解しやすい**コードです。
-
-**可読性が低いコード**は、**バグが発生しやすく、メンテナンスが大変**です。
-
----
-
-## 詳細解説
-
-### 🔍 可読性の低いコードの例
+### 1-1. 可読性の低いコードの例
 
 以下のコードは、可読性が低いです。
 
@@ -98,16 +91,21 @@ public function store(Request $request)
 }
 ```
 
-**問題点**:
-*   変数名が短すぎる（`$t`、`$d`、`$s`、`$u`）
-*   何をしているか分かりにくい
-*   空行がない
+---
+
+### 1-2. 問題点
+
+| 問題 | 説明 |
+|------|------|
+| 変数名が短すぎる | `$t`、`$d`、`$s`、`$u`では何か分からない |
+| 空行がない | 処理の区切りが分からない |
+| コメントがない | 何をしているか分かりにくい |
 
 ---
 
-### 🔍 可読性を高める
+## Step 2: 命名とコメントを改善する
 
-以下のように改善します。
+### 2-1. 変数名を改善する
 
 ```php
 public function store(Request $request)
@@ -130,149 +128,46 @@ public function store(Request $request)
 }
 ```
 
-**改善点**:
-*   変数名が分かりやすい（`$task`、`$title`、`$description`）
-*   コメントがある
-*   空行で区切られている
+---
+
+### 2-2. 改善点
+
+| 改善 | 説明 |
+|------|------|
+| 変数名が分かりやすい | `$task`、`$title`、`$description` |
+| コメントがある | 処理の意図が分かる |
+| 空行で区切られている | 処理のまとまりが分かる |
 
 ---
 
-### 🔍 コメントの書き方
+### 2-3. コメントの書き方
 
 コメントは、**何をしているか**ではなく、**なぜそうしているか**を書きます。
 
 ```php
-// ❌ 悪い例
+// ❌ 悪い例（何をしているか）
 // タスクを保存する
 $task->save();
 
-// ✅ 良い例
-// タスクを保存してから、メールを送信する
+// ✅ 良い例（なぜそうしているか）
+// タスクを保存してから、メールを送信する（順序が重要）
 $task->save();
 Mail::to(auth()->user()->email)->send(new TaskCreated($task));
 ```
 
 ---
 
-### 🔍 空行の使い方
-
-空行を使って、コードを区切ります。
-
-```php
-// タスクを作成
-$task = new Task();
-$task->title = $request->title;
-$task->description = $request->description;
-$task->status = $request->status;
-$task->user_id = auth()->id();
-$task->save();
-
-// メール送信
-Mail::to(auth()->user()->email)->send(new TaskCreated($task));
-
-// ログ記録
-Log::info('Task created', ['task_id' => $task->id]);
-```
-
----
-
-### 🔍 メソッドの分割
-
-長いメソッドは、小さなメソッドに分割します。
-
-**分割前**:
-
-```php
-public function store(Request $request)
-{
-    $task = new Task();
-    $task->title = $request->title;
-    $task->description = $request->description;
-    $task->status = $request->status;
-    $task->user_id = auth()->id();
-    $task->save();
-    
-    Mail::to(auth()->user()->email)->send(new TaskCreated($task));
-    Log::info('Task created', ['task_id' => $task->id]);
-    
-    return redirect()->route('tasks.index');
-}
-```
-
-**分割後**:
-
-```php
-public function store(Request $request)
-{
-    $task = $this->createTask($request);
-    $this->sendNotification($task);
-    $this->logTaskCreation($task);
-    
-    return redirect()->route('tasks.index');
-}
-
-private function createTask(Request $request)
-{
-    $task = new Task();
-    $task->title = $request->title;
-    $task->description = $request->description;
-    $task->status = $request->status;
-    $task->user_id = auth()->id();
-    $task->save();
-    
-    return $task;
-}
-
-private function sendNotification(Task $task)
-{
-    Mail::to(auth()->user()->email)->send(new TaskCreated($task));
-}
-
-private function logTaskCreation(Task $task)
-{
-    Log::info('Task created', ['task_id' => $task->id]);
-}
-```
-
----
-
-### 🔍 命名規則を守る
-
-**変数名**、**メソッド名**、**クラス名**は、**意味が分かる名前**にします。
-
-**悪い例**:
-
-```php
-$t = Task::find(1);
-$u = User::find(1);
-$d = '2024-01-01';
-```
-
-**良い例**:
-
-```php
-$task = Task::find(1);
-$user = User::find(1);
-$date = '2024-01-01';
-```
-
----
-
-### 🔍 マジックナンバーを避ける
+### 2-4. マジックナンバーを避ける
 
 **マジックナンバー**は、**意味が分からない数字**のことです。
 
-**悪い例**:
-
 ```php
+// ❌ 悪い例
 if ($task->priority >= 3) {
     // 何かをする
 }
-```
 
-**良い例**:
-
-```php
+// ✅ 良い例
 const HIGH_PRIORITY = 3;
 
 if ($task->priority >= self::HIGH_PRIORITY) {
@@ -282,13 +177,12 @@ if ($task->priority >= self::HIGH_PRIORITY) {
 
 ---
 
-### 🔍 早期リターンを使う
+## Step 3: 早期リターンを活用する
 
-**早期リターン**を使うと、ネストが浅くなります。
-
-**悪い例**:
+### 3-1. ネストが深いコードの問題
 
 ```php
+// ❌ ネストが深い
 public function update(Request $request, Task $task)
 {
     if ($task->user_id === auth()->id()) {
@@ -304,9 +198,12 @@ public function update(Request $request, Task $task)
 }
 ```
 
-**良い例**:
+---
+
+### 3-2. 早期リターンで改善
 
 ```php
+// ✅ 早期リターン
 public function update(Request $request, Task $task)
 {
     if ($task->user_id !== auth()->id()) {
@@ -322,21 +219,128 @@ public function update(Request $request, Task $task)
 }
 ```
 
+**改善点**:
+
+- ネストが浅くなった
+- 異常系を先に処理している
+- メインの処理が読みやすくなった
+
 ---
 
-### 🔍 三項演算子を使いすぎない
-
-**三項演算子**は、短く書けますが、読みにくくなることがあります。
-
-**悪い例**:
+### 3-3. 複数の条件がある場合
 
 ```php
-$status = $task->status === 'completed' ? 'Completed' : ($task->status === 'in_progress' ? 'In Progress' : 'Pending');
+// ❌ ネストが深い
+public function show(Task $task)
+{
+    if ($task) {
+        if ($task->user_id === auth()->id()) {
+            if ($task->status !== 'deleted') {
+                return view('tasks.show', compact('task'));
+            }
+        }
+    }
+    abort(404);
+}
+
+// ✅ 早期リターン
+public function show(Task $task)
+{
+    if (!$task) {
+        abort(404);
+    }
+    
+    if ($task->user_id !== auth()->id()) {
+        abort(403);
+    }
+    
+    if ($task->status === 'deleted') {
+        abort(404);
+    }
+    
+    return view('tasks.show', compact('task'));
+}
 ```
 
-**良い例**:
+---
+
+## Step 4: メソッドを分割する
+
+### 4-1. 長いメソッドの問題
 
 ```php
+public function store(Request $request)
+{
+    $task = new Task();
+    $task->title = $request->title;
+    $task->description = $request->description;
+    $task->status = $request->status;
+    $task->user_id = auth()->id();
+    $task->save();
+    
+    Mail::to(auth()->user()->email)->send(new TaskCreated($task));
+    Log::info('Task created', ['task_id' => $task->id]);
+    
+    return redirect()->route('tasks.index');
+}
+```
+
+---
+
+### 4-2. メソッドを分割する
+
+```php
+public function store(Request $request)
+{
+    $task = $this->createTask($request);
+    $this->sendNotification($task);
+    $this->logTaskCreation($task);
+    
+    return redirect()->route('tasks.index');
+}
+
+private function createTask(Request $request): Task
+{
+    $task = new Task();
+    $task->title = $request->title;
+    $task->description = $request->description;
+    $task->status = $request->status;
+    $task->user_id = auth()->id();
+    $task->save();
+    
+    return $task;
+}
+
+private function sendNotification(Task $task): void
+{
+    Mail::to(auth()->user()->email)->send(new TaskCreated($task));
+}
+
+private function logTaskCreation(Task $task): void
+{
+    Log::info('Task created', ['task_id' => $task->id]);
+}
+```
+
+---
+
+### 4-3. 改善点
+
+| 改善 | 説明 |
+|------|------|
+| 責任の分離 | 各メソッドが1つのことだけを行う |
+| 再利用性 | 各メソッドを他の場所でも使える |
+| テスト容易性 | 各メソッドを個別にテストできる |
+
+---
+
+### 4-4. 三項演算子を使いすぎない
+
+```php
+// ❌ 悪い例（読みにくい）
+$status = $task->status === 'completed' ? 'Completed' : ($task->status === 'in_progress' ? 'In Progress' : 'Pending');
+
+// ✅ 良い例（読みやすい）
 if ($task->status === 'completed') {
     $status = 'Completed';
 } elseif ($task->status === 'in_progress') {
@@ -344,11 +348,20 @@ if ($task->status === 'completed') {
 } else {
     $status = 'Pending';
 }
+
+// ✅ さらに良い例（match式を使う）
+$status = match($task->status) {
+    'completed' => 'Completed',
+    'in_progress' => 'In Progress',
+    default => 'Pending',
+};
 ```
 
 ---
 
-### 🔍 実践演習: 以下のコードの可読性を高めてください
+### 4-5. 実践演習
+
+以下のコードの可読性を高めてください。
 
 ```php
 public function index()
@@ -357,8 +370,6 @@ public function index()
     return view('tasks.index', compact('t'));
 }
 ```
-
----
 
 **解答例**:
 
@@ -377,42 +388,11 @@ public function index()
 
 ---
 
-### 🔍 一貫性を保つ
+## 🚨 よくある間違い
 
-**コーディングスタイル**は、プロジェクト全体で一貫性を保ちます。
+### 間違い1: コメントを書きすぎる
 
-*   インデントは、スペース4つ
-*   波括弧は、同じ行に書く
-*   変数名は、キャメルケース
-
----
-
-### 🔍 PSR-12に従う
-
-PHPには、**PSR-12**というコーディング規約があります。
-
-Laravelは、PSR-12に従っています。
-
-**参考**: [PSR-12: Extended Coding Style](https://www.php-fig.org/psr/psr-12/)
-
----
-
-### 💡 TIP: PHP CS Fixerを使う
-
-**PHP CS Fixer**を使うと、自動的にコーディングスタイルを修正できます。
-
-```bash
-composer require --dev friendsofphp/php-cs-fixer
-./vendor/bin/php-cs-fixer fix app
-```
-
----
-
-### 🚨 よくある間違い
-
-#### 間違い1: コメントを書きすぎる
-
-コメントは、必要最小限にします。
+**問題**: 自明なことにコメントを書くと、ノイズになる
 
 ```php
 // ❌ 悪い例
@@ -422,15 +402,16 @@ $task = Task::find(1);
 // タスクのタイトルを取得する
 $title = $task->title;
 
-// タイトルを表示する
-echo $title;
+// ✅ 良い例（コメント不要）
+$task = Task::find(1);
+$title = $task->title;
 ```
 
 ---
 
-#### 間違い2: 変数名を短くしすぎる
+### 間違い2: 変数名を短くしすぎる
 
-変数名は、意味が分かる長さにします。
+**問題**: 意味が分からない変数名は、コードを読む人を混乱させる
 
 ```php
 // ❌ 悪い例
@@ -442,11 +423,32 @@ $task = Task::find(1);
 
 ---
 
-#### 間違い3: メソッドを分割しすぎる
+### 間違い3: メソッドを分割しすぎる
 
-メソッドを分割しすぎると、逆に分かりにくくなります。
+**問題**: 過度な分割は、コードの流れを追いにくくする
 
-**対処法**: 適度な長さを保ちます。
+**対処法**: 適度な長さを保ちます。目安は1メソッド20〜30行程度です。
+
+---
+
+## 💡 TIP: PHP CS Fixerを使う
+
+**PHP CS Fixer**を使うと、自動的にコーディングスタイルを修正できます。
+
+```bash
+composer require --dev friendsofphp/php-cs-fixer
+./vendor/bin/php-cs-fixer fix app
+```
+
+---
+
+## 💡 TIP: PSR-12に従う
+
+PHPには、**PSR-12**というコーディング規約があります。
+
+Laravelは、PSR-12に従っています。
+
+**参考**: [PSR-12: Extended Coding Style](https://www.php-fig.org/psr/psr-12/)
 
 ---
 
@@ -454,10 +456,12 @@ $task = Task::find(1);
 
 このセクションでは、コードの可読性を高める方法を学びました。
 
-*   コメント、空行、メソッドの分割を使った。
-*   命名規則を守った。
-*   マジックナンバーを避けた。
-*   早期リターンを使った。
+| Step | 学んだこと |
+|------|-----------|
+| Step 1 | 可読性の低いコードの問題点 |
+| Step 2 | 命名とコメントの改善 |
+| Step 3 | 早期リターンでネストを減らす |
+| Step 4 | メソッドの分割で責任を分離 |
 
 次のセクションでは、リファクタリング演習を行います。
 
@@ -465,8 +469,9 @@ $task = Task::find(1);
 
 ## 📝 学習のポイント
 
-- [ ] コメントを適切に書いた。
-- [ ] 空行を使った。
-- [ ] メソッドを分割した。
-- [ ] 命名規則を守った。
-- [ ] マジックナンバーを避けた。
+- [ ] コメントを適切に書いた
+- [ ] 空行を使った
+- [ ] 早期リターンを使った
+- [ ] メソッドを分割した
+- [ ] 命名規則を守った
+- [ ] マジックナンバーを避けた

@@ -2,9 +2,9 @@
 
 ## 🎯 このセクションで学ぶこと
 
-*   DRY原則（Don't Repeat Yourself）とは何かを理解する。
-*   重複コードが、なぜ問題なのかを学ぶ。
-*   重複コードを関数やメソッドに抽出する方法を学ぶ。
+- DRY原則（Don't Repeat Yourself）とは何かを理解する
+- 重複コードが、なぜ問題なのかを学ぶ
+- 重複コードを関数やメソッドに抽出する方法を学ぶ
 
 ---
 
@@ -52,25 +52,18 @@ DRY原則を徹底すると、**変更が1箇所で済む**ようになります
 
 | 順番 | 作業 | 理由 |
 |------|------|------|
-| 1 | パターンの重複を特定 | 似たような構造のコードを探す |
-| 2 | 抽象化を検討 | メソッドやクラスに切り出す |
-| 3 | リファクタリング | 重複を解消 |
+| Step 1 | 重複コードの問題点を理解 | なぜ削除が必要か |
+| Step 2 | メソッドに抽出 | 重複を1箇所にまとめる |
+| Step 3 | バリデーションの重複を解消 | フォームリクエストを使う |
+| Step 4 | ビューの重複を解消 | パーシャルを使う |
 
 > 💡 **ポイント**: 過度な抽象化は逆効果です。2〜3回同じパターンが出てきたら抽象化を検討しましょう。
 
 ---
 
-## 導入：なぜ重複コードを削除するのか
+## Step 1: 重複コードの問題点を理解する
 
-**DRY原則（Don't Repeat Yourself）**は、**同じコードを繰り返し書かない**という原則です。
-
-重複コードがあると、**修正が大変**になり、**バグが発生しやすく**なります。
-
----
-
-## 詳細解説
-
-### 🔍 重複コードの問題点
+### 1-1. 重複コードの例
 
 以下のコードは、重複コードがあります。
 
@@ -96,14 +89,22 @@ public function completed()
 }
 ```
 
-**問題点**:
-*   `where('user_id', auth()->id())`が重複している
-*   `orderBy('created_at', 'desc')`が重複している
-*   修正する場合、2箇所を修正する必要がある
+---
+
+### 1-2. 問題点
+
+| 問題 | 説明 |
+|------|------|
+| 重複 | `where('user_id', auth()->id())`が重複している |
+| 重複 | `orderBy('created_at', 'desc')`が重複している |
+| 修正コスト | 修正する場合、2箇所を修正する必要がある |
+| バグリスク | 修正漏れが発生しやすい |
 
 ---
 
-### 🔍 メソッドに抽出する
+## Step 2: メソッドに抽出する
+
+### 2-1. プライベートメソッドに抽出
 
 重複コードをメソッドに抽出します。
 
@@ -130,12 +131,13 @@ private function getUserTasks($status)
 ```
 
 **改善点**:
-*   重複コードが削除された
-*   修正する場合、1箇所を修正すればよい
+
+- 重複コードが削除された
+- 修正する場合、1箇所を修正すればよい
 
 ---
 
-### 🔍 Eloquentスコープを使う
+### 2-2. Eloquentスコープを使う
 
 さらに改善するには、Eloquentスコープを使います。
 
@@ -160,12 +162,16 @@ class Task extends Model
         return $query->where('status', $status);
     }
 
-    public function scopeLatest($query)
+    public function scopeLatestFirst($query)
     {
         return $query->orderBy('created_at', 'desc');
     }
 }
 ```
+
+---
+
+### 2-3. スコープを使ったコントローラー
 
 **ファイル**: `app/Http/Controllers/TaskController.php`
 
@@ -174,7 +180,7 @@ public function index()
 {
     $tasks = Task::forUser(auth()->id())
         ->withStatus('pending')
-        ->latest()
+        ->latestFirst()
         ->get();
     
     return view('tasks.index', compact('tasks'));
@@ -184,16 +190,20 @@ public function completed()
 {
     $tasks = Task::forUser(auth()->id())
         ->withStatus('completed')
-        ->latest()
+        ->latestFirst()
         ->get();
     
     return view('tasks.completed', compact('tasks'));
 }
 ```
 
+スコープを使うことで、コードが読みやすくなりました。
+
 ---
 
-### 🔍 重複するバリデーションルール
+## Step 3: バリデーションの重複を解消する
+
+### 3-1. 重複するバリデーションルール
 
 以下のコードは、重複するバリデーションルールがあります。
 
@@ -223,9 +233,7 @@ public function update(Request $request, Task $task)
 
 ---
 
-### 🔍 フォームリクエストに抽出する
-
-重複するバリデーションルールを、フォームリクエストに抽出します。
+### 3-2. フォームリクエストを作成する
 
 ```bash
 php artisan make:request TaskRequest
@@ -242,12 +250,12 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class TaskRequest extends FormRequest
 {
-    public function authorize()
+    public function authorize(): bool
     {
         return true;
     }
 
-    public function rules()
+    public function rules(): array
     {
         return [
             'title' => 'required|max:255',
@@ -257,6 +265,10 @@ class TaskRequest extends FormRequest
     }
 }
 ```
+
+---
+
+### 3-3. フォームリクエストを使ったコントローラー
 
 **ファイル**: `app/Http/Controllers/TaskController.php`
 
@@ -276,11 +288,13 @@ public function update(TaskRequest $request, Task $task)
 }
 ```
 
+バリデーションルールが1箇所にまとまりました。
+
 ---
 
-### 🔍 重複するビューのコード
+## Step 4: ビューの重複を解消する
 
-以下のコードは、重複するビューのコードがあります。
+### 4-1. 重複するビューのコード
 
 **ファイル**: `resources/views/tasks/index.blade.php`
 
@@ -330,9 +344,7 @@ public function update(TaskRequest $request, Task $task)
 
 ---
 
-### 🔍 パーシャルに抽出する
-
-重複するビューのコードを、パーシャルに抽出します。
+### 4-2. パーシャルに抽出する
 
 **ファイル**: `resources/views/tasks/_table.blade.php`
 
@@ -357,21 +369,31 @@ public function update(TaskRequest $request, Task $task)
 </table>
 ```
 
+---
+
+### 4-3. パーシャルを使用する
+
 **ファイル**: `resources/views/tasks/index.blade.php`
 
 ```blade
+<h1>タスク一覧</h1>
 @include('tasks._table')
 ```
 
 **ファイル**: `resources/views/tasks/completed.blade.php`
 
 ```blade
+<h1>完了したタスク</h1>
 @include('tasks._table')
 ```
 
+ビューの重複が解消されました。
+
 ---
 
-### 🔍 実践演習: 以下のコードから重複を削除してください
+### 4-4. 実践演習
+
+以下のコードから重複を削除してください。
 
 ```php
 public function sendWelcomeEmail($user)
@@ -410,27 +432,39 @@ private function sendEmail($user, $subject, $message, $mailClass)
 
 ---
 
-### 💡 TIP: 3回ルール
+## 🚨 よくある間違い
+
+### 間違い1: 過度な抽象化
+
+**問題**: 重複コードを削除しすぎると、コードが読みにくくなる
+
+**対処法**: 適度な抽象化を心がけます。3回ルール（同じコードが3回出てきたら抽出）を参考にしましょう。
+
+---
+
+### 間違い2: 似ているが異なるコードを無理に統合する
+
+**問題**: 似ているが異なるコードを無理に統合すると、複雑になる
+
+**対処法**: 本当に同じコードだけを抽出します。
+
+---
+
+### 間違い3: 抽出したメソッドの名前が曖昧
+
+**問題**: `process()`や`handle()`など、何をするか分からない名前
+
+**対処法**: 具体的な名前をつけます（例：`getUserTasks()`、`sendNotificationEmail()`）
+
+---
+
+## 💡 TIP: 3回ルール
 
 **3回ルール**は、**同じコードが3回出てきたら、抽出を検討する**というルールです。
 
----
-
-### 🚨 よくある間違い
-
-#### 間違い1: 過度な抽象化
-
-重複コードを削除しすぎると、コードが読みにくくなります。
-
-**対処法**: 適度な抽象化を心がけます。
-
----
-
-#### 間違い2: 似ているが異なるコードを無理に統合する
-
-似ているが異なるコードを無理に統合すると、複雑になります。
-
-**対処法**: 本当に同じコードだけを抽出します。
+- 1回目: そのまま書く
+- 2回目: 少し気になるが、そのまま書く
+- 3回目: 抽出を検討する
 
 ---
 
@@ -438,18 +472,22 @@ private function sendEmail($user, $subject, $message, $mailClass)
 
 このセクションでは、重複コードの削除を学びました。
 
-*   DRY原則を理解した。
-*   重複コードをメソッドに抽出した。
-*   Eloquentスコープを使った。
-*   フォームリクエストを使った。
+| Step | 学んだこと |
+|------|-----------|
+| Step 1 | 重複コードの問題点を理解 |
+| Step 2 | メソッドに抽出、Eloquentスコープを使用 |
+| Step 3 | フォームリクエストでバリデーションを共通化 |
+| Step 4 | パーシャルでビューを共通化 |
 
-次のセクションでは、サービスクラスの導入とDIについて学びます。
+次のセクションでは、フォームリクエストクラスについて詳しく学びます。
 
 ---
 
 ## 📝 学習のポイント
 
-- [ ] DRY原則を理解した。
-- [ ] 重複コードの問題点を理解した。
-- [ ] メソッドに抽出した。
-- [ ] Eloquentスコープを使った。
+- [ ] DRY原則を理解した
+- [ ] 重複コードの問題点を理解した
+- [ ] メソッドに抽出した
+- [ ] Eloquentスコープを使った
+- [ ] フォームリクエストを使った
+- [ ] パーシャルを使った

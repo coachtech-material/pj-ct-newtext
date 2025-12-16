@@ -2,9 +2,9 @@
 
 ## 🎯 このセクションで学ぶこと
 
-*   カテゴリーテーブルを作成し、タスクとのリレーションシップを実装する方法を学ぶ。
-*   1対多のリレーションシップを実装する方法を学ぶ。
-*   プルダウンメニューでカテゴリーを選択できるようにする方法を学ぶ。
+- カテゴリーテーブルを作成し、タスクとのリレーションシップを実装する方法を学ぶ
+- 1対多のリレーションシップを実装する方法を学ぶ
+- プルダウンメニューでカテゴリーを選択できるようにする方法を学ぶ
 
 ---
 
@@ -49,26 +49,18 @@
 
 | 順番 | 作業 | 理由 |
 |------|------|------|
-| 1 | カテゴリーのマイグレーション・モデル | データベースを準備 |
-| 2 | リレーションシップ定義 | 1対多の関係を定義 |
-| 3 | タスクフォームにカテゴリー選択追加 | UIを更新 |
-| 4 | カテゴリーで絞り込み | 検索機能を拡張 |
+| Step 1 | カテゴリーのマイグレーション・モデル作成 | データベースを準備 |
+| Step 2 | リレーションシップ定義 | 1対多の関係を定義 |
+| Step 3 | タスクフォームにカテゴリー選択追加 | UIを更新 |
+| Step 4 | カテゴリーで絞り込み | 検索機能を拡張 |
 
 > 💡 **ポイント**: カテゴリーは「1つのタスクに1つ」なので、`belongsTo`を使います。
 
 ---
 
-## 導入：なぜカテゴリー機能が重要なのか
+## Step 1: カテゴリーのマイグレーション・モデル作成
 
-**カテゴリー機能**は、タスクを分類する機能です。
-
-カテゴリー機能を実装することで、タスクを整理しやすくなり、検索もしやすくなります。
-
----
-
-## 詳細解説
-
-### 🔍 カテゴリーテーブルの作成
+### 1-1. カテゴリーテーブルを作成する
 
 カテゴリーテーブルを作成します。
 
@@ -79,19 +71,35 @@ php artisan make:model Category -m
 **ファイル**: `database/migrations/xxxx_xx_xx_create_categories_table.php`
 
 ```php
-public function up()
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
 {
-    Schema::create('categories', function (Blueprint $table) {
-        $table->id();
-        $table->string('name');
-        $table->timestamps();
-    });
-}
+    public function up(): void
+    {
+        Schema::create('categories', function (Blueprint $table) {
+            $table->id();
+            $table->string('name');
+            $table->timestamps();
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::dropIfExists('categories');
+    }
+};
 ```
 
 ---
 
-### 🔍 tasksテーブルにcategory_idを追加
+### 1-2. tasksテーブルにcategory_idを追加する
+
+すでに`category_id`カラムがある場合はスキップしてください。
 
 ```bash
 php artisan make:migration add_category_id_to_tasks_table
@@ -100,25 +108,34 @@ php artisan make:migration add_category_id_to_tasks_table
 **ファイル**: `database/migrations/xxxx_xx_xx_add_category_id_to_tasks_table.php`
 
 ```php
-public function up()
-{
-    Schema::table('tasks', function (Blueprint $table) {
-        $table->foreignId('category_id')->nullable()->constrained()->onDelete('set null');
-    });
-}
+<?php
 
-public function down()
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
 {
-    Schema::table('tasks', function (Blueprint $table) {
-        $table->dropForeign(['category_id']);
-        $table->dropColumn('category_id');
-    });
-}
+    public function up(): void
+    {
+        Schema::table('tasks', function (Blueprint $table) {
+            $table->foreignId('category_id')->nullable()->constrained()->onDelete('set null');
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::table('tasks', function (Blueprint $table) {
+            $table->dropForeign(['category_id']);
+            $table->dropColumn('category_id');
+        });
+    }
+};
 ```
 
 ---
 
-### 🔍 マイグレーションの実行
+### 1-3. マイグレーションを実行する
 
 ```bash
 php artisan migrate
@@ -126,7 +143,7 @@ php artisan migrate
 
 ---
 
-### 🔍 Categoryモデル
+### 1-4. Categoryモデルを編集する
 
 **ファイル**: `app/Models/Category.php`
 
@@ -135,10 +152,13 @@ php artisan migrate
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Category extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
         'name',
     ];
@@ -155,32 +175,7 @@ class Category extends Model
 
 ---
 
-### 🔍 Taskモデルにリレーションシップを追加
-
-**ファイル**: `app/Models/Task.php`
-
-```php
-protected $fillable = [
-    'user_id',
-    'category_id',  // 追加
-    'title',
-    'description',
-    'due_date',
-    'status',
-];
-
-/**
- * このタスクが属するカテゴリー
- */
-public function category()
-{
-    return $this->belongsTo(Category::class);
-}
-```
-
----
-
-### 🔍 シーダーでカテゴリーを作成
+### 1-5. シーダーでカテゴリーを作成する
 
 **ファイル**: `database/seeders/CategorySeeder.php`
 
@@ -194,7 +189,7 @@ use Illuminate\Database\Seeder;
 
 class CategorySeeder extends Seeder
 {
-    public function run()
+    public function run(): void
     {
         $categories = [
             '仕事',
@@ -211,16 +206,7 @@ class CategorySeeder extends Seeder
 }
 ```
 
-**ファイル**: `database/seeders/DatabaseSeeder.php`
-
-```php
-public function run()
-{
-    $this->call([
-        CategorySeeder::class,
-    ]);
-}
-```
+シーダーを実行します。
 
 ```bash
 php artisan db:seed --class=CategorySeeder
@@ -228,7 +214,54 @@ php artisan db:seed --class=CategorySeeder
 
 ---
 
-### 🔍 タスク作成フォームにカテゴリーを追加
+## Step 2: リレーションシップ定義
+
+### 2-1. Taskモデルにリレーションシップを追加する
+
+**ファイル**: `app/Models/Task.php`
+
+```php
+protected $fillable = [
+    'user_id',
+    'category_id',  // 追加
+    'title',
+    'description',
+    'status',
+    'due_date',
+];
+
+/**
+ * このタスクが属するカテゴリー
+ */
+public function category()
+{
+    return $this->belongsTo(Category::class);
+}
+```
+
+---
+
+### 2-2. コードリーディング
+
+#### `$this->belongsTo(Category::class)`
+
+- タスクは1つのカテゴリーに属するので、`belongsTo`を使います
+- Eloquentは自動的に`category_id`カラムを外部キーとして使用します
+
+---
+
+#### リレーションシップの全体像
+
+| モデル | メソッド | 関係 |
+|--------|----------|------|
+| Category | `tasks()` | 1つのカテゴリーは複数のタスクを持つ |
+| Task | `category()` | 1つのタスクは1つのカテゴリーに属する |
+
+---
+
+## Step 3: タスクフォームにカテゴリー選択追加
+
+### 3-1. コントローラーを修正する
 
 **ファイル**: `app/Http/Controllers/TaskController.php`
 
@@ -247,54 +280,7 @@ public function edit(Task $task)
     $categories = Category::all();
     return view('tasks.edit', compact('task', 'categories'));
 }
-```
 
----
-
-### 🔍 ビューにカテゴリーのプルダウンを追加
-
-**ファイル**: `resources/views/tasks/create.blade.php`
-
-```blade
-<form method="POST" action="{{ route('tasks.store') }}">
-    @csrf
-
-    <div>
-        <label for="title">タイトル</label>
-        <input type="text" id="title" name="title" value="{{ old('title') }}" required>
-        @error('title')
-            <div style="color: red;">{{ $message }}</div>
-        @enderror
-    </div>
-
-    <div>
-        <label for="category_id">カテゴリー</label>
-        <select id="category_id" name="category_id">
-            <option value="">選択してください</option>
-            @foreach ($categories as $category)
-                <option value="{{ $category->id }}" {{ old('category_id') == $category->id ? 'selected' : '' }}>
-                    {{ $category->name }}
-                </option>
-            @endforeach
-        </select>
-        @error('category_id')
-            <div style="color: red;">{{ $message }}</div>
-        @enderror
-    </div>
-
-    <!-- ... -->
-
-    <button type="submit">作成</button>
-</form>
-```
-
----
-
-### 🔍 バリデーションルールを追加
-
-**ファイル**: `app/Http/Controllers/TaskController.php`
-
-```php
 public function store(Request $request)
 {
     $validated = $request->validate([
@@ -302,7 +288,7 @@ public function store(Request $request)
         'category_id' => 'nullable|exists:categories,id',  // 追加
         'description' => 'nullable',
         'due_date' => 'nullable|date',
-        'status' => 'required|in:未完了,完了',
+        'status' => 'required|in:pending,in_progress,completed',
     ]);
 
     $validated['user_id'] = auth()->id();
@@ -315,38 +301,74 @@ public function store(Request $request)
 
 ---
 
-### 🔍 タスク一覧にカテゴリーを表示
+### 3-2. ビューにカテゴリーのプルダウンを追加する
+
+**ファイル**: `resources/views/tasks/create.blade.php`
+
+```blade
+<div class="form-group">
+    <label for="category_id">カテゴリー</label>
+    <select id="category_id" name="category_id" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+        <option value="">選択してください</option>
+        @foreach ($categories as $category)
+            <option value="{{ $category->id }}" {{ old('category_id') == $category->id ? 'selected' : '' }}>
+                {{ $category->name }}
+            </option>
+        @endforeach
+    </select>
+    @error('category_id')
+        <div style="color: red;">{{ $message }}</div>
+    @enderror
+</div>
+```
+
+---
+
+### 3-3. コードリーディング
+
+#### `exists:categories,id`
+
+- バリデーションルールで、`categories`テーブルの`id`カラムに存在する値かどうかをチェックします
+- 存在しないIDが送信された場合、バリデーションエラーになります
+
+---
+
+#### `old('category_id') == $category->id ? 'selected' : ''`
+
+- バリデーションエラー時に、選択していた値を保持します
+- 三項演算子で、一致する場合は`selected`属性を追加します
+
+---
+
+### 3-4. タスク一覧にカテゴリーを表示する
 
 **ファイル**: `resources/views/tasks/index.blade.php`
 
+テーブルのヘッダーと行にカテゴリー列を追加します。
+
 ```blade
-<table border="1">
+<table border="1" style="border-collapse: collapse; width: 100%;">
     <thead>
-        <tr>
-            <th>ID</th>
-            <th>タイトル</th>
-            <th>カテゴリー</th>
-            <th>期限</th>
-            <th>ステータス</th>
-            <th>操作</th>
+        <tr style="background-color: #f5f5f5;">
+            <th style="padding: 10px;">ID</th>
+            <th style="padding: 10px;">タイトル</th>
+            <th style="padding: 10px;">カテゴリー</th>
+            <th style="padding: 10px;">期限</th>
+            <th style="padding: 10px;">ステータス</th>
+            <th style="padding: 10px;">操作</th>
         </tr>
     </thead>
     <tbody>
         @foreach ($tasks as $task)
             <tr>
-                <td>{{ $task->id }}</td>
-                <td>{{ $task->title }}</td>
-                <td>{{ $task->category?->name ?? '未分類' }}</td>
-                <td>{{ $task->due_date }}</td>
-                <td>{{ $task->status }}</td>
-                <td>
+                <td style="padding: 10px;">{{ $task->id }}</td>
+                <td style="padding: 10px;">{{ $task->title }}</td>
+                <td style="padding: 10px;">{{ $task->category?->name ?? '未分類' }}</td>
+                <td style="padding: 10px;">{{ $task->due_date?->format('Y-m-d') ?? '未設定' }}</td>
+                <td style="padding: 10px;">{{ $task->status }}</td>
+                <td style="padding: 10px;">
                     <a href="{{ route('tasks.show', $task) }}">詳細</a>
                     <a href="{{ route('tasks.edit', $task) }}">編集</a>
-                    <form method="POST" action="{{ route('tasks.destroy', $task) }}" style="display:inline;" onsubmit="return confirm('本当に削除しますか?');">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit">削除</button>
-                    </form>
                 </td>
             </tr>
         @endforeach
@@ -356,45 +378,52 @@ public function store(Request $request)
 
 ---
 
-### 🔍 Null Safe演算子
+### 3-5. コードリーディング
 
-`?->`は、**Null Safe演算子**です。
+#### `$task->category?->name ?? '未分類'`
 
-```blade
-{{ $task->category?->name ?? '未分類' }}
-```
-
-*   `$task->category`がnullの場合、エラーにならずにnullを返す
-*   `??`演算子で、nullの場合は「未分類」を表示する
+- `?->`は**Null Safe演算子**です
+- `$task->category`がnullの場合、エラーにならずにnullを返します
+- `??`演算子で、nullの場合は「未分類」を表示します
 
 ---
 
-### 🔍 カテゴリーで検索
+## Step 4: カテゴリーで絞り込み
 
-カテゴリーで検索できるようにします。
+### 4-1. 検索フォームにカテゴリーを追加する
 
 **ファイル**: `resources/views/tasks/index.blade.php`
 
 ```blade
-<form method="GET" action="{{ route('tasks.index') }}">
-    <input type="text" name="keyword" placeholder="タイトルで検索" value="{{ request('keyword') }}">
-    <select name="category_id">
-        <option value="">すべてのカテゴリー</option>
-        @foreach ($categories as $category)
-            <option value="{{ $category->id }}" {{ request('category_id') == $category->id ? 'selected' : '' }}>
-                {{ $category->name }}
-            </option>
-        @endforeach
-    </select>
-    <select name="status">
-        <option value="">すべて</option>
-        <option value="未完了" {{ request('status') == '未完了' ? 'selected' : '' }}>未完了</option>
-        <option value="完了" {{ request('status') == '完了' ? 'selected' : '' }}>完了</option>
-    </select>
-    <button type="submit">検索</button>
-    <a href="{{ route('tasks.index') }}">クリア</a>
+<form method="GET" action="{{ route('tasks.index') }}" style="margin-bottom: 20px; padding: 15px; background-color: #f5f5f5; border-radius: 4px;">
+    <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
+        <input type="text" name="keyword" placeholder="タイトルで検索" value="{{ request('keyword') }}" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+        
+        <select name="category_id" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+            <option value="">すべてのカテゴリー</option>
+            @foreach ($categories as $category)
+                <option value="{{ $category->id }}" {{ request('category_id') == $category->id ? 'selected' : '' }}>
+                    {{ $category->name }}
+                </option>
+            @endforeach
+        </select>
+        
+        <select name="status" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+            <option value="">すべてのステータス</option>
+            <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>未着手</option>
+            <option value="in_progress" {{ request('status') == 'in_progress' ? 'selected' : '' }}>進行中</option>
+            <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>完了</option>
+        </select>
+        
+        <button type="submit" style="padding: 8px 16px; background-color: #2196f3; color: white; border: none; border-radius: 4px; cursor: pointer;">検索</button>
+        <a href="{{ route('tasks.index') }}" style="padding: 8px 16px; color: #666; text-decoration: none;">クリア</a>
+    </div>
 </form>
 ```
+
+---
+
+### 4-2. コントローラーにカテゴリー検索を追加する
 
 **ファイル**: `app/Http/Controllers/TaskController.php`
 
@@ -420,6 +449,7 @@ public function index(Request $request)
 
     $tasks = $query->orderBy('created_at', 'desc')->paginate(10);
 
+    // カテゴリー一覧を取得
     $categories = Category::all();
 
     return view('tasks.index', compact('tasks', 'categories'));
@@ -428,29 +458,57 @@ public function index(Request $request)
 
 ---
 
-### 💡 TIP: カテゴリーの管理画面
+### 4-3. 動作確認
 
-カテゴリーの管理画面を作成すると、ユーザーが自由にカテゴリーを追加・編集・削除できるようになります。
+1. ブラウザでタスク一覧ページにアクセスする
+2. カテゴリーを選択して「検索」ボタンをクリックする
+3. 選択したカテゴリーのタスクのみが表示される
 
 ---
 
-### 🚨 よくある間違い
+## 🚨 よくある間違い
 
-#### 間違い1: 外部キー制約を忘れる
+### 間違い1: 外部キー制約を忘れる
+
+**問題**: 存在しないカテゴリーIDを設定できてしまう
 
 **対処法**: マイグレーションで`constrained()`を使います。
 
 ---
 
-#### 間違い2: Null Safe演算子を使わない
+### 間違い2: Null Safe演算子を使わない
+
+**エラー**:
+
+```
+Attempt to read property "name" on null
+```
 
 **対処法**: `$task->category?->name`のように、`?->`を使います。
 
 ---
 
-#### 間違い3: カテゴリーをビューに渡し忘れる
+### 間違い3: カテゴリーをビューに渡し忘れる
+
+**エラー**:
+
+```
+Undefined variable: categories
+```
 
 **対処法**: コントローラーで`compact('categories')`を使います。
+
+---
+
+## 💡 TIP: カテゴリーの管理画面
+
+カテゴリーの管理画面を作成すると、ユーザーが自由にカテゴリーを追加・編集・削除できるようになります。
+
+```bash
+php artisan make:controller CategoryController --resource
+```
+
+タスクのCRUDと同じパターンで実装できます。
 
 ---
 
@@ -458,9 +516,12 @@ public function index(Request $request)
 
 このセクションでは、カテゴリー機能を実装しました。
 
-*   カテゴリーテーブルを作成し、タスクとのリレーションシップを実装した。
-*   1対多のリレーションシップを実装した。
-*   プルダウンメニューでカテゴリーを選択できるようにした。
+| Step | 学んだこと |
+|------|-----------|
+| Step 1 | カテゴリーテーブルとモデルの作成 |
+| Step 2 | `belongsTo`で1対多リレーションシップを定義 |
+| Step 3 | プルダウンメニューでカテゴリーを選択 |
+| Step 4 | カテゴリーで検索機能を拡張 |
 
 次のセクションでは、タグ機能の実装について学びます。
 
@@ -468,7 +529,7 @@ public function index(Request $request)
 
 ## 📝 学習のポイント
 
-- [ ] カテゴリーテーブルを作成した。
-- [ ] 1対多のリレーションシップを実装した。
-- [ ] Null Safe演算子を使った。
-- [ ] カテゴリーで検索できるようにした。
+- [ ] カテゴリーテーブルを作成した
+- [ ] 1対多のリレーションシップを実装した
+- [ ] Null Safe演算子を使った
+- [ ] カテゴリーで検索できるようにした

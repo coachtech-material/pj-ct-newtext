@@ -2,9 +2,9 @@
 
 ## 🎯 このセクションで学ぶこと
 
-*   Laravel SanctumによるAPI認証の仕組みを理解する。
-*   ログイン・ログアウトAPIの実装方法を学ぶ。
-*   トークンベース認証の実装方法を理解する。
+- Laravel SanctumによるAPI認証の仕組みを理解する
+- ログイン・ログアウトAPIの実装方法を学ぶ
+- トークンベース認証の実装方法を理解する
 
 ---
 
@@ -30,9 +30,11 @@ Webアプリケーションでは「セッション」で認証状態を管理�
 
 しかし、APIでは**トークンベースの認証**を使います。
 
-- ステートレス（サーバーに状態を持たない）
-- スケーラブル（複数サーバーで動作可能）
-- モバイルアプリでも使える
+| 特徴 | 説明 |
+|------|------|
+| ステートレス | サーバーに状態を持たない |
+| スケーラブル | 複数サーバーで動作可能 |
+| モバイル対応 | モバイルアプリでも使える |
 
 ---
 
@@ -48,43 +50,29 @@ Laravelには**Sanctum**というAPI認証パッケージがあります。
 
 | 順番 | 作業 | 理由 |
 |------|------|------|
-| 1 | Sanctumのインストール | `composer require laravel/sanctum` |
-| 2 | 設定ファイルの公開 | `php artisan vendor:publish` |
-| 3 | マイグレーションの実行 | トークンテーブルの作成 |
+| Step 1 | Sanctumのセットアップ | パッケージの設定 |
+| Step 2 | 認証APIの実装 | ログイン・ログアウト |
+| Step 3 | APIのテスト | 動作確認 |
 
 > 💡 **ポイント**: Sanctumは、APIトークン認証とSPA認証の両方をサポートしています。
 
 ---
 
-## 導入：API認証とは
+## Step 1: Sanctumのセットアップ
 
-**API認証（API Authentication）**とは、**APIにアクセスするユーザーを識別する仕組み**です。
-
-API認証を実装することで、以下のようなことが可能になります。
-
-*   **ログインユーザーのみがAPIにアクセスできる**: 未認証ユーザーはアクセスできない
-*   **ユーザーごとにデータを管理できる**: 各ユーザーのタスクを管理できる
-*   **セキュリティが向上する**: 不正なアクセスを防ぐことができる
-
-このセクションでは、**Laravel Sanctum**を使ったAPI認証の実装方法を学びます。
-
----
-
-## 詳細解説
-
-### 🔍 Laravel Sanctumとは
+### 1-1. Laravel Sanctumとは
 
 **Laravel Sanctum**とは、**LaravelでAPI認証を簡単に実装するためのパッケージ**です。
 
-Sanctumは、以下のような特徴があります。
-
-*   **シンプル**: 簡単に実装できる
-*   **トークンベース**: トークンを使って認証する
-*   **SPA対応**: シングルページアプリケーション（SPA）にも対応
+| 特徴 | 説明 |
+|------|------|
+| シンプル | 簡単に実装できる |
+| トークンベース | トークンを使って認証する |
+| SPA対応 | シングルページアプリケーションにも対応 |
 
 ---
 
-### 🔍 Sanctumのインストール
+### 1-2. Sanctumのインストール
 
 Laravel 11では、Sanctumがデフォルトでインストールされています。
 
@@ -98,7 +86,7 @@ php artisan migrate
 
 ---
 
-### 🔍 Userモデルの設定
+### 1-3. Userモデルの設定
 
 **ファイル**: `app/Models/User.php`
 
@@ -137,23 +125,21 @@ class User extends Authenticatable
 }
 ```
 
----
-
-### 🔍 コードリーディング
-
-#### `use HasApiTokens;`
-
-*   `HasApiTokens`トレイトを使うことで、ユーザーがAPIトークンを持てるようになります。
+> 💡 **ポイント**: `HasApiTokens`トレイトを使うことで、ユーザーがAPIトークンを持てるようになります。
 
 ---
 
-### 🔍 認証APIコントローラーの作成
+## Step 2: 認証APIの実装
+
+### 2-1. 認証APIコントローラーの作成
 
 ```bash
 php artisan make:controller Api/AuthController
 ```
 
 ---
+
+### 2-2. コントローラーの実装
 
 **ファイル**: `app/Http/Controllers/Api/AuthController.php`
 
@@ -165,6 +151,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
@@ -174,7 +161,7 @@ class AuthController extends Controller
     /**
      * ユーザー登録
      */
-    public function register(Request $request)
+    public function register(Request $request): JsonResponse
     {
         $request->validate([
             'name' => 'required|string|max:255',
@@ -200,7 +187,7 @@ class AuthController extends Controller
     /**
      * ログイン
      */
-    public function login(Request $request)
+    public function login(Request $request): JsonResponse
     {
         $request->validate([
             'email' => 'required|email',
@@ -226,7 +213,7 @@ class AuthController extends Controller
     /**
      * ログアウト
      */
-    public function logout(Request $request)
+    public function logout(Request $request): JsonResponse
     {
         $request->user()->currentAccessToken()->delete();
 
@@ -238,7 +225,7 @@ class AuthController extends Controller
     /**
      * 認証済みユーザー情報を取得
      */
-    public function user(Request $request)
+    public function user(Request $request): JsonResponse
     {
         return response()->json([
             'user' => $request->user()
@@ -249,31 +236,17 @@ class AuthController extends Controller
 
 ---
 
-### 🔍 コードリーディング
+### 2-3. コードリーディング
 
-#### `$user->createToken('auth_token')->plainTextToken`
-
-*   `createToken()`メソッドで、ユーザーのAPIトークンを作成します。
-*   `plainTextToken`プロパティで、トークンの文字列を取得します。
-*   このトークンは、APIリクエストの`Authorization`ヘッダーに含めます。
-
----
-
-#### `Auth::attempt($request->only('email', 'password'))`
-
-*   `attempt()`メソッドで、メールアドレスとパスワードで認証を試みます。
-*   認証に成功すると`true`、失敗すると`false`を返します。
+| コード | 説明 |
+|--------|------|
+| `$user->createToken('auth_token')->plainTextToken` | APIトークンを作成 |
+| `Auth::attempt($request->only('email', 'password'))` | 認証を試みる |
+| `$request->user()->currentAccessToken()->delete()` | 現在のトークンを削除 |
 
 ---
 
-#### `$request->user()->currentAccessToken()->delete()`
-
-*   `currentAccessToken()`メソッドで、現在のリクエストで使用されているトークンを取得します。
-*   `delete()`メソッドで、トークンを削除します。
-
----
-
-### 🔍 ルーティングの設定
+### 2-4. ルーティングの設定
 
 **ファイル**: `routes/api.php`
 
@@ -298,9 +271,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
 ---
 
-### 🔍 APIのテスト
+## Step 3: APIのテスト
 
-#### 1. ユーザー登録
+### 3-1. ユーザー登録
 
 ```bash
 curl -X POST http://localhost/api/register \
@@ -329,7 +302,7 @@ curl -X POST http://localhost/api/register \
 
 ---
 
-#### 2. ログイン
+### 3-2. ログイン
 
 ```bash
 curl -X POST http://localhost/api/login \
@@ -356,7 +329,7 @@ curl -X POST http://localhost/api/login \
 
 ---
 
-#### 3. 認証済みユーザー情報を取得
+### 3-3. 認証済みユーザー情報を取得
 
 ```bash
 curl -X GET http://localhost/api/user \
@@ -377,7 +350,7 @@ curl -X GET http://localhost/api/user \
 
 ---
 
-#### 4. ログアウト
+### 3-4. ログアウト
 
 ```bash
 curl -X POST http://localhost/api/logout \
@@ -394,7 +367,7 @@ curl -X POST http://localhost/api/logout \
 
 ---
 
-### 🔍 未認証時のエラーレスポンス
+### 3-5. 未認証時のエラーレスポンス
 
 認証が必要なAPIに、トークンなしでアクセスすると、以下のようなエラーが返されます。
 
@@ -408,13 +381,37 @@ HTTPステータスコード: `401 Unauthorized`
 
 ---
 
-### 💡 TIP: トークンの有効期限
+## 🚨 よくある間違い
+
+### 間違い1: HasApiTokensトレイトを忘れる
+
+**問題**: トークンが作成できない
+
+**対処法**: Userモデルに`use HasApiTokens;`を追加します。
+
+---
+
+### 間違い2: auth:sanctumミドルウェアを忘れる
+
+**問題**: 認証なしでAPIにアクセスできてしまう
+
+**対処法**: 認証が必要なルートには、`auth:sanctum`ミドルウェアを適用します。
+
+---
+
+### 間違い3: トークンを平文で保存する
+
+**問題**: セキュリティリスク
+
+**対処法**: トークンは、データベースにハッシュ化されて保存されます。クライアントには、`plainTextToken`を返します。
+
+---
+
+## 💡 TIP: トークンの有効期限
 
 デフォルトでは、Sanctumのトークンに有効期限はありません。
 
 有効期限を設定する場合は、`config/sanctum.php`で設定します。
-
-**ファイル**: `config/sanctum.php`
 
 ```php
 'expiration' => 60, // 60分
@@ -422,47 +419,15 @@ HTTPステータスコード: `401 Unauthorized`
 
 ---
 
-### 💡 TIP: 複数のトークンを管理する
-
-Sanctumでは、ユーザーが複数のトークンを持つことができます。
-
-例えば、Webアプリ用とモバイルアプリ用で異なるトークンを発行することができます。
-
-```php
-$webToken = $user->createToken('web-token')->plainTextToken;
-$mobileToken = $user->createToken('mobile-token')->plainTextToken;
-```
-
----
-
-### 🚨 よくある間違い
-
-#### 間違い1: `HasApiTokens`トレイトを忘れる
-
-**対処法**: Userモデルに`use HasApiTokens;`を追加します。
-
----
-
-#### 間違い2: `auth:sanctum`ミドルウェアを忘れる
-
-**対処法**: 認証が必要なルートには、`auth:sanctum`ミドルウェアを適用します。
-
----
-
-#### 間違い3: トークンを平文で保存する
-
-**対処法**: トークンは、データベースにハッシュ化されて保存されます。クライアントには、`plainTextToken`を返します。
-
----
-
 ## ✨ まとめ
 
 このセクションでは、SanctumによるAPI認証について学びました。
 
-*   Laravel Sanctumは、API認証を簡単に実装するためのパッケージである。
-*   `HasApiTokens`トレイトを使うことで、ユーザーがAPIトークンを持てるようになる。
-*   `createToken()`メソッドで、APIトークンを作成する。
-*   `auth:sanctum`ミドルウェアで、認証が必要なルートを保護する。
+| Step | 学んだこと |
+|------|-----------|
+| Step 1 | Sanctumのセットアップと設定 |
+| Step 2 | 認証APIの実装（ログイン・ログアウト） |
+| Step 3 | APIのテストと動作確認 |
 
 次のセクションでは、APIのセキュリティについて学びます。
 
@@ -470,6 +435,6 @@ $mobileToken = $user->createToken('mobile-token')->plainTextToken;
 
 ## 📝 学習のポイント
 
-- [ ] Laravel SanctumによるAPI認証の仕組みを理解した。
-- [ ] ログイン・ログアウトAPIの実装方法を学んだ。
-- [ ] トークンベース認証の実装方法を理解した。
+- [ ] Laravel SanctumによるAPI認証の仕組みを理解した
+- [ ] ログイン・ログアウトAPIの実装方法を学んだ
+- [ ] トークンベース認証の実装方法を理解した

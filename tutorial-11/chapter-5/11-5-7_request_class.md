@@ -2,10 +2,10 @@
 
 ## 🎯 このセクションで学ぶこと
 
-*   コントローラーにバリデーションを書く問題点を理解する。
-*   フォームリクエストを使って、バリデーションロジックを分離する方法を学ぶ。
-*   カスタムエラーメッセージの設定方法を学ぶ。
-*   認可処理をリクエストクラスに書く方法を学ぶ。
+- コントローラーにバリデーションを書く問題点を理解する
+- フォームリクエストを使って、バリデーションロジックを分離する方法を学ぶ
+- カスタムエラーメッセージの設定方法を学ぶ
+- 認可処理をリクエストクラスに書く方法を学ぶ
 
 ---
 
@@ -55,25 +55,18 @@ public function store(TaskRequest $request)
 
 | 順番 | 作業 | 理由 |
 |------|------|------|
-| 1 | Form Request作成 | `php artisan make:request` |
-| 2 | バリデーションルール移動 | コントローラーからForm Requestへ |
-| 3 | コントローラー修正 | Form Requestを使用 |
+| Step 1 | 問題点を理解 | なぜ分離が必要か |
+| Step 2 | Form Request作成 | バリデーションを分離 |
+| Step 3 | カスタムメッセージ設定 | ユーザーフレンドリーに |
+| Step 4 | 認可処理を追加 | セキュリティ強化 |
 
 > 💡 **ポイント**: Form Requestでは`authorize()`メソッドで認可チェックも行えます。
 
 ---
 
-## 導入：なぜリクエストクラスを使うのか
+## Step 1: コントローラーにバリデーションを書く問題点
 
-**バリデーション**をコントローラーに書くと、**コントローラーが肥大化**します。
-
-**フォームリクエスト**を使うと、**バリデーションロジックを分離**でき、**コントローラーをスリムに**保てます。
-
----
-
-## 詳細解説
-
-### 🔍 コントローラーにバリデーションを書く問題点
+### 1-1. 問題のあるコード
 
 以下のコードは、コントローラーにバリデーションが書かれています。
 
@@ -107,19 +100,29 @@ public function update(Request $request, Task $task)
 }
 ```
 
-**問題点**:
-*   バリデーションルールが重複している
-*   コントローラーが肥大化している
+---
+
+### 1-2. 問題点
+
+| 問題 | 説明 |
+|------|------|
+| 重複 | バリデーションルールが重複している |
+| 肥大化 | コントローラーが肥大化している |
+| 保守性 | ルール変更時に複数箇所を修正する必要がある |
 
 ---
 
-### 🔍 フォームリクエストを作成する
+## Step 2: フォームリクエストを作成する
 
-フォームリクエストを作成して、バリデーションロジックを分離します。
+### 2-1. フォームリクエストを生成する
 
 ```bash
 php artisan make:request TaskRequest
 ```
+
+---
+
+### 2-2. バリデーションルールを移動する
 
 **ファイル**: `app/Http/Requests/TaskRequest.php`
 
@@ -132,12 +135,18 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class TaskRequest extends FormRequest
 {
-    public function authorize()
+    /**
+     * リクエストの認可を判定する
+     */
+    public function authorize(): bool
     {
         return true;
     }
 
-    public function rules()
+    /**
+     * バリデーションルールを定義する
+     */
+    public function rules(): array
     {
         return [
             'title' => 'required|max:255',
@@ -151,9 +160,9 @@ class TaskRequest extends FormRequest
 
 ---
 
-### 🔍 コントローラーでフォームリクエストを使う
+### 2-3. コントローラーでフォームリクエストを使う
 
-コントローラーで、フォームリクエストを使います。
+**ファイル**: `app/Http/Controllers/TaskController.php`
 
 ```php
 use App\Http\Requests\TaskRequest;
@@ -173,18 +182,27 @@ public function update(TaskRequest $request, Task $task)
 }
 ```
 
-**改善点**:
-*   バリデーションルールが1箇所にまとまった
-*   コントローラーがスリムになった
+---
+
+### 2-4. 改善点
+
+| 改善 | 説明 |
+|------|------|
+| 重複解消 | バリデーションルールが1箇所にまとまった |
+| スリム化 | コントローラーがスリムになった |
+| 保守性向上 | ルール変更が1箇所で済む |
 
 ---
 
-### 🔍 カスタムエラーメッセージを設定する
+## Step 3: カスタムエラーメッセージを設定する
 
-フォームリクエストで、カスタムエラーメッセージを設定できます。
+### 3-1. messages()メソッドを追加する
 
 ```php
-public function messages()
+/**
+ * カスタムエラーメッセージを定義する
+ */
+public function messages(): array
 {
     return [
         'title.required' => 'タイトルは必須です。',
@@ -201,12 +219,13 @@ public function messages()
 
 ---
 
-### 🔍 属性名をカスタマイズする
-
-フォームリクエストで、属性名をカスタマイズできます。
+### 3-2. attributes()メソッドで属性名をカスタマイズする
 
 ```php
-public function attributes()
+/**
+ * 属性名をカスタマイズする
+ */
+public function attributes(): array
 {
     return [
         'title' => 'タイトル',
@@ -221,32 +240,38 @@ public function attributes()
 
 ---
 
-### 🔍 認可処理をリクエストクラスに書く
+## Step 4: 認可処理をリクエストクラスに書く
 
-フォームリクエストで、認可処理を書けます。
+### 4-1. authorize()メソッドで認可チェック
 
 ```php
-public function authorize()
+/**
+ * リクエストの認可を判定する
+ */
+public function authorize(): bool
 {
-    $task = $this->route('task');
+    // 更新時のみ所有者チェック
+    if ($this->route('task')) {
+        $task = $this->route('task');
+        return $task->user_id === auth()->id();
+    }
     
-    // タスクの所有者かどうかをチェック
-    return $task && $task->user_id === auth()->id();
+    // 作成時は常に許可
+    return true;
 }
 ```
 
 **ポイント**:
-*   `authorize()`が`false`を返すと、403エラーが返される
-*   認可処理をコントローラーに書く必要がなくなる
+
+- `authorize()`が`false`を返すと、403エラーが返される
+- 認可処理をコントローラーに書く必要がなくなる
 
 ---
 
-### 🔍 更新時と作成時でルールを変える
-
-更新時と作成時でルールを変えたい場合は、以下のようにします。
+### 4-2. 更新時と作成時でルールを変える
 
 ```php
-public function rules()
+public function rules(): array
 {
     $rules = [
         'title' => 'required|max:255',
@@ -257,7 +282,8 @@ public function rules()
     
     // 更新時は、タイトルの一意性をチェック（自分自身を除く）
     if ($this->isMethod('put') || $this->isMethod('patch')) {
-        $rules['title'] = 'required|max:255|unique:tasks,title,' . $this->route('task')->id;
+        $taskId = $this->route('task')->id;
+        $rules['title'] = 'required|max:255|unique:tasks,title,' . $taskId;
     }
     
     return $rules;
@@ -266,7 +292,35 @@ public function rules()
 
 ---
 
-### 🔍 実践演習: フォームリクエストを作成してください
+### 4-3. バリデーション前後の処理
+
+```php
+/**
+ * バリデーション前の処理
+ */
+protected function prepareForValidation(): void
+{
+    // 入力値を整形
+    $this->merge([
+        'title' => trim($this->title),
+    ]);
+}
+
+/**
+ * バリデーション成功後の処理
+ */
+protected function passedValidation(): void
+{
+    // スラッグを自動生成
+    $this->merge([
+        'slug' => Str::slug($this->title),
+    ]);
+}
+```
+
+---
+
+### 4-4. 実践演習
 
 以下のコントローラーを、フォームリクエストを使ってリファクタリングしてください。
 
@@ -285,8 +339,6 @@ public function store(Request $request)
 }
 ```
 
----
-
 **解答例**:
 
 ```bash
@@ -304,12 +356,12 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class UserRequest extends FormRequest
 {
-    public function authorize()
+    public function authorize(): bool
     {
         return true;
     }
 
-    public function rules()
+    public function rules(): array
     {
         return [
             'name' => 'required|max:255',
@@ -318,7 +370,7 @@ class UserRequest extends FormRequest
         ];
     }
 
-    public function messages()
+    public function messages(): array
     {
         return [
             'name.required' => '名前は必須です。',
@@ -333,85 +385,33 @@ class UserRequest extends FormRequest
 }
 ```
 
-**ファイル**: `app/Http/Controllers/UserController.php`
+---
+
+## 🚨 よくある間違い
+
+### 間違い1: authorize()をfalseのままにする
+
+**問題**: `authorize()`が`false`のままだと、常に403エラーが返される
 
 ```php
-use App\Http\Requests\UserRequest;
-
-public function store(UserRequest $request)
+// ❌ 間違い
+public function authorize(): bool
 {
-    $validated = $request->validated();
-    $this->userService->createUser($validated);
-    return redirect()->route('users.index');
+    return false;
+}
+
+// ✅ 正しい
+public function authorize(): bool
+{
+    return true;
 }
 ```
 
 ---
 
-### 🔍 バリデーション後の処理を追加する
+### 間違い2: validated()を使わない
 
-フォームリクエストで、バリデーション後の処理を追加できます。
-
-```php
-protected function passedValidation()
-{
-    // バリデーション成功後の処理
-    $this->merge([
-        'slug' => Str::slug($this->title),
-    ]);
-}
-```
-
----
-
-### 🔍 バリデーション前の処理を追加する
-
-フォームリクエストで、バリデーション前の処理を追加できます。
-
-```php
-protected function prepareForValidation()
-{
-    // バリデーション前の処理
-    $this->merge([
-        'slug' => Str::slug($this->title),
-    ]);
-}
-```
-
----
-
-### 💡 TIP: 複数のフォームリクエストを使い分ける
-
-作成用と更新用で、別々のフォームリクエストを作成することもできます。
-
-*   `TaskStoreRequest`: 作成用
-*   `TaskUpdateRequest`: 更新用
-
-```bash
-php artisan make:request TaskStoreRequest
-php artisan make:request TaskUpdateRequest
-```
-
----
-
-### 🚨 よくある間違い
-
-#### 間違い1: authorize()をfalseのままにする
-
-`authorize()`が`false`のままだと、常に403エラーが返されます。
-
-```php
-public function authorize()
-{
-    return true;  // trueに変更する
-}
-```
-
----
-
-#### 間違い2: validated()を使わない
-
-`$request->all()`を使うと、バリデーションされていないデータも含まれます。
+**問題**: `$request->all()`を使うと、バリデーションされていないデータも含まれる
 
 ```php
 // ❌ 間違い
@@ -423,11 +423,25 @@ $data = $request->validated();
 
 ---
 
-#### 間違い3: messages()を書きすぎる
+### 間違い3: messages()を書きすぎる
 
-すべてのエラーメッセージをカスタマイズする必要はありません。
+**問題**: すべてのエラーメッセージをカスタマイズすると、保守が大変
 
-必要なものだけをカスタマイズします。
+**対処法**: 必要なものだけをカスタマイズします。`attributes()`を使えば、多くのメッセージは自動的に日本語化されます。
+
+---
+
+## 💡 TIP: 複数のフォームリクエストを使い分ける
+
+作成用と更新用で、別々のフォームリクエストを作成することもできます。
+
+```bash
+php artisan make:request TaskStoreRequest
+php artisan make:request TaskUpdateRequest
+```
+
+- `TaskStoreRequest`: 作成用（パスワード必須など）
+- `TaskUpdateRequest`: 更新用（パスワードは任意など）
 
 ---
 
@@ -435,17 +449,20 @@ $data = $request->validated();
 
 このセクションでは、リクエストクラスの活用を学びました。
 
-*   フォームリクエストを使って、バリデーションロジックを分離した。
-*   カスタムエラーメッセージを設定した。
-*   認可処理をリクエストクラスに書いた。
+| Step | 学んだこと |
+|------|-----------|
+| Step 1 | コントローラーにバリデーションを書く問題点 |
+| Step 2 | フォームリクエストの作成と使用 |
+| Step 3 | カスタムエラーメッセージの設定 |
+| Step 4 | 認可処理とルールの動的変更 |
 
-次のセクションでは、Eloquentスコープの活用について学びます。
+次のセクションでは、コードの可読性について学びます。
 
 ---
 
 ## 📝 学習のポイント
 
-- [ ] フォームリクエストを作成した。
-- [ ] カスタムエラーメッセージを設定した。
-- [ ] 認可処理をリクエストクラスに書いた。
-- [ ] validated()を使った。
+- [ ] フォームリクエストを作成した
+- [ ] カスタムエラーメッセージを設定した
+- [ ] 認可処理をリクエストクラスに書いた
+- [ ] `validated()`を使った

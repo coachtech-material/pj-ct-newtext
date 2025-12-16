@@ -2,9 +2,9 @@
 
 ## 🎯 このセクションで学ぶこと
 
-*   ユーザーとタスクの1対多リレーションシップを実装する方法を学ぶ。
-*   Eloquentのリレーションシップメソッドを使ってデータを取得する。
-*   ログインユーザーのタスクのみを表示するように実装する。
+- ユーザーとタスクの1対多リレーションシップを実装する方法を学ぶ
+- Eloquentのリレーションシップメソッドを使ってデータを取得する
+- ログインユーザーのタスクのみを表示するように実装する
 
 ---
 
@@ -52,43 +52,20 @@ $table->foreignId('user_id')->constrained()->onDelete('cascade');
 
 | 順番 | 作業 | 理由 |
 |------|------|------|
-| 1 | Userモデルにリレーション定義 | `hasMany`でタスクを取得 |
-| 2 | Taskモデルにリレーション定義 | `belongsTo`でユーザーを取得 |
-| 3 | タスク作成時にuser_idを設定 | ログインユーザーと紐付け |
+| Step 1 | Userモデルにリレーション定義 | `hasMany`でタスクを取得 |
+| Step 2 | Taskモデルにリレーション定義 | `belongsTo`でユーザーを取得 |
+| Step 3 | コントローラーの修正 | ログインユーザーのタスクのみ表示 |
+| Step 4 | 動作確認 | リレーションシップをテスト |
 
 > 💡 **ポイント**: 1対多のリレーションシップでは、「1」側に`hasMany`、「多」側に`belongsTo`を定義します。
 
 ---
 
-## 導入：リレーションシップとは
+## Step 1: Userモデルにリレーションシップを定義する
 
-**リレーションシップ（Relationship）**とは、**テーブル間の関係**です。
+### 1-1. tasksメソッドを追加する
 
-タスク管理システムでは、以下のようなリレーションシップがあります。
-
-*   **ユーザーとタスク**: 1対多（1人のユーザーは複数のタスクを持つ）
-*   **タスクとカテゴリー**: 多対1（複数のタスクは1つのカテゴリーに属する）
-
-このセクションでは、**ユーザーとタスクの1対多リレーションシップ**を実装します。
-
----
-
-## 詳細解説
-
-### 🔍 1対多リレーションシップとは
-
-**1対多リレーションシップ**とは、**1つのレコードが複数のレコードと関連する関係**です。
-
-**例**:
-
-*   1人のユーザーは、複数のタスクを持つ
-*   1つのカテゴリーは、複数のタスクを持つ
-
----
-
-### 🔍 Userモデルにリレーションシップを定義する
-
-まず、`User`モデルに、タスクとのリレーションシップを定義します。
+`User`モデルに、タスクとのリレーションシップを定義します。
 
 **ファイル**: `app/Models/User.php`
 
@@ -136,26 +113,28 @@ class User extends Authenticatable
 
 ---
 
-### 🔍 コードリーディング
+### 1-2. コードリーディング
 
 #### `public function tasks()`
 
-*   `tasks()`メソッドは、ユーザーが持つタスクを取得するためのリレーションシップメソッドです。
-*   メソッド名は、**複数形**にします（1人のユーザーは複数のタスクを持つため）。
+- `tasks()`メソッドは、ユーザーが持つタスクを取得するためのリレーションシップメソッドです
+- メソッド名は、**複数形**にします（1人のユーザーは複数のタスクを持つため）
 
 ---
 
 #### `return $this->hasMany(Task::class)`
 
-*   `hasMany()`は、**1対多リレーションシップ**を定義するメソッドです。
-*   `Task::class`は、関連するモデルを指定します。
-*   Eloquentは、自動的に`tasks`テーブルの`user_id`カラムを外部キーとして使用します。
+- `hasMany()`は、**1対多リレーションシップ**を定義するメソッドです
+- `Task::class`は、関連するモデルを指定します
+- Eloquentは、自動的に`tasks`テーブルの`user_id`カラムを外部キーとして使用します
 
 ---
 
-### 🔍 Taskモデルにリレーションシップを定義する
+## Step 2: Taskモデルにリレーションシップを定義する
 
-次に、`Task`モデルに、ユーザーとのリレーションシップを定義します。
+### 2-1. userメソッドを追加する
+
+`Task`モデルに、ユーザーとのリレーションシップを定義します。
 
 **ファイル**: `app/Models/Task.php`
 
@@ -196,24 +175,35 @@ class Task extends Model
 
 ---
 
-### 🔍 コードリーディング
+### 2-2. コードリーディング
 
 #### `public function user()`
 
-*   `user()`メソッドは、タスクが属するユーザーを取得するためのリレーションシップメソッドです。
-*   メソッド名は、**単数形**にします（1つのタスクは1人のユーザーに属するため）。
+- `user()`メソッドは、タスクが属するユーザーを取得するためのリレーションシップメソッドです
+- メソッド名は、**単数形**にします（1つのタスクは1人のユーザーに属するため）
 
 ---
 
 #### `return $this->belongsTo(User::class)`
 
-*   `belongsTo()`は、**多対1リレーションシップ**を定義するメソッドです。
-*   `User::class`は、関連するモデルを指定します。
-*   Eloquentは、自動的に`tasks`テーブルの`user_id`カラムを外部キーとして使用します。
+- `belongsTo()`は、**多対1リレーションシップ**を定義するメソッドです
+- `User::class`は、関連するモデルを指定します
+- Eloquentは、自動的に`tasks`テーブルの`user_id`カラムを外部キーとして使用します
 
 ---
 
-### 🔍 ログインユーザーのタスクのみを表示する
+#### 1対多リレーションシップの全体像
+
+| モデル | メソッド | 戻り値 |
+|--------|----------|--------|
+| User | `tasks()` | 複数のTaskモデル |
+| Task | `user()` | 1つのUserモデル |
+
+---
+
+## Step 3: コントローラーの修正
+
+### 3-1. ログインユーザーのタスクのみを表示する
 
 現在、タスク一覧ページでは、全てのタスクが表示されています。
 
@@ -238,7 +228,7 @@ class TaskController extends Controller
     public function index()
     {
         // ログインユーザーのタスクのみを取得
-        $tasks = Auth::user()->tasks;
+        $tasks = Auth::user()->tasks()->orderBy('created_at', 'desc')->paginate(10);
         
         return view('tasks.index', compact('tasks'));
     }
@@ -247,19 +237,72 @@ class TaskController extends Controller
 
 ---
 
-### 🔍 コードリーディング
+### 3-2. コードリーディング
 
-#### `Auth::user()->tasks`
+#### `Auth::user()->tasks()`
 
-*   `Auth::user()`は、ログインユーザーを取得します。
-*   `->tasks`は、ユーザーが持つタスクを取得します。
-*   これは、`User`モデルで定義した`tasks()`メソッドを使用しています。
+- `Auth::user()`は、ログインユーザーを取得します
+- `->tasks()`は、ユーザーが持つタスクのクエリビルダーを取得します
+- これは、`User`モデルで定義した`tasks()`メソッドを使用しています
 
 ---
 
-### 🚀 実践: リレーションシップを試そう
+#### `Auth::user()->tasks` と `Auth::user()->tasks()` の違い
 
-#### ステップ1: 複数のユーザーを登録する
+| 書き方 | 戻り値 | 用途 |
+|--------|--------|------|
+| `->tasks` | Collection | 全てのタスクを取得 |
+| `->tasks()` | クエリビルダー | 条件を追加して取得 |
+
+```php
+// 全てのタスクを取得
+$tasks = Auth::user()->tasks;
+
+// 条件を追加して取得
+$tasks = Auth::user()->tasks()->where('status', 'pending')->get();
+```
+
+---
+
+### 3-3. タスク作成時にuser_idを設定する
+
+タスク作成時に、ログインユーザーのIDを設定します。
+
+**ファイル**: `app/Http/Controllers/TaskController.php`
+
+```php
+public function store(Request $request)
+{
+    $validated = $request->validate([
+        'title' => 'required|max:255',
+        'description' => 'nullable',
+        'status' => 'required|in:pending,in_progress,completed',
+        'due_date' => 'nullable|date',
+    ]);
+
+    // ログインユーザーのIDを追加
+    $validated['user_id'] = Auth::id();
+
+    Task::create($validated);
+
+    return redirect()->route('tasks.index')->with('success', 'タスクを作成しました。');
+}
+```
+
+---
+
+### 3-4. コードリーディング
+
+#### `Auth::id()`
+
+- `Auth::id()`は、ログインユーザーのIDを取得します
+- `Auth::user()->id`と同じ結果ですが、より簡潔に書けます
+
+---
+
+## Step 4: 動作確認
+
+### 4-1. 複数のユーザーを登録する
 
 1. ユーザー1を登録（例: user1@example.com）
 2. タスクを2件作成
@@ -269,7 +312,7 @@ class TaskController extends Controller
 
 ---
 
-#### ステップ2: タスク一覧を確認する
+### 4-2. タスク一覧を確認する
 
 1. ユーザー2でログインしている状態で、タスク一覧を確認
 2. ユーザー2のタスクのみが表示される（1件）
@@ -280,114 +323,32 @@ class TaskController extends Controller
 
 ---
 
-### 💡 TIP: リレーションシップの他の使い方
+### 4-3. Tinkerで確認する
 
-#### タスクからユーザー名を取得する
-
-```blade
-<!-- ビュー -->
-@foreach($tasks as $task)
-    <p>タスク: {{ $task->title }}</p>
-    <p>作成者: {{ $task->user->name }}</p>
-@endforeach
+```bash
+php artisan tinker
 ```
-
----
-
-#### ユーザーのタスク数を取得する
 
 ```php
-// コントローラー
-$user = Auth::user();
-$taskCount = $user->tasks()->count();
-echo "タスク数: {$taskCount}";
+// ユーザーを取得
+>>> $user = App\Models\User::first();
+
+// ユーザーのタスクを取得
+>>> $user->tasks;
+
+// タスク数を取得
+>>> $user->tasks()->count();
+
+// タスクからユーザーを取得
+>>> $task = App\Models\Task::first();
+>>> $task->user->name;
 ```
 
 ---
 
-#### 条件付きでタスクを取得する
+## 🚨 よくある間違い
 
-```php
-// コントローラー
-$tasks = Auth::user()->tasks()->where('status', 'pending')->get();
-```
-
-これは、ログインユーザーの「未着手」のタスクのみを取得します。
-
----
-
-### 🔍 Eager Loadingでパフォーマンスを改善する
-
-リレーションシップを使ってデータを取得する際、**N+1問題**が発生することがあります。
-
-**N+1問題**とは、**データを取得する際に、大量のSQLクエリが実行される問題**です。
-
----
-
-#### N+1問題の例
-
-```php
-$tasks = Task::all();
-
-foreach ($tasks as $task) {
-    echo $task->user->name; // ここで毎回SQLクエリが実行される
-}
-```
-
-この場合、以下のようなSQLクエリが実行されます。
-
-```sql
-SELECT * FROM tasks; -- 1回
-SELECT * FROM users WHERE id = 1; -- タスクの数だけ実行される
-SELECT * FROM users WHERE id = 2;
-SELECT * FROM users WHERE id = 3;
-...
-```
-
----
-
-#### Eager Loadingで解決する
-
-**Eager Loading**を使うと、N+1問題を解決できます。
-
-```php
-$tasks = Task::with('user')->get();
-
-foreach ($tasks as $task) {
-    echo $task->user->name; // SQLクエリは実行されない
-}
-```
-
-この場合、以下のようなSQLクエリが実行されます。
-
-```sql
-SELECT * FROM tasks; -- 1回
-SELECT * FROM users WHERE id IN (1, 2, 3, ...); -- 1回
-```
-
-SQLクエリの実行回数が大幅に減り、パフォーマンスが向上します。
-
----
-
-### 🔍 TaskControllerでEager Loadingを使う
-
-**ファイル**: `app/Http/Controllers/TaskController.php`
-
-```php
-public function index()
-{
-    // Eager Loadingを使ってユーザー情報も一緒に取得
-    $tasks = Auth::user()->tasks()->with('category')->get();
-    
-    return view('tasks.index', compact('tasks'));
-}
-```
-
----
-
-### 🚨 よくある間違い
-
-#### 間違い1: リレーションシップメソッド名が間違っている
+### 間違い1: リレーションシップメソッド名が間違っている
 
 **エラー**:
 
@@ -399,21 +360,59 @@ Call to undefined method App\Models\User::task()
 
 ---
 
-#### 間違い2: 外部キーが設定されていない
+### 間違い2: 外部キーが設定されていない
 
 **エラー**:
 
 ```
-SQLSTATE[23000]: Integrity constraint violation: 1452 Cannot add or update a child row: a foreign key constraint fails
+SQLSTATE[23000]: Integrity constraint violation: 1452 Cannot add or update a child row
 ```
 
 **対処法**: マイグレーションファイルで、外部キー制約を設定します。
 
 ---
 
-#### 間違い3: N+1問題を無視する
+### 間違い3: user_idを設定し忘れる
 
-**対処法**: `with()`を使って、Eager Loadingを行います。
+**問題**: タスクを作成しても、誰のタスクかわからない
+
+**対処法**: `store`メソッドで、`$validated['user_id'] = Auth::id();`を追加します。
+
+---
+
+## 💡 TIP: リレーションシップの活用例
+
+### タスクからユーザー名を取得する
+
+```blade
+<!-- ビュー -->
+@foreach($tasks as $task)
+    <p>タスク: {{ $task->title }}</p>
+    <p>作成者: {{ $task->user->name }}</p>
+@endforeach
+```
+
+---
+
+### 条件付きでタスクを取得する
+
+```php
+// コントローラー
+$tasks = Auth::user()->tasks()->where('status', 'pending')->get();
+```
+
+これは、ログインユーザーの「未着手」のタスクのみを取得します。
+
+---
+
+### ユーザーのタスク数を取得する
+
+```php
+// コントローラー
+$user = Auth::user();
+$taskCount = $user->tasks()->count();
+echo "タスク数: {$taskCount}";
+```
 
 ---
 
@@ -421,17 +420,20 @@ SQLSTATE[23000]: Integrity constraint violation: 1452 Cannot add or update a chi
 
 このセクションでは、ユーザーとタスクの1対多リレーションシップの実装について学びました。
 
-*   `hasMany()`を使って、1対多リレーションシップを定義する。
-*   `belongsTo()`を使って、多対1リレーションシップを定義する。
-*   `Auth::user()->tasks`を使って、ログインユーザーのタスクを取得する。
-*   Eager Loadingを使って、N+1問題を解決する。
+| Step | 学んだこと |
+|------|-----------|
+| Step 1 | `hasMany()`で1対多リレーションシップを定義 |
+| Step 2 | `belongsTo()`で多対1リレーションシップを定義 |
+| Step 3 | `Auth::user()->tasks()`でログインユーザーのタスクを取得 |
+| Step 4 | 複数ユーザーでの動作確認 |
 
-次のセクションでは、セキュリティについて学びます。
+次のセクションでは、ログインユーザーのタスクのみを表示する実装について詳しく学びます。
 
 ---
 
 ## 📝 学習のポイント
 
-- [ ] ユーザーとタスクの1対多リレーションシップを実装する方法を学んだ。
-- [ ] Eloquentのリレーションシップメソッドを使ってデータを取得した。
-- [ ] ログインユーザーのタスクのみを表示するように実装した。
+- [ ] ユーザーとタスクの1対多リレーションシップを実装した
+- [ ] `hasMany()`と`belongsTo()`の使い方を理解した
+- [ ] Eloquentのリレーションシップメソッドを使ってデータを取得した
+- [ ] ログインユーザーのタスクのみを表示するように実装した

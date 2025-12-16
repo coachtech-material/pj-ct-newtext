@@ -2,9 +2,9 @@
 
 ## 🎯 このセクションで学ぶこと
 
-*   ポリシーを使って、タスクの所有者のみが編集・削除できるようにする方法を学ぶ。
-*   Gate::allows()を使って、認可チェックを行う方法を学ぶ。
-*   @canディレクティブを使って、ビューで認可チェックを行う方法を学ぶ。
+- ポリシーを使って、タスクの所有者のみが編集・削除できるようにする方法を学ぶ
+- `authorize()`メソッドを使って、認可チェックを行う方法を学ぶ
+- `@can`ディレクティブを使って、ビューで認可チェックを行う方法を学ぶ
 
 ---
 
@@ -34,11 +34,11 @@
 
 ---
 
-### 理由3: Policyの準備
+### 理由3: Policyの活用
 
 Laravelには「Policy」という認可の仕組みがあります。
 
-このセクションでは簡単な方法で実装し、後のセクションでPolicyを使った方法を学びます。
+Policyを使うことで、認可ロジックを**一箇所にまとめて管理**できます。
 
 ---
 
@@ -46,31 +46,36 @@ Laravelには「Policy」という認可の仕組みがあります。
 
 | 順番 | 作業 | 理由 |
 |------|------|------|
-| 1 | 詳細表示の所有者チェック | 自分のタスクのみ表示 |
-| 2 | 編集の所有者チェック | 自分のタスクのみ編集 |
-| 3 | 削除の所有者チェック | 自分のタスクのみ削除 |
+| Step 1 | ポリシーの作成 | 認可ロジックをまとめる |
+| Step 2 | コントローラーで認可チェック | 権限がない場合は403エラー |
+| Step 3 | ビューで認可チェック | 権限がない場合はボタン非表示 |
+| Step 4 | 動作確認 | 他のユーザーのタスクにアクセスできないことを確認 |
 
 > 💡 **ポイント**: 所有者チェックは、セキュリティ上非常に重要です。必ず実装しましょう。
 
 ---
 
-## 導入：なぜタスクの所有者チェックが重要なのか
+## Step 1: ポリシーの作成
 
-**認可（Authorization）**は、**ユーザーが特定のアクションを実行する権限があるかどうかをチェック**する機能です。
-
-タスクの所有者チェックを実装することで、他のユーザーのタスクを編集・削除できないようにできます。
-
----
-
-## 詳細解説
-
-### 🔍 ポリシーの作成
+### 1-1. ポリシーを生成する
 
 **ポリシー**は、**認可ロジックをまとめたクラス**です。
 
 ```bash
 php artisan make:policy TaskPolicy --model=Task
 ```
+
+**実行結果**:
+
+```
+Policy created successfully.
+```
+
+`app/Policies/TaskPolicy.php`ファイルが作成されます。
+
+---
+
+### 1-2. ポリシーを編集する
 
 **ファイル**: `app/Policies/TaskPolicy.php`
 
@@ -87,7 +92,7 @@ class TaskPolicy
     /**
      * タスクを表示できるか
      */
-    public function view(User $user, Task $task)
+    public function view(User $user, Task $task): bool
     {
         return $task->user_id === $user->id;
     }
@@ -95,7 +100,7 @@ class TaskPolicy
     /**
      * タスクを更新できるか
      */
-    public function update(User $user, Task $task)
+    public function update(User $user, Task $task): bool
     {
         return $task->user_id === $user->id;
     }
@@ -103,7 +108,7 @@ class TaskPolicy
     /**
      * タスクを削除できるか
      */
-    public function delete(User $user, Task $task)
+    public function delete(User $user, Task $task): bool
     {
         return $task->user_id === $user->id;
     }
@@ -112,15 +117,35 @@ class TaskPolicy
 
 ---
 
-### 🔍 ポリシーの登録
+### 1-3. コードリーディング
 
-Laravel 11では、ポリシーは自動的に検出されます。
+#### `public function view(User $user, Task $task): bool`
+
+- 第1引数`$user`: 現在ログインしているユーザー
+- 第2引数`$task`: チェック対象のタスク
+- 戻り値: 権限がある場合は`true`、ない場合は`false`
+
+---
+
+#### `return $task->user_id === $user->id`
+
+- タスクの所有者とログインユーザーが同じかどうかをチェックします
+- 同じ場合は`true`（権限あり）、違う場合は`false`（権限なし）
+
+---
+
+### 1-4. ポリシーの登録
+
+Laravel 11では、ポリシーは**自動的に検出**されます。
 
 Laravel 10以前では、`AuthServiceProvider`で登録する必要があります。
 
 **ファイル**: `app/Providers/AuthServiceProvider.php`
 
 ```php
+use App\Models\Task;
+use App\Policies\TaskPolicy;
+
 protected $policies = [
     Task::class => TaskPolicy::class,
 ];
@@ -128,7 +153,9 @@ protected $policies = [
 
 ---
 
-### 🔍 コントローラーで認可チェック
+## Step 2: コントローラーで認可チェック
+
+### 2-1. authorize()メソッドを使う
 
 `authorize()`メソッドを使って、認可チェックを行います。
 
@@ -157,7 +184,7 @@ public function update(Request $request, Task $task)
         'title' => 'required|max:255',
         'description' => 'nullable',
         'due_date' => 'nullable|date',
-        'status' => 'required|in:未完了,完了',
+        'status' => 'required|in:pending,in_progress,completed',
     ]);
 
     $task->update($validated);
@@ -177,30 +204,28 @@ public function destroy(Task $task)
 
 ---
 
-### 🔍 authorize()メソッド
+### 2-2. コードリーディング
 
-`authorize()`メソッドは、**認可チェックを行い、権限がない場合は403エラーを返す**メソッドです。
+#### `$this->authorize('view', $task)`
 
-```php
-$this->authorize('update', $task);
-```
-
-*   第1引数: ポリシーのメソッド名
-*   第2引数: モデルインスタンス
+- 第1引数: ポリシーのメソッド名
+- 第2引数: モデルインスタンス
+- 権限がない場合は、**自動的に403エラー**が返されます
 
 ---
 
-### 🔍 動作確認
+#### authorize()の動作
 
-1. ユーザーAでログインし、タスクを作成する
-2. ログアウトする
-3. ユーザーBでログインする
-4. ユーザーAのタスクのURLに直接アクセスする（例: `http://localhost/tasks/1`）
-5. 403エラーが表示される
+| 権限 | 動作 |
+|------|------|
+| あり | 処理を続行 |
+| なし | 403 Forbiddenエラーを返す |
 
 ---
 
-### 🔍 ビューで認可チェック
+## Step 3: ビューで認可チェック
+
+### 3-1. @canディレクティブを使う
 
 `@can`ディレクティブを使って、ビューで認可チェックを行います。
 
@@ -210,33 +235,143 @@ $this->authorize('update', $task);
 <h1>タスク詳細</h1>
 
 @if (session('success'))
-    <div style="color: green;">
+    <div style="color: green; margin-bottom: 15px;">
         {{ session('success') }}
     </div>
 @endif
 
-<table border="1">
-    <!-- ... -->
+<table border="1" style="border-collapse: collapse; width: 100%;">
+    <tr>
+        <th style="padding: 10px; background-color: #f5f5f5;">タイトル</th>
+        <td style="padding: 10px;">{{ $task->title }}</td>
+    </tr>
+    <tr>
+        <th style="padding: 10px; background-color: #f5f5f5;">説明</th>
+        <td style="padding: 10px;">{{ $task->description ?? '未設定' }}</td>
+    </tr>
+    <tr>
+        <th style="padding: 10px; background-color: #f5f5f5;">ステータス</th>
+        <td style="padding: 10px;">{{ $task->status }}</td>
+    </tr>
+    <tr>
+        <th style="padding: 10px; background-color: #f5f5f5;">期限</th>
+        <td style="padding: 10px;">{{ $task->due_date?->format('Y-m-d') ?? '未設定' }}</td>
+    </tr>
 </table>
 
-@can('update', $task)
-    <a href="{{ route('tasks.edit', $task) }}">編集</a>
-@endcan
+<div style="margin-top: 20px;">
+    @can('update', $task)
+        <a href="{{ route('tasks.edit', $task) }}" style="display: inline-block; padding: 10px 20px; background-color: #2196f3; color: white; text-decoration: none; border-radius: 4px;">編集</a>
+    @endcan
 
-@can('delete', $task)
-    <form method="POST" action="{{ route('tasks.destroy', $task) }}" style="display:inline;" onsubmit="return confirm('本当に削除しますか?');">
-        @csrf
-        @method('DELETE')
-        <button type="submit">削除</button>
-    </form>
-@endcan
+    @can('delete', $task)
+        <form method="POST" action="{{ route('tasks.destroy', $task) }}" style="display: inline;" onsubmit="return confirm('本当に削除しますか？');">
+            @csrf
+            @method('DELETE')
+            <button type="submit" style="padding: 10px 20px; background-color: #f44336; color: white; border: none; border-radius: 4px; cursor: pointer;">削除</button>
+        </form>
+    @endcan
 
-<a href="{{ route('tasks.index') }}">一覧に戻る</a>
+    <a href="{{ route('tasks.index') }}" style="margin-left: 10px; color: #666;">← 一覧に戻る</a>
+</div>
 ```
 
 ---
 
-### 🔍 Gate::allows()
+### 3-2. コードリーディング
+
+#### `@can('update', $task)`
+
+- 第1引数: ポリシーのメソッド名
+- 第2引数: モデルインスタンス
+- 権限がある場合のみ、`@can`と`@endcan`の間のコンテンツが表示されます
+
+---
+
+#### `@cannot`ディレクティブ
+
+権限がない場合に表示したい場合は、`@cannot`を使います。
+
+```blade
+@cannot('update', $task)
+    <p>このタスクを編集する権限がありません。</p>
+@endcannot
+```
+
+---
+
+## Step 4: 動作確認
+
+### 4-1. 他のユーザーのタスクにアクセスする
+
+1. ユーザーAでログインし、タスクを作成する（例: ID = 1）
+2. ログアウトする
+3. ユーザーBでログインする
+4. ブラウザで`http://localhost/tasks/1`にアクセスする
+5. 403 Forbiddenエラーが表示される
+
+---
+
+### 4-2. 編集・削除ボタンの表示を確認する
+
+1. ユーザーAでログインする
+2. 自分のタスクの詳細ページにアクセスする
+3. 編集ボタンと削除ボタンが表示される
+4. ログアウトする
+5. ユーザーBでログインする
+6. ユーザーAのタスクにはアクセスできない（403エラー）
+
+---
+
+### 4-3. Tinkerで確認する
+
+```bash
+php artisan tinker
+```
+
+```php
+// ユーザーとタスクを取得
+>>> $user = App\Models\User::find(1);
+>>> $task = App\Models\Task::find(1);
+
+// 認可チェック
+>>> $user->can('view', $task);  // true or false
+>>> $user->can('update', $task);  // true or false
+```
+
+---
+
+## 🚨 よくある間違い
+
+### 間違い1: ポリシーを作成し忘れる
+
+**エラー**:
+
+```
+This action is unauthorized.
+```
+
+**対処法**: `php artisan make:policy TaskPolicy --model=Task`を実行します。
+
+---
+
+### 間違い2: authorize()を忘れる
+
+**問題**: 他のユーザーのタスクを編集・削除できてしまう
+
+**対処法**: コントローラーのメソッドで`$this->authorize()`を呼び出します。
+
+---
+
+### 間違い3: ビューで@canを使わない
+
+**問題**: 権限がないのに編集・削除ボタンが表示される
+
+**対処法**: ビューで`@can`ディレクティブを使って、権限がない場合はボタンを非表示にします。
+
+---
+
+## 💡 TIP: Gate::allows()
 
 `Gate::allows()`を使って、コントローラーやビューで認可チェックを行えます。
 
@@ -254,25 +389,27 @@ if (Gate::denies('update', $task)) {
 
 ---
 
-### 🔍 before()メソッド
+## 💡 TIP: before()メソッド
 
 `before()`メソッドを使うと、**すべての認可チェックの前に実行される処理**を定義できます。
 
 **ファイル**: `app/Policies/TaskPolicy.php`
 
 ```php
-public function before(User $user, $ability)
+public function before(User $user, string $ability): bool|null
 {
     // 管理者はすべてのアクションを実行できる
     if ($user->is_admin) {
         return true;
     }
+
+    return null;  // 通常の認可チェックを続行
 }
 ```
 
 ---
 
-### 💡 TIP: リソースコントローラーの認可
+## 💡 TIP: authorizeResource()
 
 リソースコントローラーでは、`authorizeResource()`メソッドを使って、自動的に認可チェックを行えます。
 
@@ -287,25 +424,15 @@ public function __construct()
 
 これにより、各メソッドで自動的に認可チェックが行われます。
 
----
-
-### 🚨 よくある間違い
-
-#### 間違い1: ポリシーを作成し忘れる
-
-**対処法**: `php artisan make:policy TaskPolicy --model=Task`を実行します。
-
----
-
-#### 間違い2: authorize()を忘れる
-
-**対処法**: コントローラーのメソッドで`$this->authorize()`を呼び出します。
-
----
-
-#### 間違い3: ビューで@canを使わない
-
-**対処法**: ビューで`@can`ディレクティブを使って、権限がない場合はボタンを非表示にします。
+| メソッド | ポリシーメソッド |
+|----------|------------------|
+| index | viewAny |
+| show | view |
+| create | create |
+| store | create |
+| edit | update |
+| update | update |
+| destroy | delete |
 
 ---
 
@@ -313,9 +440,12 @@ public function __construct()
 
 このセクションでは、タスクの所有者チェックを実装しました。
 
-*   ポリシーを使って、認可ロジックをまとめた。
-*   authorize()メソッドを使って、コントローラーで認可チェックを行った。
-*   @canディレクティブを使って、ビューで認可チェックを行った。
+| Step | 学んだこと |
+|------|-----------|
+| Step 1 | ポリシーを作成して認可ロジックをまとめる |
+| Step 2 | `authorize()`でコントローラーで認可チェック |
+| Step 3 | `@can`でビューで認可チェック |
+| Step 4 | 動作確認 |
 
 次のセクションでは、カテゴリー機能の実装について学びます。
 
@@ -323,7 +453,8 @@ public function __construct()
 
 ## 📝 学習のポイント
 
-- [ ] ポリシーを作成した。
-- [ ] authorize()メソッドを使った。
-- [ ] @canディレクティブを使った。
-- [ ] Gate::allows()を学んだ。
+- [ ] ポリシーを作成した
+- [ ] `authorize()`メソッドを使った
+- [ ] `@can`ディレクティブを使った
+- [ ] `Gate::allows()`を学んだ
+- [ ] `before()`メソッドを学んだ

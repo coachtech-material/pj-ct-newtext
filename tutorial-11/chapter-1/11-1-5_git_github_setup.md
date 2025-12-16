@@ -22,7 +22,7 @@ Git/GitHubを使うことで、以下のようなメリットがあります。
 
 ## 詳細解説
 
-### 🔍 Gitのインストール確認
+## Step 1: Gitのインストール確認
 
 Gitがインストールされているか確認します。
 
@@ -40,7 +40,7 @@ Gitがインストールされていない場合は、[Git公式サイト](https
 
 ---
 
-### 🔍 Gitの初期設定
+## Step 2: Gitの初期設定
 
 Gitの初期設定を行います。
 
@@ -58,7 +58,7 @@ git config --global user.email
 
 ---
 
-### 🔍 Gitリポジトリの初期化
+## Step 3: Gitリポジトリの初期化
 
 プロジェクトディレクトリで、Gitリポジトリを初期化します。
 
@@ -75,7 +75,7 @@ Initialized empty Git repository in /path/to/task-manager/.git/
 
 ---
 
-### 🔍 .gitignoreファイルの確認
+## Step 4: .gitignoreファイルの確認
 
 Laravelプロジェクトには、デフォルトで`.gitignore`ファイルが含まれています。
 
@@ -109,7 +109,7 @@ yarn-error.log
 
 ---
 
-### 🔍 最初のコミット
+## Step 5: 最初のコミット
 
 ファイルをステージングエリアに追加します。
 
@@ -135,7 +135,7 @@ git commit -m "Initial commit"
 
 ---
 
-### 🔍 GitHubリポジトリの作成
+## Step 6: GitHubリポジトリの作成
 
 GitHubにログインし、新しいリポジトリを作成します。
 
@@ -147,7 +147,7 @@ GitHubにログインし、新しいリポジトリを作成します。
 
 ---
 
-### 🔍 リモートリポジトリの追加
+## Step 7: リモートリポジトリの追加
 
 ローカルリポジトリとGitHubリポジトリを連携します。
 
@@ -159,7 +159,7 @@ git remote add origin https://github.com/your-username/task-manager.git
 
 ---
 
-### 🔍 リモートリポジトリへのプッシュ
+## Step 8: リモートリポジトリへのプッシュ
 
 ローカルリポジトリの変更を、GitHubリポジトリにプッシュします。
 
@@ -184,13 +184,13 @@ Branch 'main' set up to track remote branch 'main' from 'origin'.
 
 ---
 
-### 🔍 GitHubでリポジトリを確認
+## Step 9: GitHubでリポジトリを確認
 
 GitHubでリポジトリを開き、ファイルがプッシュされていることを確認します。
 
 ---
 
-### 🔍 ブランチの作成
+## Step 10: ブランチの作成
 
 新しい機能を開発するときは、ブランチを作成します。
 
@@ -206,7 +206,7 @@ Switched to a new branch 'feature/task-crud'
 
 ---
 
-### 🔍 変更のコミット
+## Step 11: 変更のコミット
 
 ファイルを編集したら、変更をコミットします。
 
@@ -217,7 +217,7 @@ git commit -m "Add task CRUD functionality"
 
 ---
 
-### 🔍 ブランチのプッシュ
+## Step 12: ブランチのプッシュ
 
 ブランチをGitHubにプッシュします。
 
@@ -227,7 +227,7 @@ git push origin feature/task-crud
 
 ---
 
-### 🔍 プルリクエストの作成
+## Step 13: プルリクエストの作成
 
 GitHubでプルリクエストを作成します。
 
@@ -239,7 +239,7 @@ GitHubでプルリクエストを作成します。
 
 ---
 
-### 🔍 プルリクエストのマージ
+## Step 14: プルリクエストのマージ
 
 プルリクエストをレビューし、問題がなければマージします。
 
@@ -249,7 +249,7 @@ GitHubでプルリクエストを作成します。
 
 ---
 
-### 🔍 mainブランチの更新
+## Step 15: mainブランチの更新
 
 ローカルの`main`ブランチを更新します。
 

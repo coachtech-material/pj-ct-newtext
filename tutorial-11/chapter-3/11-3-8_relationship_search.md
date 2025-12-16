@@ -69,7 +69,7 @@ Task::whereHas('tags', function ($query) use ($tagName) {
 
 ## 詳細解説
 
-### 🔍 whereHas()メソッド
+## Step 1: whereHas()メソッド
 
 `whereHas()`メソッドを使うと、リレーションシップを使った検索ができます。
 
@@ -81,7 +81,7 @@ $tasks = Task::whereHas('tags', function ($query) {
 
 ---
 
-### 🔍 タグで検索
+## Step 2: タグで検索
 
 タグで検索できるようにします。
 
@@ -156,7 +156,7 @@ public function index(Request $request)
 
 ---
 
-### 🔍 複数のタグで検索
+## Step 3: 複数のタグで検索
 
 複数のタグで検索する場合は、チェックボックスを使います。
 
@@ -205,7 +205,7 @@ if ($request->filled('tag_ids')) {
 
 ---
 
-### 🔍 すべてのタグを含むタスクを検索
+## Step 4: すべてのタグを含むタスクを検索
 
 すべてのタグを含むタスクを検索する場合は、`whereHas()`を複数回使います。
 
@@ -221,7 +221,7 @@ if ($request->filled('tag_ids')) {
 
 ---
 
-### 🔍 has()メソッド
+## Step 5: has()メソッド
 
 `has()`メソッドを使うと、リレーションシップが存在するかどうかで検索できます。
 
@@ -235,7 +235,7 @@ $tasks = Task::has('tags', '>=', 3)->get();
 
 ---
 
-### 🔍 doesntHave()メソッド
+## Step 6: doesntHave()メソッド
 
 `doesntHave()`メソッドを使うと、リレーションシップが存在しないタスクを検索できます。
 

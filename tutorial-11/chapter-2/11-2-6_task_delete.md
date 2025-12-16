@@ -2,9 +2,9 @@
 
 ## 🎯 このセクションで学ぶこと
 
-*   タスク削除機能を実装する方法を学ぶ。
-*   JavaScriptで確認ダイアログを表示する方法を学ぶ。
-*   DELETEメソッドを使ってリソースを削除する方法を学ぶ。
+- タスク削除機能を実装する方法を学ぶ
+- JavaScriptで確認ダイアログを表示する方法を学ぶ
+- DELETEメソッドを使ってリソースを削除する方法を学ぶ
 
 ---
 
@@ -53,25 +53,19 @@ $task->delete();
 
 | 順番 | 作業 | 理由 |
 |------|------|------|
-| 1 | ルーティング追加 | DELETEメソッドを使用 |
-| 2 | コントローラー実装 | データを取得して削除 |
-| 3 | ビュー修正 | 削除ボタンと確認ダイアログ |
+| Step 1 | ルーティングの追加 | DELETEメソッドを使用 |
+| Step 2 | destroyメソッドの実装 | データを取得して削除 |
+| Step 3 | 詳細ページに削除ボタンを追加 | 削除ボタンと確認ダイアログ |
+| Step 4 | 一覧ページに削除ボタンを追加 | 一覧からも削除できるように |
+| Step 5 | 動作確認 | 正しく動作するか確認する |
 
 > 💡 **ポイント**: HTMLフォームはGETとPOSTしかサポートしていないので、`@method('DELETE')`を使います。
 
 ---
 
-## 導入：なぜタスク削除機能が重要なのか
+## Step 1: ルーティングの追加
 
-**タスク削除機能**は、不要になったタスクを削除する機能です。
-
-タスク削除機能を実装することで、ユーザーはタスクを整理できるようになります。
-
----
-
-## 詳細解説
-
-### 🔍 ルーティングの追加
+### 1-1. 削除用のルートを定義する
 
 タスク削除のルーティングを追加します。
 
@@ -91,7 +85,34 @@ Route::middleware(['auth'])->group(function () {
 
 ---
 
-### 🔍 コントローラーのdestroyメソッド
+### 1-2. コードリーディング
+
+#### `Route::delete('/tasks/{task}', ...)->name('tasks.destroy')`
+
+- `DELETE /tasks/1`にリクエストを送信すると、`destroy`メソッドが実行されます
+- DELETEメソッドは、**リソースを削除する**ときに使用します
+
+---
+
+#### CRUDルーティングの全体像
+
+| 機能 | HTTPメソッド | URI | メソッド |
+|------|-------------|-----|---------|
+| 一覧 | GET | /tasks | index |
+| 作成フォーム | GET | /tasks/create | create |
+| 作成 | POST | /tasks | store |
+| 詳細 | GET | /tasks/{task} | show |
+| 編集フォーム | GET | /tasks/{task}/edit | edit |
+| 更新 | PUT | /tasks/{task} | update |
+| 削除 | DELETE | /tasks/{task} | destroy |
+
+これで**CRUD操作のルーティングが完成**しました。
+
+---
+
+## Step 2: destroyメソッドの実装
+
+### 2-1. 削除メソッドを追加する
 
 タスクを削除する`destroy`メソッドを追加します。
 
@@ -113,118 +134,180 @@ public function destroy(Task $task)
 
 ---
 
-### 🔍 タスク詳細ページに削除ボタンを追加
+### 2-2. コードリーディング
+
+#### `$task->delete()`
+
+- モデルの`delete()`メソッドを呼び出すと、データベースからレコードが削除されます
+- ルートモデルバインディングで取得した`$task`を削除します
+
+---
+
+#### リダイレクト先
+
+- 削除後は**一覧ページにリダイレクト**します
+- 詳細ページにリダイレクトすると、削除したタスクが存在しないため404エラーになります
+
+---
+
+## Step 3: 詳細ページに削除ボタンを追加
+
+### 3-1. 削除フォームを追加する
 
 タスク詳細ページに、削除ボタンを追加します。
 
 **ファイル**: `resources/views/tasks/show.blade.php`
 
+テーブルの下に、以下のコードを追加します。
+
 ```blade
-<h1>タスク詳細</h1>
-
-@if (session('success'))
-    <div style="color: green;">
-        {{ session('success') }}
-    </div>
-@endif
-
-<table border="1">
-    <!-- ... -->
-</table>
-
-<a href="{{ route('tasks.edit', $task) }}">編集</a>
-
-<form method="POST" action="{{ route('tasks.destroy', $task) }}" style="display:inline;" onsubmit="return confirm('本当に削除しますか?');">
-    @csrf
-    @method('DELETE')
-    <button type="submit">削除</button>
-</form>
-
-<a href="{{ route('tasks.index') }}">一覧に戻る</a>
+<div style="margin-top: 20px;">
+    <a href="{{ route('tasks.edit', $task) }}" style="display: inline-block; padding: 10px 20px; background-color: #2196f3; color: white; text-decoration: none; border-radius: 4px;">編集</a>
+    
+    <form method="POST" action="{{ route('tasks.destroy', $task) }}" style="display: inline;" onsubmit="return confirm('本当に削除しますか？');">
+        @csrf
+        @method('DELETE')
+        <button type="submit" style="padding: 10px 20px; background-color: #f44336; color: white; border: none; border-radius: 4px; cursor: pointer;">削除</button>
+    </form>
+    
+    <a href="{{ route('tasks.index') }}" style="margin-left: 10px; color: #666;">← 一覧に戻る</a>
+</div>
 ```
 
 ---
 
-### 🔍 確認ダイアログ
+### 3-2. コードリーディング
 
-`onsubmit="return confirm('本当に削除しますか?');"`は、**JavaScriptの確認ダイアログ**を表示します。
+#### `@method('DELETE')`
 
-*   ユーザーが「OK」をクリックした場合: フォームが送信される
-*   ユーザーが「キャンセル」をクリックした場合: フォームが送信されない
-
----
-
-### 🔍 動作確認
-
-ブラウザでタスク詳細ページにアクセスし、「削除」ボタンをクリックします。
-
-確認ダイアログが表示され、「OK」をクリックすると、タスクが削除されることを確認します。
+- HTMLフォームは、`GET`と`POST`しかサポートしていません
+- `@method('DELETE')`を追加すると、Laravelは`POST`リクエストを`DELETE`リクエストとして扱います
 
 ---
 
-### 🔍 タスク一覧ページに削除ボタンを追加
+#### `onsubmit="return confirm('本当に削除しますか？');"`
 
-タスク一覧ページにも、削除ボタンを追加できます。
+- フォーム送信前に**JavaScriptの確認ダイアログ**を表示します
+- ユーザーが「OK」をクリックした場合: フォームが送信される
+- ユーザーが「キャンセル」をクリックした場合: フォームが送信されない
+
+---
+
+#### `style="display: inline;"`
+
+- フォームをインライン要素として表示します
+- これにより、編集リンクと削除ボタンが横並びになります
+
+---
+
+## Step 4: 一覧ページに削除ボタンを追加
+
+### 4-1. 一覧ページにも削除フォームを追加する
+
+タスク一覧ページにも、削除ボタンを追加します。
 
 **ファイル**: `resources/views/tasks/index.blade.php`
 
+操作列に削除ボタンを追加します。
+
 ```blade
-<table border="1">
-    <thead>
-        <tr>
-            <th>ID</th>
-            <th>タイトル</th>
-            <th>期限</th>
-            <th>ステータス</th>
-            <th>操作</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach ($tasks as $task)
-            <tr>
-                <td>{{ $task->id }}</td>
-                <td>{{ $task->title }}</td>
-                <td>{{ $task->due_date }}</td>
-                <td>{{ $task->status }}</td>
-                <td>
-                    <a href="{{ route('tasks.show', $task) }}">詳細</a>
-                    <a href="{{ route('tasks.edit', $task) }}">編集</a>
-                    <form method="POST" action="{{ route('tasks.destroy', $task) }}" style="display:inline;" onsubmit="return confirm('本当に削除しますか?');">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit">削除</button>
-                    </form>
-                </td>
-            </tr>
-        @endforeach
-    </tbody>
-</table>
+<td>
+    <a href="{{ route('tasks.show', $task) }}">詳細</a>
+    <a href="{{ route('tasks.edit', $task) }}">編集</a>
+    <form method="POST" action="{{ route('tasks.destroy', $task) }}" style="display: inline;" onsubmit="return confirm('本当に削除しますか？');">
+        @csrf
+        @method('DELETE')
+        <button type="submit" style="background: none; border: none; color: #f44336; cursor: pointer;">削除</button>
+    </form>
+</td>
 ```
 
 ---
 
-### 🔍 ソフトデリート
+### 4-2. コードリーディング
+
+#### 一覧ページでの削除
+
+- 一覧ページからも削除できるようにすることで、**操作の効率が上がります**
+- ただし、誤削除を防ぐために確認ダイアログは必須です
+
+---
+
+## Step 5: 動作確認
+
+### 5-1. 詳細ページから削除する
+
+1. ブラウザでタスク詳細ページにアクセスする
+2. 「削除」ボタンをクリックする
+3. 確認ダイアログが表示される
+4. 「OK」をクリックする
+5. タスク一覧ページにリダイレクトされる
+6. 「タスクを削除しました。」というメッセージが表示される
+7. 削除したタスクが一覧から消えていることを確認する
+
+---
+
+### 5-2. 一覧ページから削除する
+
+1. ブラウザでタスク一覧ページにアクセスする
+2. 任意のタスクの「削除」リンクをクリックする
+3. 確認ダイアログが表示される
+4. 「キャンセル」をクリックする
+5. タスクが削除されないことを確認する
+
+---
+
+### 5-3. 認可チェックを確認する
+
+1. ユーザーAでログインし、タスクを作成する
+2. ログアウトする
+3. ユーザーBでログインする
+4. ブラウザで`http://localhost/tasks/1`にアクセスする
+5. 削除ボタンをクリックしても、403エラーが表示される
+
+---
+
+## 🚨 よくある間違い
+
+### 間違い1: @method('DELETE')を忘れる
+
+**エラー**:
+
+```
+The DELETE method is not supported for route tasks/{task}. Supported methods: GET, HEAD, POST.
+```
+
+**対処法**: フォームに`@method('DELETE')`を追加します。
+
+---
+
+### 間違い2: 確認ダイアログを忘れる
+
+**問題**: 誤ってクリックしただけでデータが削除される
+
+**対処法**: `onsubmit="return confirm('本当に削除しますか？');"`を追加します。
+
+---
+
+### 間違い3: 認可チェックを忘れる
+
+**問題**: 他のユーザーのタスクを削除できてしまう
+
+**対処法**: `destroy`メソッドで、ログインユーザーのタスクかどうかを確認します。
+
+---
+
+## 💡 TIP: ソフトデリート
 
 **ソフトデリート**は、データを物理的に削除せず、**削除フラグを立てる**機能です。
 
-ソフトデリートを使うと、削除したデータを復元できます。
-
-**マイグレーション**:
+### マイグレーションに追加
 
 ```php
-Schema::create('tasks', function (Blueprint $table) {
-    $table->id();
-    $table->foreignId('user_id')->constrained()->onDelete('cascade');
-    $table->string('title');
-    $table->text('description')->nullable();
-    $table->date('due_date')->nullable();
-    $table->string('status')->default('未完了');
-    $table->timestamps();
-    $table->softDeletes();  // deleted_atカラムを追加
-});
+$table->softDeletes();  // deleted_atカラムを追加
 ```
 
-**モデル**:
+### モデルに追加
 
 ```php
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -232,50 +315,28 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Task extends Model
 {
     use SoftDeletes;
-
-    protected $fillable = [
-        'user_id',
-        'title',
-        'description',
-        'due_date',
-        'status',
-    ];
 }
 ```
 
-**削除**:
+### 操作方法
 
-```php
-$task->delete();  // deleted_atに現在時刻が設定される
-```
-
-**復元**:
-
-```php
-$task->restore();  // deleted_atがNULLに戻る
-```
-
-**完全削除**:
-
-```php
-$task->forceDelete();  // 物理的に削除される
-```
+| 操作 | コード | 結果 |
+|------|-------|------|
+| 削除 | `$task->delete()` | `deleted_at`に現在時刻が設定される |
+| 復元 | `$task->restore()` | `deleted_at`がNULLに戻る |
+| 完全削除 | `$task->forceDelete()` | 物理的に削除される |
 
 ---
 
-### 💡 TIP: リソースコントローラー
+## 💡 TIP: リソースコントローラー
 
 Laravelには、**リソースコントローラー**という機能があります。
-
-リソースコントローラーを使うと、CRUD操作のルーティングとコントローラーメソッドを自動生成できます。
-
-**ルーティング**:
 
 ```php
 Route::resource('tasks', TaskController::class);
 ```
 
-これにより、以下のルーティングが自動生成されます。
+この1行で、CRUD操作の7つのルーティングが自動生成されます。
 
 | HTTPメソッド | URI | アクション | ルート名 |
 |---|---|---|---|
@@ -289,41 +350,27 @@ Route::resource('tasks', TaskController::class);
 
 ---
 
-### 🚨 よくある間違い
-
-#### 間違い1: @method('DELETE')を忘れる
-
-**対処法**: フォームに`@method('DELETE')`を追加します。
-
----
-
-#### 間違い2: 確認ダイアログを忘れる
-
-**対処法**: `onsubmit="return confirm('本当に削除しますか?');"`を追加します。
-
----
-
-#### 間違い3: 認可チェックを忘れる
-
-**対処法**: `destroy`メソッドで、ログインユーザーのタスクかどうかを確認します。
-
----
-
 ## ✨ まとめ
 
 このセクションでは、タスク削除機能を実装しました。
 
-*   タスク削除機能を実装し、不要なタスクを削除できるようにした。
-*   JavaScriptで確認ダイアログを表示し、誤削除を防いだ。
-*   DELETEメソッドを使ってリソースを削除した。
+| Step | 学んだこと |
+|------|-----------|
+| Step 1 | DELETEメソッドのルーティング |
+| Step 2 | `$task->delete()`でデータを削除 |
+| Step 3 | `@method('DELETE')`と確認ダイアログ |
+| Step 4 | 一覧ページからも削除できるようにする |
+| Step 5 | 動作確認と認可チェックの確認 |
 
-次のセクションでは、ページネーションの実装について学びます。
+これで**CRUD操作が完成**しました。次のセクションでは、検索機能の実装について学びます。
 
 ---
 
 ## 📝 学習のポイント
 
-- [ ] タスク削除機能を実装した。
-- [ ] @method('DELETE')を使った。
-- [ ] 確認ダイアログを表示した。
-- [ ] 認可チェックを実装した。
+- [ ] タスク削除機能を実装した
+- [ ] `@method('DELETE')`を使った
+- [ ] 確認ダイアログを表示した
+- [ ] 認可チェックを実装した
+- [ ] ソフトデリートの概念を理解した
+- [ ] リソースコントローラーの存在を知った
