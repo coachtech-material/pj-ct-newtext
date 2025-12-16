@@ -9,6 +9,59 @@
 
 ---
 
+## 🧠 先輩エンジニアの思考プロセス
+
+### 「なぜ開発ツールの後に『APIルート』を学ぶのか？」
+
+開発ツールが使えるようになったら、次は「APIルート」です。
+
+---
+
+### 理由1: APIの入口を定義
+
+ルートは**APIの入口**です。どのURLでどの処理を行うかを定義します。
+
+```php
+Route::get('/api/tasks', [TaskController::class, 'index']);
+```
+
+---
+
+### 理由2: RESTfulな設計
+
+REST APIでは、**リソースとHTTPメソッドの組み合わせ**でルートを設計します。
+
+| メソッド | URL | 処理 |
+|----------|-----|------|
+| GET | /api/tasks | 一覧取得 |
+| POST | /api/tasks | 新規作成 |
+| GET | /api/tasks/{id} | 詳細取得 |
+| PUT | /api/tasks/{id} | 更新 |
+| DELETE | /api/tasks/{id} | 削除 |
+
+---
+
+### 理由3: api.phpの特徴
+
+`routes/api.php`は、**APIミドルウェアが自動適用**されます。
+
+- `/api`プレフィックスが自動付与
+- セッション認証ではなくトークン認証向け
+
+---
+
+### このセクションでやること
+
+| 順番 | 作業 | 理由 |
+|------|------|------|
+| 1 | api.phpの確認 | APIルートファイルの特徴を理解 |
+| 2 | RESTfulルートの定義 | CRUD用のルートを作成 |
+| 3 | ルートの確認 | `php artisan route:list`で確認 |
+
+> 💡 **ポイント**: `Route::apiResource()`を使うと、CRUD用のルートを一括で定義できます。
+
+---
+
 ## 導入：なぜroutes/api.phpを使うのか
 
 Laravelには、**routes/web.php**と**routes/api.php**の2つのルートファイルがあります。
