@@ -62,7 +62,7 @@ function add(int $a, int $b)
 echo add(3, 5); // 8
 
 // NG: 文字列を渡そうとすると、TypeErrorが発生し、実行が停止する
-// echo add(3, "5"); // Fatal error: Uncaught TypeError: ...
+echo add(3, "5"); // Fatal error: Uncaught TypeError: ...
 ```
 
 宣言できる型は、`int`, `string`, `bool`, `array`, `float` などの、基本的な型に加え、後で学ぶ、クラス名や、インターフェース名も、指定することができます。
@@ -86,6 +86,7 @@ echo $result; // 8
 function add_and_format(int $a, int $b): int
 {
     $sum = $a + $b;
+
     // NG: 文字列を返そうとすると、TypeErrorが発生する
     return "合計は: " . $sum; // Fatal error: Uncaught TypeError: ...
 }
