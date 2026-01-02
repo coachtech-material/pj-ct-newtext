@@ -87,7 +87,7 @@ function add_and_format(int $a, int $b): int
 {
     $sum = $a + $b;
     // NG: 文字列を返そうとすると、TypeErrorが発生する
-    // return "合計は: " . $sum; // Fatal error: Uncaught TypeError: ...
+    return "合計は: " . $sum; // Fatal error: Uncaught TypeError: ...
 }
 ```
 
@@ -122,7 +122,7 @@ function add(int $a, int $b): int
 echo add(3, 5); // 8
 
 // NG: 厳密モードでは、文字列の"5"は、整数とは見なされず、TypeErrorが発生する
-// echo add(3, "5"); // Fatal error: Uncaught TypeError: ...
+echo add(3, "5"); // Fatal error: Uncaught TypeError: ...
 ```
 
 この、**厳密な型チェックモード (Strict typing mode)** を、有効にすることで、予期せぬ、型の不一致を、より、確実に、防ぐことができ、コードの、信頼性が、さらに向上します。Laravel 10以降で作成される、アプリケーションのファイルには、デフォルトで、この `declare(strict_types=1);` が、記述されており、**厳密モードで開発することが、現代の、標準的なスタイル**です。
