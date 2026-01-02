@@ -368,53 +368,16 @@ git merge feature/user-profile
 ```bash
 git branch -d feature/user-profile
 ```
-
 ---
 
-## 🚀 チャレンジ: コンフリクト解決
+## 🚀 まとめ
 
-### シナリオ
+**ハンズオンお疲れ様でした！**
 
-1. `main`ブランチで`index.html`の1行目を編集してコミット
-2. `feature/update-title`ブランチを作成
-3. 同じ`index.html`の1行目を別の内容で編集してコミット
-4. `main`にマージしてコンフリクトを解決
+このハンズオンで、以下のことができるようになりました：
 
-### コンフリクト解決手順
+- ✅ Chapter 1で学んだGitワークフローを実際に手を動かして確認します。ブランチ戦略、マージ、コンフリクト解決を実践しましょう。
 
-```bash
-# mainブランチで編集
-git checkout main
-echo "<h1>メインタイトル</h1>" > index.html
-git add index.html
-git commit -m "Update main title"
-
-# featureブランチで編集
-git checkout -b feature/update-title
-echo "<h1>新しいタイトル</h1>" > index.html
-git add index.html
-git commit -m "Update title in feature branch"
-
-# mainにマージ（コンフリクト発生）
-git checkout main
-git merge feature/update-title
-
-# コンフリクトを手動で解決
-# index.htmlを編集して、どちらのタイトルを採用するか決定
-
-# 解決後
-git add index.html
-git commit -m "Resolve merge conflict"
-```
+引き続き、次のセクションも頑張りましょう！
 
 ---
-
-## 💪 自己評価チェックリスト
-
-- [ ] ブランチを作成できた
-- [ ] ブランチを切り替えられた
-- [ ] マージができた
-- [ ] コンフリクトを解決できた
-- [ ] ブランチを削除できた
-
-すべてチェックできたら、Chapter 2に進みましょう！

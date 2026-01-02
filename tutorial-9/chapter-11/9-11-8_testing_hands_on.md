@@ -343,15 +343,16 @@ class TaskTest extends TestCase
 php artisan test
 php artisan test --filter TaskTest
 ```
-
 ---
 
-## 💪 自己評価チェックリスト
+## 🚀 まとめ
 
-- [ ] フィーチャーテストを作成できた
-- [ ] RefreshDatabaseを使えた
-- [ ] assertDatabaseHas()を使えた
-- [ ] assertStatus()を使えた
-- [ ] actingAs()で認証ユーザーをシミュレートできた
+**ハンズオンお疲れ様でした！**
 
-すべてチェックできたら、Tutorial 10に進みましょう！
+このハンズオンで、以下のことができるようになりました：
+
+- ✅ Chapter 11で学んだテストを実際に手を動かして確認します。フィーチャーテストを作成して、アプリケーションの動作を検証しましょう。
+
+引き続き、次のセクションも頑張りましょう！
+
+---
