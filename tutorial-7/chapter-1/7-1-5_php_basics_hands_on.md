@@ -162,8 +162,8 @@ php-practice/
 ```
 
 その後、以下の手順で実行環境を構築してください。
-1. Docker環境を起動（cd ~/php-practice && docker-compose up -d）
-2. ブラウザでhttp://localhost:8000/price_calculator.phpにアクセス
+1. Docker環境を起動（`cd ~/php-practice && docker-compose up -d`）
+2. ブラウザでhttp://localhost:8000/price_calculator.php にアクセス
 
 以下のコードを`price_calculator.php`に記述します：
 
