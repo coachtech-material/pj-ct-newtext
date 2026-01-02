@@ -144,7 +144,24 @@ PHPのプログラムは「データを入力→処理→出力」という流�
 - 「`<?php`でPHPコードを開始しよう」
 - 「商品情報を変数に格納しよう」
 
-まず、`~/php-practice/src/`ディレクトリにPHPファイルを作成して、入力データを変数に格納します：
+まず、`~/php-practice/src/`ディレクトリにPHPファイルを作成して、入力データを変数に格納します。
+
+**✅ ディレクトリ構造の確認**
+
+ファイルを作成すると、以下のようなディレクトリ構造になります。この構造になっていれば正解です！
+
+```
+php-practice/
+├── docker/
+│   └── nginx/
+│       └── default.conf
+├── src/
+│   ├── index.php               # Tutorial 7-1-2で作成したファイル
+│   └── price_calculator.php    # 今回作成するファイル
+└── docker-compose.yml
+```
+
+以下のコードを`price_calculator.php`に記述します：
 
 ```php
 <?php
