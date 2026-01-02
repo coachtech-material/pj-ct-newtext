@@ -8,6 +8,7 @@ Chapter 1で学んだHTMLの基礎知識を実際に手を動かして確認し�
 - HTMLの基本構造を正しく書けるか
 - 見出し、段落、リストを適切に使えるか
 - リンクと画像を埋め込めるか
+- フォーム要素（input、textarea、select、label）を使えるか
 - 調べながら進めることで、知識を定着させる
 
 ---
@@ -60,6 +61,18 @@ Chapter 1で学んだHTMLの基礎知識を実際に手を動かして確認し�
   - 画像ファイル名は`landscape.jpg`とする
   - `alt`属性に「好きな風景」という説明を追加
   - 画像の幅は`400px`に設定
+
+**お問い合わせフォーム**：
+- `<h2>`タグで「お問い合わせ」という見出しを表示
+- `<form>`タグでフォームを作成（`action="/submit"` `method="POST"`）
+- 以下の入力フィールドを含める：
+  - お名前：`<input type="text">`でテキスト入力欄
+  - メールアドレス：`<input type="email">`でメール入力欄
+  - お問い合わせ種別：`<select>`でドロップダウン（選択肢は3つ以上）
+  - お問い合わせ内容：`<textarea>`で複数行テキスト入力欄
+  - 送信ボタン：`<button type="submit">`で送信ボタン
+- 各入力フィールドには`<label>`タグを関連付ける
+- お名前、メールアドレス、お問い合わせ内容には`required`属性を付ける
 
 ---
 
@@ -116,6 +129,42 @@ Chapter 1で学んだHTMLの基礎知識を実際に手を動かして確認し�
 
 ```html
 <img src="landscape.jpg" alt="説明" width="400">
+```
+
+### ヒント6: フォームの基本構造
+
+```html
+<form action="/submit" method="POST">
+    <!-- 入力フィールドをここに配置 -->
+</form>
+```
+
+### ヒント7: テキスト入力とラベル
+
+```html
+<label for="name">お名前:</label>
+<input type="text" id="name" name="name" required>
+```
+
+### ヒント8: ドロップダウン選択
+
+```html
+<select name="category">
+    <option value="">-- 選択してください --</option>
+    <option value="general">一般</option>
+</select>
+```
+
+### ヒント9: 複数行テキスト入力
+
+```html
+<textarea name="message" rows="5"></textarea>
+```
+
+### ヒント10: 送信ボタン
+
+```html
+<button type="submit">送信する</button>
 ```
 
 ---
@@ -428,7 +477,79 @@ HTMLファイルを作成する際、いきなり全部を書こうとせず、�
 
 ---
 
-#### ステップ9: ブラウザで確認する
+#### ステップ9: お問い合わせフォームセクションを追加する
+
+**何を考えているか**：
+- 「フォームは`<form>`タグで囲む」
+- 「各入力フィールドには`<label>`を関連付ける（アクセシビリティのため）」
+- 「必須項目には`required`属性を付ける」
+
+```html
+    <h2>お問い合わせ</h2>
+    <form action="/submit" method="POST">
+        <div>
+            <label for="contact-name">お名前:</label>
+            <input type="text" id="contact-name" name="name" required>
+        </div>
+        <div>
+            <label for="contact-email">メールアドレス:</label>
+            <input type="email" id="contact-email" name="email" required>
+        </div>
+        <div>
+            <label for="contact-category">お問い合わせ種別:</label>
+            <select id="contact-category" name="category">
+                <option value="">-- 選択してください --</option>
+                <option value="general">一般的なお問い合わせ</option>
+                <option value="support">技術サポート</option>
+                <option value="feedback">ご意見・ご要望</option>
+            </select>
+        </div>
+        <div>
+            <label for="contact-message">お問い合わせ内容:</label>
+            <textarea id="contact-message" name="message" rows="5" required></textarea>
+        </div>
+        <div>
+            <button type="submit">送信する</button>
+        </div>
+    </form>
+```
+
+**コードリーディング**：
+
+```html
+    <form action="/submit" method="POST">
+```
+→ `<form>`タグでフォーム全体を囲みます。
+- `action="/submit"`: フォームデータの送信先を指定します
+- `method="POST"`: データをPOSTメソッドで送信します
+
+```html
+        <label for="contact-name">お名前:</label>
+        <input type="text" id="contact-name" name="name" required>
+```
+→ `<label>`の`for`属性と`<input>`の`id`属性を同じ値にすることで、ラベルと入力フィールドを関連付けます。`required`属性で必須項目にします。
+
+```html
+        <select id="contact-category" name="category">
+            <option value="">-- 選択してください --</option>
+            <option value="general">一般的なお問い合わせ</option>
+        </select>
+```
+→ `<select>`タグでドロップダウンリストを作成します。`<option>`タグで各選択肢を定義します。
+
+```html
+        <textarea id="contact-message" name="message" rows="5" required></textarea>
+```
+→ `<textarea>`タグで複数行のテキスト入力欄を作成します。`rows="5"`で表示行数を指定します。
+
+```html
+        <button type="submit">送信する</button>
+```
+→ `<button>`タグで送信ボタンを作成します。`type="submit"`でフォーム送信用のボタンになります。
+
+---
+
+#### ステップ10: ブラウザで確認する
 
 **何を考えているか**：
 - 「ファイルを保存して、ブラウザで開いてみよう」
@@ -441,6 +562,11 @@ HTMLファイルを作成する際、いきなり全部を書こうとせず、�
 - リストが箇条書き・番号付きで表示されているか
 - リンクがクリックできるか、新しいタブで開くか
 - 画像が表示されているか（画像ファイルが同じフォルダにある場合）
+- フォームの各フィールドに入力できるか
+- ラベルをクリックするとフィールドにフォーカスが当たるか
+- 必須項目を空にして送信しようとすると警告が出るか
+
+> 💡 **注意**: 今の段階では、「送信する」ボタンを押しても、実際にはデータはどこにも送られません（エラーページが表示されるかもしれません）。データを受け取って処理するには、サーバーサイドのプログラム（PHPなど）が必要です。これは、後のチュートリアルで学びます。
 
 ---
 
@@ -471,8 +597,14 @@ HTMLファイルを作成する際、いきなり全部を書こうとせず、�
 │   └── 3. ポートフォリオを作成する
 ├── リンク
 │   └── 私のGitHub（新しいタブで開く）
-└── 好きな風景
-    └── [画像が表示される]
+├── 好きな風景
+│   └── [画像が表示される]
+└── お問い合わせ
+    ├── お名前: [テキスト入力欄]
+    ├── メールアドレス: [メール入力欄]
+    ├── お問い合わせ種別: [ドロップダウン]
+    ├── お問い合わせ内容: [テキストエリア]
+    └── [送信ボタン]
 ```
 
 ---
@@ -535,6 +667,35 @@ HTMLファイルを作成する際、いきなり全部を書こうとせず、�
     <!-- 好きな風景 -->
     <h2>好きな風景</h2>
     <img src="landscape.jpg" alt="好きな風景" width="400">
+
+    <!-- お問い合わせフォーム -->
+    <h2>お問い合わせ</h2>
+    <form action="/submit" method="POST">
+        <div>
+            <label for="contact-name">お名前:</label>
+            <input type="text" id="contact-name" name="name" required>
+        </div>
+        <div>
+            <label for="contact-email">メールアドレス:</label>
+            <input type="email" id="contact-email" name="email" required>
+        </div>
+        <div>
+            <label for="contact-category">お問い合わせ種別:</label>
+            <select id="contact-category" name="category">
+                <option value="">-- 選択してください --</option>
+                <option value="general">一般的なお問い合わせ</option>
+                <option value="support">技術サポート</option>
+                <option value="feedback">ご意見・ご要望</option>
+            </select>
+        </div>
+        <div>
+            <label for="contact-message">お問い合わせ内容:</label>
+            <textarea id="contact-message" name="message" rows="5" required></textarea>
+        </div>
+        <div>
+            <button type="submit">送信する</button>
+        </div>
+    </form>
 </body>
 </html>
 ```
@@ -613,6 +774,33 @@ HTMLファイルを作成する際、いきなり全部を書こうとせず、�
 - `alt`: 画像が表示されない時の代替テキスト（アクセシビリティのために重要）
 - `width`: 画像の幅（ピクセル単位）
 
+### ポイント6: フォームの構造
+
+```html
+<form action="/submit" method="POST">
+    <label for="name">お名前:</label>
+    <input type="text" id="name" name="name" required>
+    
+    <select name="category">
+        <option value="">選択してください</option>
+        <option value="general">一般</option>
+    </select>
+    
+    <textarea name="message" rows="5"></textarea>
+    
+    <button type="submit">送信</button>
+</form>
+```
+
+- `<form>`: フォーム全体を囲むコンテナ
+- `action`: データの送信先URL
+- `method`: 送信方法（GETまたはPOST）
+- `<label>`: 入力フィールドのラベル（`for`属性で`id`と関連付け）
+- `<input>`: テキスト入力フィールド
+- `<select>` / `<option>`: ドロップダウン選択
+- `<textarea>`: 複数行テキスト入力
+- `required`: 必須項目の指定
+
 ---
 
 ## 🔍 よくある間違い
@@ -670,6 +858,10 @@ Chapter 2では、このHTMLファイルに色やレイアウトを追加して�
 - [ ] `<a>`タグでリンクを作成できた
 - [ ] `<img>`タグで画像を表示できた
 - [ ] `alt`属性を忘れずに記述できた
+- [ ] `<form>`タグでフォームを作成できた
+- [ ] `<input>`、`<textarea>`、`<select>`を使えた
+- [ ] `<label>`タグで入力フィールドと関連付けできた
+- [ ] `required`属性で必須項目を指定できた
 - [ ] ブラウザで正しく表示されることを確認できた
 
 すべてチェックできたら、Chapter 2に進みましょう！
