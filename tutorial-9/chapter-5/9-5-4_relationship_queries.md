@@ -360,10 +360,3 @@ $users = User::whereHas('posts', function ($query) {
 次のセクションでは、ポリモーフィックリレーションシップについて学びます。
 
 ---
-
-## 📝 学習のポイント
-
-- [ ] `has()`と`whereHas()`の違いを理解し、使い分けられる。
-- [ ] `doesntHave()`と`whereDoesntHave()`を使える。
-- [ ] `withWhereHas()`を使って、Eager Loadingと条件を組み合わせられる。
-- [ ] ネストしたリレーションシップのクエリを書ける。

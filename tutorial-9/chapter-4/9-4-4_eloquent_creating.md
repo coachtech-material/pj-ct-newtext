@@ -359,10 +359,3 @@ $user->email = 'taro@example.com';
 次のセクションでは、Eloquentを使ってデータを更新・削除する方法を学びます。
 
 ---
-
-## 📝 学習のポイント
-
-- [ ] `create()`と`save()`の違いを理解し、使い分けられる。
-- [ ] マスアサインメントのセキュリティリスクを理解した。
-- [ ] `$fillable`または`$guarded`を定義する必要があることを理解した。
-- [ ] `firstOrCreate()`、`updateOrCreate()`を使える。

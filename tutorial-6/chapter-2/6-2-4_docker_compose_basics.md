@@ -147,10 +147,3 @@ Docker Composeは、`docker run`コマンドの、長く、複雑なオプショ
 次のセクションでは、いよいよ、このDocker Composeを使って、Laravelの、完全な開発環境を、ゼロから構築していきます。
 
 ---
-
-## 📝 学習のポイント
-
-- [ ] なぜ単体の`docker run`コマンドだけでは、複雑なアプリケーションの管理が難しいのかを説明できる。
-- [ ] Docker Composeが、どのような問題を解決するツールなのかを説明できる。
-- [ ] `docker-compose.yml`ファイルの、`services`, `image`, `ports`, `volumes` といった、基本的なキーの役割を理解している。
-- [ ] `docker-compose up` と `docker-compose down` の、基本的な使い方を理解している。

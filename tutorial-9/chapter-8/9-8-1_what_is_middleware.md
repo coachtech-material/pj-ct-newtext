@@ -257,10 +257,3 @@ public function handle(Request $request, Closure $next)
 次のセクションでは、認可（Authorization）とポリシー（Policy）について学びます。
 
 ---
-
-## 📝 学習のポイント
-
-- [ ] ミドルウェアが、リクエストとレスポンスの「間」に処理を挟む仕組みであることを理解した。
-- [ ] `php artisan make:middleware`でカスタムミドルウェアを作成できる。
-- [ ] `$next($request)`で、次のミドルウェアまたはコントローラーに処理を渡す。
-- [ ] ミドルウェアは、`bootstrap/app.php`に登録し、ルートに適用する。

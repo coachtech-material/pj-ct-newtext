@@ -278,11 +278,3 @@ docker compose exec php php artisan make:migration add_description_to_posts_tabl
 次のセクションでは、シーダーを使って初期データを投入する方法を学びます。
 
 ---
-
-## 📝 学習のポイント
-
-- [ ] `php artisan migrate`でマイグレーションを実行できる。
-- [ ] `php artisan migrate:rollback`でマイグレーションをロールバックできる。
-- [ ] `php artisan migrate:fresh --seed`でデータベースをリセットできる。
-- [ ] `php artisan migrate:status`でマイグレーションの状態を確認できる。
-- [ ] 本番環境では、マイグレーションを慎重に実行する必要がある。

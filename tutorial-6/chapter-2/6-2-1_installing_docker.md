@@ -86,15 +86,6 @@ docker run hello-world
 これで、あなたのPCは、コンテナを自在に操るための、準備が整いました。次のセクションでは、Dockerを操作するための、基本的なコマンドについて、学んでいきましょう。
 
 ---
-
-## 📝 学習のポイント
-
-- [ ] 自分のPCに、Docker Desktopをインストールできる。
-- [ ] `docker --version` コマンドで、インストールが成功したことを確認できる。
-- [ ] `docker run hello-world` コマンドを実行し、Dockerが正常に動作していることを確認できる。
-
----
-
 ## 参考文献
 
 [1] Docker. (2022). *Docker is Updating and Extending Our Product Subscriptions*. [https://www.docker.com/blog/updating-product-subscriptions/](https://www.docker.com/blog/updating-product-subscriptions/)

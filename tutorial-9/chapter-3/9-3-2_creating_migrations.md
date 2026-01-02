@@ -295,11 +295,3 @@ docker compose exec php php artisan migrate
 次のセクションでは、Eloquent ORMを使って、マイグレーションで作成したテーブルのデータを操作する方法を学びます。
 
 ---
-
-## 📝 学習のポイント
-
-- [ ] `php artisan make:migration`コマンドで、マイグレーションファイルを生成できる。
-- [ ] `$table->string()`, `$table->text()`, `$table->integer()`などを使って、カラムを定義できる。
-- [ ] `->nullable()`, `->default()`などの修飾子を使って、カラムの制約を設定できる。
-- [ ] `foreignId()->constrained()`を使って、外部キー制約を設定できる。
-- [ ] 既存のテーブルにカラムを追加する場合は、`Schema::table()`を使う。

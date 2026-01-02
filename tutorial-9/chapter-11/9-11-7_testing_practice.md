@@ -386,10 +386,3 @@ public function test_authenticated_user_can_add_comment_to_post()
 これで、Tutorial 9「Laravel基礎」の全62セクションが完了しました！
 
 ---
-
-## 📝 学習のポイント
-
-- [ ] CRUD操作のテストを書けた。
-- [ ] 認証機能のテストを書けた。
-- [ ] データベースアサートを使って、データの整合性を検証できた。
-- [ ] 実際に手を動かして、テストを体感できた。

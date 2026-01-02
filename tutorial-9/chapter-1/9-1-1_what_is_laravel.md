@@ -178,10 +178,3 @@ class UserController extends Controller
 次のセクションでは、Docker環境でLaravelを動かし、実際に「Hello, Laravel!」を表示するところから始めていきましょう。
 
 ---
-
-## 📝 学習のポイント
-
-- [ ] フレームワークが何であるか、その役割を自分の言葉で説明できる。
-- [ ] Laravelが人気な理由を、3つ以上挙げることができる。
-- [ ] 「生のPHP」とLaravelの違いを、具体的なコード例を使って説明できる。
-- [ ] これまで学んだPHPやSQLの知識が、Laravelでどのように活かされるかをイメージできる。

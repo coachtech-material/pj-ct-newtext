@@ -359,17 +359,6 @@ Route::middleware(['auth:sanctum', 'throttle:60,1'])->group(function () {
 これで、Chapter 3（API認証とセキュリティ）は完了です。
 
 ---
-
-## 📝 学習のポイント
-
-- [ ] レート制限を設定した
-- [ ] 429 Too Many Requestsを理解した
-- [ ] HTTPSの重要性を理解した
-- [ ] APIキーを環境変数に保存した
-- [ ] セキュリティヘッダーを追加した
-
----
-
 ## 🎉 Tutorial 12の完了
 
 Tutorial 12（API開発基礎）を完了しました！

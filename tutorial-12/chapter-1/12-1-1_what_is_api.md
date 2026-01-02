@@ -280,9 +280,3 @@ APIを開発する際は、**APIドキュメント**を作成することが重�
 次のセクションでは、LaravelでAPIを開発する方法を学びます。
 
 ---
-
-## 📝 学習のポイント
-
-- [ ] API（Application Programming Interface）の概念を理解した
-- [ ] Web APIの仕組みと役割を学んだ
-- [ ] RESTful APIの基本的な考え方を理解した

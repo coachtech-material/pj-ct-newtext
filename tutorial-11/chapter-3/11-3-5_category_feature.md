@@ -526,10 +526,3 @@ php artisan make:controller CategoryController --resource
 次のセクションでは、タグ機能の実装について学びます。
 
 ---
-
-## 📝 学習のポイント
-
-- [ ] カテゴリーテーブルを作成した
-- [ ] 1対多のリレーションシップを実装した
-- [ ] Null Safe演算子を使った
-- [ ] カテゴリーで検索できるようにした

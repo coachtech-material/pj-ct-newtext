@@ -397,10 +397,3 @@ public function logout(Request $request)
 次のセクションでは、認証済みユーザーの取得とミドルウェアについて学びます。
 
 ---
-
-## 📝 学習のポイント
-
-- [ ] `Auth::attempt()`または`Hash::check()`を使って、ログイン機能を実装できる。
-- [ ] `createToken()`を使って、Sanctumの認証トークンを発行できる。
-- [ ] `currentAccessToken()->delete()`を使って、ログアウト機能を実装できる。
-- [ ] トークンに名前を付けて、管理できる。

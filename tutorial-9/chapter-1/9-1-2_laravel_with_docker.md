@@ -331,11 +331,3 @@ docker compose exec php php artisan cache:clear
 これで、Laravel開発の準備が整いました。次のセクションでは、Laravelのディレクトリ構成を理解し、どのファイルが何の役割を持っているのかを学んでいきます。
 
 ---
-
-## 📝 学習のポイント
-
-- [ ] Docker Composeで、複数のコンテナを一括管理できることを理解した。
-- [ ] `docker compose up -d`でコンテナを起動し、`docker compose down`で停止できる。
-- [ ] `docker compose exec php`を使って、コンテナ内でコマンドを実行できる。
-- [ ] ブラウザで`http://localhost:8080`にアクセスし、Laravelのウェルカム画面を表示できた。
-- [ ] phpMyAdminで、データベース`laravel_db`が作成されていることを確認できた。

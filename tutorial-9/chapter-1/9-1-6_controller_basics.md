@@ -332,11 +332,3 @@ public function store(Request $request, UserService $userService)
 これで、Tutorial 9のChapter 1「Laravelの基礎」が完了しました。次のChapter 2では、ビューとテンプレートエンジンであるBladeについて学んでいきます。
 
 ---
-
-## 📝 学習のポイント
-
-- [ ] コントローラーが、リクエストを受け取り、モデルとビューを橋渡しする役割を持つことを理解した。
-- [ ] `php artisan make:controller`コマンドで、コントローラーを生成できる。
-- [ ] ルートパラメータを、メソッドの引数として受け取ることができる。
-- [ ] `--resource`オプションで、CRUD操作の7つのメソッドを持つコントローラーを生成できる。
-- [ ] `Route::resource()`で、リソースコントローラーのルートを一括定義できる。

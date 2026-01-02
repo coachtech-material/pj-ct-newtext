@@ -335,11 +335,3 @@ Route::get('/tasks', [TaskController::class, 'index'])->name('api.tasks.index');
 次のセクションでは、CORSについて学びます。
 
 ---
-
-## 📝 学習のポイント
-
-- [ ] routes/api.phpを理解した
-- [ ] APIルートを定義した
-- [ ] APIコントローラーを作成した
-- [ ] Route::apiResourceを使った
-- [ ] ルートを確認した

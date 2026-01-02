@@ -151,9 +151,3 @@ nothing added to commit but untracked files present (use "git add" to track)
 これで、Gitの基本的なローカルでの操作は、一通りマスターしました。次のチャプターでは、いよいよ、ローカルリポジトリでの変更を、GitHub上のリモートリポジトリと連携させる方法を学んでいきます。
 
 ---
-
-## 📝 学習のポイント
-
-- [ ] `git status` が、現在のリポジトリの状態を確認するための最も重要なコマンドであることを理解している。
-- [ ] `modified`, `staged`, `untracked` という、ファイルの主要な状態を説明できる。
-- [ ] `git status` の出力を見て、どのファイルがどの状態にあるのかを判断できる。

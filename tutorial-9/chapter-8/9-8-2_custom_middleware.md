@@ -460,10 +460,3 @@ Route::middleware('role:admin,manage_users')->group(function () {
 次のセクションでは、HTTPライフサイクルを体験する実践演習を行います。
 
 ---
-
-## 📝 学習のポイント
-
-- [ ] `php artisan make:middleware`を使って、ミドルウェアを生成できる。
-- [ ] `handle()`メソッドを実装して、ミドルウェアの処理を定義できる。
-- [ ] `Kernel.php`に登録して、ミドルウェアを使用できるようにする。
-- [ ] パラメータを受け取るミドルウェアを作成できる。

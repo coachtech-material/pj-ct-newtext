@@ -369,11 +369,3 @@ public function update(Request $request, string $id): JsonResponse
 次のセクションでは、DELETE APIの実装について学びます。
 
 ---
-
-## 📝 学習のポイント
-
-- [ ] タスクを更新するAPIを実装した
-- [ ] 200 OKを理解した
-- [ ] 404 Not Foundを理解した
-- [ ] 422 Unprocessable Entityを理解した
-- [ ] PUTとPATCHの違いを理解した

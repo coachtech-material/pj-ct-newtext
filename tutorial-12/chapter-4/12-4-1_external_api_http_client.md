@@ -377,9 +377,3 @@ GITHUB_TOKEN=your_github_token_here
 これで、Tutorial 12「API開発基礎」の主要なセクションが完了しました。
 
 ---
-
-## 📝 学習のポイント
-
-- [ ] 外部APIを利用する方法を学んだ
-- [ ] Laravel HTTP Clientの使い方を理解した
-- [ ] エラーハンドリングの実装方法を学んだ

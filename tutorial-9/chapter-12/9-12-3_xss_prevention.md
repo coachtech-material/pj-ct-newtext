@@ -272,12 +272,3 @@ return $response->header('Content-Security-Policy', "default-src 'self'; script-
 *   CSPヘッダーとHttpOnlyフラグで、さらにセキュリティを強化できる
 
 ---
-
-## 📝 学習のポイント
-
-- [ ] XSS攻撃の仕組みを理解している
-- [ ] Bladeの`{{ }}`構文が自動的にエスケープすることを理解している
-- [ ] `{!! !!}`構文の危険性を理解している
-- [ ] HTMLサニタイザーの使い方を知っている
-- [ ] JavaScriptでの`@json`ディレクティブの使い方を知っている
-- [ ] CSPヘッダーとHttpOnlyフラグの役割を理解している

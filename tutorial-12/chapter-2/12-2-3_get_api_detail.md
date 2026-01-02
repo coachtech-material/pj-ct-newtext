@@ -312,11 +312,3 @@ return response()->json(['message' => 'Task not found'], Response::HTTP_NOT_FOUN
 次のセクションでは、POST APIの実装について学びます。
 
 ---
-
-## 📝 学習のポイント
-
-- [ ] タスク詳細を取得するAPIを実装した
-- [ ] 200 OKを理解した
-- [ ] 404 Not Foundを理解した
-- [ ] なぜそのステータスコードを使うのかを理解した
-- [ ] findOrFailを使った

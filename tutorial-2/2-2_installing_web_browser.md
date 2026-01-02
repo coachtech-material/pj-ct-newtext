@@ -103,14 +103,6 @@
 これで、開発環境構築の第一歩は完了です。とても順調ですね！次のセクションでは、いよいよコードを書くための「包丁とまな板」、テキストエディタのVSCodeをインストールしていきます。
 
 ---
-
-## 📝 学習のポイント
-
-- [ ] なぜWeb開発においてGoogle Chromeが推奨されるのか、その理由を1つ以上説明できる。
-- [ ] 自分のPCにGoogle Chromeをインストールし、起動することができる。
-
----
-
 ## References
 
 [1] Statcounter Global Stats. "Browser Market Share Worldwide - May 2024". [https://gs.statcounter.com/browser-market-share](https://gs.statcounter.com/browser-market-share) (参照 2024-06-15).

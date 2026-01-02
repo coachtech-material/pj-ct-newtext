@@ -413,9 +413,3 @@ public function render($request, Throwable $exception)
 次のセクションでは、APIリソースを使ったレスポンスの整形について学びます。
 
 ---
-
-## 📝 学習のポイント
-
-- [ ] データベースを使ったRESTful APIの実装方法を学んだ
-- [ ] CRUD操作（Create、Read、Update、Delete）をAPIで実装した
-- [ ] 適切なHTTPステータスコードの選択方法を理解した

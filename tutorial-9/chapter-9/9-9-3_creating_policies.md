@@ -351,10 +351,3 @@ $this->authorize('edit', $post); // NG: 'edit'ではなく'update'
 次のセクションでは、ポリシーの適用方法を学びます。
 
 ---
-
-## 📝 学習のポイント
-
-- [ ] `php artisan make:policy`を使って、ポリシーを生成できる。
-- [ ] ポリシーのメソッドを実装して、認可ロジックを定義できる。
-- [ ] `AuthServiceProvider`にポリシーを登録できる。
-- [ ] `$this->authorize()`を使って、ポリシーのメソッドを呼び出せる。

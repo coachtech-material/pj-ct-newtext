@@ -291,10 +291,3 @@ $tasks = Task::whereHas('tags', function ($query) {
 次のChapterでは、セキュリティについて学びます。
 
 ---
-
-## 📝 学習のポイント
-
-- [ ] whereHas()を使った。
-- [ ] タグで検索できるようにした。
-- [ ] has()とdoesntHave()を学んだ。
-- [ ] 複数の条件を組み合わせた検索を実装した。

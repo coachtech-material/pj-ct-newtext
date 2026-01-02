@@ -253,11 +253,3 @@ composer require laravel/fortify
 次のセクションでは、Laravelの設計思想である「MVCアーキテクチャ」について学び、Model、View、Controllerがどのように連携してWebアプリケーションを構成するのかを理解していきます。
 
 ---
-
-## 📝 学習のポイント
-
-- [ ] Laravelのディレクトリ構成の全体像を把握した。
-- [ ] `app/Http/Controllers/`、`app/Models/`、`routes/web.php`、`resources/views/`が、開発時に頻繁に触るディレクトリであることを理解した。
-- [ ] `vendor/`ディレクトリは手動で編集してはいけないことを理解した。
-- [ ] `.env`ファイルが環境変数を定義し、Gitで管理されないことを理解した。
-- [ ] `php artisan`コマンドで、様々な操作ができることを知った。
