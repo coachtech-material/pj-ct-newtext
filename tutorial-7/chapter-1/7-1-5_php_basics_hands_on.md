@@ -22,6 +22,8 @@ Chapter 1で学んだPHPの基礎知識を実際に手を動かして確認し�
 
 以下の要件を満たすPHPファイル（`price_calculator.php`）を作成してください。
 
+> 📁 **作業ディレクトリ**: Tutorial 7-1-2で作成した`~/php-practice/src/`ディレクトリ内にファイルを作成してください。ブラウザで`http://localhost:8000/price_calculator.php`にアクセスして確認します。
+
 #### 1. 変数の定義
 
 以下の変数を定義してください：
@@ -136,11 +138,11 @@ PHPのプログラムは「データを入力→処理→出力」という流�
 #### ステップ1: PHPファイルを作成して変数を定義する
 
 **何を考えているか**：
-- 「`price_calculator.php`というファイルを作ろう」
+- 「`~/php-practice/src/price_calculator.php`というファイルを作ろう」
 - 「`<?php`でPHPコードを開始しよう」
 - 「商品情報を変数に格納しよう」
 
-まず、PHPファイルを作成して、入力データを変数に格納します：
+まず、`~/php-practice/src/`ディレクトリにPHPファイルを作成して、入力データを変数に格納します：
 
 ```php
 <?php
@@ -285,8 +287,9 @@ echo "<strong>合計金額: " . number_format($total) . "円</strong><br>";
 - 「ファイルを保存してブラウザで開こう」
 - 「意図通りに表示されているか確認しよう」
 
-1. ファイルを`price_calculator.php`という名前で保存します
-2. ブラウザで`http://localhost/price_calculator.php`を開きます
+1. ファイルを`~/php-practice/src/price_calculator.php`として保存します
+2. Docker環境が起動していることを確認します（`docker-compose up -d`）
+3. ブラウザで`http://localhost:8000/price_calculator.php`を開きます
 3. 以下のように表示されることを確認します：
    - 商品名: ノートパソコン
    - 単価: 80,000円
@@ -526,19 +529,15 @@ $tax_amount = $subtotal * $tax_rate;
 
 ## 🧪 動作確認の方法
 
-### 方法1: ローカル環境で実行
+### Docker環境で実行
 
-1. `price_calculator.php`を作成
-2. PHPが実行できる環境（XAMPP、MAMPなど）に配置
-3. ブラウザで`http://localhost/price_calculator.php`にアクセス
+Tutorial 7-1-2で構築したDocker環境を使用します。
 
-### 方法2: コマンドラインで実行
+1. `~/php-practice/src/price_calculator.php`を作成
+2. Docker環境を起動（`cd ~/php-practice && docker-compose up -d`）
+3. ブラウザで`http://localhost:8000/price_calculator.php`にアクセス
 
-```bash
-php price_calculator.php
-```
-
-HTMLタグが含まれていますが、計算結果を確認できます。
+> 💡 **ヒント**: ファイルを保存すると、ブラウザをリロードするだけで変更が反映されます。
 
 ---
 

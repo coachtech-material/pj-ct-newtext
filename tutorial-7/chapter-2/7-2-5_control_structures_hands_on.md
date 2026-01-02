@@ -22,6 +22,8 @@ Chapter 2で学んだ制御構文（if文、switch文、for文、while文）を�
 
 以下の要件を満たすPHPファイル（`grade_calculator.php`）を作成してください。
 
+> 📁 **作業ディレクトリ**: Tutorial 7-1-2で作成した`~/php-practice/src/`ディレクトリ内にファイルを作成してください。ブラウザで`http://localhost:8000/grade_calculator.php`にアクセスして確認します。
+
 #### 1. 学生データの定義
 
 以下の配列を定義してください：
@@ -154,7 +156,7 @@ $average = $total_score / count($students);
 - 「連想配列を使って名前と点数をペアにしよう」
 - 「配列の配列（多次元配列）で表現しよう」
 
-まず、PHPファイルを作成して、学生データを定義します：
+まず、`~/php-practice/src/grade_calculator.php`を作成して、学生データを定義します：
 
 ```php
 <?php

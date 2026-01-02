@@ -21,6 +21,8 @@ BMI（Body Mass Index）を計算するプログラムを作成してくださ�
 
 以下の要件を満たすPHPファイル（`bmi_calculator.php`）を作成してください。
 
+> 📁 **作業ディレクトリ**: Tutorial 7-1-2で作成した`~/php-practice/src/`ディレクトリ内にファイルを作成してください。ブラウザで`http://localhost:8000/bmi_calculator.php`にアクセスして確認します。
+
 #### 1. 関数の定義
 
 以下の3つの関数を定義してください：
@@ -147,7 +149,7 @@ BMI計算プログラムを作る際、以下の順番で考えると効率的�
 - 「小数点第1位まで表示したい」
 - 「`round()`関数で四捨五入しよう」
 
-まず、BMIを計算する関数を作成します：
+まず、`~/php-practice/src/bmi_calculator.php`を作成して、BMIを計算する関数を作成します：
 
 ```php
 <?php
