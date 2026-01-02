@@ -73,35 +73,110 @@ services:
 
 それでは、実際に、この環境で、PHPのコードを書いて、動かしてみましょう。
 
-1.  **プロジェクトの起動**: Tutorial 6で作成した、`laravel-project`ディレクトリに移動し、以下のコマンドで、環境を起動します。（すでに起動している場合は不要です）
+#### Step 1: プロジェクトの準備
 
-    ```bash
-    docker-compose up -d
-    ```
+まず、PHPを実行するための環境を準備します。以下の手順で、プロジェクトディレクトリを作成してください。
 
-2.  **PHPファイルの作成**: `src`ディレクトリの中に、`index.php`というファイルを作成します。`src`ディレクトリは、`nginx`と`php`の両方のコンテナから、`/var/www/html`として、見えるように設定されていますね。
+```bash
+# プロジェクトディレクトリを作成
+mkdir -p ~/php-practice/src
+cd ~/php-practice
+```
 
-    ```php
-    // src/index.php
+次に、`docker-compose.yml`ファイルを作成します。このファイルは、Nginx（Webサーバー）とPHP-FPM（PHP実行環境）の2つのコンテナを定義します。
 
-    <!DOCTYPE html>
-    <html lang="ja">
-    <head>
-        <meta charset="UTF-8">
-        <title>はじめてのPHP</title>
-    </head>
-    <body>
-        <h1>PHPの世界へようこそ！</h1>
-        <p>PHPを使って、動的なコンテンツを表示してみましょう。</p>
-        <p>1 + 1 は、<?php echo 1 + 1; ?> です。</p>
-        <p>現在の日時は、<?php echo date("Y年m月d日 H時i分s秒"); ?> です。</p>
-    </body>
-    </html>
-    ```
+```yaml
+# docker-compose.yml
+version: '3.8'
 
-3.  **ブラウザで確認**: Webブラウザで、`http://localhost:8000/index.php` にアクセスします。
+services:
+  nginx:
+    image: nginx:latest
+    ports:
+      - "8000:80"
+    volumes:
+      - ./src:/var/www/html
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - php
 
-    画面に、「1 + 1 は、2 です。」や、現在の日時が、正しく表示されていれば、成功です！ブラウザの「ページのソースを表示」機能で、ソースコードを確認してみてください。`<?php ... ?>`の部分は、完全に消え、その実行結果である「2」や、日時の文字列に、置き換わっていることが、確認できるはずです。
+  php:
+    image: php:8.2-fpm
+    volumes:
+      - ./src:/var/www/html
+```
+
+次に、Nginxの設定ファイルを作成します。
+
+```bash
+mkdir -p docker/nginx
+```
+
+`docker/nginx/default.conf`ファイルを作成し、以下の内容を記述します。
+
+```nginx
+# docker/nginx/default.conf
+server {
+    listen 80;
+    server_name localhost;
+    root /var/www/html;
+    index index.php index.html;
+
+    location / {
+        try_files $uri $uri/ /index.php?$query_string;
+    }
+
+    location ~ \.php$ {
+        fastcgi_pass php:9000;
+        fastcgi_index index.php;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        include fastcgi_params;
+    }
+}
+```
+
+この設定により、`.php`ファイルへのアクセスは、PHP-FPMコンテナに転送されます。
+
+#### Step 2: 環境の起動
+
+以下のコマンドで、環境を起動します。
+
+```bash
+docker-compose up -d
+```
+
+初回は、Dockerイメージのダウンロードに数分かかる場合があります。起動が完了したら、`docker-compose ps`コマンドで、コンテナが正常に起動していることを確認してください。
+
+#### Step 3: PHPファイルの作成
+
+`src`ディレクトリの中に、`index.php`というファイルを作成します。`src`ディレクトリは、`nginx`と`php`の両方のコンテナから、`/var/www/html`として、見えるように設定されています。
+
+```php
+<?php
+// src/index.php
+?>
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>はじめてのPHP</title>
+</head>
+<body>
+    <h1>PHPの世界へようこそ！</h1>
+    <p>PHPを使って、動的なコンテンツを表示してみましょう。</p>
+    <p>1 + 1 は、<?php echo 1 + 1; ?> です。</p>
+    <p>現在の日時は、<?php echo date("Y年m月d日 H時i分s秒"); ?> です。</p>
+</body>
+</html>
+```
+
+#### Step 4: ブラウザで確認
+
+Webブラウザで、`http://localhost:8000/index.php` にアクセスします。
+
+画面に、「1 + 1 は、2 です。」や、現在の日時が、正しく表示されていれば、成功です！ブラウザの「ページのソースを表示」機能で、ソースコードを確認してみてください。`<?php ... ?>`の部分は、完全に消え、その実行結果である「2」や、日時の文字列に、置き換わっていることが、確認できるはずです。
+
+> 💡 **環境の停止**: 作業が終わったら、`docker-compose down`コマンドで環境を停止できます。次回作業するときは、再び`docker-compose up -d`で起動してください。
 
 ---
 
