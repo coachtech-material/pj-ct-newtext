@@ -92,7 +92,6 @@ CREATE TABLE users (
     *   `BIGINT UNSIGNED`: データ型は、符号なし（+と-を扱わないということ）の大きな整数です。Laravelのデフォルト形式で、外部キーとの型一致に重要です。
     *   `NOT NULL`: NULL値を、許可しません。
     *   `AUTO_INCREMENT`: 新しい、レコードが、追加されるたびに、自動で、連番を、割り振ります。
-*   `PRIMARY KEY (id)`: `id`カラムを、主キーに、設定します。
 *   `name VARCHAR(255) NOT NULL`: `name` という、名前の、カラムを、作成します。
     *   `VARCHAR(255)`: データ型は、最大255文字の、可変長文字列です。
     *   `NOT NULL`: このカラムに、NULL（空の値）を、許可しません。必ず、何らかの、値を、入力する必要があります。
@@ -104,6 +103,7 @@ CREATE TABLE users (
     *   `DEFAULT CURRENT_TIMESTAMP`: レコードが、作成された際に、自動的に、現在の日時を、設定します。
 *   `updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP`: `updated_at` という、名前の、カラムを、作成します。
     *   `ON UPDATE CURRENT_TIMESTAMP`: レコードが、更新された際に、自動的に、現在の日時を、設定します。
+*   `PRIMARY KEY (id)`: `id`カラムを、主キーに、設定します。
 
 **phpMyAdminでの実行手順**
 
