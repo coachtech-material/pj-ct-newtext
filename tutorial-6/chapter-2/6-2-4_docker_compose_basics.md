@@ -49,6 +49,19 @@ Docker Composeは、複数のコンテナを定義し、実行する、Dockerア
 
 `docker-compose.yml`は、`YAML` (YAML Ain't Markup Language) という、人間が読み書きしやすい、データフォーマットで記述します。インデント（字下げ）が、構造を表現する上で、非常に重要な意味を持つのが特徴です。
 
+> 📝 **`compose.yaml` と `docker-compose.yml` の違い**
+> 
+> Docker Composeの設定ファイルには、以下のファイル名が使われます。
+> 
+> | ファイル名 | 説明 |
+> | :--- | :--- |
+> | `compose.yaml` | **新しい推奨名**。Docker Compose V2以降で推奨されている。 |
+> | `compose.yml` | 新しい推奨名の別表記。 |
+> | `docker-compose.yaml` | 従来のファイル名。今でも広く使われている。 |
+> | `docker-compose.yml` | 従来のファイル名の別表記。 |
+> 
+> **これらは全て同じ役割を持つファイルです。** Dockerはこれらのファイル名を自動的に認識します。本チュートリアルで使用するLaravel Sailでは、`compose.yaml`というファイル名が使われていますが、内容や使い方は`docker-compose.yml`と全く同じです。
+
 ```yaml
 # docker-compose.yml
 
