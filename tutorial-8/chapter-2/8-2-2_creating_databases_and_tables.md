@@ -105,6 +105,8 @@ CREATE TABLE users (
     *   `ON UPDATE CURRENT_TIMESTAMP`: レコードが、更新された際に、自動的に、現在の日時を、設定します。
 *   `PRIMARY KEY (id)`: `id`カラムを、主キーに、設定します。
 
+> 💡 **ポイント**: `BIGINT UNSIGNED`や`VARCHAR(255)`などのデータ型はすぐには覚えられないものなので、どういうデータ型だったかな？と、都度検索したり、Tutorial 8-1-3のデータ型の一覧を参照して、徐々に扱えるようになっていきましょう！
+
 **phpMyAdminでの実行手順**
 
 1.  左ペインで、`practice_db` データベースを、クリックして、選択状態にします。（重要！）
