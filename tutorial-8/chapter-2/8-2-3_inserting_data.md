@@ -45,12 +45,19 @@ VALUES ('John Doe', 'john.doe@example.com', 'password123');
 *   `(name, email, password)`: `name`, `email`, `password` の、3つの、カラムに、値を、設定します。
 *   `VALUES ('John Doe', 'john.doe@example.com', 'password123')`: `name` には `'John Doe'` を、`email` には `'john.doe@example.com'` を、`password` には `'password123'` を、それぞれ、設定します。
 
-**`id` と `created_at` はどうなった？**
+**`id`、`created_at`、`updated_at` はどうなった？**
 
-`CREATE TABLE` の際に、`id` カラムには、`AUTO_INCREMENT` を、`created_at` カラムには、`DEFAULT CURRENT_TIMESTAMP` を、設定しました。そのため、`INSERT` 文で、値を、指定しなくても、MySQLが、自動的に、適切な、値を、設定してくれます。
+`CREATE TABLE` の際に、以下の設定をしました。
+
+*   `id` カラム: `AUTO_INCREMENT` を設定
+*   `created_at` カラム: `DEFAULT CURRENT_TIMESTAMP` を設定
+*   `updated_at` カラム: `DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP` を設定
+
+そのため、`INSERT` 文で、これらの値を、指定しなくても、MySQLが、自動的に、適切な、値を、設定してくれます。
 
 *   `id`: 自動で、`1` が、割り振られます。
 *   `created_at`: この、SQLが、実行された、日時が、自動で、記録されます。
+*   `updated_at`: この、SQLが、実行された、日時が、自動で、記録されます。
 
 #### カラム名を省略する構文
 
@@ -59,10 +66,10 @@ VALUES ('John Doe', 'john.doe@example.com', 'password123');
 ```sql
 -- この構文は、あまり、推奨されない
 INSERT INTO users
-VALUES (2, 'Jane Smith', 'jane.smith@example.com', 'password456', NOW());
+VALUES (2, 'Jane Smith', 'jane.smith@example.com', 'password456', NOW(), NOW());
 ```
 
-この構文は、`CREATE TABLE` で、定義された、カラムの、順番（`id`, `name`, `email`, `password`, `created_at`）を、正確に、覚えておく必要があります。`NOW()` は、現在日時を、返す、MySQLの、関数です。
+この構文は、`CREATE TABLE` で、定義された、カラムの、順番（`id`, `name`, `email`, `password`, `created_at`, `updated_at`）を、正確に、覚えておく必要があります。`NOW()` は、現在日時を、返す、MySQLの、関数です。
 
 **なぜ、推奨されないのか？**
 
@@ -84,13 +91,13 @@ VALUES
 
 **phpMyAdminでの実行と確認**
 
-1.  phpMyAdminで、`laravel_db` データベースを、選択します。
+1.  phpMyAdminで、`practice_db` データベースを、選択します。
 2.  「SQL」タブを、開き、上記の、`INSERT` 文を、実行します。
 3.  成功したら、「表示」タブを、クリックします。
 
 **[ここに、usersテーブルの、データが、表示されている、スクリーンショットを、挿入]**
 
-`id` が、自動で、連番に、なっていること、`created_at` に、日時が、入っていること、そして、指定した、`name`, `email`, `password` が、正しく、格納されていることを、確認できます。
+`id` が、自動で、連番に、なっていること、`created_at` と `updated_at` に、日時が、入っていること、そして、指定した、`name`, `email`, `password` が、正しく、格納されていることを、確認できます。
 
 #### GUIでのデータ挿入
 
@@ -103,7 +110,7 @@ phpMyAdminでは、GUI操作で、データを、挿入することもできま�
 **[ここに、GUIでの、データ挿入画面の、スクリーンショットを、挿入]**
 
 *   **値**: 挿入したい、データを、入力します。（`id` は、自動採番なので、空のままでOKです）
-*   **関数**: `created_at` のように、日時を、入れたい場合、プルダウンから、`NOW()` を、選択することができます。
+*   **関数**: `created_at` や `updated_at` のように、日時を、入れたい場合、プルダウンから、`NOW()` を、選択することができます。
 
 フォームに、値を、入力し、「実行」ボタンを、押すと、データが、挿入されます。この時も、phpMyAdminが、生成した、`INSERT` 文が、表示されるので、SQLの、学習に、役立てましょう。
 
