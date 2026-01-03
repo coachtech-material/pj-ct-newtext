@@ -147,7 +147,7 @@ SELECT * FROM posts ORDER BY created_at DESC LIMIT 10 OFFSET 20;
 *   `ORDER BY`句で、結果の並び順を`ASC`（昇順）または`DESC`（降順）で自由に制御できる。
 *   `LIMIT`（件数）と`OFFSET`（開始位置）を組み合わせることで、ページネーションのロジックをSQLで実現できる。
 
-これらの句は、`SELECT`文の基本的な構造の一部です。実行される順序は `FROM` → `WHERE` → `GROUP BY` → `HAVING` → `SELECT` → `ORDER BY` → `LIMIT` となっており、この流れを意識すると、より複雑なクエリも理解しやすくなります。
+これらの句は、`SELECT`文の基本的な構造の一部です。実行される順序は `FROM` → `WHERE` → `SELECT` → `ORDER BY` → `LIMIT` となっており、この流れを意識すると、クエリの動作が理解しやすくなります。
 
 次のセクションでは、取得したデータをグループ化し、集計するための強力な機能である「集計関数」と`GROUP BY`句について学びます。
 
