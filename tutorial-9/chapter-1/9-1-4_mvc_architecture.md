@@ -56,17 +56,134 @@ MVCアーキテクチャは、以下の3つの要素で構成されます。
 8. ユーザーのブラウザに画面が表示される
 ```
 
-この流れを、具体的なコード例で見ていきましょう。
+この流れを、具体的なコード例で見ていきましょう。まずは**データベースを使わない**シンプルな例から始め、その後で**データベースを使う**例に進みます。
 
 ---
 
-### 🔍 具体例：ユーザー一覧を表示する
+## 🔍 具体例①：シンプルなページを表示する（データベース不使用）
 
-「全てのユーザーをデータベースから取得し、一覧として表示する」という機能を、MVCアーキテクチャで実装してみます。
+まずは、MVCの基本的な流れを理解するために、**データベースを使わない**シンプルな例から始めましょう。「ようこそページ」を表示する機能を実装します。
 
-#### ステップ1: ルーティングを定義する（`routes/web.php`）
+### ステップ1: ルーティングを定義する（`routes/web.php`）
 
 まず、URLとコントローラーを紐付けます。
+
+```php
+<?php
+use App\Http\Controllers\WelcomeController;
+
+Route::get('/welcome', [WelcomeController::class, 'index']);
+```
+
+この定義により、「`/welcome`というURLにGETリクエストが来たら、`WelcomeController`クラスの`index`メソッドを実行する」という動作が設定されます。
+
+### ステップ2: Controller（コントローラー）を作成する
+
+ターミナルで以下のコマンドを実行し、コントローラーを作成します。
+
+```bash
+sail artisan make:controller WelcomeController
+```
+
+`app/Http/Controllers/WelcomeController.php`が作成されるので、以下のように編集します。
+
+```php
+<?php
+namespace App\Http\Controllers;
+
+class WelcomeController extends Controller
+{
+    public function index()
+    {
+        // データを準備（この段階ではデータベースを使わない）
+        $message = 'Laravelへようこそ！';
+        $currentTime = now()->format('Y年m月d日 H:i');
+
+        // View にデータを渡す
+        return view('welcome-page', compact('message', 'currentTime'));
+    }
+}
+```
+
+**コードリーディング**
+
+*   `$message = 'Laravelへようこそ！';`: 表示するメッセージを変数に格納します。
+*   `now()->format('Y年m月d日 H:i')`: Laravelのヘルパー関数`now()`で現在時刻を取得し、フォーマットします。
+*   `view('welcome-page', compact('message', 'currentTime'))`: `resources/views/welcome-page.blade.php`というビューファイルを読み込み、`$message`と`$currentTime`をビューに渡します。
+
+### ステップ3: View（ビュー）を作成する
+
+`resources/views/welcome-page.blade.php`を作成します。
+
+```blade
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ようこそ</title>
+</head>
+<body>
+    <h1>{{ $message }}</h1>
+    <p>現在時刻: {{ $currentTime }}</p>
+</body>
+</html>
+```
+
+**コードリーディング**
+
+*   `{{ $message }}`: コントローラーから渡された`$message`変数を表示します。
+*   `{{ $currentTime }}`: コントローラーから渡された`$currentTime`変数を表示します。
+*   `{{ }}`は、自動的にHTMLエスケープを行い、XSS攻撃を防ぎます。
+
+### ステップ4: ブラウザでアクセスする
+
+ブラウザで`http://localhost/welcome`にアクセスすると、「Laravelへようこそ！」というメッセージと現在時刻が表示されます。
+
+**[ここに、ようこそページのスクリーンショットを挿入]**
+
+> 💡 **ポイント**: この例では、データベースを使わずに、コントローラーで直接データを準備してビューに渡しています。これが、MVCの最も基本的な流れです。
+
+---
+
+## 🔍 具体例②：ユーザー一覧を表示する（データベース使用）
+
+次に、**データベースを使う**例を見ていきましょう。「全てのユーザーをデータベースから取得し、一覧として表示する」という機能を実装します。
+
+> ⚠️ **重要**: この例では、データベースからデータを取得します。そのため、**事前にデータベースのテーブルを作成する必要があります**。テーブルが存在しない状態でアクセスすると、500エラーが発生します。
+
+### 事前準備：マイグレーションの実行
+
+Laravelでは、データベースのテーブルを「**マイグレーション**」という仕組みで管理します。マイグレーションについては、Chapter 3で詳しく学びますが、ここでは最低限の手順だけ説明します。
+
+Laravelをインストールすると、`users`テーブルを作成するためのマイグレーションファイルが最初から用意されています（`database/migrations/xxxx_create_users_table.php`）。このファイルを使って、テーブルを作成します。
+
+```bash
+sail artisan migrate
+```
+
+このコマンドを実行すると、以下のような出力が表示されます。
+
+```
+Migration table created successfully.
+Running migrations...
+   2014_10_12_000000_create_users_table .............. DONE
+   2014_10_12_100000_create_password_reset_tokens_table  DONE
+   2019_08_19_000000_create_failed_jobs_table ........ DONE
+   2019_12_14_000001_create_personal_access_tokens_table DONE
+```
+
+これで、`users`テーブルがデータベースに作成されました。phpMyAdmin（`http://localhost:8080`）でテーブルが作成されていることを確認できます。
+
+> ⚠️ **マイグレーションを実行しないとどうなる？**
+> 
+> マイグレーションを実行せずに、`User::all()`を含むページにアクセスすると、以下のようなエラーが発生します。
+> 
+> ```
+> SQLSTATE[42S02]: Base table or view not found: 1146 Table 'laravel.users' doesn't exist
+> ```
+> 
+> これは、「`users`テーブルが存在しない」というエラーです。データベースを使う機能を実装する前に、必ずマイグレーションを実行してテーブルを作成してください。
+
+### ステップ1: ルーティングを定義する（`routes/web.php`）
 
 ```php
 <?php
@@ -75,11 +192,13 @@ use App\Http\Controllers\UserController;
 Route::get('/users', [UserController::class, 'index']);
 ```
 
-この定義により、「`/users`というURLにGETリクエストが来たら、`UserController`クラスの`index`メソッドを実行する」という動作が設定されます。
+### ステップ2: Controller（コントローラー）を作成する
 
-#### ステップ2: Controller（コントローラー）を作成する
+```bash
+sail artisan make:controller UserController
+```
 
-`app/Http/Controllers/UserController.php`を作成します。
+`app/Http/Controllers/UserController.php`を以下のように編集します。
 
 ```php
 <?php
@@ -104,9 +223,9 @@ class UserController extends Controller
 
 *   `use App\Models\User;`: `User`モデルをインポートします。
 *   `User::all()`: `User`モデルの`all()`メソッドを呼び出し、データベースから全てのユーザーを取得します。これは、SQLの`SELECT * FROM users`に相当します。
-*   `view('users.index', compact('users'))`: `resources/views/users/index.blade.php`というビューファイルを読み込み、`$users`という変数をビューに渡します。`compact('users')`は、`['users' => $users]`と同じ意味です。
+*   `view('users.index', compact('users'))`: `resources/views/users/index.blade.php`というビューファイルを読み込み、`$users`という変数をビューに渡します。
 
-#### ステップ3: Model（モデル）を確認する
+### ステップ3: Model（モデル）を確認する
 
 `app/Models/User.php`は、Laravelインストール時に自動生成されています。
 
@@ -128,9 +247,15 @@ class User extends Authenticatable
 *   `User`モデルは、`users`テーブルと対応しています。Laravelは、クラス名を複数形・小文字にしたものをテーブル名として自動的に推測します（`User` → `users`）。
 *   `User::all()`を呼び出すと、Eloquent ORMが内部的に`SELECT * FROM users`というSQLを実行し、結果をPHPのオブジェクトとして返します。
 
-#### ステップ4: View（ビュー）を作成する
+### ステップ4: View（ビュー）を作成する
 
-`resources/views/users/index.blade.php`を作成します。
+`resources/views/users/index.blade.php`を作成します。まず、`users`ディレクトリを作成してください。
+
+```bash
+mkdir resources/views/users
+```
+
+そして、`resources/views/users/index.blade.php`を作成します。
 
 ```blade
 <!DOCTYPE html>
@@ -140,24 +265,31 @@ class User extends Authenticatable
 </head>
 <body>
     <h1>ユーザー一覧</h1>
-    <ul>
-        @foreach ($users as $user)
-            <li>{{ $user->name }} ({{ $user->email }})</li>
-        @endforeach
-    </ul>
+    
+    @if ($users->isEmpty())
+        <p>ユーザーが登録されていません。</p>
+    @else
+        <ul>
+            @foreach ($users as $user)
+                <li>{{ $user->name }} ({{ $user->email }})</li>
+            @endforeach
+        </ul>
+    @endif
 </body>
 </html>
 ```
 
 **コードリーディング**
 
+*   `@if ($users->isEmpty())`: ユーザーが0件の場合の処理を分岐します。
 *   `@foreach ($users as $user)`: コントローラーから渡された`$users`配列をループします。
-*   `{{ $user->name }}`: `$user`オブジェクトの`name`プロパティを表示します。`{{ }}`は、自動的にHTMLエスケープを行い、XSS攻撃を防ぎます。
-*   `@endforeach`: ループの終了を示します。
+*   `{{ $user->name }}`: `$user`オブジェクトの`name`プロパティを表示します。
 
-#### ステップ5: ブラウザでアクセスする
+### ステップ5: ブラウザでアクセスする
 
-ブラウザで`http://localhost:8080/users`にアクセスすると、データベースから取得したユーザーの一覧が表示されます。
+ブラウザで`http://localhost/users`にアクセスすると、ユーザー一覧が表示されます。
+
+まだユーザーを登録していない場合は、「ユーザーが登録されていません。」と表示されます。phpMyAdminから手動でユーザーを追加するか、後のセクションで学ぶシーダーを使ってテストデータを投入することで、一覧が表示されるようになります。
 
 **[ここに、ユーザー一覧画面のスクリーンショットを挿入]**
 
@@ -234,7 +366,8 @@ Laravelでは、MVCに加えて、以下のような要素も使われます。
 *   **Model**は、データベースとのやり取りを担当し、`app/Models/`に配置される。
 *   **View**は、HTMLの生成を担当し、`resources/views/`に配置される。
 *   **Controller**は、リクエストを受け取り、モデルとビューを橋渡しする役割を持ち、`app/Http/Controllers/`に配置される。
-*   データの流れは、「ルーティング → コントローラー → モデル → データベース → モデル → コントローラー → ビュー → ブラウザ」という順序で進む。
+*   MVCの学習は、**まずデータベースを使わない例**から始め、**その後でデータベースを使う例**に進むと理解しやすい。
+*   データベースを使う場合は、**事前にマイグレーションを実行**してテーブルを作成する必要がある。
 *   MVCで役割を分けることで、変更の影響範囲が限定され、コードの再利用性が高まり、チーム開発がしやすくなる。
 
 次のセクションでは、MVCの最初のステップである「ルーティング」について、より詳しく学んでいきます。
