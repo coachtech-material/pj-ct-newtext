@@ -257,16 +257,7 @@ return view('users.index', compact('users'));
 return 'Hello, World!';
 ```
 
-#### 3. JSONを返す（API用）
-
-```php
-return response()->json([
-    'message' => 'Success',
-    'data' => $users
-]);
-```
-
-#### 4. リダイレクトする
+#### 3. リダイレクトする
 
 ```php
 // 名前付きルートにリダイレクト
@@ -279,54 +270,11 @@ return redirect('/users');
 return back();
 ```
 
-#### 5. ダウンロードさせる
+#### 4. ダウンロードさせる
 
 ```php
 return response()->download($pathToFile);
 ```
-
----
-
-## 💡 TIP: コントローラーの責務を小さく保つ
-
-コントローラーは、「リクエストを受け取り、処理を委譲し、レスポンスを返す」という役割に徹するべきです。複雑なビジネスロジックは、コントローラーに書かずに、サービスクラスやモデルに分離することが推奨されます。
-
-**悪い例：コントローラーに複雑なロジックを書く**
-```php
-public function store(Request $request)
-{
-    // バリデーション
-    $validated = $request->validate([...]);
-
-    // ユーザー作成
-    $user = User::create($validated);
-
-    // プロフィール作成
-    $user->profile()->create([...]);
-
-    // メール送信
-    Mail::to($user->email)->send(new WelcomeMail($user));
-
-    // ログ記録
-    Log::info('User created: ' . $user->id);
-
-    return redirect()->route('users.show', $user);
-}
-```
-
-**良い例：サービスクラスに処理を委譲する**
-```php
-public function store(Request $request, UserService $userService)
-{
-    $validated = $request->validate([...]);
-
-    $user = $userService->createUser($validated);
-
-    return redirect()->route('users.show', $user);
-}
-```
-
-このように、コントローラーをシンプルに保つことで、テストがしやすく、保守しやすいコードになります。
 
 ---
 
@@ -336,7 +284,7 @@ public function store(Request $request, UserService $userService)
 
 *   コントローラーは、MVCアーキテクチャにおいて「司令塔」の役割を果たし、リクエストを受け取り、モデルとビューを橋渡しする。
 *   `php artisan make:controller`コマンドで、コントローラーを生成できる。
-*   コントローラーのメソッドは、ルーティングで指定されたときに実行され、ビューやJSONなどのレスポンスを返す。
+*   コントローラーのメソッドは、ルーティングで指定されたときに実行され、ビューやリダイレクトなどのレスポンスを返す。
 *   ルートパラメータは、メソッドの引数として受け取ることができ、ルートモデルバインディングを使うとさらに簡潔に書ける。
 *   `--resource`オプションを使うと、CRUD操作の7つのメソッドを持つリソースコントローラーを一括生成できる。
 *   `Route::resource()`を使うと、リソースコントローラーのルートを一括定義できる。
