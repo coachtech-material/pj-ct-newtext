@@ -65,8 +65,7 @@ Chapter 2で学んだMySQL基本操作を実際に手を動かして確認しま
 1. すべてのタスクを取得
 2. ステータスが「未着手」のタスクのみ取得
 3. 優先度が1（高）のタスクのみ取得
-4. 期限が2024年12月中のタスクを取得
-5. タスクを優先度の高い順に並び替えて取得
+4. タスクを優先度の高い順に並び替えて取得
 
 #### 5. データの更新（UPDATE）
 
@@ -447,9 +446,6 @@ SELECT * FROM tasks WHERE status = '未着手';
 
 -- 優先度が1（高）のタスクのみ
 SELECT * FROM tasks WHERE priority = 1;
-
--- 期限が2024年12月中のタスク
-SELECT * FROM tasks WHERE due_date BETWEEN '2024-12-01' AND '2024-12-31';
 
 -- 優先度の高い順に並び替え
 SELECT * FROM tasks ORDER BY priority ASC;
