@@ -1,333 +1,432 @@
-# Tutorial 9-1-2: Docker環境でLaravelを動かそう
+# Tutorial 9-1-2: Docker環境でLaravelを動かそう（Laravel Sail）
 
 ## 🎯 このセクションで学ぶこと
 
-*   Docker Composeを使って、Laravel開発環境（Nginx、PHP、MySQL、phpMyAdmin）を構築できるようになる。
+*   **Laravel Sail**とは何か、なぜ使うのかを理解する。
+*   Laravel Sailを使って、Laravel開発環境（PHP、MySQL、phpMyAdmin）を構築できるようになる。
 *   Laravelプロジェクトを作成し、ブラウザで「Welcome」画面を表示できるようになる。
-*   Docker環境でのLaravel開発の流れ（コンテナの起動・停止、コマンド実行）を理解する。
+*   Sailコマンドの使い方と、エイリアス設定を理解する。
 
 ---
 
-## 導入：なぜDockerでLaravelを動かすのか？
+## 導入：Laravel Sailとは？
 
-Tutorial 6で学んだDockerは、開発環境を「コンテナ」という独立した箱の中で動かす技術でした。Laravelを動かすには、以下のような複数のソフトウェアが必要です。
+**Laravel Sail**は、LaravelがDocker環境を簡単に構築・管理するために提供する**公式ツール**です。Tutorial 6で学んだDockerの知識をベースに、Laravelに最適化された開発環境をコマンド一つで構築できます。
 
-*   **Webサーバー**（Nginx または Apache）
-*   **PHPの実行環境**（PHP-FPM）
-*   **データベース**（MySQL または PostgreSQL）
-*   **データベース管理ツール**（phpMyAdmin）
+### なぜLaravel Sailを使うのか？
 
-これらを自分のPCに直接インストールすると、バージョンの違いや設定の複雑さで環境構築に失敗したり、他のプロジェクトと干渉したりする問題が起こります。しかし、Dockerを使えば、これらの環境を「設定ファイル1つ」で再現でき、チーム全員が同じ環境で開発できるようになります。
+従来のDocker環境構築では、以下のような作業が必要でした。
 
-このセクションでは、Docker Composeを使って、Laravel開発に必要な環境を一気に構築し、実際にLaravelを動かしてみましょう。
+*   `docker-compose.yml`を自分で書く
+*   Nginx/ApacheのDockerfileを作成する
+*   PHP拡張機能を手動でインストールする
+*   各種設定ファイルを用意する
+
+Laravel Sailを使えば、これらの作業が**全て自動化**されます。
+
+| 比較項目 | 従来のDocker構築 | Laravel Sail |
+|:---|:---|:---|
+| 設定ファイル作成 | 手動で複数ファイル作成 | 自動生成 |
+| PHP拡張機能 | 手動インストール | 事前に最適化済み |
+| コマンド実行 | `docker compose exec php php artisan ...` | `sail artisan ...` |
+| 学習コスト | 高い | 低い |
+| Laravel最適化 | 自分で調整 | 公式が最適化済み |
+
+> 💡 **ポイント**: Laravel Sailは、Dockerの複雑さを隠蔽しつつ、Laravelに最適化された環境を提供します。実務でも広く使われている標準的な開発環境です。
 
 ---
 
 ## 詳細解説
 
-### 🏗️ Laravel開発環境の全体像
+### 🏗️ Laravel Sail環境の全体像
 
-今回構築する環境は、以下の4つのコンテナで構成されます。
+Laravel Sailで構築される環境は、以下のコンテナで構成されます。
 
-| コンテナ名 | 役割 | ポート |
+| コンテナ | 役割 | ポート |
 |:---|:---|:---|
-| `nginx` | Webサーバー（HTTPリクエストを受け取り、PHPに渡す） | 8080 |
-| `php` | PHPの実行環境（Laravelのコードを実行） | - |
-| `mysql` | データベース（データを保存） | 3306 |
-| `phpmyadmin` | データベース管理ツール（ブラウザでDBを操作） | 8081 |
+| `laravel.test` | PHP + Webサーバー（Laravelアプリケーション） | 80 |
+| `mysql` | データベース（MySQLサーバー） | 3306 |
+| `phpmyadmin` | データベース管理ツール（後で追加） | 8080 |
 
-これらのコンテナは、Docker Composeで一括管理され、`docker compose up`コマンド一つで全て起動します。
+これらのコンテナは、`sail up`コマンド一つで全て起動します。
 
-### 📁 プロジェクトディレクトリの作成
+---
 
-まず、Laravelプロジェクトを格納するディレクトリを作成します。
+## 🚀 環境構築手順
 
-```bash
-mkdir ~/laravel-tutorial
-cd ~/laravel-tutorial
-```
+### Step 1: Laravelプロジェクトの作成
 
-このディレクトリの中に、以下のファイルを作成していきます。
-
-### 📝 `docker-compose.yml`の作成
-
-Docker Composeの設定ファイルを作成します。VSCodeで`docker-compose.yml`を開き、以下の内容を記述してください。
-
-```yaml
-version: '3.8'
-
-services:
-  # Nginx（Webサーバー）
-  nginx:
-    image: nginx:latest
-    container_name: laravel_nginx
-    ports:
-      - "8080:80"
-    volumes:
-      - ./src:/var/www/html
-      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
-    depends_on:
-      - php
-    networks:
-      - laravel_network
-
-  # PHP-FPM（PHPの実行環境）
-  php:
-    build:
-      context: ./docker/php
-    container_name: laravel_php
-    volumes:
-      - ./src:/var/www/html
-    networks:
-      - laravel_network
-
-  # MySQL（データベース）
-  mysql:
-    image: mysql:8.0
-    container_name: laravel_mysql
-    environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: laravel_db
-      MYSQL_USER: laravel_user
-      MYSQL_PASSWORD: laravel_pass
-    ports:
-      - "3306:3306"
-    volumes:
-      - mysql_data:/var/lib/mysql
-    networks:
-      - laravel_network
-
-  # phpMyAdmin（データベース管理ツール）
-  phpmyadmin:
-    image: phpmyadmin/phpmyadmin
-    container_name: laravel_phpmyadmin
-    environment:
-      PMA_HOST: mysql
-      PMA_USER: root
-      PMA_PASSWORD: root
-    ports:
-      - "8081:80"
-    depends_on:
-      - mysql
-    networks:
-      - laravel_network
-
-networks:
-  laravel_network:
-    driver: bridge
-
-volumes:
-  mysql_data:
-```
-
-**このファイルの重要なポイント**
-
-*   `ports`: ホストマシン（あなたのPC）のポートと、コンテナ内のポートを紐付けます。`8080:80`は、「PCの8080番ポートにアクセスすると、コンテナの80番ポート（Nginx）に転送される」という意味です。
-*   `volumes`: ホストマシンのディレクトリと、コンテナ内のディレクトリを同期します。`./src:/var/www/html`は、「PCの`src`ディレクトリと、コンテナの`/var/www/html`を同期する」という意味で、これによりPCでコードを編集すると、即座にコンテナ内に反映されます。
-*   `depends_on`: コンテナの起動順序を制御します。`nginx`は`php`が起動してから起動するように設定されています。
-*   `networks`: 全てのコンテナが同じネットワーク（`laravel_network`）に所属し、互いに通信できるようにします。
-
-### 📝 Nginxの設定ファイル
-
-Nginxの設定ファイルを作成します。以下のディレクトリ構造を作成してください。
+まず、プロジェクトを作成するディレクトリに移動します。
 
 ```bash
-mkdir -p docker/nginx
+cd ~
 ```
 
-`docker/nginx/default.conf`を作成し、以下の内容を記述します。
-
-```nginx
-server {
-    listen 80;
-    server_name localhost;
-    root /var/www/html/public;
-
-    index index.php index.html;
-
-    location / {
-        try_files $uri $uri/ /index.php?$query_string;
-    }
-
-    location ~ \.php$ {
-        fastcgi_pass php:9000;
-        fastcgi_index index.php;
-        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
-        include fastcgi_params;
-    }
-
-    location ~ /\.ht {
-        deny all;
-    }
-}
-```
-
-**このファイルの重要なポイント**
-
-*   `root /var/www/html/public;`: Laravelの公開ディレクトリ（`public`）をドキュメントルートに設定します。
-*   `try_files $uri $uri/ /index.php?$query_string;`: 存在しないURLへのアクセスを全て`index.php`にリダイレクトします。これにより、Laravelのルーティング機能が動作します。
-*   `fastcgi_pass php:9000;`: PHPファイルの処理を、`php`コンテナの9000番ポート（PHP-FPM）に転送します。
-
-### 📝 PHPのDockerfile
-
-PHPコンテナのDockerfileを作成します。
+以下のDockerコマンドを実行して、**Laravel 10.x**を明示的に指定してプロジェクトを作成します。
 
 ```bash
-mkdir -p docker/php
+docker run --rm \
+    -u "$(id -u):$(id -g)" \
+    -v "$(pwd):/var/www/html" \
+    -w /var/www/html \
+    -e COMPOSER_CACHE_DIR=/tmp/composer_cache \
+    laravelsail/php82-composer:latest \
+    composer create-project laravel/laravel:^10.0 laravel-project
 ```
 
-`docker/php/Dockerfile`を作成し、以下の内容を記述します。
+**コマンドの解説**
 
-```dockerfile
-FROM php:8.2-fpm
+| オプション | 説明 |
+|:---|:---|
+| `--rm` | コマンド実行後、コンテナを自動削除 |
+| `-u "$(id -u):$(id -g)"` | ホストマシンのユーザー権限でファイルを作成（権限問題を防ぐ） |
+| `-v "$(pwd):/var/www/html"` | 現在のディレクトリをコンテナ内にマウント |
+| `-w /var/www/html` | コンテナ内の作業ディレクトリを指定 |
+| `-e COMPOSER_CACHE_DIR=/tmp/composer_cache` | Composerのキャッシュディレクトリを指定 |
+| `laravelsail/php82-composer:latest` | Laravel Sail公式のPHP 8.2 + Composerイメージ |
+| `composer create-project laravel/laravel:^10.0 laravel-project` | Laravel 10.xをインストール |
 
-# 必要なPHP拡張機能をインストール
-RUN apt-get update && apt-get install -y \
-    git \
-    unzip \
-    libpq-dev \
-    libzip-dev \
-    && docker-php-ext-install pdo_mysql zip
-
-# Composerのインストール
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
-
-# 作業ディレクトリの設定
-WORKDIR /var/www/html
-```
-
-**このファイルの重要なポイント**
-
-*   `FROM php:8.2-fpm`: PHP 8.2のFPM（FastCGI Process Manager）イメージをベースにします。
-*   `docker-php-ext-install pdo_mysql zip`: LaravelがMySQLに接続するために必要な`pdo_mysql`拡張と、Composerが使う`zip`拡張をインストールします。
-*   `COPY --from=composer:latest`: Composer（PHPの依存関係管理ツール）をインストールします。
-
-### 🚀 Laravelプロジェクトの作成
-
-Docker環境を起動する前に、まずLaravelプロジェクトを作成します。
-
-```bash
-# PHPコンテナをビルド（初回のみ）
-docker compose build
-
-# PHPコンテナを一時的に起動してLaravelをインストール
-docker compose run --rm php composer create-project --prefer-dist laravel/laravel .
-```
-
-このコマンドは、`php`コンテナ内でComposerを実行し、Laravelの最新版を`src`ディレクトリにインストールします。
-
-**⚠️ 注意**: このコマンドは数分かかることがあります。気長に待ちましょう。
+> ⚠️ **注意**: このコマンドは初回実行時に数分かかることがあります。Dockerイメージのダウンロードと、Laravelの依存パッケージのインストールが行われます。
 
 **[ここに、コマンド実行中のスクリーンショットを挿入]**
 
-インストールが完了すると、`src`ディレクトリにLaravelのファイルが展開されます。
+---
 
-### ⚙️ `.env`ファイルの設定
+### Step 2: Laravel Sailのインストール
 
-Laravelの環境設定ファイル`.env`を編集します。`src/.env`を開き、データベース接続の設定を以下のように変更してください。
+プロジェクト作成後、プロジェクトディレクトリに移動します。
+
+```bash
+cd laravel-project
+```
+
+Laravel Sailをインストールします。
+
+```bash
+docker run --rm \
+    -u "$(id -u):$(id -g)" \
+    -v "$(pwd):/var/www/html" \
+    -w /var/www/html \
+    -e COMPOSER_CACHE_DIR=/tmp/composer_cache \
+    laravelsail/php82-composer:latest \
+    composer require laravel/sail --dev
+```
+
+このコマンドは、Laravel Sailパッケージを**開発用依存関係**（`--dev`）としてインストールします。
+
+---
+
+### Step 3: Sailの設定ファイルをパブリッシュ
+
+次に、Sailの設定ファイル（`docker-compose.yml`）を生成します。MySQLを使用するように指定します。
+
+```bash
+docker run --rm \
+    -u "$(id -u):$(id -g)" \
+    -v "$(pwd):/var/www/html" \
+    -w /var/www/html \
+    -e COMPOSER_CACHE_DIR=/tmp/composer_cache \
+    laravelsail/php82-composer:latest \
+    php artisan sail:install --with=mysql
+```
+
+このコマンドを実行すると、以下のファイルが生成されます。
+
+*   `docker-compose.yml`: Docker Composeの設定ファイル
+*   `.env`ファイルの更新: データベース接続情報が自動設定される
+
+> 💡 **ポイント**: `--with=mysql`オプションで、MySQLを使用することを指定しています。他にも`pgsql`（PostgreSQL）、`redis`、`memcached`などを指定できます。
+
+---
+
+### Step 4: `.env`ファイルの確認
+
+`.env`ファイルを開き、データベース接続情報が以下と一致していることを確認します。
 
 ```env
 DB_CONNECTION=mysql
 DB_HOST=mysql
 DB_PORT=3306
-DB_DATABASE=laravel_db
-DB_USERNAME=laravel_user
-DB_PASSWORD=laravel_pass
+DB_DATABASE=laravel
+DB_USERNAME=sail
+DB_PASSWORD=password
 ```
 
 **重要なポイント**
 
-*   `DB_HOST=mysql`: Docker Composeでは、サービス名（`mysql`）がホスト名として使えます。
-*   `DB_DATABASE`、`DB_USERNAME`、`DB_PASSWORD`は、`docker-compose.yml`で設定した値と一致させます。
+*   `DB_HOST=mysql`: Docker Composeでは、サービス名（`mysql`）がホスト名として使えます。`localhost`ではないことに注意してください。
+*   `DB_USERNAME=sail`、`DB_PASSWORD=password`: Sailのデフォルト設定です。
 
-### 🚀 Docker環境の起動
+---
 
-全ての設定が完了したら、Docker環境を起動します。
+### Step 5: phpMyAdminの追加
 
-```bash
-docker compose up -d
+データベースをブラウザで管理できるように、phpMyAdminを追加します。
+
+`docker-compose.yml`（または`compose.yaml`）を開き、`mysql`サービスの後に以下の設定を追加します。
+
+```yaml
+    phpmyadmin:
+        image: 'phpmyadmin:latest'
+        ports:
+            - '${FORWARD_PHPMYADMIN_PORT:-8080}:80'
+        environment:
+            PMA_HOST: mysql
+            PMA_USER: '${DB_USERNAME}'
+            PMA_PASSWORD: '${DB_PASSWORD}'
+        networks:
+            - sail
+        depends_on:
+            - mysql
 ```
 
-`-d`オプションは、バックグラウンドで起動することを意味します。
+**設定の解説**
 
-**[ここに、`docker compose up -d`実行後のスクリーンショットを挿入]**
+| 項目 | 説明 |
+|:---|:---|
+| `image: 'phpmyadmin:latest'` | phpMyAdminの公式イメージを使用 |
+| `ports: '${FORWARD_PHPMYADMIN_PORT:-8080}:80'` | ホストの8080番ポートでアクセス可能に |
+| `PMA_HOST: mysql` | 接続先のMySQLサーバーを指定 |
+| `PMA_USER`, `PMA_PASSWORD` | `.env`ファイルの値を使用 |
+| `networks: - sail` | Sailのネットワークに参加 |
+| `depends_on: - mysql` | MySQLが起動してから起動 |
 
-コンテナが起動したら、以下のコマンドで状態を確認できます。
+---
+
+### Step 6: Sailの起動
+
+いよいよSailを起動します。
 
 ```bash
-docker compose ps
+./vendor/bin/sail up -d
+```
+
+*   `./vendor/bin/sail`: Sailの実行ファイル
+*   `up`: コンテナを起動
+*   `-d`: バックグラウンドで実行（デタッチモード）
+
+**[ここに、`sail up -d`実行後のスクリーンショットを挿入]**
+
+初回起動時は、Dockerイメージのビルドが行われるため、数分かかることがあります。
+
+コンテナの状態を確認するには、以下のコマンドを実行します。
+
+```bash
+./vendor/bin/sail ps
 ```
 
 全てのコンテナが`Up`状態になっていればOKです。
 
-### 🌐 ブラウザでLaravelにアクセス
+---
+
+### Step 7: エイリアス設定（推奨）
+
+毎回`./vendor/bin/sail`と入力するのは面倒なので、エイリアスを設定しましょう。
+
+**Zshの場合**（macOS Catalina以降のデフォルト）
+
+```bash
+echo "alias sail='[ -f sail ] && bash sail || bash vendor/bin/sail'" >> ~/.zshrc
+```
+
+**Bashの場合**
+
+```bash
+echo "alias sail='[ -f sail ] && bash sail || bash vendor/bin/sail'" >> ~/.bashrc
+```
+
+設定を反映するために、シェルを再起動します。
+
+```bash
+exec $SHELL
+```
+
+これで、`sail`コマンドだけでSailを実行できるようになります。
+
+```bash
+# エイリアス設定前
+./vendor/bin/sail up -d
+
+# エイリアス設定後
+sail up -d
+```
+
+---
+
+### Step 8: アプリケーションキーの生成
+
+Laravelのアプリケーションキーを生成します。
+
+```bash
+sail artisan key:generate
+```
+
+このコマンドは、`.env`ファイルの`APP_KEY`に暗号化キーを設定します。このキーは、セッションや暗号化データの保護に使用されます。
+
+---
+
+## 🌐 動作確認
+
+### Laravelアプリケーションにアクセス
 
 ブラウザで以下のURLにアクセスしてください。
 
 ```
-http://localhost:8080
+http://localhost
 ```
 
 Laravelのウェルカム画面が表示されれば、環境構築は成功です！
 
 **[ここに、Laravelのウェルカム画面のスクリーンショットを挿入]**
 
-### 🗄️ phpMyAdminでデータベースを確認
+### phpMyAdminにアクセス
 
 次に、phpMyAdminにアクセスして、データベースが正しく作成されているか確認しましょう。
 
 ```
-http://localhost:8081
+http://localhost:8080
 ```
 
-ログイン情報は以下の通りです。
+phpMyAdminの画面が表示され、`laravel`データベースが確認できればOKです。
 
-*   **サーバー**: `mysql`
-*   **ユーザー名**: `root`
-*   **パスワード**: `root`
-
-ログインすると、`laravel_db`というデータベースが作成されていることが確認できます。
-
-**[ここに、phpMyAdminのログイン画面とデータベース一覧のスクリーンショットを挿入]**
-
-### 🛑 Docker環境の停止
-
-作業が終わったら、以下のコマンドでコンテナを停止できます。
-
-```bash
-docker compose down
-```
-
-再度起動したい場合は、`docker compose up -d`を実行すればOKです。
+**[ここに、phpMyAdminの画面のスクリーンショットを挿入]**
 
 ---
 
-## 💡 TIP: Docker環境でのコマンド実行
+## 🛠️ Sailコマンドリファレンス
 
-Laravelの開発では、`php artisan`コマンドを頻繁に使います。Docker環境では、コンテナ内でコマンドを実行する必要があります。
+Laravel Sailでは、様々なコマンドを簡単に実行できます。
+
+### 基本コマンド
+
+| コマンド | 説明 |
+|:---|:---|
+| `sail up` | コンテナを起動（フォアグラウンド） |
+| `sail up -d` | コンテナを起動（バックグラウンド） |
+| `sail down` | コンテナを停止・削除 |
+| `sail stop` | コンテナを停止（削除しない） |
+| `sail restart` | コンテナを再起動 |
+| `sail ps` | コンテナの状態を確認 |
+
+### Artisanコマンド
 
 ```bash
-# 例：マイグレーションを実行
-docker compose exec php php artisan migrate
+# マイグレーション実行
+sail artisan migrate
 
-# 例：キャッシュをクリア
-docker compose exec php php artisan cache:clear
+# キャッシュクリア
+sail artisan cache:clear
+
+# ルート一覧表示
+sail artisan route:list
 ```
 
-`docker compose exec php`は、「`php`コンテナ内でコマンドを実行する」という意味です。この後のセクションでは、この形式でコマンドを実行していきます。
+### Composerコマンド
+
+```bash
+# パッケージインストール
+sail composer require パッケージ名
+
+# オートローダー再生成
+sail composer dump-autoload
+```
+
+### NPMコマンド
+
+```bash
+# 依存パッケージインストール
+sail npm install
+
+# 開発サーバー起動
+sail npm run dev
+
+# 本番ビルド
+sail npm run build
+```
+
+### データベース操作
+
+```bash
+# MySQLに接続
+sail mysql
+
+# データベースをリフレッシュ（全テーブル削除＆再作成）
+sail artisan migrate:fresh
+```
+
+---
+
+## 💡 TIP: よくあるトラブルと解決方法
+
+### ポートが既に使用されている場合
+
+エラーメッセージ: `Bind for 0.0.0.0:80 failed: port is already allocated`
+
+**解決方法**: `.env`ファイルでポートを変更します。
+
+```env
+APP_PORT=8000
+```
+
+その後、`sail down`して`sail up -d`で再起動します。
+
+### 権限エラーが発生する場合
+
+エラーメッセージ: `Permission denied`
+
+**解決方法**: 以下のコマンドで権限を修正します。
+
+```bash
+sail artisan storage:link
+sudo chown -R $USER:$USER storage bootstrap/cache
+```
+
+### コンテナが起動しない場合
+
+**解決方法**: ログを確認します。
+
+```bash
+sail logs
+```
+
+特定のコンテナのログを見る場合:
+
+```bash
+sail logs mysql
+```
+
+---
+
+## 🔄 開発の流れ
+
+Laravel Sailを使った開発の基本的な流れは以下の通りです。
+
+```
+1. sail up -d          # 開発開始時にコンテナを起動
+2. コードを編集        # VSCodeなどでコードを編集
+3. sail artisan ...    # 必要に応じてArtisanコマンドを実行
+4. ブラウザで確認      # http://localhost で動作確認
+5. sail down           # 開発終了時にコンテナを停止
+```
 
 ---
 
 ## ✨ まとめ
 
-このセクションでは、Docker Composeを使ってLaravel開発環境を構築しました。
+このセクションでは、Laravel Sailを使ってLaravel開発環境を構築しました。
 
-*   Docker Composeの`docker-compose.yml`で、Nginx、PHP、MySQL、phpMyAdminの4つのコンテナを定義した。
-*   Nginxの設定ファイルで、Laravelの`public`ディレクトリをドキュメントルートに設定し、PHPファイルの処理をPHP-FPMに転送するように設定した。
-*   PHPのDockerfileで、LaravelがMySQLに接続するために必要な拡張機能とComposerをインストールした。
-*   Composerを使ってLaravelプロジェクトを作成し、`.env`ファイルでデータベース接続を設定した。
-*   `docker compose up -d`でコンテナを起動し、ブラウザで`http://localhost:8080`にアクセスして、Laravelのウェルカム画面を表示できた。
+*   **Laravel Sail**は、Laravelが提供する公式のDocker開発環境ツールである。
+*   `composer create-project`でLaravelプロジェクトを作成し、`composer require laravel/sail --dev`でSailをインストールした。
+*   `php artisan sail:install --with=mysql`でSailの設定ファイルを生成し、MySQLを使用するように設定した。
+*   `docker-compose.yml`にphpMyAdminを追加して、データベースをブラウザで管理できるようにした。
+*   `sail up -d`でコンテナを起動し、`http://localhost`でLaravelのウェルカム画面を表示できた。
+*   エイリアス設定により、`sail`コマンドで簡単にSailを操作できるようになった。
 
 これで、Laravel開発の準備が整いました。次のセクションでは、Laravelのディレクトリ構成を理解し、どのファイルが何の役割を持っているのかを学んでいきます。
 
 ---
+
+## 📚 参考リンク
+
+*   [Laravel Sail 公式ドキュメント](https://laravel.com/docs/10.x/sail)
+*   [Docker 公式ドキュメント](https://docs.docker.com/)
