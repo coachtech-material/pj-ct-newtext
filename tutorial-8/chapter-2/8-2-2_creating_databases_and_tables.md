@@ -89,7 +89,7 @@ CREATE TABLE users (
 
 *   `CREATE TABLE users (...)`: `users` という、名前の、テーブルを、作成します。`()` の中に、カラムの、定義を、記述していきます。
 *   `id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT`: `id` という、名前の、カラムを、作成します。
-    *   `BIGINT UNSIGNED`: データ型は、符号なしの大きな整数です。Laravelのデフォルト形式で、外部キーとの型一致に重要です。
+    *   `BIGINT UNSIGNED`: データ型は、符号なし（+と-を扱わないということ）の大きな整数です。Laravelのデフォルト形式で、外部キーとの型一致に重要です。
     *   `NOT NULL`: NULL値を、許可しません。
     *   `AUTO_INCREMENT`: 新しい、レコードが、追加されるたびに、自動で、連番を、割り振ります。
 *   `PRIMARY KEY (id)`: `id`カラムを、主キーに、設定します。
