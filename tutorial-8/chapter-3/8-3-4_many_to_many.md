@@ -105,7 +105,7 @@ INSERT INTO tags (name) VALUES ('PHP'), ('Laravel'), ('SQL');
 
 -- 投稿を登録（すでにあれば不要）
 -- INSERT INTO posts (user_id, title, content) VALUES (1, 'Laravel入門', 'Laravelは楽しい！');
--- INSERT INTO posts (user_id, title, content) VALUES (2, 'SQLの基本', 'SELECT文を学びました');
+-- INSERT INTO posts (user_id, title, content) VALUES (1, 'SQLの基本', 'SELECT文を学びました');
 
 -- 中間テーブルにデータを登録して、投稿とタグを紐付ける
 -- 前提：投稿ID=1「Laravel入門」、投稿ID=2「SQLの基本」
