@@ -1,4 +1,4 @@
-# Tutorial 9-1-8: Laravelの基礎 ハンズオン演習習
+# Tutorial 9-1-7: Laravel基礎ハンズオン
 
 ## 📝 このセクションの目的
 
