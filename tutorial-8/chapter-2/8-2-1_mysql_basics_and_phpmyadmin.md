@@ -72,9 +72,13 @@ code .
 
 #### Step 2: docker-compose.ymlの作成
 
-VSCodeのエクスプローラーで、`mysql-practice`フォルダを、右クリックし、「新しいファイル」を、選択して、`docker-compose.yml`を、作成してください。
+ターミナルで、以下のコマンドを、実行してください。
 
-`docker-compose.yml`ファイルに、以下の内容を、記述してください。
+```bash
+touch docker-compose.yml
+```
+
+VSCodeのエクスプローラーに、`docker-compose.yml`が、表示されるので、クリックして開き、以下の内容を、記述してください。
 
 ```yaml
 version: '3.8'

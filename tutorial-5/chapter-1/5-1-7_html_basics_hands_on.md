@@ -211,7 +211,13 @@ code .
 
 `code .`コマンドを実行すると、VSCodeが起動し、`html-practice`フォルダがプロジェクトとして開かれます。
 
-次に、`self-introduction.html`という名前のファイルを作成します。VSCodeのエクスプローラーで`html-practice`フォルダを右クリックし、「新しいファイル」を選択して`self-introduction.html`を作成してください。HTML5の基本構造を書きます。
+次に、`self-introduction.html`という名前のファイルを作成します。ターミナルで以下のコマンドを実行してください。
+
+```bash
+touch self-introduction.html
+```
+
+VSCodeのエクスプローラーに`self-introduction.html`が表示されるので、クリックして開いてください。HTML5の基本構造を書きます。
 
 **何を考えているか**：
 - 「まずはHTMLの土台を作ろう」

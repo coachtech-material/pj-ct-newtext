@@ -43,16 +43,13 @@ code .
 
 ### Step 2: Nginxの設定ファイルを作成
 
-次に、Nginxの設定ファイルを作成します。VSCodeのエクスプローラーで`docker/nginx`フォルダを右クリックし、「新しいファイル」を選択して`default.conf`を作成してください。
-
-または、ターミナルで以下のコマンドを実行しても構いません。
+次に、Nginxの設定ファイルを作成します。ターミナルで以下のコマンドを実行してください。
 
 ```bash
-# Nginxの設定ファイルを作成
 touch docker/nginx/default.conf
 ```
 
-`docker/nginx/default.conf`ファイルを開き、以下の内容を記述してください。
+VSCodeのエクスプローラーに`docker/nginx/default.conf`が表示されるので、クリックして開き、以下の内容を記述してください。
 
 ```nginx
 # docker/nginx/default.conf
@@ -79,9 +76,13 @@ server {
 
 ### Step 3: PHPファイルの作成
 
-次に、PHPの動作確認用ファイルを作成します。VSCodeのエクスプローラーで`src`フォルダを右クリックし、「新しいファイル」を選択して`index.php`を作成してください。
+次に、PHPの動作確認用ファイルを作成します。ターミナルで以下のコマンドを実行してください。
 
-`src/index.php`ファイルに以下の内容を記述してください。
+```bash
+touch src/index.php
+```
+
+VSCodeのエクスプローラーに`src/index.php`が表示されるので、クリックして開き、以下の内容を記述してください。
 
 ```php
 <?php
@@ -94,9 +95,13 @@ echo "<p>現在時刻: " . date("Y-m-d H:i:s") . "</p>";
 
 ### Step 4: docker-compose.ymlの作成
 
-最後に、Docker Composeの設定ファイルを作成します。VSCodeのエクスプローラーで`php-practice`フォルダ（ルート）を右クリックし、「新しいファイル」を選択して`docker-compose.yml`を作成してください。
+最後に、Docker Composeの設定ファイルを作成します。ターミナルで以下のコマンドを実行してください。
 
-`docker-compose.yml`ファイルに以下の内容を記述してください。
+```bash
+touch docker-compose.yml
+```
+
+VSCodeのエクスプローラーに`docker-compose.yml`が表示されるので、クリックして開き、以下の内容を記述してください。
 
 ```yaml
 version: '3.8'
