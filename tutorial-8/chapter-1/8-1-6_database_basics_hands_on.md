@@ -2,74 +2,75 @@
 
 ## 📝 このセクションの目的
 
-Chapter 1で学んだデータベースの基礎知識を実際に手を動かして確認します。テーブル設計を行い、主キーと外部キーの関係を理解しましょう。
+Chapter 1で学んだデータベースの基礎知識を、紙とペンを使って確認します。正規化されていないテーブルを正規化する演習を通じて、データベース設計の考え方を身につけましょう。
 
-> 分からない文法や実装があっても、すぐに答えを見るのではなく、過去の教材を見たり、AIにヒントをもらいながら進めるなど、自身で創意工夫しながら進めてみましょう🔥
+> 💡 **ポイント**: この演習は、実際にデータベースを操作するのではなく、**紙に書いて設計を考える**演習です。データベース設計は、コードを書く前に「どのようなテーブル構造にするか」を考えることが重要です。
 
 **学習のポイント**：
-- テーブル構造を設計できるか
-- 主キーを適切に設定できるか
-- 外部キーでテーブル間の関係を表現できるか
-- 正規化の基本を理解できているか
+- 正規化されていないテーブルの問題点を理解できるか
+- 第1正規形、第2正規形、第3正規形の違いを理解できるか
+- テーブルを適切に分割できるか
+- 主キーと外部キーの関係を設計できるか
 
 ---
 
-## 🎯 演習課題：図書館管理システムのデータベース設計
+## 🎯 演習課題：注文管理テーブルの正規化
 
 ### 課題の概要
 
-図書館の蔵書と貸出を管理するデータベースを設計してください。以下の3つのテーブルを設計し、ER図を作成します。
+以下の「正規化されていない注文管理テーブル」を見て、問題点を洗い出し、正規化されたテーブル構造に分割してください。
 
-### 📋 要件
+**紙とペンを用意して、実際に書きながら考えてみましょう。**
 
-#### 1. テーブル設計
+---
 
-以下の3つのテーブルを設計してください：
+### 📋 正規化されていないテーブル
 
-**テーブル1: books（書籍）**
+以下は、ある通販サイトの注文管理テーブルです。1つのテーブルにすべての情報が詰め込まれています。
 
-| カラム名 | データ型 | 制約 | 説明 |
-|---------|---------|------|------|
-| book_id | INT | PRIMARY KEY, AUTO_INCREMENT | 書籍ID |
-| title | VARCHAR(200) | NOT NULL | 書籍名 |
-| author | VARCHAR(100) | NOT NULL | 著者名 |
-| publisher | VARCHAR(100) | NULL | 出版社 |
-| published_year | INT | NULL | 出版年 |
-| isbn | VARCHAR(20) | UNIQUE | ISBN番号 |
+**orders（注文）テーブル**
 
-**テーブル2: members（会員）**
+| order_id | order_date | customer_name | customer_email | customer_phone | product_name | product_price | quantity | category |
+|----------|------------|---------------|----------------|----------------|--------------|---------------|----------|----------|
+| 1 | 2024-12-01 | 田中太郎 | tanaka@example.com | 090-1234-5678 | ノートPC | 120000 | 1 | 電化製品 |
+| 2 | 2024-12-01 | 田中太郎 | tanaka@example.com | 090-1234-5678 | マウス | 3000 | 2 | 電化製品 |
+| 3 | 2024-12-02 | 佐藤花子 | sato@example.com | 080-2345-6789 | ノートPC | 120000 | 1 | 電化製品 |
+| 4 | 2024-12-03 | 田中太郎 | tanaka@example.com | 090-1234-5678 | キーボード | 8000 | 1 | 電化製品 |
+| 5 | 2024-12-03 | 鈴木一郎 | suzuki@example.com | 070-3456-7890 | デスク | 25000 | 1 | 家具 |
 
-| カラム名 | データ型 | 制約 | 説明 |
-|---------|---------|------|------|
-| member_id | INT | PRIMARY KEY, AUTO_INCREMENT | 会員ID |
-| name | VARCHAR(100) | NOT NULL | 会員名 |
-| email | VARCHAR(150) | UNIQUE, NOT NULL | メールアドレス |
-| phone | VARCHAR(20) | NULL | 電話番号 |
-| joined_date | DATE | NOT NULL | 入会日 |
+---
 
-**テーブル3: loans（貸出）**
+### 📝 演習1: 問題点を見つける
 
-| カラム名 | データ型 | 制約 | 説明 |
-|---------|---------|------|------|
-| loan_id | INT | PRIMARY KEY, AUTO_INCREMENT | 貸出ID |
-| book_id | INT | FOREIGN KEY (books) | 書籍ID |
-| member_id | INT | FOREIGN KEY (members) | 会員ID |
-| loan_date | DATE | NOT NULL | 貸出日 |
-| return_date | DATE | NULL | 返却日 |
-| due_date | DATE | NOT NULL | 返却期限 |
+上のテーブルを見て、以下の問題点を紙に書き出してください。
 
-#### 2. リレーションシップ
+**考えるヒント**：
+- 同じ情報が何度も繰り返し登場していませんか？
+- 顧客の電話番号を変更したい場合、何行を更新する必要がありますか？
+- 商品の価格を変更したい場合、何行を更新する必要がありますか？
 
-- **books ← loans**: 1対多（1冊の本は複数回貸し出される）
-- **members ← loans**: 1対多（1人の会員は複数の本を借りる）
+---
 
-#### 3. ER図の作成
+### 📝 演習2: テーブルを分割する
 
-テーブル間の関係を示すER図を紙またはツールで作成してください。
+問題点を踏まえて、このテーブルを複数のテーブルに分割してください。
 
-#### 4. サンプルデータの考案
+**考えるヒント**：
+- 「顧客」に関する情報をまとめると？
+- 「商品」に関する情報をまとめると？
+- 「注文」に関する情報をまとめると？
+- テーブル間をどうやって関連付けますか？
 
-各テーブルに3件ずつサンプルデータを考えてください。
+---
+
+### 📝 演習3: ER図を描く
+
+分割したテーブル間の関係を、ER図として紙に描いてください。
+
+**描くべき内容**：
+- 各テーブルの名前とカラム
+- 主キー（PK）と外部キー（FK）
+- テーブル間のリレーション（1対多など）
 
 ---
 
@@ -77,442 +78,303 @@ Chapter 1で学んだデータベースの基礎知識を実際に手を動か�
 
 詰まったときは、以下のヒントを参考にしてください。
 
-### ヒント1: 主キーの選択
+> 💡 **ヒントの見方**：以下のヒントは**段階的に答えに近づく**ものです。まずは自分で考えてから、順番に見てください。
 
-- 各テーブルには必ず主キーが必要
-- `AUTO_INCREMENT`を使うと、自動的に連番が振られる
-- 主キーは重複しない値である必要がある
+### ヒント1: 問題点のリスト
 
-### ヒント2: 外部キーの設定
+このテーブルには、以下のような問題点があります：
 
-```
-loans.book_id → books.book_id
-loans.member_id → members.member_id
-```
+1. **データの重複**：田中太郎さんの情報（名前、メール、電話番号）が3回登場している
+2. **更新の困難さ**：田中太郎さんの電話番号を変更するには、3行を更新する必要がある
+3. **データの不整合リスク**：3行のうち1行だけ電話番号を変更し忘れると、データが矛盾する
+4. **商品情報の重複**：ノートPCの情報（名前、価格、カテゴリ）が2回登場している
 
-- 外部キーは、他のテーブルの主キーを参照する
-- これにより、テーブル間の関係を表現できる
+### ヒント2: 分割するテーブルの候補
 
-### ヒント3: データ型の選択
+以下の3つのテーブルに分割することを考えてみましょう：
 
-- 文字列: `VARCHAR(長さ)`
-- 整数: `INT`
-- 日付: `DATE`
-- ISBN番号は文字列（ハイフンを含むため）
+1. **customers（顧客）テーブル**：顧客に関する情報
+2. **products（商品）テーブル**：商品に関する情報
+3. **orders（注文）テーブル**：注文に関する情報（顧客と商品を外部キーで参照）
 
-### ヒント4: 制約の設定
+### ヒント3: 各テーブルのカラム
 
-- `NOT NULL`: 必須項目
-- `UNIQUE`: 重複不可
-- `PRIMARY KEY`: 主キー
-- `FOREIGN KEY`: 外部キー
+**customers（顧客）テーブル**：
+- customer_id（主キー）
+- name
+- email
+- phone
 
----
+**products（商品）テーブル**：
+- product_id（主キー）
+- name
+- price
+- category
 
-## 🏃 実践: 一緒に作ってみましょう！
-
-ちゃんとできましたか？データベース設計はシステム開発の土台となる重要な工程です。一緒に手を動かしながら、図書館管理システムのデータベースを設計していきましょう。
-
-### 💭 実装の思考プロセス
-
-図書館管理システムのデータベースを設計する際、以下の順番で考えると効率的です：
-
-1. **管理する対象を特定**：書籍、会員、貸出の3つのエンティティ
-2. **各エンティティの属性を洗い出す**：各テーブルに必要なカラムを考える
-3. **主キーを決める**：各レコードを一意に識別するIDを設定
-4. **リレーションを考える**：テーブル間の関係を1対多、多対多などで表現
-5. **外部キーを設定**：リレーションを実現するための外部キーを追加
-
-データベース設計のポイントは「データの重複を避け、整合性を保つ」ことです。
+**orders（注文）テーブル**：
+- order_id（主キー）
+- order_date
+- customer_id（外部キー → customers）
+- product_id（外部キー → products）
+- quantity
 
 ---
 
-### 📝 ステップバイステップで実装
+## 🏃 実践: 一緒に考えてみましょう！
 
-#### ステップ1: booksテーブルを設計する
+ちゃんとできましたか？正規化は、データベース設計の基本中の基本です。一緒に考え方を確認していきましょう。
 
-**何を考えているか**：
-- 「書籍にはどんな情報が必要？」
-- 「タイトル、著者、出版社、出版年、ISBNを管理しよう」
-- 「主キーはbook_idで、AUTO_INCREMENTで自動採番しよう」
+### 💭 正規化の思考プロセス
 
-まず、booksテーブルを設計します：
+正規化を行う際は、以下の順番で考えると効率的です：
 
-```sql
-CREATE TABLE books (
-    book_id INT PRIMARY KEY AUTO_INCREMENT,
-    title VARCHAR(200) NOT NULL,
-    author VARCHAR(100) NOT NULL,
-    publisher VARCHAR(100),
-    published_year INT,
-    isbn VARCHAR(20) UNIQUE
-);
-```
-
-**コードリーディング**：
-
-```sql
-CREATE TABLE books (
-```
-→ `CREATE TABLE`文でbooksテーブルを作成します。
-
-```sql
-    book_id INT PRIMARY KEY AUTO_INCREMENT,
-```
-→ `book_id`カラムを主キーとして定義します。`INT`は整数型、`PRIMARY KEY`は主キー、`AUTO_INCREMENT`は自動採番を意味します。これにより、1, 2, 3...と自動で番号が振られます。
-
-```sql
-    title VARCHAR(200) NOT NULL,
-```
-→ `title`カラムを定義します。`VARCHAR(200)`は最大200文字の可変長文字列、`NOT NULL`はNULL値を許可しない制約です。タイトルは必須項目なので`NOT NULL`を設定します。
-
-```sql
-    author VARCHAR(100) NOT NULL,
-    publisher VARCHAR(100),
-    published_year INT,
-```
-→ 著者、出版社、出版年を定義します。著者は必須、出版社と出版年は任意項目とします。
-
-```sql
-    isbn VARCHAR(20) UNIQUE
-);
-```
-→ ISBNカラムを定義します。`UNIQUE`制約により、同じISBNが重複して登録されることを防ぎます。
+1. **繰り返しを見つける**：同じ情報が複数行に登場していないか？
+2. **グループ化する**：関連する情報をまとめて、独立したテーブルにできないか？
+3. **主キーを決める**：各テーブルで、レコードを一意に識別できるカラムは何か？
+4. **外部キーで関連付ける**：分割したテーブル同士を、どうやって関連付けるか？
 
 ---
 
-#### ステップ2: membersテーブルを設計する
+### 📝 ステップバイステップで考える
 
-**何を考えているか**：
-- 「会員にはどんな情報が必要？」
-- 「名前、メール、電話番号、入会日を管理しよう」
-- 「メールは重複不可にしよう」
+#### ステップ1: 問題点を整理する【演習1に対応】
 
-次に、membersテーブルを設計します：
+元のテーブルを見ると、以下の問題点があります：
 
-```sql
-CREATE TABLE members (
-    member_id INT PRIMARY KEY AUTO_INCREMENT,
-    name VARCHAR(100) NOT NULL,
-    email VARCHAR(150) UNIQUE NOT NULL,
-    phone VARCHAR(20),
-    joined_date DATE NOT NULL
-);
-```
+**問題1: 顧客情報の重複**
 
-**コードリーディング**：
+田中太郎さんの情報が3行に登場しています：
 
-```sql
-CREATE TABLE members (
-```
-→ membersテーブルを作成します。
+| order_id | customer_name | customer_email | customer_phone |
+|----------|---------------|----------------|----------------|
+| 1 | 田中太郎 | tanaka@example.com | 090-1234-5678 |
+| 2 | 田中太郎 | tanaka@example.com | 090-1234-5678 |
+| 4 | 田中太郎 | tanaka@example.com | 090-1234-5678 |
 
-```sql
-    member_id INT PRIMARY KEY AUTO_INCREMENT,
-```
-→ 会員IDを主キーとして定義し、自動採番します。
+→ 電話番号を変更するには、3行すべてを更新する必要があります。
 
-```sql
-    name VARCHAR(100) NOT NULL,
-```
-→ 会員名を必須項目として定義します。
+**問題2: 商品情報の重複**
 
-```sql
-    email VARCHAR(150) UNIQUE NOT NULL,
-```
-→ メールアドレスを定義します。`UNIQUE`で重複不可、`NOT NULL`で必須項目とします。メールアドレスはログインIDとして使用することが多いため、重複不可にします。
+ノートPCの情報が2行に登場しています：
 
-```sql
-    phone VARCHAR(20),
-    joined_date DATE NOT NULL
-);
-```
-→ 電話番号は任意項目、入会日は必須項目とします。`DATE`型は日付を格納するデータ型です。
+| order_id | product_name | product_price | category |
+|----------|--------------|---------------|----------|
+| 1 | ノートPC | 120000 | 電化製品 |
+| 3 | ノートPC | 120000 | 電化製品 |
+
+→ 価格を変更するには、2行を更新する必要があります。
 
 ---
 
-#### ステップ3: loansテーブルを設計する
+#### ステップ2: テーブルを分割する【演習2に対応】
 
-**何を考えているか**：
-- 「貸出は書籍と会員を結びつける中間テーブル」
-- 「外部キーでbooksとmembersを参照しよう」
-- 「貸出日、返却日、返却期限を管理しよう」
+問題点を踏まえて、以下の3つのテーブルに分割します。
 
-最後に、loansテーブルを設計します：
+**テーブル1: customers（顧客）**
 
-```sql
-CREATE TABLE loans (
-    loan_id INT PRIMARY KEY AUTO_INCREMENT,
-    book_id INT NOT NULL,
-    member_id INT NOT NULL,
-    loan_date DATE NOT NULL,
-    return_date DATE,
-    due_date DATE NOT NULL,
-    FOREIGN KEY (book_id) REFERENCES books(book_id),
-    FOREIGN KEY (member_id) REFERENCES members(member_id)
-);
-```
+| カラム名 | 説明 | 制約 |
+|---------|------|------|
+| customer_id | 顧客ID | 主キー |
+| name | 顧客名 | NOT NULL |
+| email | メールアドレス | UNIQUE, NOT NULL |
+| phone | 電話番号 | |
 
-**コードリーディング**：
+**テーブル2: products（商品）**
 
-```sql
-CREATE TABLE loans (
-```
-→ loansテーブルを作成します。
+| カラム名 | 説明 | 制約 |
+|---------|------|------|
+| product_id | 商品ID | 主キー |
+| name | 商品名 | NOT NULL |
+| price | 価格 | NOT NULL |
+| category | カテゴリ | |
 
-```sql
-    loan_id INT PRIMARY KEY AUTO_INCREMENT,
-```
-→ 貸出IDを主キーとして定義し、自動採番します。
+**テーブル3: orders（注文）**
 
-```sql
-    book_id INT NOT NULL,
-    member_id INT NOT NULL,
-```
-→ 書籍IDと会員IDを定義します。これらは外部キーとして使用されます。`NOT NULL`で必須項目とします。
-
-```sql
-    loan_date DATE NOT NULL,
-    return_date DATE,
-    due_date DATE NOT NULL,
-```
-→ 貸出日、返却日、返却期限を定義します。`return_date`は返却前はNULLなので、`NOT NULL`制約を付けません。
-
-```sql
-    FOREIGN KEY (book_id) REFERENCES books(book_id),
-```
-→ `book_id`を外部キーとして定義し、booksテーブルの`book_id`を参照します。これにより、存在しない書籍IDを登録することを防ぎます。
-
-```sql
-    FOREIGN KEY (member_id) REFERENCES members(member_id)
-);
-```
-→ `member_id`を外部キーとして定義し、membersテーブルの`member_id`を参照します。
+| カラム名 | 説明 | 制約 |
+|---------|------|------|
+| order_id | 注文ID | 主キー |
+| order_date | 注文日 | NOT NULL |
+| customer_id | 顧客ID | 外部キー → customers |
+| product_id | 商品ID | 外部キー → products |
+| quantity | 数量 | NOT NULL |
 
 ---
 
-#### ステップ4: サンプルデータを挿入する
+#### ステップ3: 分割後のデータを確認する
 
-**何を考えているか**：
-- 「テーブルを作成したら、テストデータを入れて確認しよう」
-- 「外部キーの制約が機能するか確認しよう」
-- 「親テーブル（books, members）から先にデータを入れよう」
+分割後、各テーブルのデータは以下のようになります。
 
-サンプルデータを挿入します：
+**customers（顧客）テーブル**：
 
-```sql
--- booksテーブルにデータ挿入
-INSERT INTO books (title, author, publisher, published_year, isbn) VALUES
-('PHPの教科書', '山田太郎', '技術評論社', 2023, '978-4-1234-5678-9'),
-('Laravelマスター', '佐藤花子', '翔泳社', 2024, '978-4-2345-6789-0'),
-('データベース入門', '鈴木一郎', 'オライリー', 2022, '978-4-3456-7890-1');
+| customer_id | name | email | phone |
+|-------------|------|-------|-------|
+| 1 | 田中太郎 | tanaka@example.com | 090-1234-5678 |
+| 2 | 佐藤花子 | sato@example.com | 080-2345-6789 |
+| 3 | 鈴木一郎 | suzuki@example.com | 070-3456-7890 |
 
--- membersテーブルにデータ挿入
-INSERT INTO members (name, email, phone, joined_date) VALUES
-('田中太郎', 'tanaka@example.com', '090-1234-5678', '2024-01-15'),
-('高橋美咲', 'takahashi@example.com', '080-2345-6789', '2024-02-20'),
-('伊藤健太', 'ito@example.com', '070-3456-7890', '2024-03-10');
+→ 田中太郎さんの情報は**1行だけ**になりました！
 
--- loansテーブルにデータ挿入
-INSERT INTO loans (book_id, member_id, loan_date, return_date, due_date) VALUES
-(1, 1, '2024-12-01', '2024-12-08', '2024-12-15'),
-(2, 2, '2024-12-05', NULL, '2024-12-19'),
-(3, 1, '2024-12-10', NULL, '2024-12-24');
-```
+**products（商品）テーブル**：
 
-**コードリーディング**：
+| product_id | name | price | category |
+|------------|------|-------|----------|
+| 1 | ノートPC | 120000 | 電化製品 |
+| 2 | マウス | 3000 | 電化製品 |
+| 3 | キーボード | 8000 | 電化製品 |
+| 4 | デスク | 25000 | 家具 |
 
-```sql
-INSERT INTO books (title, author, publisher, published_year, isbn) VALUES
-```
-→ `INSERT INTO`文でbooksテーブルにデータを挿入します。カラム名を指定して、`VALUES`以降に値を指定します。
+→ ノートPCの情報は**1行だけ**になりました！
 
-```sql
-('PHPの教科書', '山田太郎', '技術評論社', 2023, '978-4-1234-5678-9'),
-```
-→ 1行目のデータを挿入します。カンマで区切って複数行を一度に挿入できます。
+**orders（注文）テーブル**：
 
-```sql
-INSERT INTO loans (book_id, member_id, loan_date, return_date, due_date) VALUES
-(1, 1, '2024-12-01', '2024-12-08', '2024-12-15'),
-```
-→ loansテーブルにデータを挿入します。`book_id`と1、`member_id`と1を指定することで、外部キー制約により、存在する書籍と会員を参照します。
+| order_id | order_date | customer_id | product_id | quantity |
+|----------|------------|-------------|------------|----------|
+| 1 | 2024-12-01 | 1 | 1 | 1 |
+| 2 | 2024-12-01 | 1 | 2 | 2 |
+| 3 | 2024-12-02 | 2 | 1 | 1 |
+| 4 | 2024-12-03 | 1 | 3 | 1 |
+| 5 | 2024-12-03 | 3 | 4 | 1 |
 
-```sql
-(2, 2, '2024-12-05', NULL, '2024-12-19'),
-```
-→ `return_date`に`NULL`を指定することで、まだ返却されていない貸出を表現します。
+→ 顧客と商品は**IDで参照**するようになりました！
 
 ---
 
-### ✨ 完成！
+#### ステップ4: ER図を描く【演習3に対応】
 
-これで図書館管理システムのデータベース設計が完成しました！テーブル設計、主キー、外部キー、リレーションの設定を実践できましたね。
+分割したテーブル間の関係をER図で表します。
+
+```mermaid
+erDiagram
+    customers ||--o{ orders : "一人の顧客は複数の注文を持つ"
+    products ||--o{ orders : "一つの商品は複数の注文に登場する"
+
+    customers {
+        int customer_id PK
+        string name
+        string email
+        string phone
+    }
+
+    products {
+        int product_id PK
+        string name
+        int price
+        string category
+    }
+
+    orders {
+        int order_id PK
+        date order_date
+        int customer_id FK
+        int product_id FK
+        int quantity
+    }
+```
+
+**リレーションシップの説明**：
+- **customers ← orders**：1対多（1人の顧客は複数の注文を持つ）
+- **products ← orders**：1対多（1つの商品は複数の注文に登場する）
+
+---
+
+### ✨ 正規化のメリット
+
+正規化によって、以下のメリットが得られました：
+
+| 問題 | 正規化前 | 正規化後 |
+|------|---------|---------|
+| 田中太郎さんの電話番号を変更 | 3行を更新 | 1行を更新 |
+| ノートPCの価格を変更 | 2行を更新 | 1行を更新 |
+| データの不整合リスク | 高い | 低い |
+| ストレージ使用量 | 多い（重複データ） | 少ない |
 
 ---
 
 ## ✅ 完成イメージ
 
-### ER図
+### 正規化後のテーブル構造
 
-```
-┌─────────────┐       ┌─────────────┐       ┌─────────────┐
-│   books     │       │    loans    │       │  members    │
-├─────────────┤       ├─────────────┤       ├─────────────┤
-│ book_id (PK)│◄──────│ loan_id (PK)│──────►│member_id(PK)│
-│ title       │       │ book_id (FK)│       │ name        │
-│ author      │       │member_id(FK)│       │ email       │
-│ publisher   │       │ loan_date   │       │ phone       │
-│published_year│      │ return_date │       │ joined_date │
-│ isbn        │       │ due_date    │       │             │
-└─────────────┘       └─────────────┘       └─────────────┘
-     1                                             1
-     │                                             │
-     └──────────────── * ─────────────────────────┘
-                    (1対多)
-```
+**customers（顧客）**
 
-### サンプルデータ
+| カラム名 | データ型 | 制約 |
+|---------|---------|------|
+| customer_id | INT | PRIMARY KEY |
+| name | VARCHAR(100) | NOT NULL |
+| email | VARCHAR(150) | UNIQUE, NOT NULL |
+| phone | VARCHAR(20) | |
 
-**books**:
-| book_id | title | author | publisher | published_year | isbn |
-|---------|-------|--------|-----------|----------------|------|
-| 1 | PHPの教科書 | 山田太郎 | 技術評論社 | 2023 | 978-4-1234-5678-9 |
-| 2 | Laravelマスター | 佐藤花子 | 翔泳社 | 2024 | 978-4-2345-6789-0 |
-| 3 | データベース入門 | 鈴木一郎 | オライリー | 2022 | 978-4-3456-7890-1 |
+**products（商品）**
 
-**members**:
-| member_id | name | email | phone | joined_date |
-|-----------|------|-------|-------|-------------|
-| 1 | 田中太郎 | tanaka@example.com | 090-1234-5678 | 2024-01-15 |
-| 2 | 高橋美咲 | takahashi@example.com | 080-2345-6789 | 2024-02-20 |
-| 3 | 伊藤健太 | ito@example.com | 070-3456-7890 | 2024-03-10 |
+| カラム名 | データ型 | 制約 |
+|---------|---------|------|
+| product_id | INT | PRIMARY KEY |
+| name | VARCHAR(200) | NOT NULL |
+| price | INT | NOT NULL |
+| category | VARCHAR(50) | |
 
-**loans**:
-| loan_id | book_id | member_id | loan_date | return_date | due_date |
-|---------|---------|-----------|-----------|-------------|----------|
-| 1 | 1 | 1 | 2024-12-01 | 2024-12-08 | 2024-12-15 |
-| 2 | 2 | 2 | 2024-12-05 | NULL | 2024-12-19 |
-| 3 | 3 | 1 | 2024-12-10 | NULL | 2024-12-24 |
+**orders（注文）**
 
----
-
-## 📖 模範解答
-
-自分で設計してから、以下の模範解答を確認してください。
-
-### CREATE TABLE文
-
-```sql
--- booksテーブル
-CREATE TABLE books (
-    book_id INT PRIMARY KEY AUTO_INCREMENT,
-    title VARCHAR(200) NOT NULL,
-    author VARCHAR(100) NOT NULL,
-    publisher VARCHAR(100),
-    published_year INT,
-    isbn VARCHAR(20) UNIQUE
-);
-
--- membersテーブル
-CREATE TABLE members (
-    member_id INT PRIMARY KEY AUTO_INCREMENT,
-    name VARCHAR(100) NOT NULL,
-    email VARCHAR(150) UNIQUE NOT NULL,
-    phone VARCHAR(20),
-    joined_date DATE NOT NULL
-);
-
--- loansテーブル
-CREATE TABLE loans (
-    loan_id INT PRIMARY KEY AUTO_INCREMENT,
-    book_id INT NOT NULL,
-    member_id INT NOT NULL,
-    loan_date DATE NOT NULL,
-    return_date DATE,
-    due_date DATE NOT NULL,
-    FOREIGN KEY (book_id) REFERENCES books(book_id),
-    FOREIGN KEY (member_id) REFERENCES members(member_id)
-);
-```
-
-### サンプルデータのINSERT文
-
-```sql
--- booksにデータを挿入
-INSERT INTO books (title, author, publisher, published_year, isbn) VALUES
-('PHPの教科書', '山田太郎', '技術評論社', 2023, '978-4-1234-5678-9'),
-('Laravelマスター', '佐藤花子', '翔泳社', 2024, '978-4-2345-6789-0'),
-('データベース入門', '鈴木一郎', 'オライリー', 2022, '978-4-3456-7890-1');
-
--- membersにデータを挿入
-INSERT INTO members (name, email, phone, joined_date) VALUES
-('田中太郎', 'tanaka@example.com', '090-1234-5678', '2024-01-15'),
-('高橋美咲', 'takahashi@example.com', '080-2345-6789', '2024-02-20'),
-('伊藤健太', 'ito@example.com', '070-3456-7890', '2024-03-10');
-
--- loansにデータを挿入
-INSERT INTO loans (book_id, member_id, loan_date, return_date, due_date) VALUES
-(1, 1, '2024-12-01', '2024-12-08', '2024-12-15'),
-(2, 2, '2024-12-05', NULL, '2024-12-19'),
-(3, 1, '2024-12-10', NULL, '2024-12-24');
-```
-
----
+| カラム名 | データ型 | 制約 |
+|---------|---------|------|
+| order_id | INT | PRIMARY KEY |
+| order_date | DATE | NOT NULL |
+| customer_id | INT | FOREIGN KEY → customers |
+| product_id | INT | FOREIGN KEY → products |
+| quantity | INT | NOT NULL |
 
 ---
 
 ## 🔍 よくある間違い
 
-### 間違い1: 主キーの設定忘れ
+### 間違い1: 分割しすぎる
 
-```sql
--- ❌ 間違い（主キーがない）
-CREATE TABLE books (
-    title VARCHAR(200),
-    author VARCHAR(100)
-);
+```
+❌ 間違い：
+- customers_names テーブル（名前だけ）
+- customers_emails テーブル（メールだけ）
+- customers_phones テーブル（電話番号だけ）
 
--- ✅ 正しい
-CREATE TABLE books (
-    book_id INT PRIMARY KEY AUTO_INCREMENT,
-    title VARCHAR(200),
-    author VARCHAR(100)
-);
+✅ 正しい：
+- customers テーブル（顧客に関する情報をまとめる）
 ```
 
-### 間違い2: 外部キーの参照先が間違っている
+→ 関連する情報は、1つのテーブルにまとめましょう。
 
-```sql
--- ❌ 間違い（存在しないカラムを参照）
-FOREIGN KEY (book_id) REFERENCES books(id)
+### 間違い2: 外部キーを忘れる
 
--- ✅ 正しい
-FOREIGN KEY (book_id) REFERENCES books(book_id)
+```
+❌ 間違い：
+orders テーブルに customer_id がない
+→ どの顧客の注文か分からない
+
+✅ 正しい：
+orders テーブルに customer_id（外部キー）を持つ
+→ customers テーブルと関連付けられる
 ```
 
-### 間違い3: データ型の選択ミス
+### 間違い3: 主キーを設定しない
 
-```sql
--- ❌ 間違い（ISBNを数値型にしている）
-isbn INT
-
--- ✅ 正しい（ISBNはハイフンを含むため文字列）
-isbn VARCHAR(20)
 ```
+❌ 間違い：
+customers テーブルに主キーがない
+→ 同じ名前の顧客を区別できない
+
+✅ 正しい：
+customer_id を主キーとして設定
+→ 各顧客を一意に識別できる
+```
+
 ---
 
-## 🚀 まとめ
+## 📚 まとめ
 
-**ハンズオンお疲れ様でした！**
+このハンズオンでは、正規化されていないテーブルを正規化する演習を行いました。
 
-このハンズオンで、以下のことができるようになりました：
+**学んだこと**：
 
-- ✅ テーブル構造を設計できる
-- ✅ 主キーを適切に設定できる
-- ✅ 外部キーでテーブル間の関係を表現できる
-- ✅ 正規化の基本を理解できているか
+1. **正規化の目的**：データの重複を排除し、更新の困難さやデータの不整合を防ぐ
+2. **テーブル分割の考え方**：関連する情報をグループ化し、独立したテーブルにする
+3. **主キーと外部キー**：テーブルを分割した後、外部キーで関連付ける
+4. **ER図の描き方**：テーブル間の関係を視覚的に表現する
 
-引き続き、次のセクションも頑張りましょう！
-
----
+次のセクションでは、実際にMySQLを使ってデータベースを操作していきます。
