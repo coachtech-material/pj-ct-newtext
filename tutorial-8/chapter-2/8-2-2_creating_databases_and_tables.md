@@ -56,14 +56,14 @@ CREATE DATABASE sample_db;
 CREATE DATABASE sample_db CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
 ```
 
-> 💡 **ポイント**: Tutorial 8-2-1で、Docker環境を、構築した際に、`practice_db`という、データベースが、すでに、自動作成されています。このセクションでは、その`practice_db`を、使用して、学習を、進めます。
+> ⚠️ **注意**: 上記の`CREATE DATABASE`文は、構文の説明のための例です。**実際に実行する必要はありません。**
+
+> 💡 **ポイント**: Tutorial 8-2-1で、Docker環境を、構築した際に、`practice_db`という、データベースが、すでに、自動作成されています。このセクションでは、その`practice_db`を、使用して、学習を、進めます。`docker-compose.yml`の`MYSQL_DATABASE: practice_db`という設定によって、MySQLコンテナ起動時に自動的に作成されています。
 
 **phpMyAdminでの確認手順**
 
 1.  phpMyAdminに、アクセスします（`http://localhost:8080`）。
 2.  左ペインの、データベース一覧に、`practice_db` が、表示されていることを、確認します。
-
-この`practice_db`は、`docker-compose.yml`の、`MYSQL_DATABASE: practice_db`という、設定によって、MySQLコンテナ起動時に、自動的に、作成されたものです。
 
 ### 📝 テーブルの作成 (`CREATE TABLE`)
 
