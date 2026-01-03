@@ -39,10 +39,10 @@
 SQL文は、非常に、シンプルです。
 
 ```sql
-CREATE DATABASE laravel_db;
+CREATE DATABASE sample_db;
 ```
 
-これは、「`laravel_db` という、名前の、データベースを、作成してください」という、命令です。
+これは、「`sample_db` という、名前の、データベースを、作成してください」という、命令です。
 
 #### 文字コードと照合順序
 
@@ -54,17 +54,17 @@ CREATE DATABASE laravel_db;
 これらを、指定した、完全な、コマンドは、以下のようになります。
 
 ```sql
-CREATE DATABASE laravel_db CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+CREATE DATABASE sample_db CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
 ```
 
-**phpMyAdminでの実行手順**
+> 💡 **ポイント**: Tutorial 8-2-1で、Docker環境を、構築した際に、`practice_db`という、データベースが、すでに、自動作成されています。このセクションでは、その`practice_db`を、使用して、学習を、進めます。
 
-1.  phpMyAdminに、ログインします。
-2.  上部の、「SQL」タブを、クリックします。
-3.  上記の、`CREATE DATABASE` 文を、テキストエリアに、貼り付けます。
-4.  「実行」ボタンを、クリックします。
+**phpMyAdminでの確認手順**
 
-成功すると、「MySQLは、空の、結果セットを、返しました」という、メッセージが、表示され、左ペインの、データベース一覧に、`laravel_db` が、追加されます。
+1.  phpMyAdminに、アクセスします（`http://localhost:8080`）。
+2.  左ペインの、データベース一覧に、`practice_db` が、表示されていることを、確認します。
+
+この`practice_db`は、`docker-compose.yml`の、`MYSQL_DATABASE: practice_db`という、設定によって、MySQLコンテナ起動時に、自動的に、作成されたものです。
 
 ### 📝 テーブルの作成 (`CREATE TABLE`)
 
@@ -101,18 +101,18 @@ CREATE TABLE users (
 
 **phpMyAdminでの実行手順**
 
-1.  左ペインで、先ほど作成した、`laravel_db` データベースを、クリックして、選択状態にします。（重要！）
+1.  左ペインで、`practice_db` データベースを、クリックして、選択状態にします。（重要！）
 2.  上部の、「SQL」タブを、クリックします。
 3.  上記の、`CREATE TABLE` 文を、テキストエリアに、貼り付けます。
 4.  「実行」ボタンを、クリックします。
 
-成功すると、左ペインの、`laravel_db` の下に、`users` テーブルが、表示されます。
+成功すると、左ペインの、`practice_db` の下に、`users` テーブルが、表示されます。
 
 #### GUIでのテーブル作成
 
 phpMyAdminでは、SQLを、書かずに、GUI操作で、テーブルを、作成することもできます。
 
-1.  `laravel_db` データベースを、選択します。
+1.  `practice_db` データベースを、選択します。
 2.  メインコンテンツエリアに、表示される、「テーブルを作成」の、フォームに、テーブル名（例: `posts`）と、カラム数を、入力して、「実行」を、クリックします。
 3.  次の画面で、各カラムの、「名前」「データ型」「長さ/値」「デフォルト値」「インデックス（主キーなど）」「A_I（オートインクリメント）」などを、フォームに、入力・選択していきます。
 
