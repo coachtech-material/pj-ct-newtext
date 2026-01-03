@@ -18,7 +18,7 @@
 
 しかし、MySQL自体は、コマンドライン（黒い画面）で、操作するのが、基本であり、初学者にとっては、少し、ハードルが、高いかもしれません。そこで、登場するのが、**phpMyAdmin**という、強力な、助っ人です。
 
-phpMyAdminは、Webブラウザを、通して、MySQLの、中身を、見たり、データを、追加・編集したり、といった、操作を、マウスで、直感的に、行えるようにしてくれる、GUI（グラフィカル・ユーザー・インターフェース）ツールです。Tutorial 6で、構築した、Docker環境にも、すでに、含まれています。
+phpMyAdminは、Webブラウザを、通して、MySQLの、中身を、見たり、データを、追加・編集したり、といった、操作を、マウスで、直感的に、行えるようにしてくれる、GUI（グラフィカル・ユーザー・インターフェース）ツールです。このセクションで、MySQLとphpMyAdminの環境を、Dockerを使って、構築します。
 
 このセクションでは、まず、MySQLの、概要を、掴み、その後、phpMyAdminの、基本的な、使い方に、慣れることを、目指します。
 
@@ -49,20 +49,102 @@ phpMyAdminは、Webブラウザを、通して、MySQLの、中身を、見た�
 
 もちろん、実務では、SQLを、直接、書く能力は、必須ですが、学習の、初期段階において、phpMyAdminは、データベースの、世界への、素晴らしい、案内役と、なってくれます。
 
+### 🛠️ MySQLとphpMyAdminの環境構築
+
+まず、MySQLとphpMyAdminを、Dockerで、起動します。Tutorial 6で作成した、`php-practice`ディレクトリの、`docker-compose.yml`を、拡張します。
+
+#### Step 1: docker-compose.ymlの更新
+
+ターミナルで、`php-practice`ディレクトリに、移動し、VSCodeで、プロジェクトを、開きます。
+
+```bash
+cd ~/php-practice
+code .
+```
+
+VSCodeで、`docker-compose.yml`を、開き、以下の内容に、更新してください。MySQLとphpMyAdminの、コンテナを、追加します。
+
+```yaml
+version: '3.8'
+
+services:
+  nginx:
+    image: nginx:latest
+    ports:
+      - "8000:80"
+    volumes:
+      - ./src:/var/www/html
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - php
+
+  php:
+    image: php:8.2-fpm
+    volumes:
+      - ./src:/var/www/html
+
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: practice_db
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    environment:
+      PMA_HOST: mysql
+      PMA_USER: root
+      PMA_PASSWORD: password
+    ports:
+      - "8080:80"
+    depends_on:
+      - mysql
+
+volumes:
+  mysql_data:
+```
+
+追加した、設定の、意味を、確認しましょう。
+
+| 項目 | 説明 |
+| :--- | :--- |
+| `mysql:` | MySQLデータベースのコンテナ |
+| `MYSQL_ROOT_PASSWORD` | rootユーザーのパスワード |
+| `MYSQL_DATABASE` | 起動時に作成するデータベース名 |
+| `phpmyadmin:` | phpMyAdminのコンテナ |
+| `PMA_HOST` | 接続先のMySQLサーバー名 |
+| `ports: - "8080:80"` | ホストの8080番ポートでphpMyAdminにアクセス |
+| `volumes: mysql_data:` | データを永続化するためのボリューム |
+
+#### Step 2: コンテナの起動
+
+ターミナルで、以下のコマンドを、実行して、コンテナを、起動します。
+
+```bash
+docker-compose up -d
+```
+
+初回実行時は、MySQLとphpMyAdminの、イメージを、ダウンロードするため、少し、時間が、かかります。
+
+---
+
 ### 🖥️ phpMyAdminの基本画面
 
 それでは、実際に、phpMyAdminに、アクセスして、画面構成を、見てみましょう。
 
-1.  Tutorial 6で、起動した、Dockerコンテナが、動作していることを、確認します。
+1.  Dockerコンテナが、動作していることを、確認します。
 2.  Webブラウザで、`http://localhost:8080` に、アクセスします。
 
-**[ここに、phpMyAdminの、ログイン画面の、スクリーンショットを、挿入]**
+`docker-compose.yml`で、`PMA_USER`と`PMA_PASSWORD`を、設定しているため、自動的に、ログインされます。
 
-*   **サーバー**: `mysql` (docker-compose.ymlで、設定した、サービス名)
-*   **ユーザー名**: `root`
-*   **パスワード**: `password`
-
-と、入力して、ログインします。
+> 💡 **ポイント**: もし、ログイン画面が、表示された場合は、以下の、情報で、ログインしてください。
+> - **サーバー**: `mysql`
+> - **ユーザー名**: `root`
+> - **パスワード**: `password`
 
 **[ここに、phpMyAdminの、メイン画面の、スクリーンショットを、挿入]**
 
