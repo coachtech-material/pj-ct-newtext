@@ -26,10 +26,14 @@ MVCアーキテクチャにおいて、コントローラーは**「司令塔」
 コントローラーは、`php artisan make:controller`コマンドで生成します。
 
 ```bash
-docker compose exec php php artisan make:controller UserController
+sail artisan make:controller SampleController
 ```
 
-このコマンドを実行すると、`app/Http/Controllers/UserController.php`というファイルが生成されます。
+このコマンドを実行すると、`app/Http/Controllers/SampleController.php`というファイルが生成されます。
+
+> **📌 補足**
+> 
+> 前のセクション（9-1-4）で、すでに`UserController`と`WelcomeController`を作成しました。同じ名前のコントローラーを再度作成しようとすると、「Controller already exists.」というエラーが表示されます。ここでは例として`SampleController`という別の名前を使用しています。
 
 **生成されたファイルの内容**
 
@@ -40,7 +44,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 
-class UserController extends Controller
+class SampleController extends Controller
 {
     //
 }
@@ -50,9 +54,13 @@ class UserController extends Controller
 
 *   `namespace App\Http\Controllers;`: このクラスが`App\Http\Controllers`という名前空間に属することを示します。
 *   `use Illuminate\Http\Request;`: `Request`クラスをインポートします。これは、HTTPリクエストの情報を扱うためのクラスです。
-*   `class UserController extends Controller`: `UserController`クラスを定義し、`Controller`クラスを継承します。
+*   `class SampleController extends Controller`: `SampleController`クラスを定義し、`Controller`クラスを継承します。
 
 現時点では、クラスの中身は空です。ここに、メソッドを追加していきます。
+
+> **💡 POINT**
+> 
+> 以降の例では、前のセクションで作成した`UserController`を引き続き使用します。新しいコントローラーを作成する必要はありません。
 
 ### 📝 メソッドの追加
 
@@ -142,20 +150,24 @@ public function show(User $user)
 CRUD操作（作成・読み取り・更新・削除）を行うコントローラーは、決まったパターンがあります。Laravelでは、このパターンを「リソースコントローラー」として、一括生成することができます。
 
 ```bash
-docker compose exec php php artisan make:controller UserController --resource
+sail artisan make:controller ProductController --resource
 ```
+
+> **📌 補足**
+> 
+> ここでは例として`ProductController`を使用しています。すでに作成済みの`UserController`とは別のコントローラーです。
 
 `--resource`オプションを付けることで、以下の7つのメソッドが自動生成されます。
 
 | メソッド | 用途 | HTTPメソッド | URL |
 |:---|:---|:---|:---|
-| `index()` | 一覧表示 | GET | `/users` |
-| `create()` | 作成フォーム表示 | GET | `/users/create` |
-| `store()` | データ作成 | POST | `/users` |
-| `show($id)` | 詳細表示 | GET | `/users/{id}` |
-| `edit($id)` | 編集フォーム表示 | GET | `/users/{id}/edit` |
-| `update($id)` | データ更新 | PUT/PATCH | `/users/{id}` |
-| `destroy($id)` | データ削除 | DELETE | `/users/{id}` |
+| `index()` | 一覧表示 | GET | `/products` |
+| `create()` | 作成フォーム表示 | GET | `/products/create` |
+| `store()` | データ作成 | POST | `/products` |
+| `show($id)` | 詳細表示 | GET | `/products/{id}` |
+| `edit($id)` | 編集フォーム表示 | GET | `/products/{id}/edit` |
+| `update($id)` | データ更新 | PUT/PATCH | `/products/{id}` |
+| `destroy($id)` | データ削除 | DELETE | `/products/{id}` |
 
 **生成されたコントローラー**
 
@@ -166,7 +178,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 
-class UserController extends Controller
+class ProductController extends Controller
 {
     public function index()
     {
@@ -212,22 +224,22 @@ class UserController extends Controller
 リソースコントローラーを使う場合、ルーティングも一括で定義できます。
 
 ```php
-Route::resource('users', UserController::class);
+Route::resource('products', ProductController::class);
 ```
 
 この1行で、上記の7つのルートが全て定義されます。`php artisan route:list`で確認すると、以下のようになります。
 
 | Method | URI | Name | Action |
 |:---|:---|:---|:---|
-| GET | users | users.index | UserController@index |
-| GET | users/create | users.create | UserController@create |
-| POST | users | users.store | UserController@store |
-| GET | users/{user} | users.show | UserController@show |
-| GET | users/{user}/edit | users.edit | UserController@edit |
-| PUT/PATCH | users/{user} | users.update | UserController@update |
-| DELETE | users/{user} | users.destroy | UserController@destroy |
+| GET | products | products.index | ProductController@index |
+| GET | products/create | products.create | ProductController@create |
+| POST | products | products.store | ProductController@store |
+| GET | products/{product} | products.show | ProductController@show |
+| GET | products/{product}/edit | products.edit | ProductController@edit |
+| PUT/PATCH | products/{product} | products.update | ProductController@update |
+| DELETE | products/{product} | products.destroy | ProductController@destroy |
 
-ルート名も自動的に生成されるため、`route('users.show', ['user' => $user->id])`のように使うことができます。
+ルート名も自動的に生成されるため、`route('products.show', ['product' => $product->id])`のように使うことができます。
 
 ### 🔄 レスポンスの返し方
 
