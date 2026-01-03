@@ -1,4 +1,3 @@
-""
 # Tutorial 8-2-1: MySQLの基本とphpMyAdmin
 
 ## 🎯 このセクションで学ぶこと
