@@ -3,8 +3,7 @@
 ## 🎯 このセクションで学ぶこと
 
 *   PHPのコードが、どのようにして実行され、ブラウザに表示されるのか、その一連の流れを理解する。
-*   Dockerを使って、PHPを動かすための環境を構築する。
-*   実際に、PHPのコードを書いて、ブラウザで確認してみる。
+*   Tutorial 6で構築した`php-practice`環境を使って、PHPを動かしてみる。
 
 ---
 
@@ -14,7 +13,7 @@
 
 HTMLファイルであれば、PC上のファイルを、直接ブラウザで開けば、その内容が表示されました。しかし、PHPファイルは、同じように、直接ブラウザで開いても、`<?php ... ?>` というコードが、そのまま表示されてしまうだけで、意図した通りには動作しません。
 
-PHPのコードを実行するには、**Webサーバー**と**PHP実行環境**という、2つの要素が必要です。このセクションでは、Dockerを使って、この環境を簡単に構築し、PHPを動かしてみましょう。
+PHPのコードを実行するには、**Webサーバー**と**PHP実行環境**という、2つの要素が必要です。このセクションでは、Tutorial 6で構築した環境を使って、PHPの動作を確認してみましょう。
 
 ---
 
@@ -38,119 +37,47 @@ PHPのコードを実行するには、**Webサーバー**と**PHP実行環境**
 [ブラウザ] → リクエスト → [Webサーバー] → [PHP実行環境] → HTMLを生成 → [ブラウザ]
 ```
 
-### 🐳 Dockerで環境を構築しよう
+### 🐳 php-practice環境の確認
 
-PHPを動かすには、WebサーバーとPHP実行環境が必要ですが、Dockerを使えば、これらを簡単に用意できます。
-
-今回は、以下の2つのコンテナを使います：
+Tutorial 6のハンズオンで、`php-practice`ディレクトリにDocker環境を構築しました。この環境には、以下の2つのコンテナが含まれています。
 
 | コンテナ | 役割 |
 |---------|------|
 | **nginx** | Webサーバー。ブラウザからのリクエストを受け付けます |
 | **php** | PHP実行環境。PHPコードを実行してHTMLを生成します |
 
-難しい設定は不要です。以下の手順に従って、環境を構築しましょう。
-
-### ✍️ 最初のPHPコードを書いてみよう
-
-それでは、実際に、この環境で、PHPのコードを書いて、動かしてみましょう。
-
-#### Step 1: プロジェクトの準備
-
-まず、PHPを実行するための環境を準備します。以下の手順で、プロジェクトディレクトリを作成してください。
-
-```bash
-# プロジェクトディレクトリを作成
-mkdir -p ~/php-practice/src
-mkdir -p ~/php-practice/docker/nginx
-cd ~/php-practice
-```
-
-次に、`docker-compose.yml`ファイルを作成します。
-
-```yaml
-# docker-compose.yml
-version: '3.8'
-
-services:
-  nginx:
-    image: nginx:latest
-    ports:
-      - "8000:80"
-    volumes:
-      - ./src:/var/www/html
-      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
-    depends_on:
-      - php
-
-  php:
-    image: php:8.2-fpm
-    volumes:
-      - ./src:/var/www/html
-```
-
-**コードリーディング**：
-
-| 設定 | 意味 |
-|------|------|
-| `nginx` | Webサーバーのコンテナです |
-| `ports: "8000:80"` | ブラウザから`localhost:8000`でアクセスできるようにします |
-| `volumes: ./src:/var/www/html` | `src`フォルダの中身をコンテナ内で使えるようにします |
-| `php` | PHP実行環境のコンテナです |
-| `depends_on: php` | nginxがphpコンテナに依存していることを示します |
-
-次に、Nginxの設定ファイル（`docker/nginx/default.conf`）を作成します。
-
-```nginx
-# docker/nginx/default.conf
-server {
-    listen 80;
-    server_name localhost;
-    root /var/www/html;
-    index index.php index.html;
-
-    location / {
-        try_files $uri $uri/ /index.php?$query_string;
-    }
-
-    location ~ \.php$ {
-        fastcgi_pass php:9000;
-        fastcgi_index index.php;
-        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
-        include fastcgi_params;
-    }
-}
-```
-
-> 💡 **ポイント**: この設定ファイルは、「`.php`ファイルへのアクセスがあったら、PHP実行環境に処理を依頼する」という設定です。中身を完全に理解する必要はありません。「こういう設定が必要なんだな」程度で大丈夫です。
-
-**✅ ディレクトリ構造の確認**
-
-ここまでの作業が完了すると、以下のようなディレクトリ構造になっているはずです。確認してみましょう。
+**ディレクトリ構造の確認:**
 
 ```
-php-practice/
+~/php-practice/
 ├── docker/
 │   └── nginx/
 │       └── default.conf    # Nginxの設定ファイル
-├── src/                    # PHPファイルを置くディレクトリ（まだ空）
+├── src/
+│   └── index.php           # PHPファイルを置くディレクトリ
 └── docker-compose.yml      # Dockerの設定ファイル
 ```
 
-#### Step 2: 環境の起動
+> 💡 **ポイント**: Tutorial 7のハンズオン演習では、すべて`src/`ディレクトリ内にPHPファイルを作成していきます。
 
-以下のコマンドで、環境を起動します。
+### ✍️ PHPコードを書いて動かしてみよう
+
+それでは、実際に、この環境で、PHPのコードを書いて、動かしてみましょう。
+
+#### Step 1: 環境の起動
+
+まず、`php-practice`ディレクトリに移動し、Docker環境を起動します。
 
 ```bash
 cd ~/php-practice
 docker-compose up -d
 ```
 
-初回は、Dockerイメージのダウンロードに数分かかる場合があります。起動が完了したら、`docker-compose ps`コマンドで、コンテナが正常に起動していることを確認してください。
+起動が完了したら、`docker-compose ps`コマンドで、コンテナが正常に起動していることを確認してください。
 
-#### Step 3: PHPファイルの作成
+#### Step 2: PHPファイルの編集
 
-`src`ディレクトリの中に、`index.php`というファイルを作成します。
+`src/index.php`ファイルを、以下の内容に編集してください。
 
 ```php
 <?php
@@ -171,7 +98,7 @@ docker-compose up -d
 </html>
 ```
 
-#### Step 4: ブラウザで確認
+#### Step 3: ブラウザで確認
 
 Webブラウザで、`http://localhost:8000/index.php` にアクセスします。
 
@@ -179,21 +106,7 @@ Webブラウザで、`http://localhost:8000/index.php` にアクセスします�
 
 > 💡 **環境の停止**: 作業が終わったら、`docker-compose down`コマンドで環境を停止できます。次回作業するときは、再び`docker-compose up -d`で起動してください。
 
-**✅ 最終的なディレクトリ構造**
 
-すべての作業が完了すると、以下のようなディレクトリ構造になります。この構造になっていれば正解です！
-
-```
-php-practice/
-├── docker/
-│   └── nginx/
-│       └── default.conf    # Nginxの設定ファイル
-├── src/
-│   └── index.php           # 作成したPHPファイル
-└── docker-compose.yml      # Dockerの設定ファイル
-```
-
-今後、Tutorial 7のハンズオン演習では、この`src/`ディレクトリ内にPHPファイルを作成していきます。
 
 ---
 
@@ -202,7 +115,7 @@ php-practice/
 このセクションでは、PHPのコードが、サーバーの裏側で、どのように実行されるのか、その流れを学びました。
 
 *   **PHPの実行フロー**: `ブラウザ → Webサーバー → PHP実行環境 → HTMLを生成 → ブラウザ` という流れで、処理が進む。
-*   **Docker環境**: DockerでWebサーバー（nginx）とPHP実行環境（php）の2つのコンテナを起動することで、PHPを動かす環境を構築できる。
+*   **php-practice環境**: Tutorial 6で構築したDocker環境（nginx + php）を使って、PHPを実行できる。
 *   **動作確認**: `src`ディレクトリに、PHPファイルを作成し、`localhost:8000`にアクセスすることで、PHPが、正常に動作していることを確認した。
 
 次のセクションから、いよいよ、PHPの、具体的な文法について、学んでいきましょう。
