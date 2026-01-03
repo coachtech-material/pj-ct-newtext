@@ -238,6 +238,48 @@ class Tag extends Model
 
 ---
 
+### 🔍 Tinkerでデータ構造を確認する
+
+コントローラーを書く前に、Tinkerを起動してリレーションシップが正しく動作するか確認しましょう。
+
+```bash
+sail artisan tinker
+```
+
+```php
+>>> use App\Models\User;
+>>> use App\Models\Post;
+>>> use App\Models\Comment;
+>>> use App\Models\Tag;
+
+// ユーザーの投稿を取得
+>>> $user = User::first();
+>>> $user->posts;
+
+// 投稿のコメントを取得
+>>> $post = Post::first();
+>>> $post->comments;
+
+// 投稿のタグを取得
+>>> $post->tags;
+
+// コメントの投稿者を取得
+>>> $comment = Comment::first();
+>>> $comment->user;
+
+// Eager Loadingの確認
+>>> Post::with(['user', 'comments', 'tags'])->first();
+```
+
+**確認ポイント**：
+- `$user->posts`でユーザーの投稿が取得できるか？
+- `$post->comments`で投稿のコメントが取得できるか？
+- `$post->tags`で投稿のタグが取得できるか？
+
+> 💡 **重要**: 「データが取れていないのに画面を作っても動かない」ことを理解しましょう。Tinkerでリレーションメソッドを実行し、意図したデータ（SQL）が返ってきているか確認してから、コントローラーとビューを実装します。
+
+---
+
 ### 🚀 実践例1: 投稿の作成
 
 #### コントローラー

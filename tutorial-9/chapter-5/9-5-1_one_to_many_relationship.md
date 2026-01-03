@@ -104,7 +104,7 @@ public function up(): void
 マイグレーションを実行します。
 
 ```bash
-docker compose exec php php artisan migrate
+sail artisan migrate
 ```
 
 ---

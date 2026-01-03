@@ -1,30 +1,35 @@
-# Tutorial 9-2-3: フォームの作成
+# Tutorial 9-2-3: フォームとデータ送信
 
 ## 🎯 このセクションで学ぶこと
 
-*   Bladeでフォームを作成できるようになる。
-*   CSRFトークンの役割を理解し、`@csrf`ディレクティブを使えるようになる。
-*   フォームからデータを送信し、コントローラーで受け取れるようになる。
+*   セキュリティ：**`@csrf`**の必須性を理解し、正しく使えるようになる。
+*   RESTful対応：**`@method('PUT')` / `@method('DELETE')`**の必要性を理解する。
+*   UXへの配慮：**`old('name')`**による入力値保持、**`@error('name')`**によるエラー表示を実装できるようになる。
 
 ---
 
-## 導入:フォームとセキュリティ
+## 導入：フォームは「データの入り口」
 
 Webアプリケーションでは、ユーザーからデータを受け取るために、フォームを使います。例えば、ユーザー登録、ログイン、投稿の作成などです。
 
-しかし、フォームには**CSRF（Cross-Site Request Forgery）攻撃**というセキュリティリスクがあります。Laravelは、このリスクを防ぐために、**CSRFトークン**という仕組みを標準で提供しています。
+フォームは「データの入り口」であり、**セキュリティ**と**ユーザー体験（UX）**の両方を考慮する必要があります。
 
-このセクションでは、Bladeでフォームを作成し、CSRFトークンを使ってセキュリティを確保する方法を学びます。
+*   **セキュリティ**: CSRF攻撃を防ぐ
+*   **UX**: 入力エラー時に値を保持し、エラーメッセージを表示する
+
+このセクションでは、これらを実現するBladeの機能を学びます。
 
 ---
 
 ## 詳細解説
 
-### 🔐 CSRF攻撃とは？
+### 🔐 セキュリティ：`@csrf`の必須性
 
-CSRF攻撃とは、**ユーザーが意図しない操作を、悪意のあるサイトから実行させる攻撃**です。
+#### CSRF攻撃とは？
 
-#### 攻撃の流れ
+**CSRF（Cross-Site Request Forgery）攻撃**とは、ユーザーが意図しない操作を、悪意のあるサイトから実行させる攻撃です。
+
+**攻撃の流れ**
 
 1. ユーザーがWebアプリケーション（例：銀行サイト）にログインしている
 2. ユーザーが悪意のあるサイト（例：罠サイト）にアクセスする
@@ -42,133 +47,253 @@ Laravelは、フォームに**CSRFトークン**という秘密の文字列を�
 
 この2つが一致しない場合、リクエストは拒否されます。これにより、悪意のあるサイトからのリクエストを防ぐことができます。
 
+#### `@csrf`の使い方
+
+```blade
+<form method="POST" action="/posts">
+    @csrf
+    
+    <input type="text" name="title">
+    <button type="submit">送信</button>
+</form>
+```
+
+`@csrf`ディレクティブは、以下のHTMLを生成します。
+
+```html
+<input type="hidden" name="_token" value="ランダムな文字列">
+```
+
+> ⚠️ **重要**: POSTリクエストを送信するフォームには、**必ず`@csrf`を付ける**必要があります。これを忘れると、**419 Page Expired**エラーが発生します。
+
 ---
 
-### 📝 基本的なフォームの作成
+### 🎨 RESTful対応：`@method`
 
-#### ステップ1: ルートを定義する
+HTMLのフォームは、`GET`と`POST`の2つのメソッドしかサポートしていません。しかし、RESTful設計では、`PUT`、`PATCH`、`DELETE`なども使います。
 
-**`routes/web.php`**
+| HTTPメソッド | 用途 |
+|:---|:---|
+| GET | データの取得（一覧、詳細） |
+| POST | データの作成 |
+| PUT / PATCH | データの更新 |
+| DELETE | データの削除 |
+
+Laravelでは、`@method`ディレクティブを使って、これらのメソッドをシミュレートできます。
+
+#### 例：投稿の更新（PUT）
+
+```blade
+<form method="POST" action="/posts/{{ $post->id }}">
+    @csrf
+    @method('PUT')
+    
+    <input type="text" name="title" value="{{ $post->title }}">
+    <button type="submit">更新する</button>
+</form>
+```
+
+**コードリーディング**
+
+*   `method="POST"`: HTMLフォームはPOSTで送信します。
+*   `@method('PUT')`: Laravelに「これはPUTリクエストだ」と伝えます。
+
+`@method('PUT')`は、以下のHTMLを生成します。
+
+```html
+<input type="hidden" name="_method" value="PUT">
+```
+
+#### 例：投稿の削除（DELETE）
+
+```blade
+<form method="POST" action="/posts/{{ $post->id }}">
+    @csrf
+    @method('DELETE')
+    
+    <button type="submit">削除する</button>
+</form>
+```
+
+---
+
+### 📝 UXへの配慮：`old()`による入力値保持
+
+バリデーションエラーが発生した際に、ユーザーが入力した値を保持することで、ユーザー体験が向上します。
+
+#### 基本的な使い方
+
+```blade
+<input type="text" name="title" value="{{ old('title') }}">
+```
+
+`old('title')`は、前回のリクエストで送信された`title`の値を返します。バリデーションエラーがなければ、空文字を返します。
+
+#### デフォルト値を指定する
+
+編集フォームでは、既存のデータをデフォルト値として表示したい場合があります。
+
+```blade
+<input type="text" name="title" value="{{ old('title', $post->title) }}">
+```
+
+**動作の流れ**
+
+1. 初回表示時: `old('title')`は空なので、`$post->title`が表示される
+2. バリデーションエラー時: `old('title')`に前回の入力値が入っているので、それが表示される
+
+#### テキストエリアの場合
+
+```blade
+<textarea name="content">{{ old('content', $post->content) }}</textarea>
+```
+
+テキストエリアは`value`属性がないため、タグの間に値を配置します。
+
+---
+
+### 🚨 UXへの配慮：`@error`によるエラー表示
+
+バリデーションエラーが発生した際に、エラーメッセージを表示することで、ユーザーは何を修正すべきかわかります。
+
+#### 基本的な使い方
+
+```blade
+<input type="text" name="title" value="{{ old('title') }}">
+
+@error('title')
+    <p style="color: red;">{{ $message }}</p>
+@enderror
+```
+
+**コードリーディング**
+
+*   `@error('title')`: `title`フィールドにエラーがある場合に実行されます。
+*   `{{ $message }}`: エラーメッセージを表示します。
+*   `@enderror`: エラーブロックの終了を示します。
+
+#### エラー時にスタイルを変更する
+
+```blade
+<input 
+    type="text" 
+    name="title" 
+    value="{{ old('title') }}"
+    style="@error('title') border-color: red; @enderror"
+>
+
+@error('title')
+    <p style="color: red;">{{ $message }}</p>
+@enderror
+```
+
+#### 全てのエラーを一覧表示する
+
+```blade
+@if ($errors->any())
+    <div style="background-color: #fee; padding: 10px; margin-bottom: 20px;">
+        <ul>
+            @foreach ($errors->all() as $error)
+                <li style="color: red;">{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
+```
+
+---
+
+### 🏃 実践例：投稿作成フォーム
+
+これまで学んだ機能を組み合わせた、完全なフォームの例を見てみましょう。
+
+#### ルーティング（`routes/web.php`）
 
 ```php
-<?php
-
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PostController;
 
 Route::get('/posts/create', [PostController::class, 'create']);
 Route::post('/posts', [PostController::class, 'store']);
 ```
 
-**コードリーディング**
-
-*   `GET /posts/create`: フォームを表示するエンドポイント
-*   `POST /posts`: フォームから送信されたデータを処理するエンドポイント
-
-#### ステップ2: コントローラーを作成する
-
-```bash
-docker compose exec php php artisan make:controller PostController
-```
-
-**`app/Http/Controllers/PostController.php`**
+#### コントローラー（`PostController.php`）
 
 ```php
-<?php
-
-namespace App\Http\Controllers;
-
-use Illuminate\Http\Request;
-use App\Models\Post;
-
-class PostController extends Controller
+public function create()
 {
-    /**
-     * フォームを表示
-     */
-    public function create()
-    {
-        return view('posts.create');
-    }
+    return view('posts.create');
+}
 
-    /**
-     * フォームから送信されたデータを処理
-     */
-    public function store(Request $request)
-    {
-        // バリデーション
-        $validated = $request->validate([
-            'title' => 'required|max:255',
-            'content' => 'required',
-        ]);
+public function store(Request $request)
+{
+    $validated = $request->validate([
+        'title' => 'required|max:255',
+        'content' => 'required',
+    ]);
 
-        // 投稿を作成
-        $post = Post::create($validated);
+    Post::create($validated);
 
-        // リダイレクト
-        return redirect('/posts')->with('success', '投稿を作成しました');
-    }
+    return redirect('/posts')->with('success', '投稿を作成しました');
 }
 ```
 
-**コードリーディング**
-
-*   `create()`: フォームを表示するメソッド
-*   `store()`: フォームから送信されたデータを処理するメソッド
-*   `$request->validate([...])`: バリデーションを実行します（次のセクションで詳しく学びます）
-*   `redirect('/posts')->with('success', '...')`: `/posts`にリダイレクトし、成功メッセージを渡します
-
-#### ステップ3: Bladeビューを作成する
-
-```bash
-docker compose exec php mkdir -p resources/views/posts
-docker compose exec php touch resources/views/posts/create.blade.php
-```
-
-**`resources/views/posts/create.blade.php`**
+#### Blade（`resources/views/posts/create.blade.php`）
 
 ```blade
 <!DOCTYPE html>
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>投稿作成</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-        }
-        label {
-            display: block;
-            margin-top: 10px;
-        }
-        input, textarea {
-            width: 100%;
-            padding: 8px;
-            margin-top: 5px;
-        }
-        button {
-            margin-top: 15px;
-            padding: 10px 20px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            cursor: pointer;
-        }
+        .error { color: red; font-size: 0.9em; }
+        .error-input { border-color: red; }
     </style>
 </head>
 <body>
     <h1>投稿作成</h1>
 
+    {{-- 全エラーの一覧表示 --}}
+    @if ($errors->any())
+        <div style="background-color: #fee; padding: 10px; margin-bottom: 20px;">
+            <p>入力内容に問題があります。</p>
+            <ul>
+                @foreach ($errors->all() as $error)
+                    <li class="error">{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
     <form method="POST" action="/posts">
         @csrf
 
-        <label for="title">タイトル</label>
-        <input type="text" id="title" name="title" value="{{ old('title') }}">
+        <div>
+            <label for="title">タイトル</label>
+            <input 
+                type="text" 
+                id="title" 
+                name="title" 
+                value="{{ old('title') }}"
+                class="@error('title') error-input @enderror"
+            >
+            @error('title')
+                <p class="error">{{ $message }}</p>
+            @enderror
+        </div>
 
-        <label for="content">内容</label>
-        <textarea id="content" name="content" rows="5">{{ old('content') }}</textarea>
+        <div>
+            <label for="content">内容</label>
+            <textarea 
+                id="content" 
+                name="content" 
+                rows="5"
+                class="@error('content') error-input @enderror"
+            >{{ old('content') }}</textarea>
+            @error('content')
+                <p class="error">{{ $message }}</p>
+            @enderror
+        </div>
 
         <button type="submit">投稿する</button>
     </form>
@@ -178,159 +303,36 @@ docker compose exec php touch resources/views/posts/create.blade.php
 
 **コードリーディング**
 
-*   `<form method="POST" action="/posts">`: POSTメソッドで`/posts`にデータを送信します。
-*   `@csrf`: CSRFトークンを自動的に埋め込みます。**これを忘れると、419エラーが発生します。**
-*   `value="{{ old('title') }}"`: バリデーションエラーが発生した際に、入力値を保持します。
-*   `{{ old('content') }}`: テキストエリアの場合、タグの間に`old()`を配置します。
+*   `@csrf`: CSRF対策のトークンを埋め込む。
+*   `old('title')`: バリデーションエラー時に入力値を保持。
+*   `@error('title')`: タイトルにエラーがあればメッセージを表示。
+*   `$errors->any()`: エラーが1つでもあれば、全エラーを一覧表示。
 
 ---
 
-### 🔍 `@csrf`の仕組み
+### 📋 フォームのチェックリスト
 
-`@csrf`ディレクティブは、以下のHTMLを生成します。
+フォームを作成する際は、以下のチェックリストを確認しましょう。
 
-```html
-<input type="hidden" name="_token" value="ランダムな文字列">
-```
-
-このトークンは、Laravelが自動的に検証します。トークンが一致しない場合、`419 Page Expired`エラーが返されます。
-
----
-
-### 🎨 フォームの種類
-
-HTMLのフォームは、`GET`と`POST`の2つのメソッドしかサポートしていません。しかし、REST APIでは、`PUT`、`PATCH`、`DELETE`なども使います。
-
-Laravelでは、`@method`ディレクティブを使って、これらのメソッドをシミュレートできます。
-
-#### 例: 投稿の更新（PUT）
-
-**`routes/web.php`**
-
-```php
-Route::put('/posts/{id}', [PostController::class, 'update']);
-```
-
-**Bladeビュー**
-
-```blade
-<form method="POST" action="/posts/{{ $post->id }}">
-    @csrf
-    @method('PUT')
-
-    <label for="title">タイトル</label>
-    <input type="text" id="title" name="title" value="{{ old('title', $post->title) }}">
-
-    <label for="content">内容</label>
-    <textarea id="content" name="content" rows="5">{{ old('content', $post->content) }}</textarea>
-
-    <button type="submit">更新する</button>
-</form>
-```
-
-**コードリーディング**
-
-*   `@method('PUT')`: フォームのメソッドを`PUT`にシミュレートします。
-*   `old('title', $post->title)`: バリデーションエラーがない場合は、`$post->title`を表示します。
-
-#### 例: 投稿の削除（DELETE）
-
-```blade
-<form method="POST" action="/posts/{{ $post->id }}">
-    @csrf
-    @method('DELETE')
-
-    <button type="submit">削除する</button>
-</form>
-```
-
----
-
-### 🚀 フォームのベストプラクティス
-
-#### 1. 常に`@csrf`を付ける
-
-POSTリクエストを送信するフォームには、**必ず`@csrf`を付ける**必要があります。
-
-#### 2. `old()`で入力値を保持する
-
-バリデーションエラーが発生した際に、ユーザーが入力した値を保持することで、ユーザー体験が向上します。
-
-```blade
-<input type="text" name="title" value="{{ old('title') }}">
-```
-
-#### 3. `action`属性には絶対パスを使う
-
-```blade
-<form method="POST" action="/posts">
-```
-
-または、`route()`ヘルパーを使います。
-
-```blade
-<form method="POST" action="{{ route('posts.store') }}">
-```
-
----
-
-### 💡 TIP: フォームリクエストを使う
-
-複雑なバリデーションは、**フォームリクエスト（Form Request）**というクラスに分離することができます。
-
-```bash
-docker compose exec php php artisan make:request StorePostRequest
-```
-
-**`app/Http/Requests/StorePostRequest.php`**
-
-```php
-<?php
-
-namespace App\Http\Requests;
-
-use Illuminate\Foundation\Http\FormRequest;
-
-class StorePostRequest extends FormRequest
-{
-    public function authorize(): bool
-    {
-        return true;
-    }
-
-    public function rules(): array
-    {
-        return [
-            'title' => 'required|max:255',
-            'content' => 'required',
-        ];
-    }
-}
-```
-
-**コントローラーで使用**
-
-```php
-public function store(StorePostRequest $request)
-{
-    $validated = $request->validated();
-    $post = Post::create($validated);
-    return redirect('/posts')->with('success', '投稿を作成しました');
-}
-```
+| チェック項目 | 対応 |
+|:---|:---|
+| CSRF対策 | `@csrf`を付ける |
+| PUT/DELETE対応 | `@method('PUT')`などを付ける |
+| 入力値保持 | `old('name')`を使う |
+| エラー表示 | `@error('name')`を使う |
+| 編集フォームのデフォルト値 | `old('name', $model->name)`を使う |
 
 ---
 
 ## ✨ まとめ
 
-このセクションでは、Bladeでフォームを作成し、CSRFトークンを使ってセキュリティを確保する方法を学びました。
+このセクションでは、Bladeでフォームを作成し、セキュリティとUXを確保する方法を学びました。
 
-*   フォームには、CSRF攻撃というセキュリティリスクがある。
-*   Laravelは、`@csrf`ディレクティブでCSRFトークンを自動的に埋め込む。
-*   `@method`ディレクティブで、`PUT`、`PATCH`、`DELETE`メソッドをシミュレートできる。
-*   `old()`ヘルパーで、バリデーションエラー時に入力値を保持できる。
-*   フォームリクエストを使うことで、バリデーションロジックを分離できる。
+*   **`@csrf`**: CSRF攻撃を防ぐために、POSTフォームには必ず付ける。忘れると419エラー。
+*   **`@method('PUT')` / `@method('DELETE')`**: HTMLフォームでPUT/DELETEをシミュレートする。
+*   **`old('name')`**: バリデーションエラー時に入力値を保持し、ユーザーの再入力の手間を省く。
+*   **`@error('name')`**: フィールドごとにエラーメッセージを表示し、ユーザーに修正箇所を伝える。
 
-次のセクションでは、バリデーションエラーをBladeで表示する方法を学びます。
+次のセクションでは、Bladeファイルの読み解き方（レイアウトとコンポーネント）を学びます。
 
 ---

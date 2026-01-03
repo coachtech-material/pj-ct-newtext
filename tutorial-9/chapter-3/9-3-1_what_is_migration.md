@@ -141,7 +141,7 @@ return new class extends Migration
 マイグレーションを実行するには、以下のコマンドを使います。
 
 ```bash
-docker compose exec php php artisan migrate
+sail artisan migrate
 ```
 
 このコマンドを実行すると、`database/migrations/`ディレクトリ内の全てのマイグレーションファイルが順番に実行され、テーブルが作成されます。
@@ -161,7 +161,7 @@ INFO  Running migrations.
 どのマイグレーションが実行済みかを確認するには、以下のコマンドを使います。
 
 ```bash
-docker compose exec php php artisan migrate:status
+sail artisan migrate:status
 ```
 
 **実行結果のイメージ**
@@ -178,7 +178,7 @@ Migration name ......................................... Batch / Status
 最後に実行したマイグレーションを元に戻すには、以下のコマンドを使います。
 
 ```bash
-docker compose exec php php artisan migrate:rollback
+sail artisan migrate:rollback
 ```
 
 これにより、`down()`メソッドが実行され、テーブルが削除されます。
@@ -188,7 +188,7 @@ docker compose exec php php artisan migrate:rollback
 全てのマイグレーションを元に戻すには、以下のコマンドを使います。
 
 ```bash
-docker compose exec php php artisan migrate:reset
+sail artisan migrate:reset
 ```
 
 #### 全てのマイグレーションをロールバックして再実行する
@@ -196,7 +196,7 @@ docker compose exec php php artisan migrate:reset
 開発中は、テーブル構造を何度も変更することがあります。その場合、以下のコマンドで、全てのマイグレーションをロールバックして再実行できます。
 
 ```bash
-docker compose exec php php artisan migrate:refresh
+sail artisan migrate:refresh
 ```
 
 これは、`migrate:reset`と`migrate`を連続で実行するのと同じです。

@@ -25,7 +25,7 @@ Fortifyは、**バックエンドの認証処理**を提供するパッケージ
 #### ステップ1: Composerでインストール
 
 ```bash
-docker compose exec php composer require laravel/fortify
+sail composer require laravel/fortify
 ```
 
 このコマンドで、Fortifyパッケージがプロジェクトに追加されます。
@@ -33,7 +33,7 @@ docker compose exec php composer require laravel/fortify
 #### ステップ2: Fortifyの設定ファイルを公開
 
 ```bash
-docker compose exec php php artisan vendor:publish --provider="Laravel\Fortify\FortifyServiceProvider"
+sail artisan vendor:publish --provider="Laravel\Fortify\FortifyServiceProvider"
 ```
 
 このコマンドで、以下のファイルが作成されます：
@@ -47,7 +47,7 @@ docker compose exec php php artisan vendor:publish --provider="Laravel\Fortify\F
 Fortifyは、Laravelのデフォルトの`users`テーブルを使用します。すでにマイグレーションを実行している場合は、このステップは不要です。
 
 ```bash
-docker compose exec php php artisan migrate
+sail artisan migrate
 ```
 
 ---
@@ -105,9 +105,9 @@ Fortifyをインストールすると、以下のルートが自動的に登録�
 #### ルート一覧
 
 ```bash
-docker compose exec php php artisan route:list --path=login
-docker compose exec php php artisan route:list --path=register
-docker compose exec php php artisan route:list --path=logout
+sail artisan route:list --path=login
+sail artisan route:list --path=register
+sail artisan route:list --path=logout
 ```
 
 **主要なルート**：

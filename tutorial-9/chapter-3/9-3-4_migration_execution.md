@@ -25,7 +25,7 @@
 #### 基本コマンド
 
 ```bash
-docker compose exec php php artisan migrate
+sail artisan migrate
 ```
 
 このコマンドを実行すると、まだ実行されていないマイグレーションファイルが順番に実行されます。
@@ -64,7 +64,7 @@ SELECT * FROM migrations;
 #### 最後のバッチをロールバックする
 
 ```bash
-docker compose exec php php artisan migrate:rollback
+sail artisan migrate:rollback
 ```
 
 このコマンドを実行すると、最後に実行されたバッチのマイグレーションが元に戻されます。
@@ -81,7 +81,7 @@ INFO  Rolling back migrations.
 #### 特定のステップ数だけロールバックする
 
 ```bash
-docker compose exec php php artisan migrate:rollback --step=2
+sail artisan migrate:rollback --step=2
 ```
 
 これにより、最後の2バッチ分のマイグレーションがロールバックされます。
@@ -89,7 +89,7 @@ docker compose exec php php artisan migrate:rollback --step=2
 #### 全てのマイグレーションをロールバックする
 
 ```bash
-docker compose exec php php artisan migrate:reset
+sail artisan migrate:reset
 ```
 
 これにより、全てのマイグレーションがロールバックされます。
@@ -103,20 +103,20 @@ docker compose exec php php artisan migrate:reset
 #### 全てロールバックしてから再実行する
 
 ```bash
-docker compose exec php php artisan migrate:refresh
+sail artisan migrate:refresh
 ```
 
 これは、以下の2つのコマンドを実行するのと同じです。
 
 ```bash
-docker compose exec php php artisan migrate:reset
-docker compose exec php php artisan migrate
+sail artisan migrate:reset
+sail artisan migrate
 ```
 
 #### シーダーも一緒に実行する
 
 ```bash
-docker compose exec php php artisan migrate:refresh --seed
+sail artisan migrate:refresh --seed
 ```
 
 ---
@@ -126,7 +126,7 @@ docker compose exec php php artisan migrate:refresh --seed
 開発環境をリセットしたい場合は、以下のコマンドを使います。
 
 ```bash
-docker compose exec php php artisan migrate:fresh
+sail artisan migrate:fresh
 ```
 
 このコマンドは、**全てのテーブルを削除してから、マイグレーションを実行**します。
@@ -143,7 +143,7 @@ docker compose exec php php artisan migrate:fresh
 #### シーダーも一緒に実行する
 
 ```bash
-docker compose exec php php artisan migrate:fresh --seed
+sail artisan migrate:fresh --seed
 ```
 
 開発中は、このコマンドを頻繁に使います。
@@ -155,7 +155,7 @@ docker compose exec php php artisan migrate:fresh --seed
 #### 実行済みのマイグレーションを確認する
 
 ```bash
-docker compose exec php php artisan migrate:status
+sail artisan migrate:status
 ```
 
 **実行結果のイメージ**
@@ -201,7 +201,7 @@ php artisan migrate --force
 **対処法**:
 
 ```bash
-docker compose exec php php artisan migrate:fresh
+sail artisan migrate:fresh
 ```
 
 #### エラー2: `SQLSTATE[42S02]: Base table or view not found`
@@ -211,7 +211,7 @@ docker compose exec php php artisan migrate:fresh
 **対処法**:
 
 ```bash
-docker compose exec php php artisan migrate:fresh
+sail artisan migrate:fresh
 ```
 
 #### エラー3: `Nothing to rollback`
@@ -233,7 +233,7 @@ docker compose exec php php artisan migrate:fresh
 **例**
 
 ```bash
-docker compose exec php php artisan make:migration add_published_at_to_posts_table
+sail artisan make:migration add_published_at_to_posts_table
 ```
 
 ---
@@ -246,12 +246,12 @@ docker compose exec php php artisan make:migration add_published_at_to_posts_tab
 
 ```bash
 # ロールバック
-docker compose exec php php artisan migrate:rollback
+sail artisan migrate:rollback
 
 # マイグレーションファイルを修正
 
 # 再実行
-docker compose exec php php artisan migrate
+sail artisan migrate
 ```
 
 #### 方法2: 新しいマイグレーションを作成する
@@ -259,7 +259,7 @@ docker compose exec php php artisan migrate
 既に本番環境で実行されているマイグレーションは、修正してはいけません。代わりに、新しいマイグレーションを作成します。
 
 ```bash
-docker compose exec php php artisan make:migration add_description_to_posts_table
+sail artisan make:migration add_description_to_posts_table
 ```
 
 ---

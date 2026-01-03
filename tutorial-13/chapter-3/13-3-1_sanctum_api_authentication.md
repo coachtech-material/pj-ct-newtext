@@ -1,433 +1,238 @@
-# Tutorial 13-3-1: SanctumによるAPI認証
+# Tutorial 13-3-1: API認証の仕組み（概念理解）
 
 ## 🎯 このセクションで学ぶこと
 
-- Laravel SanctumによるAPI認証の仕組みを理解する
-- ログイン・ログアウトAPIの実装方法を学ぶ
-- トークンベース認証の実装方法を理解する
+- API認証（トークンベース認証）の仕組みを理解する
+- Web認証（セッションベース認証）との違いを深く理解する
+- Laravel Sanctumの概要を知る
+
+> **📌 このセクションについて**
+> 
+> このセクションでは、API認証の**概念**を学びます。実装は行いません。
+> 
+> 実際のAPI認証の実装は、より高度なカリキュラムで扱います。
 
 ---
 
 ## 🧠 先輩エンジニアの思考プロセス
 
-### 「なぜCRUD APIの後に『API認証』を実装するのか？」
+### 「なぜAPI認証を理解する必要があるのか？」
 
-CRUD APIが完成したら、次は「API認証」です。
+Tutorial 10-12で学んだ**Web認証（Fortify）**と、API開発で使う**API認証**は、仕組みが大きく異なります。
 
----
-
-### 理由1: セキュリティの確保
-
-現状のAPIは、**誰でもアクセスできる**状態です。
-
-本番環境では、認証されたユーザーだけがアクセスできるようにする必要があります。
+バックエンドエンジニアとして、両方の認証方式を**概念レベルで理解**しておくことは重要です。
 
 ---
 
-### 理由2: APIはセッションを使わない
+## Step 1: Web認証とAPI認証の復習
 
-Webアプリケーションでは「セッション」で認証状態を管理しました。
+### 1-1. 認証方式の比較（図解）
 
-しかし、APIでは**トークンベースの認証**を使います。
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    Web認証（Cookie/Session）                     │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  ブラウザ                        サーバー                        │
+│  ┌─────┐                        ┌─────────┐                    │
+│  │     │  ①ログイン（ID/PW）    │         │                    │
+│  │     │ ─────────────────────> │         │                    │
+│  │     │                        │ Session │                    │
+│  │     │  ②Set-Cookie          │  作成   │                    │
+│  │     │ <───────────────────── │  保存   │                    │
+│  │     │                        │         │                    │
+│  │     │  ③リクエスト（Cookie自動送信）   │                    │
+│  │     │ ─────────────────────> │ Session │                    │
+│  │     │                        │  照合   │                    │
+│  └─────┘                        └─────────┘                    │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────┐
+│                    API認証（Token）                              │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  クライアント                    サーバー                        │
+│  ┌─────┐                        ┌─────────┐                    │
+│  │     │  ①ログイン（ID/PW）    │         │                    │
+│  │     │ ─────────────────────> │         │                    │
+│  │     │                        │ Token   │                    │
+│  │     │  ②Token発行            │  発行   │                    │
+│  │     │ <───────────────────── │         │                    │
+│  │ Token│                        │         │                    │
+│  │ 保存 │  ③リクエスト           │         │                    │
+│  │     │  Authorization: Bearer xxx       │                    │
+│  │     │ ─────────────────────> │ Token   │                    │
+│  │     │                        │  検証   │                    │
+│  └─────┘                        └─────────┘                    │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### 1-2. 詳細比較
+
+| 項目 | Web認証（Cookie/Session） | API認証（Token） |
+|:---|:---|:---|
+| **状態管理** | ステートフル | ステートレス |
+| **認証情報の保存場所** | サーバー（Session） | クライアント（Token） |
+| **認証情報の送信方法** | Cookie（自動送信） | Authorizationヘッダー（手動） |
+| **CSRF対策** | 必要 | 不要 |
+| **スケーラビリティ** | 低い（Session共有が必要） | 高い（サーバー間で状態共有不要） |
+| **主な用途** | Webブラウザ | スマホアプリ、外部システム |
+| **Laravel** | Fortify | Sanctum |
+
+---
+
+## Step 2: トークンベース認証の仕組み
+
+### 2-1. トークンとは
+
+**トークン**とは、ユーザーを識別するための**一意の文字列**です。
+
+```
+eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
+```
+
+### 2-2. トークン認証のフロー
+
+```
+1. クライアントがログインAPIにID/PWを送信
+2. サーバーがID/PWを検証し、正しければトークンを発行
+3. クライアントはトークンを保存（ローカルストレージなど）
+4. 以降のリクエストでは、Authorizationヘッダーにトークンを付与
+5. サーバーはトークンを検証し、ユーザーを特定
+```
+
+### 2-3. Authorizationヘッダー
+
+APIリクエストでは、トークンを**Authorizationヘッダー**に付与します。
+
+```
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+```
+
+| 項目 | 説明 |
+|:---|:---|
+| `Authorization` | ヘッダー名 |
+| `Bearer` | 認証スキーム（トークン認証を示す） |
+| `eyJhbGci...` | トークン本体 |
+
+---
+
+## Step 3: Laravel Sanctumの概要
+
+### 3-1. Sanctumとは
+
+**Laravel Sanctum**は、LaravelでAPI認証を実装するためのパッケージです。
 
 | 特徴 | 説明 |
-|------|------|
-| ステートレス | サーバーに状態を持たない |
-| スケーラブル | 複数サーバーで動作可能 |
-| モバイル対応 | モバイルアプリでも使える |
-
----
-
-### 理由3: Laravel Sanctum
-
-Laravelには**Sanctum**というAPI認証パッケージがあります。
-
-シンプルで使いやすく、SPAやモバイルアプリの認証に最適です。
-
----
-
-### このセクションでやること
-
-| 順番 | 作業 | 理由 |
-|------|------|------|
-| Step 1 | Sanctumのセットアップ | パッケージの設定 |
-| Step 2 | 認証APIの実装 | ログイン・ログアウト |
-| Step 3 | APIのテスト | 動作確認 |
-
-> 💡 **ポイント**: Sanctumは、APIトークン認証とSPA認証の両方をサポートしています。
-
----
-
-## Step 1: Sanctumのセットアップ
-
-### 1-1. Laravel Sanctumとは
-
-**Laravel Sanctum**とは、**LaravelでAPI認証を簡単に実装するためのパッケージ**です。
-
-| 特徴 | 説明 |
-|------|------|
+|:---|:---|
 | シンプル | 簡単に実装できる |
-| トークンベース | トークンを使って認証する |
-| SPA対応 | シングルページアプリケーションにも対応 |
+| 軽量 | 必要最小限の機能 |
+| 2つの認証方式 | APIトークン認証とSPA認証 |
 
----
+### 3-2. Sanctumの2つの認証方式
 
-### 1-2. Sanctumのインストール
+| 方式 | 用途 | 説明 |
+|:---|:---|:---|
+| APIトークン認証 | スマホアプリ、外部システム | トークンをAuthorizationヘッダーに付与 |
+| SPA認証 | 同一ドメインのSPA | Cookie/Sessionを使用（Fortifyと似た仕組み） |
 
-Laravel 11では、Sanctumがデフォルトでインストールされています。
+### 3-3. Sanctumの仕組み（概念図）
 
-もしインストールされていない場合は、以下のコマンドでインストールします。
-
-```bash
-composer require laravel/sanctum
-php artisan vendor:publish --provider="Laravel\Sanctum\SanctumServiceProvider"
-php artisan migrate
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    Sanctum APIトークン認証                       │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  スマホアプリ                    Laravel                         │
+│  ┌─────┐                        ┌─────────┐                    │
+│  │     │  POST /api/login       │         │                    │
+│  │     │  {email, password}     │         │                    │
+│  │     │ ─────────────────────> │ Sanctum │                    │
+│  │     │                        │         │                    │
+│  │     │  {token: "abc123..."}  │ Token   │                    │
+│  │     │ <───────────────────── │ 発行    │                    │
+│  │     │                        │         │                    │
+│  │     │  GET /api/tasks        │         │                    │
+│  │     │  Authorization: Bearer abc123... │                    │
+│  │     │ ─────────────────────> │ Token   │                    │
+│  │     │                        │ 検証    │                    │
+│  │     │  {data: [...]}         │         │                    │
+│  │     │ <───────────────────── │         │                    │
+│  └─────┘                        └─────────┘                    │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-### 1-3. Userモデルの設定
+## Step 4: 認証方式の選択基準
 
-**ファイル**: `app/Models/User.php`
+### 4-1. どちらを使うべきか
 
-```php
-<?php
+| 状況 | 推奨される認証方式 |
+|:---|:---|
+| Webブラウザからのアクセス | Web認証（Fortify） |
+| スマホアプリからのアクセス | API認証（Sanctum） |
+| 外部システムとの連携 | API認証（Sanctum） |
+| 同一ドメインのSPA | SPA認証（Sanctum） |
 
-namespace App\Models;
+### 4-2. 実際の開発では
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
-use Laravel\Sanctum\HasApiTokens;
+多くのWebサービスでは、**両方の認証方式を併用**します。
 
-class User extends Authenticatable
-{
-    use HasFactory, Notifiable, HasApiTokens;
-
-    protected $fillable = [
-        'name',
-        'email',
-        'password',
-    ];
-
-    protected $hidden = [
-        'password',
-        'remember_token',
-    ];
-
-    protected function casts(): array
-    {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-        ];
-    }
-}
 ```
-
-> 💡 **ポイント**: `HasApiTokens`トレイトを使うことで、ユーザーがAPIトークンを持てるようになります。
-
----
-
-## Step 2: 認証APIの実装
-
-### 2-1. 認証APIコントローラーの作成
-
-```bash
-php artisan make:controller Api/AuthController
+┌─────────────────────────────────────────────────────────────────┐
+│                    実際のWebサービス                             │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  ┌─────────┐                                                   │
+│  │ ブラウザ │ ──── Web認証（Fortify）────> ┌─────────┐         │
+│  └─────────┘                              │         │         │
+│                                           │ Laravel │         │
+│  ┌─────────┐                              │         │         │
+│  │スマホアプリ│ ── API認証（Sanctum）───> │         │         │
+│  └─────────┘                              └─────────┘         │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-### 2-2. コントローラーの実装
+## 💡 TIP: JWTとの違い
 
-**ファイル**: `app/Http/Controllers/Api/AuthController.php`
+**JWT（JSON Web Token）**は、トークン自体に情報を含む形式です。
 
-```php
-<?php
+| 項目 | Sanctum | JWT |
+|:---|:---|:---|
+| トークンの形式 | ランダム文字列 | 署名付きJSON |
+| 情報の格納 | データベースに保存 | トークン自体に含む |
+| 無効化 | データベースから削除 | 有効期限まで無効化困難 |
+| 複雑さ | シンプル | やや複雑 |
 
-namespace App\Http\Controllers\Api;
-
-use App\Http\Controllers\Controller;
-use App\Models\User;
-use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\ValidationException;
-
-class AuthController extends Controller
-{
-    /**
-     * ユーザー登録
-     */
-    public function register(Request $request): JsonResponse
-    {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8|confirmed',
-        ]);
-
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-        ]);
-
-        $token = $user->createToken('auth_token')->plainTextToken;
-
-        return response()->json([
-            'message' => 'ユーザー登録が完了しました',
-            'user' => $user,
-            'token' => $token,
-        ], 201);
-    }
-
-    /**
-     * ログイン
-     */
-    public function login(Request $request): JsonResponse
-    {
-        $request->validate([
-            'email' => 'required|email',
-            'password' => 'required',
-        ]);
-
-        if (!Auth::attempt($request->only('email', 'password'))) {
-            throw ValidationException::withMessages([
-                'email' => ['メールアドレスまたはパスワードが正しくありません'],
-            ]);
-        }
-
-        $user = Auth::user();
-        $token = $user->createToken('auth_token')->plainTextToken;
-
-        return response()->json([
-            'message' => 'ログインしました',
-            'user' => $user,
-            'token' => $token,
-        ], 200);
-    }
-
-    /**
-     * ログアウト
-     */
-    public function logout(Request $request): JsonResponse
-    {
-        $request->user()->currentAccessToken()->delete();
-
-        return response()->json([
-            'message' => 'ログアウトしました'
-        ], 200);
-    }
-
-    /**
-     * 認証済みユーザー情報を取得
-     */
-    public function user(Request $request): JsonResponse
-    {
-        return response()->json([
-            'user' => $request->user()
-        ], 200);
-    }
-}
-```
-
----
-
-### 2-3. コードリーディング
-
-| コード | 説明 |
-|--------|------|
-| `$user->createToken('auth_token')->plainTextToken` | APIトークンを作成 |
-| `Auth::attempt($request->only('email', 'password'))` | 認証を試みる |
-| `$request->user()->currentAccessToken()->delete()` | 現在のトークンを削除 |
-
----
-
-### 2-4. ルーティングの設定
-
-**ファイル**: `routes/api.php`
-
-```php
-<?php
-
-use App\Http\Controllers\Api\AuthController;
-use App\Http\Controllers\Api\TaskController;
-use Illuminate\Support\Facades\Route;
-
-// 認証不要のルート
-Route::post('/register', [AuthController::class, 'register']);
-Route::post('/login', [AuthController::class, 'login']);
-
-// 認証が必要なルート
-Route::middleware('auth:sanctum')->group(function () {
-    Route::post('/logout', [AuthController::class, 'logout']);
-    Route::get('/user', [AuthController::class, 'user']);
-    Route::apiResource('tasks', TaskController::class);
-});
-```
-
----
-
-## Step 3: APIのテスト
-
-### 3-1. ユーザー登録
-
-```bash
-curl -X POST http://localhost/api/register \
-  -H "Content-Type: application/json" \
-  -d '{
-    "name": "Taro Yamada",
-    "email": "taro@example.com",
-    "password": "password123",
-    "password_confirmation": "password123"
-  }'
-```
-
-**レスポンス**:
-
-```json
-{
-  "message": "ユーザー登録が完了しました",
-  "user": {
-    "id": 1,
-    "name": "Taro Yamada",
-    "email": "taro@example.com"
-  },
-  "token": "1|abcdefghijklmnopqrstuvwxyz"
-}
-```
-
----
-
-### 3-2. ログイン
-
-```bash
-curl -X POST http://localhost/api/login \
-  -H "Content-Type: application/json" \
-  -d '{
-    "email": "taro@example.com",
-    "password": "password123"
-  }'
-```
-
-**レスポンス**:
-
-```json
-{
-  "message": "ログインしました",
-  "user": {
-    "id": 1,
-    "name": "Taro Yamada",
-    "email": "taro@example.com"
-  },
-  "token": "2|abcdefghijklmnopqrstuvwxyz"
-}
-```
-
----
-
-### 3-3. 認証済みユーザー情報を取得
-
-```bash
-curl -X GET http://localhost/api/user \
-  -H "Authorization: Bearer 2|abcdefghijklmnopqrstuvwxyz"
-```
-
-**レスポンス**:
-
-```json
-{
-  "user": {
-    "id": 1,
-    "name": "Taro Yamada",
-    "email": "taro@example.com"
-  }
-}
-```
-
----
-
-### 3-4. ログアウト
-
-```bash
-curl -X POST http://localhost/api/logout \
-  -H "Authorization: Bearer 2|abcdefghijklmnopqrstuvwxyz"
-```
-
-**レスポンス**:
-
-```json
-{
-  "message": "ログアウトしました"
-}
-```
-
----
-
-### 3-5. 未認証時のエラーレスポンス
-
-認証が必要なAPIに、トークンなしでアクセスすると、以下のようなエラーが返されます。
-
-```json
-{
-  "message": "Unauthenticated."
-}
-```
-
-HTTPステータスコード: `401 Unauthorized`
-
----
-
-## 🚨 よくある間違い
-
-### 間違い1: HasApiTokensトレイトを忘れる
-
-**問題**: トークンが作成できない
-
-**対処法**: Userモデルに`use HasApiTokens;`を追加します。
-
----
-
-### 間違い2: auth:sanctumミドルウェアを忘れる
-
-**問題**: 認証なしでAPIにアクセスできてしまう
-
-**対処法**: 認証が必要なルートには、`auth:sanctum`ミドルウェアを適用します。
-
----
-
-### 間違い3: トークンを平文で保存する
-
-**問題**: セキュリティリスク
-
-**対処法**: トークンは、データベースにハッシュ化されて保存されます。クライアントには、`plainTextToken`を返します。
-
----
-
-## 💡 TIP: トークンの有効期限
-
-デフォルトでは、Sanctumのトークンに有効期限はありません。
-
-有効期限を設定する場合は、`config/sanctum.php`で設定します。
-
-```php
-'expiration' => 60, // 60分
-```
+Sanctumは、シンプルさを重視した設計になっています。
 
 ---
 
 ## ✨ まとめ
 
-このセクションでは、SanctumによるAPI認証について学びました。
+このセクションでは、API認証の仕組みを概念レベルで学びました。
 
 | Step | 学んだこと |
-|------|-----------|
-| Step 1 | Sanctumのセットアップと設定 |
-| Step 2 | 認証APIの実装（ログイン・ログアウト） |
-| Step 3 | APIのテストと動作確認 |
+|:---|:---|
+| Step 1 | Web認証とAPI認証の違い（図解） |
+| Step 2 | トークンベース認証の仕組み |
+| Step 3 | Laravel Sanctumの概要 |
+| Step 4 | 認証方式の選択基準 |
+
+> **📌 重要なポイント**
+> 
+> - **Web認証**：ブラウザ向け、Cookie/Session、ステートフル
+> - **API認証**：アプリ向け、Token、ステートレス
+> - 実際の開発では、要件に応じて適切な認証方式を選択する
+> 
+> このカリキュラムでは、API認証の**実装**は扱いません。概念を理解した上で、必要に応じて公式ドキュメントを参照してください。
 
 次のセクションでは、APIのセキュリティについて学びます。
 

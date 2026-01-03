@@ -128,7 +128,7 @@ $user = User::factory()->create([
 まず、`Post`モデルのファクトリーを作成します。
 
 ```bash
-docker compose exec php php artisan make:factory PostFactory --model=Post
+sail artisan make:factory PostFactory --model=Post
 ```
 
 **`database/factories/PostFactory.php`**
@@ -187,7 +187,7 @@ $user = User::factory()
 #### シーダーの作成
 
 ```bash
-docker compose exec php php artisan make:seeder UserSeeder
+sail artisan make:seeder UserSeeder
 ```
 
 **`database/seeders/UserSeeder.php`**
@@ -220,7 +220,7 @@ class UserSeeder extends Seeder
 #### シーダーの実行
 
 ```bash
-docker compose exec php php artisan db:seed --class=UserSeeder
+sail artisan db:seed --class=UserSeeder
 ```
 
 または、`DatabaseSeeder.php`に登録して、一括実行することもできます。
@@ -247,7 +247,7 @@ class DatabaseSeeder extends Seeder
 ```
 
 ```bash
-docker compose exec php php artisan db:seed
+sail artisan db:seed
 ```
 
 ---
@@ -291,7 +291,7 @@ Fakerは、ロケールを設定することで、日本語のダミーデータ
 開発環境をリセットして、ダミーデータを再生成したい場合は、以下のコマンドを使います。
 
 ```bash
-docker compose exec php php artisan migrate:fresh --seed
+sail artisan migrate:fresh --seed
 ```
 
 これにより、全てのテーブルを削除し、マイグレーションを実行し、シーダーを実行します。

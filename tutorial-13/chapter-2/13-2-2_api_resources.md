@@ -50,7 +50,7 @@ return [
 
 | 順番 | 作業 | 理由 |
 |------|------|------|
-| Step 1 | API Resourceの作成 | `php artisan make:resource` |
+| Step 1 | API Resourceの作成 | `sail artisan make:resource` |
 | Step 2 | コントローラーで使用 | `return new TaskResource($task)` |
 | Step 3 | 高度な機能 | リレーションや条件付き属性 |
 
@@ -75,7 +75,7 @@ return [
 ### 1-2. リソースクラスを生成する
 
 ```bash
-php artisan make:resource TaskResource
+sail artisan make:resource TaskResource
 ```
 
 これにより、`app/Http/Resources/TaskResource.php`が作成されます。
@@ -366,7 +366,7 @@ public function toArray(Request $request): array
 ### 3-4. リソースコレクションのカスタマイズ
 
 ```bash
-php artisan make:resource TaskCollection
+sail artisan make:resource TaskCollection
 ```
 
 **ファイル**: `app/Http/Resources/TaskCollection.php`

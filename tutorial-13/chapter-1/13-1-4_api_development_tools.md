@@ -268,7 +268,7 @@ URLを`{{BASE_URL}}/api/tasks`と書くと、`http://localhost:8000/api/tasks`�
 
 **問題**: サーバーが起動していないと、接続エラーが返される
 
-**対処法**: `php artisan serve`でサーバーを起動します。
+**対処法**: `sail artisan serve`でサーバーを起動します。
 
 ---
 

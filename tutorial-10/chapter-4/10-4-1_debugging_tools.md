@@ -115,7 +115,7 @@ Laravel Debugbarは、開発中にSQLクエリ、パフォーマンス、ログ�
 #### インストール
 
 ```bash
-docker compose exec php composer require barryvdh/laravel-debugbar --dev
+sail composer require barryvdh/laravel-debugbar --dev
 ```
 
 `--dev`オプションを付けることで、開発環境でのみインストールされます。

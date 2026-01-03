@@ -67,7 +67,7 @@ DB_DATABASE=:memory:
 #### テストファイルの生成
 
 ```bash
-docker compose exec php php artisan make:test UserRegistrationTest
+sail artisan make:test UserRegistrationTest
 ```
 
 これにより、`tests/Feature/UserRegistrationTest.php`が生成されます。
@@ -124,7 +124,7 @@ class UserRegistrationTest extends TestCase
 ### 🚀 テストの実行
 
 ```bash
-docker compose exec php php artisan test
+sail artisan test
 ```
 
 **実行結果のイメージ**

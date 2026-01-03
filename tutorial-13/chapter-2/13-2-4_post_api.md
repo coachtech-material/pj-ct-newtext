@@ -245,7 +245,7 @@ public function store(Request $request): JsonResponse
 バリデーションロジックを分離するには、FormRequestを使います。
 
 ```bash
-php artisan make:request TaskRequest
+sail artisan make:request TaskRequest
 ```
 
 **ファイル**: `app/Http/Requests/TaskRequest.php`

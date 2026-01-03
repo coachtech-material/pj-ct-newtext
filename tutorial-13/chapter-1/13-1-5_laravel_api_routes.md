@@ -110,7 +110,7 @@ Route::get('/tasks', [TaskController::class, 'index']);
 ### 2-1. コントローラーを生成する
 
 ```bash
-php artisan make:controller Api/TaskController --api
+sail artisan make:controller Api/TaskController --api
 ```
 
 **ポイント**:
@@ -211,7 +211,7 @@ Route::apiResource('tasks', TaskController::class);
 ### 3-3. ルートを確認する
 
 ```bash
-php artisan route:list --path=api
+sail artisan route:list --path=api
 ```
 
 **出力例**:
@@ -237,7 +237,7 @@ DELETE     api/tasks/{task} ......... tasks.destroy › Api\TaskController@destr
 **解答例**:
 
 ```bash
-php artisan make:controller Api/UserController --api
+sail artisan make:controller Api/UserController --api
 ```
 
 ```php
@@ -304,10 +304,10 @@ Route::get('/tasks', [TaskController::class, 'index']);
 
 ```bash
 # ❌ 間違い
-php artisan make:controller TaskController
+sail artisan make:controller TaskController
 
 # ✅ 正しい
-php artisan make:controller Api/TaskController --api
+sail artisan make:controller Api/TaskController --api
 ```
 
 ---

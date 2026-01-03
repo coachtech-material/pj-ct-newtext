@@ -215,7 +215,7 @@ Route::prefix('admin')->group(function () {
 定義したルートの一覧を確認するには、以下のコマンドを実行します。
 
 ```bash
-docker compose exec php php artisan route:list
+sail artisan route:list
 ```
 
 このコマンドを実行すると、全てのルートが表形式で表示されます。

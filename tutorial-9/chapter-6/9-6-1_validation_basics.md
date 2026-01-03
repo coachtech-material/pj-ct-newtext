@@ -182,7 +182,7 @@ Laravelの公式日本語化リポジトリから、言語ファイルをダウ�
 
 ```bash
 docker compose exec php composer require laravel-lang/lang --dev
-docker compose exec php php artisan lang:publish ja
+sail artisan lang:publish ja
 ```
 
 #### ステップ2: デフォルトの言語を日本語に設定する
@@ -221,7 +221,7 @@ $request->validate([
 バリデーションルールが複雑になると、コントローラーが肥大化します。その場合、**フォームリクエスト**という専用のクラスにバリデーションロジックを分離することができます。
 
 ```bash
-docker compose exec php php artisan make:request StoreUserRequest
+sail artisan make:request StoreUserRequest
 ```
 
 これにより、`app/Http/Requests/StoreUserRequest.php`が生成されます。詳細は、後のセクションで学びます。

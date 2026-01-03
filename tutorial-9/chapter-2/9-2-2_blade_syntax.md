@@ -1,152 +1,50 @@
-# Tutorial 9-2-2: Bladeの基本構文
+# Tutorial 9-2-2: 制御構文とデータの展開
 
 ## 🎯 このセクションで学ぶこと
 
-*   Bladeの変数展開、制御構文（@if、@foreach）を実際に使えるようになる。
-*   コントローラーからビューにデータを渡し、Bladeで表示できるようになる。
-*   Bladeの便利な機能（@forelse、@isset、@emptyなど）を使いこなせるようになる。
+*   コレクションの展開：`@foreach`を使ってデータをループ表示できるようになる。
+*   防御的プログラミング：`@if`、`@isset`、特に**`@forelse`**（データが0件の時の表示）を使いこなせるようになる。
+*   `$loop`変数を使って、ループ内の状態を取得できるようになる。
 
 ---
 
-## 導入：実際に手を動かしてBladeを学ぶ
+## 導入：データを「安全に」表示する
 
-前のセクションで、Bladeテンプレートエンジンの概念と、このカリキュラムにおける位置づけを学びました。このセクションでは、実際にBladeファイルを作成し、コントローラーからデータを渡して表示する方法を、手を動かしながら学んでいきます。
+前のセクションで、Bladeの基本的な変数出力を学びました。しかし、実際のアプリケーションでは、単に変数を表示するだけでなく、**条件によって表示を変えたり**、**配列やコレクションをループして表示したり**する必要があります。
 
-Bladeの構文は非常にシンプルで、一度覚えてしまえば、直感的にHTMLを生成できるようになります。
+また、データが存在しない場合（0件の場合）にも、適切なメッセージを表示する**防御的プログラミング**が重要です。「データがありません」と表示するか、何も表示しないかで、ユーザー体験は大きく変わります。
 
 ---
 
 ## 詳細解説
 
-### 🏃 実践：ユーザー一覧を表示する
+### 🔄 コレクションの展開：`@foreach`
 
-まず、シンプルなユーザー一覧ページを作成してみましょう。
-
-#### ステップ1: ルーティングを定義する
-
-`routes/web.php`に、以下のルートを追加します。
-
-```php
-<?php
-use App\Http\Controllers\UserController;
-
-Route::get('/users', [UserController::class, 'index']);
-```
-
-#### ステップ2: コントローラーを作成する
-
-`app/Http/Controllers/UserController.php`を作成します（まだ存在しない場合）。
-
-```bash
-docker compose exec php php artisan make:controller UserController
-```
-
-コントローラーに、以下のコードを追加します。
-
-```php
-<?php
-
-namespace App\Http\Controllers;
-
-use App\Models\User;
-
-class UserController extends Controller
-{
-    public function index()
-    {
-        // データベースから全てのユーザーを取得
-        $users = User::all();
-
-        // ビューにデータを渡す
-        return view('users.index', compact('users'));
-    }
-}
-```
-
-#### ステップ3: ビューを作成する
-
-`resources/views/users/index.blade.php`を作成します。まず、ディレクトリを作成します。
-
-```bash
-mkdir -p resources/views/users
-```
-
-次に、`resources/views/users/index.blade.php`を作成し、以下の内容を記述します。
+データベースから取得したデータ（コレクション）をループして表示するには、`@foreach`を使います。
 
 ```blade
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ユーザー一覧</title>
-</head>
-<body>
-    <h1>ユーザー一覧</h1>
-
-    <ul>
-        @foreach ($users as $user)
-            <li>
-                <strong>{{ $user->name }}</strong> ({{ $user->email }})
-            </li>
-        @endforeach
-    </ul>
-</body>
-</html>
+<ul>
+    @foreach ($users as $user)
+        <li>{{ $user->name }} ({{ $user->email }})</li>
+    @endforeach
+</ul>
 ```
 
 **コードリーディング**
 
-*   `@foreach ($users as $user)`: コントローラーから渡された`$users`配列をループします。
-*   `{{ $user->name }}`: `$user`オブジェクトの`name`プロパティを出力します。`{{ }}`は自動的にHTMLエスケープを行います。
+*   `@foreach ($users as $user)`: `$users`コレクションをループし、各要素を`$user`として取り出します。
+*   `{{ $user->name }}`: 各ユーザーの名前を出力します。
 *   `@endforeach`: ループの終了を示します。
-
-#### ステップ4: ブラウザで確認する
-
-ブラウザで`http://localhost:8080/users`にアクセスすると、データベースに登録されているユーザーの一覧が表示されます。
-
-**[ここに、ユーザー一覧画面のスクリーンショットを挿入]**
 
 ---
 
-### 🔀 条件分岐（@if、@elseif、@else）
+### 🛡️ 防御的プログラミング：`@forelse`（推奨）
 
-Bladeでは、`@if`ディレクティブを使って条件分岐を行うことができます。
+**`@forelse`は、データが0件の場合の表示を簡潔に書ける、非常に便利なディレクティブです。**
 
-**例：ユーザーが管理者かどうかで表示を変える**
+実際のアプリケーションでは、データが0件の場合も考慮する必要があります。例えば、検索結果が0件の場合、「検索結果がありません」と表示するのが親切です。
 
-```blade
-@foreach ($users as $user)
-    <li>
-        {{ $user->name }}
-        @if ($user->is_admin)
-            <span style="color: red;">（管理者）</span>
-        @else
-            <span style="color: gray;">（一般ユーザー）</span>
-        @endif
-    </li>
-@endforeach
-```
-
-**複数の条件を扱う場合**
-
-```blade
-@if ($user->role === 'admin')
-    <span>管理者</span>
-@elseif ($user->role === 'moderator')
-    <span>モデレーター</span>
-@else
-    <span>一般ユーザー</span>
-@endif
-```
-
-### 🔍 便利なディレクティブ
-
-Bladeには、よくあるパターンを簡潔に書くための便利なディレクティブが用意されています。
-
-#### 1. `@forelse` - 空の場合の処理
-
-配列が空の場合に、特別なメッセージを表示したい場合は、`@forelse`と`@empty`を使います。
+#### `@forelse`を使う場合（推奨）
 
 ```blade
 <ul>
@@ -158,7 +56,13 @@ Bladeには、よくあるパターンを簡潔に書くための便利なディ
 </ul>
 ```
 
-これは、以下のコードと同じ意味です。
+**コードリーディング**
+
+*   `@forelse ($users as $user)`: `$users`が空でなければループします。
+*   `@empty`: `$users`が空の場合に実行されます。
+*   `@endforelse`: ループの終了を示します。
+
+#### `@foreach`と`@if`を使う場合（冗長）
 
 ```blade
 @if (count($users) > 0)
@@ -172,9 +76,34 @@ Bladeには、よくあるパターンを簡潔に書くための便利なディ
 @endif
 ```
 
-`@forelse`を使うことで、コードが簡潔になります。
+`@forelse`を使うことで、コードが簡潔になります。**データをループ表示する場合は、`@forelse`を使うことを推奨します。**
 
-#### 2. `@isset` - 変数が存在するかチェック
+---
+
+### 🔀 条件分岐：`@if`、`@elseif`、`@else`
+
+条件によって表示を変える場合は、`@if`を使います。
+
+```blade
+@if ($user->is_admin)
+    <span style="color: red;">管理者</span>
+@elseif ($user->is_moderator)
+    <span style="color: blue;">モデレーター</span>
+@else
+    <span style="color: gray;">一般ユーザー</span>
+@endif
+```
+
+**コードリーディング**
+
+*   `@if ($user->is_admin)`: `$user->is_admin`がtrueの場合に実行されます。
+*   `@elseif ($user->is_moderator)`: 最初の条件がfalseで、この条件がtrueの場合に実行されます。
+*   `@else`: どの条件にも当てはまらない場合に実行されます。
+*   `@endif`: 条件分岐の終了を示します。
+
+---
+
+### 🔍 変数の存在チェック：`@isset`
 
 変数が存在するかどうかをチェックする場合は、`@isset`を使います。
 
@@ -184,37 +113,23 @@ Bladeには、よくあるパターンを簡潔に書くための便利なディ
 @endisset
 ```
 
-これは、`isset($user)`と同じ意味です。
+これは、PHPの`isset($user)`と同じ意味です。変数が定義されていない場合、このブロックは実行されません。
 
-#### 3. `@empty` - 変数が空かチェック
-
-変数が空（`null`, `false`, `''`, `[]`など）かどうかをチェックする場合は、`@empty`を使います。
+#### `@unless` - 条件が偽の場合に実行
 
 ```blade
-@empty($users)
-    <p>ユーザーが見つかりません</p>
-@endempty
+@unless ($user->is_admin)
+    <p>管理者権限がありません</p>
+@endunless
 ```
 
-#### 4. `@auth` と `@guest` - 認証状態のチェック
+`@unless`は、`@if (!条件)`と同じ意味です。条件が偽の場合に実行されます。
 
-ユーザーがログインしているかどうかをチェックする場合は、`@auth`と`@guest`を使います。
+---
 
-```blade
-@auth
-    <p>こんにちは、{{ auth()->user()->name }}さん！</p>
-@endauth
+### 🔢 ループ内の便利な変数：`$loop`
 
-@guest
-    <p><a href="/login">ログインしてください</a></p>
-@endguest
-```
-
-これらは、認証機能を実装した後に使います。
-
-### 🔢 ループ内の便利な変数（$loop）
-
-`@foreach`や`@for`の中では、`$loop`という特別な変数が使えます。これは、ループの状態を表す情報を持っています。
+`@foreach`や`@forelse`の中では、`$loop`という特別な変数が使えます。これは、ループの状態を表す情報を持っています。
 
 | プロパティ | 説明 |
 |:---|:---|
@@ -225,47 +140,42 @@ Bladeには、よくあるパターンを簡潔に書くための便利なディ
 | `$loop->count` | ループ対象の要素数 |
 | `$loop->remaining` | 残りのループ回数 |
 
-**例：最初と最後の要素に特別なスタイルを適用する**
+#### 実践例：番号付きリストと最後の要素の強調
 
 ```blade
 <ul>
-    @foreach ($users as $user)
-        <li style="
-            @if ($loop->first) font-weight: bold; @endif
-            @if ($loop->last) color: red; @endif
-        ">
+    @forelse ($users as $user)
+        <li>
             {{ $loop->iteration }}. {{ $user->name }}
+            @if ($loop->first)
+                <span style="color: green;">（最初）</span>
+            @endif
+            @if ($loop->last)
+                <span style="color: red;">（最後）</span>
+            @endif
         </li>
-    @endforeach
+    @empty
+        <li>ユーザーが見つかりません</li>
+    @endforelse
 </ul>
 ```
 
 **実行結果のイメージ**
 
 ```
-1. 山田太郎（太字）
+1. 山田太郎（最初）
 2. 鈴木花子
-3. 佐藤次郎（赤字）
+3. 佐藤次郎（最後）
 ```
 
-### 📝 コメント
-
-Bladeには、HTMLとして出力されないコメントを書くことができます。
-
-```blade
-{{-- これはBladeのコメントです。HTMLには出力されません。 --}}
-
-<!-- これはHTMLのコメントです。ブラウザのソースコードに表示されます。 -->
-```
-
-機密情報や開発メモは、Bladeのコメント（`{{-- --}}`）を使いましょう。
+---
 
 ### 🔗 URLの生成
 
 Bladeでは、名前付きルートを使ってURLを生成できます。
 
 ```blade
-<a href="{{ route('users.show', ['id' => $user->id]) }}">
+<a href="{{ route('users.show', ['user' => $user->id]) }}">
     {{ $user->name }}
 </a>
 ```
@@ -274,29 +184,108 @@ Bladeでは、名前付きルートを使ってURLを生成できます。
 
 ---
 
-## 💡 TIP: Bladeはキャッシュされる
+### 🏃 実践例：ユーザー一覧ページ
 
-Bladeファイルは、初回アクセス時にPHPコードにコンパイルされ、`storage/framework/views/`にキャッシュされます。そのため、2回目以降のアクセスは高速です。
+コントローラーとBladeを組み合わせた実践例を見てみましょう。
 
-もし、Bladeファイルを編集したのに変更が反映されない場合は、以下のコマンドでキャッシュをクリアしてください。
+#### コントローラー
 
-```bash
-docker compose exec php php artisan view:clear
+```php
+public function index()
+{
+    $users = User::all();
+    return view('users.index', compact('users'));
+}
 ```
+
+#### Blade（`resources/views/users/index.blade.php`）
+
+```blade
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>ユーザー一覧</title>
+</head>
+<body>
+    <h1>ユーザー一覧</h1>
+
+    <table border="1">
+        <thead>
+            <tr>
+                <th>No.</th>
+                <th>名前</th>
+                <th>メールアドレス</th>
+                <th>権限</th>
+            </tr>
+        </thead>
+        <tbody>
+            @forelse ($users as $user)
+                <tr>
+                    <td>{{ $loop->iteration }}</td>
+                    <td>{{ $user->name }}</td>
+                    <td>{{ $user->email }}</td>
+                    <td>
+                        @if ($user->is_admin)
+                            <span style="color: red;">管理者</span>
+                        @else
+                            一般ユーザー
+                        @endif
+                    </td>
+                </tr>
+            @empty
+                <tr>
+                    <td colspan="4">ユーザーが登録されていません</td>
+                </tr>
+            @endforelse
+        </tbody>
+    </table>
+
+    <p>全{{ $users->count() }}件</p>
+</body>
+</html>
+```
+
+**コードリーディング**
+
+*   `@forelse ($users as $user)`: ユーザーが存在すればループ、存在しなければ`@empty`ブロックを実行。
+*   `$loop->iteration`: 1から始まる番号を表示。
+*   `@if ($user->is_admin)`: 管理者かどうかで表示を変更。
+*   `$users->count()`: コレクションの件数を表示。
+
+---
+
+### 💡 TIP: 認証状態のチェック
+
+ユーザーがログインしているかどうかをチェックする場合は、`@auth`と`@guest`を使います。
+
+```blade
+@auth
+    <p>こんにちは、{{ auth()->user()->name }}さん！</p>
+    <a href="{{ route('logout') }}">ログアウト</a>
+@endauth
+
+@guest
+    <p><a href="{{ route('login') }}">ログインしてください</a></p>
+@endguest
+```
+
+これらは、認証機能を実装した後に使います。
 
 ---
 
 ## ✨ まとめ
 
-このセクションでは、Bladeの基本構文を実際に使いながら学びました。
+このセクションでは、Bladeの制御構文を学びました。
 
-*   `{{ }}`で変数を出力し、自動的にHTMLエスケープされる。
-*   `@foreach`, `@if`, `@elseif`, `@else`などのディレクティブで、制御構文を書くことができる。
-*   `@forelse`を使うと、配列が空の場合の処理を簡潔に書ける。
-*   `@isset`, `@empty`, `@auth`, `@guest`などの便利なディレクティブがある。
-*   `$loop`変数を使うと、ループ内で現在の状態を取得できる。
-*   `route()`ヘルパーを使って、名前付きルートからURLを生成できる。
+*   **`@foreach`**: コレクションをループして表示する。
+*   **`@forelse`（推奨）**: データが0件の場合の表示を簡潔に書ける。防御的プログラミングに最適。
+*   **`@if`、`@elseif`、`@else`**: 条件によって表示を変える。
+*   **`@isset`**: 変数が存在するかどうかをチェックする。
+*   **`$loop`変数**: ループ内で現在の状態（番号、最初/最後など）を取得できる。
 
-次のセクションでは、BladeでAPIレスポンスを可視化する実践的な方法を学びます。
+**重要**: データをループ表示する場合は、`@forelse`を使って、0件の場合の表示も必ず実装しましょう。
+
+次のセクションでは、フォームとデータ送信について学びます。
 
 ---

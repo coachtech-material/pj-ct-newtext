@@ -54,7 +54,7 @@ Tutorial 11で作ったタスク管理アプリを、APIで操作できるよう
 | Step 2 | APIコントローラーの作成 | CRUD処理の実装 |
 | Step 3 | ルーティングとテスト | 動作確認 |
 
-> 💡 **ポイント**: `php artisan make:controller Api/TaskController --api`でAPI用のコントローラーを作成できます。
+> 💡 **ポイント**: `sail artisan make:controller Api/TaskController --api`でAPI用のコントローラーを作成できます。
 
 ---
 
@@ -63,7 +63,7 @@ Tutorial 11で作ったタスク管理アプリを、APIで操作できるよう
 ### 1-1. マイグレーションとモデルの作成
 
 ```bash
-php artisan make:model Task -m
+sail artisan make:model Task -m
 ```
 
 ---
@@ -146,7 +146,7 @@ class Task extends Model
 ### 2-1. コントローラーを生成する
 
 ```bash
-php artisan make:controller Api/TaskController --api
+sail artisan make:controller Api/TaskController --api
 ```
 
 ---

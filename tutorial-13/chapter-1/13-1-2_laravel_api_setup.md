@@ -143,7 +143,7 @@ curl -X POST http://localhost/api/echo \
 ### 2-1. APIコントローラーを生成する
 
 ```bash
-php artisan make:controller Api/TaskController --api
+sail artisan make:controller Api/TaskController --api
 ```
 
 `--api`オプションを付けることで、API用のコントローラーが作成されます。
@@ -247,7 +247,7 @@ Route::apiResource('tasks', TaskController::class);
 ### 2-5. ルーティングの確認
 
 ```bash
-php artisan route:list --path=api
+sail artisan route:list --path=api
 ```
 
 ---

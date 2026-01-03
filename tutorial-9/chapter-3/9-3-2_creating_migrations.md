@@ -23,7 +23,7 @@
 マイグレーションファイルは、`php artisan make:migration`コマンドで生成します。
 
 ```bash
-docker compose exec php php artisan make:migration create_posts_table
+sail artisan make:migration create_posts_table
 ```
 
 **コマンドの構成**
@@ -200,7 +200,7 @@ $table->integer('age')->unsigned()->nullable()->default(0)->comment('ユーザ�
 マイグレーションファイルを作成したら、以下のコマンドで実行します。
 
 ```bash
-docker compose exec php php artisan migrate
+sail artisan migrate
 ```
 
 **実行結果のイメージ**
@@ -222,7 +222,7 @@ phpMyAdminで確認すると、`posts`テーブルが作成されていること
 既に存在するテーブルに、新しいカラムを追加したい場合は、新しいマイグレーションファイルを作成します。
 
 ```bash
-docker compose exec php php artisan make:migration add_subtitle_to_posts_table
+sail artisan make:migration add_subtitle_to_posts_table
 ```
 
 **生成されたファイル**
@@ -261,7 +261,7 @@ return new class extends Migration
 マイグレーションを実行します。
 
 ```bash
-docker compose exec php php artisan migrate
+sail artisan migrate
 ```
 
 これで、`posts`テーブルに`subtitle`カラムが追加されます。

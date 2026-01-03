@@ -205,7 +205,7 @@ LOG_SLACK_WEBHOOK_URL=https://hooks.slack.com/services/YOUR/WEBHOOK/URL
 独自の例外クラスを作成することで、エラーハンドリングをより柔軟にできます。
 
 ```bash
-docker compose exec php php artisan make:exception InsufficientBalanceException
+sail artisan make:exception InsufficientBalanceException
 ```
 
 **`app/Exceptions/InsufficientBalanceException.php`**

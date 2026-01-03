@@ -2,80 +2,360 @@
 
 ## 📝 このセクションの目的
 
-Chapter 7で学んだ認証機能を実際に手を動かして確認します。ログイン・ログアウト機能を実装し、認証が必要なページを作成しましょう。
+Chapter 1で学んだFortifyを使った認証機能を実際に手を動かして確認します。Fortifyの設定を行い、提供されたBladeファイルを読み解いて、認証が必要なページを作成しましょう。
 
 > 分からない文法や実装があっても、すぐに答えを見るのではなく、過去の教材を見たり、AIにヒントをもらいながら進めるなど、自身で創意工夫しながら進めてみましょう🔥
 
 ---
 
-## 🎯 演習課題：マイページ機能の実装
+## 🎯 演習課題：Fortifyを使った認証機能の実装
 
 ### 📋 要件
 
-1. ログイン・ログアウト機能を実装
-2. `/mypage`にマイページを作成（認証必須）
-3. 未ログイン時はログインページにリダイレクト
-4. マイページにユーザー情報を表示
+1. Laravel Fortifyをインストールし、設定する
+2. 提供されたBladeファイルを配置し、Fortifyで読み込む
+3. `/dashboard`にダッシュボードを作成（認証必須）
+4. 未ログイン時はログインページにリダイレクト
+5. ダッシュボードにユーザー情報を表示
 
 ---
 
 ## 💡 ヒント
 
 ```bash
-php artisan make:controller AuthController
+# Fortifyのインストール
+sail composer require laravel/fortify
+sail artisan vendor:publish --provider="Laravel\Fortify\FortifyServiceProvider"
 ```
 
 ```php
-// ログイン
-if (Auth::attempt(['email' => $email, 'password' => $password])) {
-    return redirect('/mypage');
-}
+// FortifyServiceProvider.php
+Fortify::loginView(function () {
+    return view('auth.login');
+});
 
-// ログアウト
-Auth::logout();
-
-// 認証済みユーザー取得
-$user = Auth::user();
+Fortify::registerView(function () {
+    return view('auth.register');
+});
 
 // ミドルウェア
-Route::get('/mypage', [MypageController::class, 'index'])->middleware('auth');
+Route::get('/dashboard', [DashboardController::class, 'index'])->middleware('auth');
 ```
 
 ---
 
 ## 🏃 実践: 一緒に作ってみましょう！
 
-ちゃんとできましたか？認証機能はWebアプリケーションの核心機能です。一緒に手を動かしながら、マイページ機能を実装していきましょう。
+ちゃんとできましたか？Fortifyを使った認証機能はWebアプリケーションの核心機能です。一緒に手を動かしながら、認証機能を実装していきましょう。
 
 ### 💭 実装の思考プロセス
 
-認証機能を実装する際、以下の順番で考えると効率的です：
+Fortifyを使った認証機能を実装する際、以下の順番で考えると効率的です：
 
-1. **認証コントローラーを作成**：ログイン、ログアウトのロジックを実装
-2. **ログインフォームを作成**：メールとパスワードでログイン
-3. **マイページコントローラーを作成**：認証済みユーザー情報を表示
-4. **ミドルウェアで認証を制御**：未ログイン時はリダイレクト
-5. **ルートを定義**：ログイン、ログアウト、マイページのルート
+1. **Fortifyをインストール**：Composerでインストールし、設定ファイルを公開
+2. **Bladeファイルを配置**：提供されたログイン・登録フォームを配置
+3. **FortifyServiceProviderを設定**：ビューを指定
+4. **ダッシュボードを作成**：認証済みユーザー情報を表示
+5. **ルートを定義**：認証ミドルウェアを適用
 
-認証のポイントは「Authファサードとミドルウェアで安全に認証を管理する」ことです。
+認証のポイントは「Fortifyがバックエンドの認証処理を担当し、フロントエンドは自由に設計できる」ことです。
 
 ---
 
 ### 📝 ステップバイステップで実装
 
-#### ステップ1: 認証コントローラーを作成する
+#### ステップ1: Fortifyをインストールする
 
 **何を考えているか**：
-- 「ログインとログアウトの処理をまとめよう」
-- 「AuthControllerで認証関連のロジックを管理しよう」
+- 「Fortifyをインストールして、認証のバックエンド処理を使えるようにしよう」
+- 「設定ファイルとアクションクラスを公開しよう」
 
 ターミナルで以下のコマンドを実行します：
 
 ```bash
-php artisan make:controller AuthController
+# Fortifyをインストール
+sail composer require laravel/fortify
+
+# 設定ファイルとアクションクラスを公開
+sail artisan vendor:publish --provider="Laravel\Fortify\FortifyServiceProvider"
+
+# マイグレーションを実行（まだの場合）
+sail artisan migrate
 ```
 
-`app/Http/Controllers/AuthController.php`を開いて、以下のように編集します：
+**確認ポイント**：
+- `config/fortify.php`が作成されていること
+- `app/Actions/Fortify/`ディレクトリが作成されていること
+- `app/Providers/FortifyServiceProvider.php`が作成されていること
+
+---
+
+#### ステップ2: Fortifyの設定を確認する
+
+**何を考えているか**：
+- 「どの機能を有効にするか確認しよう」
+- 「ユーザー登録とログインを有効にしよう」
+
+`config/fortify.php`を開いて、以下の設定を確認します：
+
+```php
+'features' => [
+    Features::registration(),
+    Features::resetPasswords(),
+    // Features::emailVerification(),
+],
+```
+
+**コードリーディング**：
+
+```php
+Features::registration()
+```
+→ ユーザー登録機能を有効化します。
+
+```php
+Features::resetPasswords()
+```
+→ パスワードリセット機能を有効化します。
+
+---
+
+#### ステップ3: Bladeファイルを配置する
+
+**何を考えているか**：
+- 「ログインフォームと登録フォームを作成しよう」
+- 「Fortifyが自動的に登録したルートに対応するビューを作ろう」
+
+ターミナルで以下のコマンドを実行して、ディレクトリを作成します：
+
+```bash
+mkdir -p resources/views/auth
+```
+
+`resources/views/auth/login.blade.php`を作成します：
+
+```blade
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>ログイン</title>
+    <style>
+        body { font-family: sans-serif; max-width: 400px; margin: 50px auto; padding: 20px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }
+        button { width: 100%; padding: 10px; background: #3490dc; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #2779bd; }
+        .error { color: red; font-size: 12px; margin-top: 5px; }
+        .link { text-align: center; margin-top: 15px; }
+    </style>
+</head>
+<body>
+    <h1>ログイン</h1>
+    
+    <form method="POST" action="{{ route('login') }}">
+        @csrf
+        
+        <div class="form-group">
+            <label for="email">メールアドレス</label>
+            <input type="email" id="email" name="email" value="{{ old('email') }}" required autofocus>
+            @error('email')
+                <p class="error">{{ $message }}</p>
+            @enderror
+        </div>
+        
+        <div class="form-group">
+            <label for="password">パスワード</label>
+            <input type="password" id="password" name="password" required>
+            @error('password')
+                <p class="error">{{ $message }}</p>
+            @enderror
+        </div>
+        
+        <button type="submit">ログイン</button>
+    </form>
+    
+    <p class="link">
+        <a href="{{ route('register') }}">アカウントをお持ちでない方はこちら</a>
+    </p>
+</body>
+</html>
+```
+
+`resources/views/auth/register.blade.php`を作成します：
+
+```blade
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>ユーザー登録</title>
+    <style>
+        body { font-family: sans-serif; max-width: 400px; margin: 50px auto; padding: 20px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }
+        button { width: 100%; padding: 10px; background: #3490dc; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #2779bd; }
+        .error { color: red; font-size: 12px; margin-top: 5px; }
+        .link { text-align: center; margin-top: 15px; }
+    </style>
+</head>
+<body>
+    <h1>ユーザー登録</h1>
+    
+    <form method="POST" action="{{ route('register') }}">
+        @csrf
+        
+        <div class="form-group">
+            <label for="name">名前</label>
+            <input type="text" id="name" name="name" value="{{ old('name') }}" required>
+            @error('name')
+                <p class="error">{{ $message }}</p>
+            @enderror
+        </div>
+        
+        <div class="form-group">
+            <label for="email">メールアドレス</label>
+            <input type="email" id="email" name="email" value="{{ old('email') }}" required>
+            @error('email')
+                <p class="error">{{ $message }}</p>
+            @enderror
+        </div>
+        
+        <div class="form-group">
+            <label for="password">パスワード</label>
+            <input type="password" id="password" name="password" required>
+            @error('password')
+                <p class="error">{{ $message }}</p>
+            @enderror
+        </div>
+        
+        <div class="form-group">
+            <label for="password_confirmation">パスワード（確認）</label>
+            <input type="password" id="password_confirmation" name="password_confirmation" required>
+        </div>
+        
+        <button type="submit">登録</button>
+    </form>
+    
+    <p class="link">
+        <a href="{{ route('login') }}">すでにアカウントをお持ちの方はこちら</a>
+    </p>
+</body>
+</html>
+```
+
+**コードリーディング**：
+
+```blade
+<form method="POST" action="{{ route('login') }}">
+    @csrf
+```
+→ Fortifyが自動的に登録した`login`ルートにPOSTします。`@csrf`は必須です。
+
+```blade
+@error('email')
+    <p class="error">{{ $message }}</p>
+@enderror
+```
+→ バリデーションエラーがあれば、エラーメッセージを表示します。
+
+---
+
+#### ステップ4: FortifyServiceProviderを設定する
+
+**何を考えているか**：
+- 「Fortifyに、どのビューを使うか教えよう」
+- 「loginViewとregisterViewを設定しよう」
+
+`app/Providers/FortifyServiceProvider.php`を開いて、`boot`メソッドを以下のように編集します：
+
+```php
+<?php
+
+namespace App\Providers;
+
+use Illuminate\Support\ServiceProvider;
+use Laravel\Fortify\Fortify;
+
+class FortifyServiceProvider extends ServiceProvider
+{
+    public function register(): void
+    {
+        //
+    }
+
+    public function boot(): void
+    {
+        // ログインフォームのビューを指定
+        Fortify::loginView(function () {
+            return view('auth.login');
+        });
+
+        // ユーザー登録フォームのビューを指定
+        Fortify::registerView(function () {
+            return view('auth.register');
+        });
+    }
+}
+```
+
+**コードリーディング**：
+
+```php
+Fortify::loginView(function () {
+    return view('auth.login');
+});
+```
+→ `/login`にGETリクエストが来たときに、`resources/views/auth/login.blade.php`を表示するよう指定します。
+
+---
+
+#### ステップ5: Fortifyが登録したルートを確認する
+
+**何を考えているか**：
+- 「Fortifyがどんなルートを自動的に登録したか確認しよう」
+- 「routes/web.phpに何も書いていないのにルートが登録されているはず」
+
+ターミナルで以下のコマンドを実行します：
+
+```bash
+sail artisan route:list
+```
+
+**出力例**：
+
+```
+GET|HEAD  login .......... Laravel\Fortify\Http\Controllers\AuthenticatedSessionController@create
+POST      login .......... Laravel\Fortify\Http\Controllers\AuthenticatedSessionController@store
+POST      logout .......... Laravel\Fortify\Http\Controllers\AuthenticatedSessionController@destroy
+GET|HEAD  register .......... Laravel\Fortify\Http\Controllers\RegisteredUserController@create
+POST      register .......... Laravel\Fortify\Http\Controllers\RegisteredUserController@store
+```
+
+**重要なポイント**：
+
+*   `routes/web.php`に何も書いていないのに、ルートが登録されている
+*   Fortifyが内部でルートを定義している
+*   これがFortifyの「バックエンドの認証ロジックを提供する」という意味
+
+---
+
+#### ステップ6: ダッシュボードを作成する
+
+**何を考えているか**：
+- 「認証済みユーザーのみがアクセスできるページを作ろう」
+- 「authミドルウェアを使って保護しよう」
+
+ターミナルで以下のコマンドを実行します：
+
+```bash
+sail artisan make:controller DashboardController
+```
+
+`app/Http/Controllers/DashboardController.php`を開いて、以下のように編集します：
 
 ```php
 <?php
@@ -83,380 +363,128 @@ php artisan make:controller AuthController
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
-class AuthController extends Controller
+class DashboardController extends Controller
 {
-    public function showLoginForm()
+    public function index(Request $request)
     {
-        return view('auth.login');
-    }
-
-    public function login(Request $request)
-    {
-        $credentials = $request->only('email', 'password');
-
-        if (Auth::attempt($credentials)) {
-            $request->session()->regenerate();
-            return redirect()->intended('/mypage');
-        }
-
-        return back()->withErrors([
-            'email' => 'メールアドレスまたはパスワードが正しくありません',
+        return view('dashboard', [
+            'user' => $request->user(),
         ]);
     }
-
-    public function logout(Request $request)
-    {
-        Auth::logout();
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
-        return redirect('/');
-    }
 }
 ```
 
 **コードリーディング**：
 
 ```php
-use Illuminate\Support\Facades\Auth;
+$request->user()
 ```
-→ `Auth`ファサードをインポートします。認証機能を使用するために必要です。
-
-```php
-public function showLoginForm()
-{
-    return view('auth.login');
-}
-```
-→ ログインフォームを表示します。
-
-```php
-$credentials = $request->only('email', 'password');
-```
-→ リクエストからメールとパスワードだけを取得します。`only()`で必要なフィールドだけを抽出します。
-
-```php
-if (Auth::attempt($credentials)) {
-    $request->session()->regenerate();
-    return redirect()->intended('/mypage');
-}
-```
-→ `Auth::attempt()`で認証を試みます。成功したらセッションを再生成し、マイページにリダイレクトします。`intended()`で元々アクセスしようとしたページに戻ります。
-
-```php
-return back()->withErrors([
-    'email' => 'メールアドレスまたはパスワードが正しくありません',
-]);
-```
-→ 認証失敗時はエラーメッセージを持って前のページに戻ります。
-
-```php
-public function logout(Request $request)
-{
-    Auth::logout();
-    $request->session()->invalidate();
-    $request->session()->regenerateToken();
-    return redirect('/');
-}
-```
-→ `Auth::logout()`でログアウトし、セッションを無効化し、CSRFトークンを再生成します。セキュリティ対策として重要です。
+→ 認証済みユーザーを取得します。`auth()->user()`と同じです。
 
 ---
 
-#### ステップ2: マイページコントローラーを作成する
+#### ステップ7: ルートを定義する
 
 **何を考えているか**：
-- 「認証済みユーザーの情報を表示したい」
-- 「Auth::user()でログイン中のユーザーを取得しよう」
-
-ターミナルで以下のコマンドを実行します：
-
-```bash
-php artisan make:controller MypageController
-```
-
-`app/Http/Controllers/MypageController.php`を開いて、以下のように編集します：
-
-```php
-<?php
-
-namespace App\Http\Controllers;
-
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-
-class MypageController extends Controller
-{
-    public function index()
-    {
-        $user = Auth::user();
-        return view('mypage', compact('user'));
-    }
-}
-```
-
-**コードリーディング**：
-
-```php
-$user = Auth::user();
-```
-→ `Auth::user()`で現在ログイン中のユーザーを取得します。ユーザーモデルのインスタンスが返されます。
-
-```php
-return view('mypage', compact('user'));
-```
-→ ユーザー情報をビューに渡します。
-
----
-
-#### ステップ3: ルートを定義する
-
-**何を考えているか**：
-- 「ログイン、ログアウト、マイページのルートを設定しよう」
-- 「マイページにはauthミドルウェアを適用しよう」
+- 「ダッシュボードのルートを定義しよう」
+- 「authミドルウェアを適用しよう」
 
 `routes/web.php`を開いて、以下を追加します：
 
 ```php
-use App\Http\Controllers\AuthController;
-use App\Http\Controllers\MypageController;
+use App\Http\Controllers\DashboardController;
 
-// ログインフォーム表示
-Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
-// ログイン処理
-Route::post('/login', [AuthController::class, 'login']);
-// ログアウト
-Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
-
-// マイページ（認証必須）
-Route::get('/mypage', [MypageController::class, 'index'])->middleware('auth');
+Route::middleware('auth')->group(function () {
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+});
 ```
 
 **コードリーディング**：
 
 ```php
-Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
+Route::middleware('auth')->group(function () {
 ```
-→ ログインフォームのルートを定義します。`name('login')`で名前付きルートとして登録します。
-
-```php
-Route::post('/login', [AuthController::class, 'login']);
-```
-→ ログイン処理のルートを定義します。POSTメソッドでフォームデータを受け取ります。
-
-```php
-Route::get('/mypage', [MypageController::class, 'index'])->middleware('auth');
-```
-→ マイページのルートを定義し、`middleware('auth')`で認証を必須にします。未ログイン時は自動的にログインページにリダイレクトされます。
+→ このグループ内のルートは、認証済みユーザーのみがアクセスできます。
 
 ---
 
-#### ステップ4: ビューを作成する
+#### ステップ8: ダッシュボードのビューを作成する
 
 **何を考えているか**：
-- 「ログインフォームとマイページを作ろう」
-- 「ログインフォームには@csrfを必ず追加しよう」
+- 「ユーザー情報を表示しよう」
+- 「ログアウトボタンも追加しよう」
 
-ターミナルで以下のコマンドを実行して、ビューファイルを作成します：
-
-```bash
-# authディレクトリを作成
-mkdir -p resources/views/auth
-
-# ログインビューを作成
-touch resources/views/auth/login.blade.php
-```
-
-`resources/views/auth/login.blade.php`をエディタで開き、以下の内容を記述します：
+`resources/views/dashboard.blade.php`を作成します：
 
 ```blade
-<h1>ログイン</h1>
-<form action="{{ route('login') }}" method="POST">
-    @csrf
-    <div>
-        <label>メールアドレス</label>
-        <input type="email" name="email" value="{{ old('email') }}">
-        @error('email')
-            <p class="error">{{ $message }}</p>
-        @enderror
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>ダッシュボード</title>
+    <style>
+        body { font-family: sans-serif; max-width: 600px; margin: 50px auto; padding: 20px; }
+        .card { background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+        .logout-btn { background: #dc3545; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>ダッシュボード</h1>
+    
+    <div class="card">
+        <h2>ようこそ、{{ $user->name }}さん！</h2>
+        <p>メールアドレス: {{ $user->email }}</p>
+        <p>登録日: {{ $user->created_at->format('Y年m月d日') }}</p>
     </div>
-    <div>
-        <label>パスワード</label>
-        <input type="password" name="password">
-    </div>
-    <button type="submit">ログイン</button>
-</form>
-```
-
-次に、マイページのビューを作成します：
-
-```bash
-touch resources/views/mypage.blade.php
-```
-
-`resources/views/mypage.blade.php`をエディタで開き、以下の内容を記述します：
-
-```blade
-<h1>マイページ</h1>
-<p>ようこそ、{{ $user->name }}さん</p>
-<p>メール: {{ $user->email }}</p>
-
-<form action="{{ route('logout') }}" method="POST">
-    @csrf
-    <button type="submit">ログアウト</button>
-</form>
+    
+    <form method="POST" action="{{ route('logout') }}">
+        @csrf
+        <button type="submit" class="logout-btn">ログアウト</button>
+    </form>
+</body>
+</html>
 ```
 
 **コードリーディング**：
 
 ```blade
-<form action="{{ route('login') }}" method="POST">
+<form method="POST" action="{{ route('logout') }}">
     @csrf
+    <button type="submit" class="logout-btn">ログアウト</button>
+</form>
 ```
-→ フォームには必ず`@csrf`トークンを追加します。CSRF攻撃を防ぐために必須です。
+→ ログアウトはPOSTリクエストで行います。`@csrf`は必須です。
 
-```blade
-<p>ようこそ、{{ $user->name }}さん</p>
-```
-→ ログイン中のユーザー名を表示します。`Auth::user()`で取得したユーザー情報を使用します。
+---
+
+#### ステップ9: 動作確認
+
+**何を考えているか**：
+- 「実際に動作するか確認しよう」
+- 「ユーザー登録 → ログイン → ダッシュボード → ログアウトの流れを確認しよう」
+
+1. ブラウザで`http://localhost/register`にアクセス
+2. ユーザー情報を入力して「登録」ボタンをクリック
+3. 登録が成功し、ダッシュボードに遷移することを確認
+4. ログアウトボタンをクリック
+5. ログインページにリダイレクトされることを確認
+6. 登録したメールアドレスとパスワードでログイン
+7. ダッシュボードに遷移することを確認
 
 ---
 
 ### ✨ 完成！
 
-これで認証機能が実装できました！ログイン、ログアウト、認証必須ページを作成できましたね。
+これでFortifyを使った認証機能が実装できました！
 
----
+**学んだこと**：
 
-## 📖 模範解答
+*   Fortifyはバックエンドの認証処理を提供する
+*   フロントエンド（Bladeファイル）は自由に設計できる
+*   ルートはFortifyが自動的に登録する
+*   `php artisan route:list`でルートを確認できる
 
-### AuthController.php
-
-```php
-<?php
-
-namespace App\Http\Controllers;
-
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-
-class AuthController extends Controller
-{
-    public function showLoginForm()
-    {
-        return view('auth.login');
-    }
-
-    public function login(Request $request)
-    {
-        $credentials = $request->only('email', 'password');
-
-        if (Auth::attempt($credentials)) {
-            $request->session()->regenerate();
-            return redirect()->intended('/mypage');
-        }
-
-        return back()->withErrors([
-            'email' => 'メールアドレスまたはパスワードが正しくありません',
-        ]);
-    }
-
-    public function logout(Request $request)
-    {
-        Auth::logout();
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
-        return redirect('/');
-    }
-}
-```
-
-### MypageController.php
-
-```php
-<?php
-
-namespace App\Http\Controllers;
-
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-
-class MypageController extends Controller
-{
-    public function index()
-    {
-        $user = Auth::user();
-        return view('mypage.index', ['user' => $user]);
-    }
-}
-```
-
-### routes/web.php
-
-```php
-use App\Http\Controllers\AuthController;
-use App\Http\Controllers\MypageController;
-
-Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
-Route::post('/login', [AuthController::class, 'login']);
-Route::post('/logout', [AuthController::class, 'logout']);
-
-Route::get('/mypage', [MypageController::class, 'index'])->middleware('auth');
-```
-
-### auth/login.blade.php
-
-```blade
-@extends('layouts.app')
-
-@section('content')
-<div class="container">
-    <h1>ログイン</h1>
-    
-    <form action="{{ route('login') }}" method="POST">
-        @csrf
-        <div class="mb-3">
-            <label>メールアドレス</label>
-            <input type="email" name="email" class="form-control" value="{{ old('email') }}" required>
-            @error('email')
-                <p class="text-danger">{{ $message }}</p>
-            @enderror
-        </div>
-        <div class="mb-3">
-            <label>パスワード</label>
-            <input type="password" name="password" class="form-control" required>
-        </div>
-        <button type="submit" class="btn btn-primary">ログイン</button>
-    </form>
-</div>
-@endsection
-```
-
-### mypage/index.blade.php
-
-```blade
-@extends('layouts.app')
-
-@section('content')
-<div class="container">
-    <h1>マイページ</h1>
-    
-    <div class="card">
-        <div class="card-body">
-            <h2>ユーザー情報</h2>
-            <p>名前: {{ $user->name }}</p>
-            <p>メールアドレス: {{ $user->email }}</p>
-        </div>
-    </div>
-    
-    <form action="/logout" method="POST" class="mt-3">
-        @csrf
-        <button type="submit" class="btn btn-secondary">ログアウト</button>
-    </form>
-</div>
-@endsection
-```
 ---
 
 ## 🚀 まとめ
@@ -465,8 +493,11 @@ Route::get('/mypage', [MypageController::class, 'index'])->middleware('auth');
 
 このハンズオンで、以下のことができるようになりました：
 
-- ✅ Chapter 7で学んだ認証機能を実際に手を動かして確認します。ログイン・ログアウト機能を実装し、認証が必要なページを作成しましょう。
+- ✅ Laravel Fortifyをインストールし、設定できた
+- ✅ Bladeファイルを配置し、Fortifyで読み込めた
+- ✅ 認証が必要なダッシュボードを作成できた
+- ✅ Fortifyが自動的に登録するルートを確認できた
 
-引き続き、次のセクションも頑張りましょう！
+引き続き、次のChapterも頑張りましょう！
 
 ---

@@ -2,88 +2,186 @@
 
 ## 🎯 このセクションで学ぶこと
 
-- タスク一覧ページを実装する方法を学ぶ
-- Eloquent ORMを使ってデータを取得する方法を理解する
-- Bladeテンプレートでデータを表示する方法を学ぶ
+- 提供されたBladeファイルを読み解き、必要なデータを特定する方法を学ぶ
+- Tinkerでデータ取得を確認してから、コントローラーを実装する方法を学ぶ
+- 「提供コードありき」の開発フローを実践する
 
 ---
 
 ## 🧠 先輩エンジニアの思考プロセス
 
-### 「なぜCRUDの中で『一覧表示』を最初に作るのか？」
+### 「提供コードありき」の開発フロー
 
-データベースとモデルができたら、次は画面を作ります。では、なぜCreate（作成）ではなくRead（一覧）から始めるのでしょうか？
+このTutorialでは、**フロントエンドエンジニアから納品されたBladeファイルがある**という想定で開発を進めます。
+
+実務では、以下のような流れで開発を進めます：
+
+```
+1. 画面アクセス＆エラー確認 → 何が足りないかを把握
+2. Bladeの解読 → 必要な変数・リレーションを特定
+3. Tinker検証 → データ構造を確認
+4. バックエンド実装 → モデル・コントローラーを実装
+```
+
+**「データが取れていないのに画面を作っても動かない」** という問題を防ぐため、必ずTinkerで確認してから実装します。
 
 ---
 
-### 理由1: データが正しく保存されているか確認できる
+## Step 1: 画面アクセス＆エラー確認
 
-前のセクションでマイグレーションとモデルを作成しました。でも、本当に正しく動作しているのでしょうか？
+### 1-1. ブラウザでアクセスする
 
-一覧画面を作れば、Tinkerで追加したテストデータが表示されるかどうかで、**データベース連携が正しく動作しているか確認できます**。
+前のセクションでBladeファイルを配置しました。まずは画面にアクセスして、エラーを確認します。
+
+```
+http://localhost/tasks
+```
+
+### 1-2. エラーを確認する
+
+以下のようなエラーが表示されるはずです：
+
+```
+Target class [App\Http\Controllers\TaskController] does not exist.
+```
+
+**読み解き**：`TaskController`が存在しないため、エラーになっています。
 
 ---
 
-### 理由2: 作成画面よりシンプル
+## Step 2: Bladeの解読
 
-一覧表示は、**データを取得して表示するだけ**です。
+エラーを修正する前に、**Bladeファイルを読み解いて、何が必要かを把握**します。
 
+### 2-1. tasks/index.blade.phpを読む
+
+`resources/views/tasks/index.blade.php`を開いて、必要な変数を特定します。
+
+```blade
+{{-- 検索フォームのカテゴリー選択 --}}
+@foreach($categories as $category)
+    <option value="{{ $category->id }}">{{ $category->name }}</option>
+@endforeach
+
+{{-- タスク一覧 --}}
+@forelse($tasks as $task)
+    <h3>{{ $task->title }}</h3>
+    <span class="status-{{ $task->status }}">...</span>
+    @if($task->category)
+        | カテゴリー: {{ $task->category->name }}
+    @endif
+    @if($task->due_date)
+        | 期限: {{ $task->due_date->format('Y/m/d') }}
+    @endif
+@empty
+    <p>タスクがありません。</p>
+@endforelse
+
+{{-- ページネーション --}}
+{{ $tasks->links() }}
 ```
-一覧表示: データ取得 → 表示
-作成画面: フォーム表示 → 入力受付 → バリデーション → 保存 → リダイレクト
-```
 
-作成画面は複数の処理が必要ですが、一覧表示はシンプルなので、**まずは簡単なものから始めます**。
+### 2-2. 必要なデータを整理する
+
+| 変数 | 型 | 説明 |
+|:---|:---|:---|
+| `$categories` | Collection | カテゴリーの一覧 |
+| `$tasks` | Paginator | タスクの一覧（ページネーション付き） |
+| `$task->category` | Category | タスクに紐づくカテゴリー（リレーション） |
+
+### 2-3. 必要なリレーションを特定する
+
+`$task->category->name`という記述から、**TaskモデルにCategoryへのリレーションが必要**だとわかります。
+
+```php
+// Taskモデルに必要
+public function category()
+{
+    return $this->belongsTo(Category::class);
+}
+```
 
 ---
 
-### 理由3: 作成後の確認に使える
+## Step 3: Tinker検証
 
-一覧画面があれば、「作成」機能を実装した後に、**新しいデータが一覧に表示されるか確認できます**。
+コントローラーを実装する前に、**Tinkerでデータ取得を確認**します。
 
-つまり、一覧画面は「作成」「編集」「削除」の**動作確認にも使える**のです。
+### 3-1. Tinkerを起動する
+
+```bash
+sail artisan tinker
+```
+
+### 3-2. カテゴリーを取得する
+
+```php
+>>> App\Models\Category::all();
+```
+
+**期待する結果**：
+
+```
+=> Illuminate\Database\Eloquent\Collection {#1234
+     all: [
+       App\Models\Category {#5678
+         id: 1,
+         name: "仕事",
+         ...
+       },
+       App\Models\Category {#9012
+         id: 2,
+         name: "プライベート",
+         ...
+       },
+     ],
+   }
+```
+
+> **💡 ポイント**: データが空の場合は、先にテストデータを作成します。
+
+### 3-3. タスクを取得する
+
+```php
+>>> App\Models\Task::paginate(10);
+```
+
+**期待する結果**：
+
+```
+=> Illuminate\Pagination\LengthAwarePaginator {#1234
+     ...
+   }
+```
+
+### 3-4. リレーションを確認する
+
+```php
+>>> $task = App\Models\Task::first();
+>>> $task->category;
+```
+
+**期待する結果**：
+
+```
+=> App\Models\Category {#5678
+     id: 1,
+     name: "仕事",
+     ...
+   }
+```
+
+> **🚨 エラーが出た場合**：`Call to undefined relationship [category]`というエラーが出たら、Taskモデルにリレーションを追加する必要があります。
 
 ---
 
-### このセクションでやること
+## Step 4: バックエンド実装
 
-| 順番 | 作業 | 理由 |
-|------|------|------|
-| Step 1 | 実装の流れを理解する | 全体像を把握する |
-| Step 2 | ルーティングの設定 | URLとコントローラーを紐付ける |
-| Step 3 | コントローラーの作成と実装 | データを取得するロジックを書く |
-| Step 4 | ビューの作成 | データを表示する画面を作る |
-| Step 5 | 動作確認 | 正しく動作するか確認する |
+Tinkerで確認できたら、コントローラーを実装します。
 
-この順番は、**リクエストの流れ**に沿っています：
+### 4-1. ルートを定義する
 
-```
-ユーザーがURLにアクセス → ルーティング → コントローラー → ビュー
-```
-
----
-
-## Step 1: 実装の流れを理解する
-
-タスク一覧ページを実装するには、以下の3つの要素が必要です。
-
-1. **ルーティング**: URLとコントローラーのメソッドを紐付ける
-2. **コントローラー**: データベースからデータを取得する
-3. **ビュー**: データを表示する
-
-```
-[ブラウザ] → [ルーティング] → [コントローラー] → [ビュー] → [ブラウザ]
-              /tasks         TaskController     tasks/index
-                              →index()          .blade.php
-```
-
----
-
-## Step 2: ルーティングの設定
-
-### 2-1. ルートを定義する
-
-`routes/web.php`を開き、以下のルートを追加します。
+`routes/web.php`を開き、以下を追加します。
 
 **ファイル**: `routes/web.php`
 
@@ -97,44 +195,24 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/tasks', [TaskController::class, 'index'])->name('tasks.index');
+// タスク管理のルート（リソースコントローラー）
+Route::resource('tasks', TaskController::class);
 ```
 
----
+**コードリーディング**：
 
-### 2-2. コードリーディング
+```php
+Route::resource('tasks', TaskController::class);
+```
+→ リソースコントローラーを使うと、CRUD操作に必要な7つのルートを一括で定義できます。
 
-#### `Route::get('/tasks', [TaskController::class, 'index'])->name('tasks.index')`
-
-- `GET /tasks`というURLにアクセスしたら、`TaskController`の`index`メソッドを実行します
-- `name('tasks.index')`は、このルートに`tasks.index`という名前を付けます
-- 名前を付けることで、ビューやコントローラーから`route('tasks.index')`でURLを生成できるようになります
-
----
-
-## Step 3: コントローラーの作成と実装
-
-### 3-1. コントローラーを生成する
-
-以下のコマンドを実行して、`TaskController`を作成します。
+### 4-2. コントローラーを作成する
 
 ```bash
-php artisan make:controller TaskController
+sail artisan make:controller TaskController --resource
 ```
 
-**実行結果**:
-
-```
-Controller created successfully.
-```
-
-`app/Http/Controllers/`ディレクトリに、`TaskController.php`ファイルが作成されます。
-
----
-
-### 3-2. indexアクションを実装する
-
-作成されたコントローラーファイルを開き、以下のように編集します。
+### 4-3. indexアクションを実装する
 
 **ファイル**: `app/Http/Controllers/TaskController.php`
 
@@ -143,6 +221,7 @@ Controller created successfully.
 
 namespace App\Http\Controllers;
 
+use App\Models\Category;
 use App\Models\Task;
 use Illuminate\Http\Request;
 
@@ -153,294 +232,152 @@ class TaskController extends Controller
      */
     public function index()
     {
-        $tasks = Task::all();
+        // Bladeで必要な変数を確認
+        // $categories → カテゴリー一覧
+        // $tasks → タスク一覧（ページネーション付き）
         
-        return view('tasks.index', compact('tasks'));
+        $categories = Category::all();
+        $tasks = Task::with('category')->paginate(10);
+        
+        return view('tasks.index', compact('categories', 'tasks'));
+    }
+    
+    // 他のメソッドは後で実装
+}
+```
+
+**コードリーディング**：
+
+```php
+$categories = Category::all();
+```
+→ Bladeの`@foreach($categories as $category)`で使用するため、カテゴリー一覧を取得します。
+
+```php
+$tasks = Task::with('category')->paginate(10);
+```
+→ `with('category')`で**Eager Loading**を使い、N+1問題を防ぎます。`paginate(10)`でページネーションを適用します。
+
+```php
+return view('tasks.index', compact('categories', 'tasks'));
+```
+→ Bladeで必要な変数を渡します。
+
+### 4-4. Taskモデルにリレーションを追加する
+
+**ファイル**: `app/Models/Task.php`
+
+```php
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class Task extends Model
+{
+    use HasFactory;
+
+    protected $fillable = [
+        'user_id',
+        'category_id',
+        'title',
+        'description',
+        'status',
+        'due_date',
+    ];
+
+    protected $casts = [
+        'due_date' => 'date',
+    ];
+
+    /**
+     * タスクが属するカテゴリーを取得
+     */
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
     }
 }
 ```
 
 ---
 
-### 3-3. コードリーディング
-
-#### `use App\Models\Task;`
-
-- `Task`モデルを使用するために、`use`文でインポートします
-
----
-
-#### `$tasks = Task::all()`
-
-- `Task`モデルを使って、`tasks`テーブルの全てのデータを取得します
-- `all()`メソッドは、全てのレコードを取得します
-- 取得したデータは、`$tasks`変数に格納されます
-
----
-
-#### `return view('tasks.index', compact('tasks'))`
-
-- `resources/views/tasks/index.blade.php`ファイルを表示します
-- `compact('tasks')`は、`$tasks`変数をビューに渡します
-- ビューでは、`$tasks`変数を使ってデータを表示できます
-
----
-
-### 💡 TIP: compact()とは
-
-**compact()**は、変数を配列に変換する関数です。
-
-```php
-compact('tasks')
-```
-
-これは、以下のコードと同じ意味です。
-
-```php
-['tasks' => $tasks]
-```
-
----
-
-## Step 4: ビューの作成
-
-### 4-1. ビューファイルを作成する
-
-`resources/views/tasks/`ディレクトリを作成し、`index.blade.php`ファイルを作成します。
-
-```bash
-mkdir -p resources/views/tasks
-touch resources/views/tasks/index.blade.php
-```
-
-**ファイル**: `resources/views/tasks/index.blade.php`
-
-```blade
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>タスク一覧</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        h1 {
-            color: #333;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-        th, td {
-            border: 1px solid #ddd;
-            padding: 12px;
-            text-align: left;
-        }
-        th {
-            background-color: #f2f2f2;
-        }
-        .status-pending {
-            color: #ff9800;
-        }
-        .status-in_progress {
-            color: #2196f3;
-        }
-        .status-completed {
-            color: #4caf50;
-        }
-    </style>
-</head>
-<body>
-    <h1>タスク一覧</h1>
-    
-    @if($tasks->isEmpty())
-        <p>タスクがありません。</p>
-    @else
-        <table>
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>タイトル</th>
-                    <th>ステータス</th>
-                    <th>期限</th>
-                    <th>作成日時</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach($tasks as $task)
-                    <tr>
-                        <td>{{ $task->id }}</td>
-                        <td>{{ $task->title }}</td>
-                        <td class="status-{{ $task->status }}">
-                            @if($task->status === 'pending')
-                                未着手
-                            @elseif($task->status === 'in_progress')
-                                進行中
-                            @elseif($task->status === 'completed')
-                                完了
-                            @endif
-                        </td>
-                        <td>{{ $task->due_date ? $task->due_date->format('Y年m月d日') : '未設定' }}</td>
-                        <td>{{ $task->created_at->format('Y年m月d日 H:i') }}</td>
-                    </tr>
-                @endforeach
-            </tbody>
-        </table>
-    @endif
-</body>
-</html>
-```
-
----
-
-### 4-2. コードリーディング
-
-#### `@if($tasks->isEmpty())`
-
-- `$tasks`が空（タスクが1件もない）場合、「タスクがありません。」と表示します
-- `isEmpty()`メソッドは、コレクションが空かどうかを判定します
-
----
-
-#### `@foreach($tasks as $task)`
-
-- `$tasks`をループ処理し、1件ずつ`$task`変数に格納します
-- ループ内では、`$task`変数を使ってデータを表示します
-
----
-
-#### `{{ $task->id }}`
-
-- `$task`の`id`を表示します
-- `{{ }}`は、Bladeのエスケープ構文です。XSS攻撃を防ぐため、HTMLタグを無効化します
-
----
-
-#### `{{ $task->due_date ? $task->due_date->format('Y年m月d日') : '未設定' }}`
-
-- `$task->due_date`が存在する場合、`Y年m月d日`の形式で表示します
-- `$task->due_date`が存在しない（NULL）場合、「未設定」と表示します
-- `format()`メソッドは、Carbonオブジェクトの日付を指定した形式で表示します
-
----
-
 ## Step 5: 動作確認
 
-### 5-1. テストデータを作成する
+### 5-1. ブラウザでアクセスする
 
-タスク一覧を表示するには、まずテストデータが必要です。
+```
+http://localhost/tasks
+```
 
-phpMyAdminを開き、`tasks`テーブルに手動でデータを追加します。
+### 5-2. 確認ポイント
 
-**例**:
+| 確認項目 | 期待する結果 |
+|:---|:---|
+| タスク一覧が表示される | テストデータが表示される |
+| カテゴリー名が表示される | `$task->category->name`が正しく表示される |
+| ページネーションが動作する | ページ切り替えができる |
+| 検索フォームにカテゴリーが表示される | `$categories`が正しく渡されている |
 
-| id | user_id | category_id | title | description | status | due_date | created_at | updated_at |
-|----|---------|-------------|-------|-------------|--------|----------|------------|------------|
-| 1 | 1 | NULL | 買い物 | 牛乳を買う | pending | 2024-01-20 | 2024-01-15 12:00:00 | 2024-01-15 12:00:00 |
-| 2 | 1 | NULL | 掃除 | 部屋を掃除する | in_progress | 2024-01-18 | 2024-01-15 12:00:00 | 2024-01-15 12:00:00 |
-| 3 | 1 | NULL | 勉強 | 英語を勉強する | completed | 2024-01-15 | 2024-01-15 12:00:00 | 2024-01-15 12:00:00 |
+### 5-3. エラーが出た場合のデバッグ
+
+**エラー**: `Undefined variable $tasks`
+
+→ コントローラーで`compact('tasks')`を忘れていないか確認
+
+**エラー**: `Call to undefined relationship [category]`
+
+→ Taskモデルに`category()`リレーションを追加したか確認
+
+**エラー**: `Method links does not exist`
+
+→ `Task::all()`ではなく`Task::paginate(10)`を使っているか確認
 
 ---
 
-### 5-2. ブラウザでアクセスする
+## 💡 TIP: @ddでデバッグする
 
-ブラウザで`http://localhost/tasks`にアクセスします。
+画面が真っ白になったり、データが表示されない場合は、Bladeに`@dd()`を追加してデバッグします。
 
-**実行結果**:
+```blade
+{{-- コントローラーから渡された変数を確認 --}}
+@dd($tasks)
 
-タスク一覧が表示されます。
-
-```
-タスク一覧
-
-ID | タイトル | ステータス | 期限 | 作成日時
----|----------|------------|------|----------
-1  | 買い物   | 未着手     | 2024年01月20日 | 2024年01月15日 12:00
-2  | 掃除     | 進行中     | 2024年01月18日 | 2024年01月15日 12:00
-3  | 勉強     | 完了       | 2024年01月15日 | 2024年01月15日 12:00
+{{-- リレーションを確認 --}}
+@dd($tasks->first()->category)
 ```
 
 ---
 
-## 🚨 よくある間違い
+## 💡 TIP: Eager Loadingの重要性
 
-### 間違い1: ビューファイルのパスが間違っている
-
-**エラー**:
-
-```
-View [tasks.index] not found.
-```
-
-**対処法**: `resources/views/tasks/index.blade.php`ファイルが存在するか確認します。
-
----
-
-### 間違い2: compact()の変数名が間違っている
-
-**エラー**:
-
-```
-Undefined variable $tasks
-```
-
-**対処法**: `compact('tasks')`の変数名が、コントローラーで定義した変数名と一致しているか確認します。
-
----
-
-### 間違い3: テーブルにデータがない
-
-**対処法**: phpMyAdminでテストデータを追加します。
-
----
-
-## 💡 TIP: dd()でデバッグする
-
-**dd()**は、変数の内容を表示して、処理を停止する関数です。
+`with('category')`を使わないと、**N+1問題**が発生します。
 
 ```php
-public function index()
-{
-    $tasks = Task::all();
-    dd($tasks); // ここで処理が停止し、$tasksの内容が表示される
-    
-    return view('tasks.index', compact('tasks'));
-}
+// 悪い例：N+1問題が発生
+$tasks = Task::paginate(10);
+// タスクが10件あると、11回のSQLが実行される
+
+// 良い例：Eager Loading
+$tasks = Task::with('category')->paginate(10);
+// タスクが10件あっても、2回のSQLで済む
 ```
-
-`dd()`を使うことで、データが正しく取得できているか確認できます。
-
----
-
-## 💡 TIP: Eloquentのメソッド
-
-Eloquentには、データを取得するための様々なメソッドがあります。
-
-- **all()**: 全てのレコードを取得
-- **find($id)**: 指定したIDのレコードを取得
-- **where('status', 'pending')**: 条件に合うレコードを取得
-- **orderBy('created_at', 'desc')**: 並び替え
-- **paginate(10)**: ページネーション
 
 ---
 
 ## ✨ まとめ
 
-このセクションでは、タスク一覧ページの実装について学びました。
+このセクションでは、「提供コードありき」の開発フローでタスク一覧を実装しました。
 
-| Step | 学んだこと |
-|------|-----------|
-| Step 1 | 実装の流れ（ルーティング→コントローラー→ビュー） |
-| Step 2 | `Route::get()`でルートを定義する方法 |
-| Step 3 | コントローラーで`Task::all()`を使ってデータを取得する方法 |
-| Step 4 | Bladeで`@foreach`を使ってデータを表示する方法 |
-| Step 5 | 動作確認の方法 |
+| ステップ | 学んだこと |
+|:---|:---|
+| Step 1 | 画面アクセスでエラーを確認し、何が足りないかを把握 |
+| Step 2 | Bladeを読み解いて、必要な変数・リレーションを特定 |
+| Step 3 | Tinkerでデータ取得を確認 |
+| Step 4 | コントローラーを実装し、Bladeに変数を渡す |
+| Step 5 | 動作確認とデバッグ |
 
 次のセクションでは、タスク作成の実装について学びます。
 

@@ -175,7 +175,7 @@ class Post extends Model
 モデルは、`php artisan make:model`コマンドで生成します。
 
 ```bash
-docker compose exec php php artisan make:model Post
+sail artisan make:model Post
 ```
 
 このコマンドを実行すると、`app/Models/Post.php`というファイルが生成されます。
@@ -209,7 +209,7 @@ class Post extends Model
 モデルを作成する際に、`-m`オプションを付けると、マイグレーションファイルも同時に生成されます。
 
 ```bash
-docker compose exec php php artisan make:model Post -m
+sail artisan make:model Post -m
 ```
 
 これにより、`app/Models/Post.php`と`database/migrations/xxxx_create_posts_table.php`が同時に生成されます。

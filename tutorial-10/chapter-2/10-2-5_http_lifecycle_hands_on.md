@@ -37,7 +37,7 @@
 #### コマンド
 
 ```bash
-docker compose exec php php artisan make:migration create_posts_table
+sail artisan make:migration create_posts_table
 ```
 
 **コマンド解説**：
@@ -85,7 +85,7 @@ return new class extends Migration
 #### マイグレーションを実行
 
 ```bash
-docker compose exec php php artisan migrate
+sail artisan migrate
 ```
 
 ---
@@ -93,7 +93,7 @@ docker compose exec php php artisan migrate
 #### モデルを作成
 
 ```bash
-docker compose exec php php artisan make:model Post
+sail artisan make:model Post
 ```
 
 **`app/Models/Post.php`**
@@ -132,7 +132,7 @@ class Post extends Model
 #### コマンド
 
 ```bash
-docker compose exec php php artisan make:seeder PostSeeder
+sail artisan make:seeder PostSeeder
 ```
 
 **`database/seeders/PostSeeder.php`**
@@ -170,7 +170,7 @@ class PostSeeder extends Seeder
 #### シーダーを実行
 
 ```bash
-docker compose exec php php artisan db:seed --class=PostSeeder
+sail artisan db:seed --class=PostSeeder
 ```
 
 **コマンド解説**：
@@ -187,7 +187,7 @@ docker compose exec php php artisan db:seed --class=PostSeeder
 #### コマンド
 
 ```bash
-docker compose exec php php artisan make:middleware LogHttpLifecycle
+sail artisan make:middleware LogHttpLifecycle
 ```
 
 **`app/Http/Middleware/LogHttpLifecycle.php`**
@@ -246,7 +246,7 @@ class LogHttpLifecycle
 #### コマンド
 
 ```bash
-docker compose exec php php artisan make:middleware CountPostViews
+sail artisan make:middleware CountPostViews
 ```
 
 **`app/Http/Middleware/CountPostViews.php`**
@@ -324,7 +324,7 @@ protected $middlewareAliases = [
 #### コマンド
 
 ```bash
-docker compose exec php php artisan make:controller PostController
+sail artisan make:controller PostController
 ```
 
 **`app/Http/Controllers/PostController.php`**

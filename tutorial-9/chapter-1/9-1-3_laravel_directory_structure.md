@@ -210,7 +210,7 @@ php artisan make:controller UserController
 Docker環境では、以下のように実行します。
 
 ```bash
-docker compose exec php php artisan migrate
+sail artisan migrate
 ```
 
 #### 3. `composer.json` - Composerの依存関係定義

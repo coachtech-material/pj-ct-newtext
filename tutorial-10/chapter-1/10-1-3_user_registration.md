@@ -2,9 +2,9 @@
 
 ## 🎯 このセクションで学ぶこと
 
-*   Laravel Sanctumを使って、ユーザー登録機能を実装できるようになる。
+*   Laravel Fortifyを使って、ユーザー登録機能を実装できるようになる。
 *   パスワードのハッシュ化を理解する。
-*   登録後の自動ログインを実装できるようになる。
+*   登録後の自動ログインの仕組みを理解する。
 
 ---
 
@@ -12,7 +12,7 @@
 
 認証機能の中で、最も基本的なのが**ユーザー登録機能**です。ユーザー登録機能を実装することで、ユーザーはアプリケーションにアカウントを作成できるようになります。
 
-このセクションでは、Laravel Sanctumを使って、ユーザー登録機能を実装します。
+このセクションでは、前のセクションでインストールしたLaravel Fortifyを使って、ユーザー登録機能を実装します。
 
 ---
 
@@ -20,204 +20,224 @@
 
 ### 📝 ユーザー登録の流れ
 
-1. ユーザーが登録フォームに情報を入力
-2. サーバーがバリデーションを実行
-3. パスワードをハッシュ化
-4. データベースにユーザー情報を保存
-5. ユーザーに認証トークンを発行（API認証の場合）
-6. ログイン状態にする
+Fortifyを使ったユーザー登録は、以下の流れで行われます：
+
+```
+1. ユーザーが /register にアクセス
+   ↓
+2. FortifyServiceProviderで指定したビューが表示される
+   ↓
+3. ユーザーが登録フォームに情報を入力してPOST
+   ↓
+4. Fortifyが CreateNewUser アクションクラスを呼び出す
+   ↓
+5. バリデーション → パスワードハッシュ化 → データベース保存
+   ↓
+6. 自動的にログイン状態になり、リダイレクト
+```
+
+**重要なポイント**：
+
+*   **コントローラーを自作する必要がない**：Fortifyが内部で処理を行う
+*   **処理のカスタマイズはアクションクラスで行う**：`app/Actions/Fortify/CreateNewUser.php`
 
 ---
 
-### 🔧 ステップ1: ユーザーモデルの準備
+### 🎨 ステップ1: 登録フォームのビューを作成する
 
-Laravelでは、デフォルトで`User`モデルが用意されています。
+まず、ユーザー登録フォームのBladeファイルを作成します。
 
-**`app/Models/User.php`**
+#### ディレクトリの作成
+
+```bash
+mkdir -p resources/views/auth
+```
+
+#### 登録フォームの作成
+
+`resources/views/auth/register.blade.php`を作成します：
+
+```blade
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>ユーザー登録</title>
+    <style>
+        body { font-family: sans-serif; max-width: 400px; margin: 50px auto; padding: 20px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }
+        button { width: 100%; padding: 10px; background: #3490dc; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #2779bd; }
+        .error { color: red; font-size: 12px; margin-top: 5px; }
+        .link { text-align: center; margin-top: 15px; }
+    </style>
+</head>
+<body>
+    <h1>ユーザー登録</h1>
+    
+    <form method="POST" action="{{ route('register') }}">
+        @csrf
+        
+        <div class="form-group">
+            <label for="name">名前</label>
+            <input type="text" id="name" name="name" value="{{ old('name') }}" required>
+            @error('name')
+                <p class="error">{{ $message }}</p>
+            @enderror
+        </div>
+        
+        <div class="form-group">
+            <label for="email">メールアドレス</label>
+            <input type="email" id="email" name="email" value="{{ old('email') }}" required>
+            @error('email')
+                <p class="error">{{ $message }}</p>
+            @enderror
+        </div>
+        
+        <div class="form-group">
+            <label for="password">パスワード</label>
+            <input type="password" id="password" name="password" required>
+            @error('password')
+                <p class="error">{{ $message }}</p>
+            @enderror
+        </div>
+        
+        <div class="form-group">
+            <label for="password_confirmation">パスワード（確認）</label>
+            <input type="password" id="password_confirmation" name="password_confirmation" required>
+        </div>
+        
+        <button type="submit">登録</button>
+    </form>
+    
+    <p class="link">
+        <a href="{{ route('login') }}">すでにアカウントをお持ちの方はこちら</a>
+    </p>
+</body>
+</html>
+```
+
+**コードリーディング**：
+
+```blade
+<form method="POST" action="{{ route('register') }}">
+```
+→ Fortifyが自動的に登録した`register`ルートにPOSTします。
+
+```blade
+@csrf
+```
+→ CSRF対策のトークンを埋め込みます。これがないとリクエストが拒否されます。
+
+```blade
+value="{{ old('name') }}"
+```
+→ バリデーションエラー時に、入力した値を保持します。
+
+```blade
+@error('name')
+    <p class="error">{{ $message }}</p>
+@enderror
+```
+→ バリデーションエラーがあれば、エラーメッセージを表示します。
+
+---
+
+### 🔧 ステップ2: FortifyServiceProviderでビューを指定する
+
+`app/Providers/FortifyServiceProvider.php`を開いて、`boot`メソッドに登録ビューを指定します：
 
 ```php
 <?php
 
-namespace App\Models;
+namespace App\Providers;
 
-use Illuminate\Foundation\Auth\User as Authenticatable;
-use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Support\ServiceProvider;
+use Laravel\Fortify\Fortify;
 
-class User extends Authenticatable
+class FortifyServiceProvider extends ServiceProvider
 {
-    use HasApiTokens;
+    public function register(): void
+    {
+        //
+    }
 
-    protected $fillable = [
-        'name',
-        'email',
-        'password',
-    ];
+    public function boot(): void
+    {
+        // ユーザー登録フォームのビューを指定
+        Fortify::registerView(function () {
+            return view('auth.register');
+        });
 
-    protected $hidden = [
-        'password',
-        'remember_token',
-    ];
-
-    protected $casts = [
-        'email_verified_at' => 'datetime',
-    ];
+        // ログインフォームのビューを指定（次のセクションで使用）
+        Fortify::loginView(function () {
+            return view('auth.login');
+        });
+    }
 }
 ```
 
-**コードリーディング**
+**コードリーディング**：
 
-*   `HasApiTokens`: Sanctumの機能を使うために必要
-*   `$fillable`: マスアサインメントを許可するカラム
-*   `$hidden`: JSONに変換する際に隠すカラム
+```php
+Fortify::registerView(function () {
+    return view('auth.register');
+});
+```
+→ `/register`にGETリクエストが来たときに、`resources/views/auth/register.blade.php`を表示するよう指定します。
 
 ---
 
-### 🔧 ステップ2: フォームリクエストの作成
+### 📝 ステップ3: CreateNewUserアクションクラスを確認する
 
-```bash
-php artisan make:request RegisterRequest
-```
+Fortifyは、ユーザー登録時の処理を**アクションクラス**で管理します。
 
-**`app/Http/Requests/RegisterRequest.php`**
+`app/Actions/Fortify/CreateNewUser.php`を開いて、内容を確認しましょう：
 
 ```php
 <?php
 
-namespace App\Http\Requests;
+namespace App\Actions\Fortify;
 
-use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rules\Password;
-
-class RegisterRequest extends FormRequest
-{
-    public function authorize()
-    {
-        return true;
-    }
-
-    public function rules()
-    {
-        return [
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users',
-            'password' => ['required', 'confirmed', Password::min(8)
-                ->letters()
-                ->numbers()],
-        ];
-    }
-
-    public function messages()
-    {
-        return [
-            'name.required' => '名前は必須です。',
-            'email.required' => 'メールアドレスは必須です。',
-            'email.unique' => 'このメールアドレスは既に登録されています。',
-            'password.required' => 'パスワードは必須です。',
-            'password.confirmed' => 'パスワードが一致しません。',
-        ];
-    }
-}
-```
-
----
-
-### 🔧 ステップ3: コントローラーの作成
-
-```bash
-php artisan make:controller AuthController
-```
-
-**`app/Http/Controllers/AuthController.php`**
-
-```php
-<?php
-
-namespace App\Http\Controllers;
-
-use App\Http\Requests\RegisterRequest;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
+use Laravel\Fortify\Contracts\CreatesNewUsers;
 
-class AuthController extends Controller
+class CreateNewUser implements CreatesNewUsers
 {
-    public function register(RegisterRequest $request)
+    use PasswordValidationRules;
+
+    public function create(array $input): User
     {
-        $validated = $request->validated();
+        Validator::make($input, [
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+            'password' => $this->passwordRules(),
+        ])->validate();
 
-        // ユーザーを作成
-        $user = User::create([
-            'name' => $validated['name'],
-            'email' => $validated['email'],
-            'password' => Hash::make($validated['password']),
+        return User::create([
+            'name' => $input['name'],
+            'email' => $input['email'],
+            'password' => Hash::make($input['password']),
         ]);
-
-        // 自動ログイン
-        Auth::login($user);
-
-        // APIトークンを発行（API認証の場合）
-        $token = $user->createToken('auth_token')->plainTextToken;
-
-        return response()->json([
-            'message' => 'User registered successfully',
-            'user' => $user,
-            'token' => $token,
-        ], 201);
     }
 }
 ```
 
-**コードリーディング**
+**コードリーディング**：
 
-*   `Hash::make()`: パスワードをハッシュ化
-*   `Auth::login()`: ユーザーをログイン状態にする
-*   `createToken()`: Sanctumの認証トークンを発行
+1. **バリデーション**：名前、メールアドレス、パスワードをバリデーション
+2. **パスワードのハッシュ化**：`Hash::make()`でパスワードを暗号化
+3. **ユーザーの作成**：`User::create()`でデータベースに保存
 
----
+**重要なポイント**：
 
-### 🔧 ステップ4: ルートの定義
-
-**`routes/api.php`**
-
-```php
-use App\Http\Controllers\AuthController;
-
-Route::post('/register', [AuthController::class, 'register']);
-```
-
----
-
-### 🚀 実践例1: Postmanでテスト
-
-#### リクエスト
-
-```
-POST http://localhost/api/register
-Content-Type: application/json
-
-{
-    "name": "山田太郎",
-    "email": "yamada@example.com",
-    "password": "password123",
-    "password_confirmation": "password123"
-}
-```
-
-#### レスポンス
-
-```json
-{
-    "message": "User registered successfully",
-    "user": {
-        "id": 1,
-        "name": "山田太郎",
-        "email": "yamada@example.com",
-        "created_at": "2024-01-01T00:00:00.000000Z",
-        "updated_at": "2024-01-01T00:00:00.000000Z"
-    },
-    "token": "1|abc123..."
-}
-```
+*   パスワードは**絶対に平文で保存してはいけません**
+*   `Hash::make()`を使って、必ずハッシュ化します
+*   Fortifyが自動的にこのアクションクラスを呼び出します
 
 ---
 
@@ -241,6 +261,8 @@ echo $hashed;
 
 **検証**
 
+ログイン時には、`Hash::check()`を使って、入力されたパスワードとハッシュ化されたパスワードを比較します。
+
 ```php
 if (Hash::check('password123', $hashed)) {
     echo 'パスワードが一致しました';
@@ -249,97 +271,87 @@ if (Hash::check('password123', $hashed)) {
 
 ---
 
-### 💡 TIP: メール確認機能
+### 🚀 ステップ4: 動作確認
 
-実際のアプリケーションでは、登録後にメール確認を行うことが一般的です。
+#### ルートの確認
 
-#### ステップ1: `User`モデルに`MustVerifyEmail`を追加
+Fortifyが登録したルートを確認します：
 
-```php
-use Illuminate\Contracts\Auth\MustVerifyEmail;
-
-class User extends Authenticatable implements MustVerifyEmail
-{
-    // ...
-}
+```bash
+sail artisan route:list --path=register
 ```
 
-#### ステップ2: メール確認のルートを追加
+**出力例**：
+
+```
+GET|HEAD  register .......... Laravel\Fortify\Http\Controllers\RegisteredUserController@create
+POST      register .......... Laravel\Fortify\Http\Controllers\RegisteredUserController@store
+```
+
+**重要なポイント**：
+
+*   `routes/web.php`に何も書いていないのに、ルートが登録されている
+*   Fortifyが内部でルートを定義している
+*   これがFortifyの「バックエンドの認証ロジックを提供する」という意味
+
+#### ブラウザで確認
+
+1. ブラウザで`http://localhost/register`にアクセス
+2. 登録フォームが表示されることを確認
+3. 情報を入力して「登録」ボタンをクリック
+4. 登録が成功し、ダッシュボード（または設定したリダイレクト先）に遷移することを確認
+
+---
+
+### ⚙️ 登録後のリダイレクト先を設定する
+
+登録後のリダイレクト先は、`config/fortify.php`で設定します：
 
 ```php
-Route::get('/email/verify/{id}/{hash}', [AuthController::class, 'verifyEmail'])
-    ->middleware(['signed'])
-    ->name('verification.verify');
+'home' => '/dashboard',
+```
+
+または、`app/Providers/RouteServiceProvider.php`の`HOME`定数を変更します：
+
+```php
+public const HOME = '/dashboard';
 ```
 
 ---
 
-### 🚀 実践例2: 登録後にプロフィールページにリダイレクト
+### 💡 TIP: バリデーションルールのカスタマイズ
 
-#### Web版のコントローラー
+`CreateNewUser.php`のバリデーションルールをカスタマイズできます。
+
+#### 例: 名前の最大文字数を50文字に変更
 
 ```php
-public function register(RegisterRequest $request)
-{
-    $validated = $request->validated();
-
-    $user = User::create([
-        'name' => $validated['name'],
-        'email' => $validated['email'],
-        'password' => Hash::make($validated['password']),
-    ]);
-
-    Auth::login($user);
-
-    return redirect('/profile')->with('success', '登録が完了しました');
-}
+Validator::make($input, [
+    'name' => ['required', 'string', 'max:50'],
+    'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+    'password' => $this->passwordRules(),
+])->validate();
 ```
 
----
+#### 例: パスワードの要件を強化
 
-### 🚀 実践例3: 追加情報を登録
-
-#### フォームリクエスト
+`app/Actions/Fortify/PasswordValidationRules.php`を編集します：
 
 ```php
-public function rules()
+use Illuminate\Validation\Rules\Password;
+
+protected function passwordRules(): array
 {
     return [
-        'name' => 'required|string|max:255',
-        'email' => 'required|email|unique:users',
-        'password' => ['required', 'confirmed', Password::min(8)
-            ->letters()
-            ->numbers()],
-        'birth_date' => 'required|date|before:today',
-        'phone' => 'nullable|regex:/^[0-9]{10,11}$/',
+        'required',
+        'string',
+        Password::min(8)
+            ->letters()      // 英字を含む
+            ->numbers()      // 数字を含む
+            ->mixedCase()    // 大文字と小文字を含む
+            ->symbols(),     // 記号を含む
+        'confirmed',
     ];
-}
-```
-
-#### コントローラー
-
-```php
-public function register(RegisterRequest $request)
-{
-    $validated = $request->validated();
-
-    $user = User::create([
-        'name' => $validated['name'],
-        'email' => $validated['email'],
-        'password' => Hash::make($validated['password']),
-        'birth_date' => $validated['birth_date'],
-        'phone' => $validated['phone'] ?? null,
-    ]);
-
-    Auth::login($user);
-
-    $token = $user->createToken('auth_token')->plainTextToken;
-
-    return response()->json([
-        'message' => 'User registered successfully',
-        'user' => $user,
-        'token' => $token,
-    ], 201);
 }
 ```
 
@@ -350,44 +362,37 @@ public function register(RegisterRequest $request)
 #### 間違い1: パスワードをハッシュ化しない
 
 ```php
-$user = User::create([
-    'password' => $validated['password'], // NG: 平文で保存される
+return User::create([
+    'password' => $input['password'], // NG: 平文で保存される
 ]);
 ```
 
 **対処法**: `Hash::make()`を使います。
 
 ```php
-$user = User::create([
-    'password' => Hash::make($validated['password']), // OK
+return User::create([
+    'password' => Hash::make($input['password']), // OK
 ]);
 ```
 
 ---
 
-#### 間違い2: `password_confirmation`をデータベースに保存しようとする
+#### 間違い2: FortifyServiceProviderでビューを指定しない
 
-```php
-$user = User::create([
-    'name' => $validated['name'],
-    'email' => $validated['email'],
-    'password' => Hash::make($validated['password']),
-    'password_confirmation' => $validated['password_confirmation'], // NG
-]);
-```
+ビューを指定しないと、`/register`にアクセスしても何も表示されません。
 
-**対処法**: `password_confirmation`は、バリデーションのみに使います。
+**対処法**: `FortifyServiceProvider`の`boot`メソッドで`Fortify::registerView()`を設定します。
 
 ---
 
 ## ✨ まとめ
 
-このセクションでは、Laravel Sanctumを使って、ユーザー登録機能を実装しました。
+このセクションでは、Laravel Fortifyを使って、ユーザー登録機能を実装しました。
 
-*   フォームリクエストを使って、バリデーションを実装した。
-*   `Hash::make()`を使って、パスワードをハッシュ化した。
-*   `Auth::login()`を使って、登録後に自動ログインを実装した。
-*   `createToken()`を使って、Sanctumの認証トークンを発行した。
+*   **Bladeファイル**を作成し、`FortifyServiceProvider`で指定した
+*   **CreateNewUser**アクションクラスで、バリデーションとパスワードのハッシュ化を行う
+*   **コントローラーを自作する必要がない**：Fortifyが内部で処理を行う
+*   **ルートはFortifyが自動的に登録する**：`php artisan route:list`で確認できる
 
 次のセクションでは、ログイン・ログアウト機能を実装します。
 

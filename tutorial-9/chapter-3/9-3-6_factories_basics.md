@@ -41,7 +41,7 @@ $user = User::factory()->create();
 #### ステップ1: ファクトリーを生成する
 
 ```bash
-docker compose exec php php artisan make:factory PostFactory --model=Post
+sail artisan make:factory PostFactory --model=Post
 ```
 
 これにより、`database/factories/PostFactory.php`が生成されます。

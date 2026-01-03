@@ -2,471 +2,341 @@
 
 ## 🎯 このセクションで学ぶこと
 
-- タスク作成フォームを実装する方法を学ぶ
-- バリデーションを実装し、不正なデータを防ぐ方法を学ぶ
-- フラッシュメッセージを表示し、ユーザーに操作結果を伝える方法を学ぶ
+- 提供されたフォーム画面を読み解き、必要なバリデーションを特定する方法を学ぶ
+- Tinkerでデータ作成を確認してから、コントローラーを実装する方法を学ぶ
+- フォーム送信とバリデーションの実装方法を学ぶ
 
 ---
 
 ## 🧠 先輩エンジニアの思考プロセス
 
-### 「なぜ一覧表示の次に『作成』を実装するのか？」
+### フォーム実装の流れ
 
-一覧画面ができたら、次は「作成」機能です。なぜ「詳細」や「編集」ではなく「作成」なのでしょうか？
+フォーム画面の実装は、以下の2つのアクションが必要です：
 
----
+| アクション | HTTPメソッド | 役割 |
+|:---|:---|:---|
+| `create` | GET | フォーム画面を表示 |
+| `store` | POST | フォームデータを受け取って保存 |
 
-### 理由1: データがないと他の機能をテストできない
+今回も「提供コードありき」のフローで進めます：
 
-現在、データベースにはテストデータしかありません。
-
-「作成」機能があれば、**画面からデータを追加できる**ようになります。これにより、「詳細」「編集」「削除」のテストがしやすくなります。
-
----
-
-### 理由2: フォームの基本を学べる
-
-「作成」機能では、以下の重要な概念を学びます：
-
-- **フォームの作成**：ユーザーからの入力を受け付ける
-- **バリデーション**：不正なデータを防ぐ
-- **リダイレクト**：保存後に一覧画面に戻る
-- **フラッシュメッセージ**：操作結果をユーザーに伝える
-
-これらは「編集」機能でも使うので、**先に「作成」で学んでおくと効率的**です。
-
----
-
-### 理由3: 一覧画面で動作確認できる
-
-「作成」機能を実装したら、一覧画面で**新しいデータが表示されるか確認**できます。
-
-これが、一覧表示を先に作った理由の一つです。
-
----
-
-### このセクションでやること
-
-| 順番 | 作業 | 理由 |
-|------|------|------|
-| Step 1 | ルーティングの追加 | フォーム表示と保存の2つのURLが必要 |
-| Step 2 | createメソッドの実装 | フォームを表示するメソッド |
-| Step 3 | 作成フォームのビュー作成 | ユーザーが入力する画面 |
-| Step 4 | storeメソッドの実装 | データを保存するメソッド |
-| Step 5 | フラッシュメッセージの表示 | 操作結果をユーザーに伝える |
-| Step 6 | 動作確認 | 正しく動作するか確認する |
-
-> 💡 **ポイント**: 「作成」機能は2つのルートが必要です。フォーム表示（GET）とデータ保存（POST）です。
-
----
-
-## Step 1: ルーティングの追加
-
-### 1-1. 作成用のルートを定義する
-
-タスク作成には2つのルートが必要です。
-
-**ファイル**: `routes/web.php`
-
-```php
-use App\Http\Controllers\TaskController;
-
-Route::middleware(['auth'])->group(function () {
-    Route::get('/tasks', [TaskController::class, 'index'])->name('tasks.index');
-    Route::get('/tasks/create', [TaskController::class, 'create'])->name('tasks.create');
-    Route::post('/tasks', [TaskController::class, 'store'])->name('tasks.store');
-});
+```
+1. 画面アクセス＆エラー確認
+2. Bladeの解読（フォームの項目を確認）
+3. Tinker検証（データ作成を確認）
+4. バックエンド実装
 ```
 
 ---
 
-### 1-2. コードリーディング
+## Step 1: 画面アクセス＆エラー確認
 
-#### `Route::get('/tasks/create', ...)->name('tasks.create')`
+### 1-1. ブラウザでアクセスする
 
-- `GET /tasks/create`にアクセスすると、`create`メソッドが実行されます
-- このルートは**フォームを表示する**ためのものです
+```
+http://localhost/tasks/create
+```
 
----
+### 1-2. エラーを確認する
 
-#### `Route::post('/tasks', ...)->name('tasks.store')`
+```
+Undefined variable $categories
+```
 
-- `POST /tasks`にデータを送信すると、`store`メソッドが実行されます
-- このルートは**データを保存する**ためのものです
-
----
-
-#### なぜ2つのルートが必要なのか？
-
-| ルート | HTTPメソッド | 役割 |
-|--------|-------------|------|
-| `/tasks/create` | GET | フォームを表示する |
-| `/tasks` | POST | データを保存する |
-
-フォーム表示と保存を分けることで、**責務が明確**になります。
+**読み解き**：`create`アクションで`$categories`を渡していないため、エラーになっています。
 
 ---
 
-## Step 2: createメソッドの実装
+## Step 2: Bladeの解読
 
-### 2-1. フォーム表示メソッドを追加する
+### 2-1. tasks/create.blade.phpを読む
 
-タスク作成フォームを表示する`create`メソッドを追加します。
+`resources/views/tasks/create.blade.php`を開いて、フォームの項目を確認します。
+
+```blade
+<form action="{{ route('tasks.store') }}" method="POST">
+    @csrf
+    
+    <div class="form-group">
+        <label for="title">タイトル <span style="color: red;">*</span></label>
+        <input type="text" id="title" name="title" value="{{ old('title') }}" required>
+        @error('title')
+            <p class="error">{{ $message }}</p>
+        @enderror
+    </div>
+    
+    <div class="form-group">
+        <label for="description">説明</label>
+        <textarea id="description" name="description">{{ old('description') }}</textarea>
+    </div>
+    
+    <div class="form-group">
+        <label for="category_id">カテゴリー</label>
+        <select id="category_id" name="category_id">
+            <option value="">選択してください</option>
+            @foreach($categories as $category)
+                <option value="{{ $category->id }}">{{ $category->name }}</option>
+            @endforeach
+        </select>
+    </div>
+    
+    <div class="form-group">
+        <label for="status">ステータス</label>
+        <select id="status" name="status">
+            <option value="pending">未着手</option>
+            <option value="in_progress">進行中</option>
+            <option value="completed">完了</option>
+        </select>
+    </div>
+    
+    <div class="form-group">
+        <label for="due_date">期限</label>
+        <input type="date" id="due_date" name="due_date" value="{{ old('due_date') }}">
+    </div>
+    
+    <button type="submit">作成</button>
+</form>
+```
+
+### 2-2. フォーム項目を整理する
+
+| フィールド名 | name属性 | 必須 | バリデーション |
+|:---|:---|:---|:---|
+| タイトル | `title` | ✅ | 必須、文字列、最大255文字 |
+| 説明 | `description` | - | 文字列、NULL許可 |
+| カテゴリー | `category_id` | - | 存在するカテゴリーID、NULL許可 |
+| ステータス | `status` | - | pending/in_progress/completedのいずれか |
+| 期限 | `due_date` | - | 日付形式、NULL許可 |
+
+### 2-3. 必要な変数を特定する
+
+```blade
+@foreach($categories as $category)
+```
+
+→ `$categories`（カテゴリー一覧）が必要です。
+
+---
+
+## Step 3: Tinker検証
+
+コントローラーを実装する前に、**Tinkerでデータ作成を確認**します。
+
+### 3-1. Tinkerを起動する
+
+```bash
+sail artisan tinker
+```
+
+### 3-2. タスクを作成する
+
+```php
+>>> App\Models\Task::create([
+...     'user_id' => 1,
+...     'title' => 'テストタスク',
+...     'description' => 'これはテストです',
+...     'status' => 'pending',
+... ]);
+```
+
+**期待する結果**：
+
+```
+=> App\Models\Task {#1234
+     user_id: 1,
+     title: "テストタスク",
+     description: "これはテストです",
+     status: "pending",
+     updated_at: "2024-01-15 12:00:00",
+     created_at: "2024-01-15 12:00:00",
+     id: 1,
+   }
+```
+
+### 3-3. カテゴリー付きで作成する
+
+```php
+>>> $category = App\Models\Category::first();
+>>> App\Models\Task::create([
+...     'user_id' => 1,
+...     'category_id' => $category->id,
+...     'title' => 'カテゴリー付きタスク',
+...     'status' => 'pending',
+... ]);
+```
+
+### 3-4. 作成したタスクを確認する
+
+```php
+>>> App\Models\Task::with('category')->get();
+```
+
+> **💡 ポイント**: Tinkerで作成できることを確認してから、コントローラーを実装します。
+
+---
+
+## Step 4: バックエンド実装
+
+### 4-1. createアクションを実装する
 
 **ファイル**: `app/Http/Controllers/TaskController.php`
 
 ```php
+/**
+ * Show the form for creating a new resource.
+ */
 public function create()
 {
-    return view('tasks.create');
+    // Bladeで必要な変数を確認
+    // $categories → カテゴリー一覧（セレクトボックス用）
+    
+    $categories = Category::all();
+    
+    return view('tasks.create', compact('categories'));
 }
 ```
 
----
-
-### 2-2. コードリーディング
-
-#### `return view('tasks.create')`
-
-- `resources/views/tasks/create.blade.php`ファイルを表示します
-- `create`メソッドはフォームを表示するだけなので、シンプルです
-
----
-
-## Step 3: 作成フォームのビュー作成
-
-### 3-1. ビューファイルを作成する
-
-ターミナルで以下のコマンドを実行して、タスク作成フォームのビューを作成します：
-
-```bash
-touch resources/views/tasks/create.blade.php
-```
-
-**ファイル**: `resources/views/tasks/create.blade.php`
-
-```blade
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>タスク作成</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        .form-group {
-            margin-bottom: 15px;
-        }
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
-        input[type="text"],
-        input[type="date"],
-        textarea,
-        select {
-            width: 100%;
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        }
-        .error {
-            color: red;
-            margin-bottom: 15px;
-        }
-        button {
-            background-color: #4CAF50;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        .cancel-link {
-            margin-left: 10px;
-            color: #666;
-        }
-    </style>
-</head>
-<body>
-    <h1>タスク作成</h1>
-
-    @if ($errors->any())
-        <div class="error">
-            <ul>
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
-
-    <form method="POST" action="{{ route('tasks.store') }}">
-        @csrf
-
-        <div class="form-group">
-            <label for="title">タイトル</label>
-            <input type="text" id="title" name="title" value="{{ old('title') }}" required>
-        </div>
-
-        <div class="form-group">
-            <label for="description">説明</label>
-            <textarea id="description" name="description" rows="4">{{ old('description') }}</textarea>
-        </div>
-
-        <div class="form-group">
-            <label for="due_date">期限</label>
-            <input type="date" id="due_date" name="due_date" value="{{ old('due_date') }}">
-        </div>
-
-        <div class="form-group">
-            <label for="status">ステータス</label>
-            <select id="status" name="status">
-                <option value="pending" {{ old('status') == 'pending' ? 'selected' : '' }}>未着手</option>
-                <option value="in_progress" {{ old('status') == 'in_progress' ? 'selected' : '' }}>進行中</option>
-                <option value="completed" {{ old('status') == 'completed' ? 'selected' : '' }}>完了</option>
-            </select>
-        </div>
-
-        <button type="submit">作成</button>
-        <a href="{{ route('tasks.index') }}" class="cancel-link">キャンセル</a>
-    </form>
-</body>
-</html>
-```
-
----
-
-### 3-2. コードリーディング
-
-#### `@csrf`
-
-- **CSRF（クロスサイトリクエストフォージェリ）対策**のためのトークンを生成します
-- フォームを送信するときに、このトークンがないとエラーになります
-- Laravelが自動的にトークンを検証し、不正なリクエストを防ぎます
-
----
-
-#### `{{ old('title') }}`
-
-- `old()`ヘルパー関数は、**バリデーションエラー時に入力した値を保持**します
-- エラーが発生しても、ユーザーが入力した値が消えないので、再入力の手間が省けます
-
----
-
-#### `@if ($errors->any())`
-
-- バリデーションエラーがある場合、エラーメッセージを表示します
-- `$errors`は、Laravelが自動的にビューに渡すエラーバッグです
-
----
-
-## Step 4: storeメソッドの実装
-
-### 4-1. データ保存メソッドを追加する
-
-タスクを保存する`store`メソッドを追加します。
-
-**ファイル**: `app/Http/Controllers/TaskController.php`
+### 4-2. storeアクションを実装する
 
 ```php
+/**
+ * Store a newly created resource in storage.
+ */
 public function store(Request $request)
 {
+    // バリデーション
     $validated = $request->validate([
         'title' => 'required|string|max:255',
         'description' => 'nullable|string',
+        'category_id' => 'nullable|exists:categories,id',
+        'status' => 'in:pending,in_progress,completed',
         'due_date' => 'nullable|date',
-        'status' => 'required|in:pending,in_progress,completed',
     ]);
-
-    $validated['user_id'] = auth()->id();
-
-    Task::create($validated);
-
-    return redirect()->route('tasks.index')->with('success', 'タスクを作成しました。');
+    
+    // タスクを作成
+    // ※認証実装後は auth()->id() を使用
+    $task = Task::create([
+        'user_id' => 1, // 仮のユーザーID（認証実装後に修正）
+        'title' => $validated['title'],
+        'description' => $validated['description'] ?? null,
+        'category_id' => $validated['category_id'] ?? null,
+        'status' => $validated['status'] ?? 'pending',
+        'due_date' => $validated['due_date'] ?? null,
+    ]);
+    
+    return redirect()->route('tasks.show', $task)
+        ->with('success', 'タスクを作成しました');
 }
 ```
 
----
+**コードリーディング**：
 
-### 4-2. コードリーディング
+```php
+$validated = $request->validate([...]);
+```
+→ バリデーションを実行し、失敗した場合は自動的に前のページにリダイレクトされます。
 
-#### `$request->validate([...])`
+```php
+'category_id' => 'nullable|exists:categories,id',
+```
+→ `nullable`でNULLを許可し、`exists:categories,id`で存在するカテゴリーIDかチェックします。
 
-- リクエストデータをバリデーションします
-- バリデーションに失敗すると、自動的に前のページにリダイレクトされます
-
----
-
-#### バリデーションルールの解説
-
-| フィールド | ルール | 説明 |
-|---|---|---|
-| `title` | `required` | 必須項目 |
-| `title` | `string` | 文字列型 |
-| `title` | `max:255` | 最大255文字 |
-| `description` | `nullable` | 空でも良い |
-| `due_date` | `date` | 日付形式 |
-| `status` | `in:pending,in_progress,completed` | 指定した値のみ許可 |
+```php
+return redirect()->route('tasks.show', $task)->with('success', '...');
+```
+→ 作成後は詳細画面にリダイレクトし、フラッシュメッセージを表示します。
 
 ---
 
-#### `$validated['user_id'] = auth()->id()`
+## Step 5: 動作確認
 
-- ログインしているユーザーのIDを取得し、`user_id`に設定します
-- これにより、タスクがどのユーザーのものか紐付けられます
+### 5-1. フォーム画面を確認する
 
----
-
-#### `Task::create($validated)`
-
-- バリデーション済みのデータを使って、新しいタスクを作成します
-- `create()`メソッドは、データベースにレコードを挿入します
-
----
-
-#### `return redirect()->route('tasks.index')->with('success', '...')`
-
-- タスク一覧ページにリダイレクトします
-- `with('success', '...')`で、フラッシュメッセージをセッションに保存します
-
----
-
-## Step 5: フラッシュメッセージの表示
-
-### 5-1. 一覧画面にメッセージ表示を追加する
-
-タスク作成後に、フラッシュメッセージを表示します。
-
-**ファイル**: `resources/views/tasks/index.blade.php`
-
-一覧画面の`<h1>`タグの下に、以下のコードを追加します。
-
-```blade
-@if (session('success'))
-    <div style="color: green; margin-bottom: 15px; padding: 10px; background-color: #e8f5e9; border-radius: 4px;">
-        {{ session('success') }}
-    </div>
-@endif
-
-<a href="{{ route('tasks.create') }}" style="display: inline-block; margin-bottom: 15px; padding: 10px 20px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 4px;">新規作成</a>
+```
+http://localhost/tasks/create
 ```
 
----
+| 確認項目 | 期待する結果 |
+|:---|:---|
+| フォームが表示される | エラーなく表示される |
+| カテゴリーが選択できる | セレクトボックスにカテゴリーが表示される |
 
-### 5-2. コードリーディング
+### 5-2. タスクを作成する
 
-#### `session('success')`
+1. タイトルに「テストタスク」と入力
+2. カテゴリーを選択
+3. 「作成」ボタンをクリック
 
-- セッションから`success`キーの値を取得します
-- `with('success', '...')`で保存した値が取得できます
-- フラッシュメッセージは**1回のリクエストでのみ有効**です
+| 確認項目 | 期待する結果 |
+|:---|:---|
+| 詳細画面にリダイレクトされる | 作成したタスクの詳細が表示される |
+| フラッシュメッセージが表示される | 「タスクを作成しました」と表示される |
 
----
-
-## Step 6: 動作確認
-
-### 6-1. フォーム表示を確認する
-
-ブラウザで`http://localhost/tasks/create`にアクセスし、タスク作成フォームが表示されることを確認します。
-
----
-
-### 6-2. タスクを作成する
-
-1. タイトルに「新しいタスク」と入力
-2. 説明に「これは新しいタスクの説明です。」と入力
-3. 期限に「2024-12-31」と入力
-4. ステータスに「未着手」を選択
-5. 「作成」ボタンをクリック
-
-タスク一覧ページにリダイレクトされ、「タスクを作成しました。」というメッセージが表示されることを確認します。
-
----
-
-### 6-3. バリデーションエラーを確認する
+### 5-3. バリデーションを確認する
 
 1. タイトルを空にして「作成」ボタンをクリック
-2. 「タイトルは必須です。」というエラーメッセージが表示される
+
+| 確認項目 | 期待する結果 |
+|:---|:---|
+| エラーメッセージが表示される | 「タイトルは必須です」と表示される |
+| 入力値が保持される | 他のフィールドの値が消えない |
 
 ---
 
-## 🚨 よくある間違い
+## 💡 TIP: old()とバリデーションエラー
 
-### 間違い1: @csrfを忘れる
+バリデーションエラー時に入力値を保持するには、`old()`ヘルパーを使います。
 
-**エラー**:
-
-```
-419 | Page Expired
+```blade
+<input type="text" name="title" value="{{ old('title') }}">
 ```
 
-**対処法**: フォームに`@csrf`を追加します。
+Bladeファイルには既に`old()`が実装されているので、バリデーションエラー時に自動的に入力値が保持されます。
 
 ---
 
-### 間違い2: user_idを設定していない
+## 💡 TIP: @errorディレクティブ
 
-**エラー**:
+バリデーションエラーを表示するには、`@error`ディレクティブを使います。
 
+```blade
+@error('title')
+    <p class="error">{{ $message }}</p>
+@enderror
 ```
-SQLSTATE[HY000]: General error: 1364 Field 'user_id' doesn't have a default value
-```
 
-**対処法**: `store`メソッドで`user_id`を設定します。
-
-```php
-$validated['user_id'] = auth()->id();
-```
+`$message`には、バリデーションエラーメッセージが自動的に入ります。
 
 ---
 
-### 間違い3: バリデーションエラーが表示されない
+## 💡 TIP: バリデーションメッセージの日本語化
 
-**対処法**: ビューに`@if ($errors->any())`を追加します。
+デフォルトでは英語のエラーメッセージが表示されます。日本語化するには：
 
----
+```bash
+# 言語ファイルを公開
+sail artisan lang:publish
 
-## 💡 TIP: バリデーションルールのカスタマイズ
-
-バリデーションルールは、カスタマイズできます。
-
-**例**: タイトルを10文字以上にする
-
-```php
-$validated = $request->validate([
-    'title' => 'required|string|min:10|max:255',
-]);
+# 日本語ファイルを作成
+mkdir -p lang/ja
 ```
 
-**例**: 期限を今日以降にする
-
-```php
-$validated = $request->validate([
-    'due_date' => 'nullable|date|after_or_equal:today',
-]);
-```
+`lang/ja/validation.php`を作成し、日本語のメッセージを定義します。
 
 ---
 
 ## ✨ まとめ
 
-このセクションでは、タスク作成機能を実装しました。
+このセクションでは、「提供コードありき」の開発フローでタスク作成を実装しました。
 
-| Step | 学んだこと |
-|------|-----------|
-| Step 1 | 作成機能には2つのルート（GET/POST）が必要 |
-| Step 2 | `create`メソッドでフォームを表示する |
-| Step 3 | フォームには`@csrf`と`old()`が必要 |
-| Step 4 | `store`メソッドでバリデーションと保存を行う |
-| Step 5 | フラッシュメッセージで操作結果を伝える |
-| Step 6 | 動作確認とエラー確認の方法 |
+| ステップ | 学んだこと |
+|:---|:---|
+| Step 1 | 画面アクセスでエラーを確認 |
+| Step 2 | Bladeを読み解いて、フォーム項目とバリデーションを特定 |
+| Step 3 | Tinkerでデータ作成を確認 |
+| Step 4 | createとstoreアクションを実装 |
+| Step 5 | 動作確認とバリデーションの確認 |
 
 次のセクションでは、タスク詳細の実装について学びます。
 

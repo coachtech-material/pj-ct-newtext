@@ -55,7 +55,7 @@ UPDATE users SET deleted_at = '2024-01-15 10:30:00' WHERE id = 1;
 まず、テーブルに`deleted_at`カラムを追加するマイグレーションを作成します。
 
 ```bash
-docker compose exec php php artisan make:migration add_soft_deletes_to_posts_table
+sail artisan make:migration add_soft_deletes_to_posts_table
 ```
 
 **マイグレーションファイル**
@@ -93,7 +93,7 @@ return new class extends Migration
 マイグレーションを実行します。
 
 ```bash
-docker compose exec php php artisan migrate
+sail artisan migrate
 ```
 
 #### 2. モデルに`SoftDeletes`トレイトを追加

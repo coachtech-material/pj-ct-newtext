@@ -48,7 +48,7 @@ Laravelでは、**ポリシー（Policy）**というクラスを使って、リ
 例として、`Post`モデルに対するポリシーを作成してみましょう。
 
 ```bash
-docker compose exec php php artisan make:policy PostPolicy --model=Post
+sail artisan make:policy PostPolicy --model=Post
 ```
 
 これにより、`app/Policies/PostPolicy.php`が生成されます。

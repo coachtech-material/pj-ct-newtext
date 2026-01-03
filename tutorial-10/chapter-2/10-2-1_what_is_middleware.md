@@ -83,7 +83,7 @@ Laravelには、いくつかのミドルウェアが標準で用意されてい�
 #### ステップ1: ミドルウェアを生成する
 
 ```bash
-docker compose exec php php artisan make:middleware AdminMiddleware
+sail artisan make:middleware AdminMiddleware
 ```
 
 これにより、`app/Http/Middleware/AdminMiddleware.php`が生成されます。

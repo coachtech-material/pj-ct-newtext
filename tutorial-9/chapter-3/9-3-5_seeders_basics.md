@@ -39,7 +39,7 @@
 #### ステップ1: シーダーを生成する
 
 ```bash
-docker compose exec php php artisan make:seeder UserSeeder
+sail artisan make:seeder UserSeeder
 ```
 
 これにより、`database/seeders/UserSeeder.php`が生成されます。
@@ -101,7 +101,7 @@ class UserSeeder extends Seeder
 #### 特定のシーダーを実行する
 
 ```bash
-docker compose exec php php artisan db:seed --class=UserSeeder
+sail artisan db:seed --class=UserSeeder
 ```
 
 #### 全てのシーダーを実行する
@@ -140,7 +140,7 @@ class DatabaseSeeder extends Seeder
 **実行**
 
 ```bash
-docker compose exec php php artisan db:seed
+sail artisan db:seed
 ```
 
 ---
@@ -234,7 +234,7 @@ public function run(): void
 開発中は、以下のコマンドを頻繁に使います。
 
 ```bash
-docker compose exec php php artisan migrate:fresh --seed
+sail artisan migrate:fresh --seed
 ```
 
 これにより、以下の処理が実行されます。

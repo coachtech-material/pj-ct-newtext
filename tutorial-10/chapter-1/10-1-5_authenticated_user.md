@@ -51,7 +51,7 @@ public function show(Request $request)
 {
     $user = $request->user();
     
-    return response()->json(['user' => $user]);
+    return view('profile', ['user' => $user]);
 }
 ```
 
@@ -90,7 +90,7 @@ if (auth()->guest()) {
 #### ルートに適用
 
 ```php
-Route::middleware('auth:sanctum')->group(function () {
+Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'show']);
     Route::put('/profile', [ProfileController::class, 'update']);
     Route::delete('/profile', [ProfileController::class, 'destroy']);
@@ -99,8 +99,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
 **コードリーディング**
 
-*   `auth:sanctum`: Sanctumの認証ミドルウェア
+*   `auth`: 認証ミドルウェア（セッションベース認証）
 *   このルートグループ内のルートは、認証済みユーザーのみがアクセスできる
+*   ログインしていない場合、自動的に`/login`にリダイレクトされる
 
 ---
 
@@ -108,7 +109,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
 ```php
 Route::get('/dashboard', [DashboardController::class, 'index'])
-    ->middleware('auth:sanctum');
+    ->middleware('auth');
 ```
 
 ---
@@ -122,37 +123,25 @@ public function show(Request $request)
 {
     $user = $request->user();
     
-    return response()->json(['user' => $user]);
+    return view('profile.show', ['user' => $user]);
 }
 ```
 
 #### ルート
 
 ```php
-Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'show']);
+Route::middleware('auth')->group(function () {
+    Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
 });
 ```
 
-#### Postmanでテスト
+#### ビュー（profile/show.blade.php）
 
-```
-GET http://localhost/api/profile
-Authorization: Bearer 2|xyz789...
-```
-
-#### レスポンス
-
-```json
-{
-    "user": {
-        "id": 1,
-        "name": "山田太郎",
-        "email": "yamada@example.com",
-        "created_at": "2024-01-01T00:00:00.000000Z",
-        "updated_at": "2024-01-01T00:00:00.000000Z"
-    }
-}
+```blade
+<h1>プロフィール</h1>
+<p>名前: {{ $user->name }}</p>
+<p>メールアドレス: {{ $user->email }}</p>
+<p>登録日: {{ $user->created_at->format('Y年m月d日') }}</p>
 ```
 
 ---
@@ -172,10 +161,8 @@ public function update(Request $request)
     $user = $request->user();
     $user->update($validated);
 
-    return response()->json([
-        'message' => 'Profile updated successfully',
-        'user' => $user,
-    ]);
+    return redirect()->route('profile.show')
+        ->with('success', 'プロフィールを更新しました');
 }
 ```
 
@@ -195,10 +182,8 @@ public function store(Request $request)
 
     $post = $request->user()->posts()->create($validated);
 
-    return response()->json([
-        'message' => 'Post created successfully',
-        'post' => $post,
-    ], 201);
+    return redirect()->route('posts.show', $post)
+        ->with('success', '投稿を作成しました');
 }
 ```
 
@@ -219,9 +204,7 @@ public function update(Request $request, $id)
 
     // 自分の投稿かチェック
     if ($post->user_id !== $request->user()->id) {
-        return response()->json([
-            'message' => 'Unauthorized',
-        ], 403);
+        abort(403, '権限がありません');
     }
 
     $validated = $request->validate([
@@ -231,10 +214,8 @@ public function update(Request $request, $id)
 
     $post->update($validated);
 
-    return response()->json([
-        'message' => 'Post updated successfully',
-        'post' => $post,
-    ]);
+    return redirect()->route('posts.show', $post)
+        ->with('success', '投稿を更新しました');
 }
 ```
 
@@ -252,32 +233,6 @@ $posts = Post::where('user_id', $userId)->get();
 
 ---
 
-### 🔍 Web版の認証
-
-#### ルート
-
-```php
-Route::middleware('auth')->group(function () {
-    Route::get('/dashboard', [DashboardController::class, 'index']);
-    Route::get('/profile', [ProfileController::class, 'show']);
-});
-```
-
-#### コントローラー
-
-```php
-public function index()
-{
-    $user = auth()->user();
-    
-    $posts = $user->posts()->latest()->take(5)->get();
-    
-    return view('dashboard', compact('user', 'posts'));
-}
-```
-
----
-
 ### 🔍 Bladeテンプレートでの認証チェック
 
 #### `@auth`ディレクティブ
@@ -285,14 +240,23 @@ public function index()
 ```blade
 @auth
     <p>ようこそ、{{ auth()->user()->name }}さん</p>
-    <a href="/logout">ログアウト</a>
+    <form method="POST" action="{{ route('logout') }}">
+        @csrf
+        <button type="submit">ログアウト</button>
+    </form>
 @endauth
 
 @guest
-    <a href="/login">ログイン</a>
-    <a href="/register">新規登録</a>
+    <a href="{{ route('login') }}">ログイン</a>
+    <a href="{{ route('register') }}">新規登録</a>
 @endguest
 ```
+
+**コードリーディング**
+
+*   `@auth ... @endauth`: ログインしている場合のみ表示
+*   `@guest ... @endguest`: ログインしていない場合のみ表示
+*   `auth()->user()`: ログインしているユーザーを取得
 
 ---
 
@@ -314,12 +278,30 @@ public function dashboard(Request $request)
 
     $latestPosts = $user->posts()->latest()->take(5)->get();
 
-    return response()->json([
-        'user' => $user,
-        'stats' => $stats,
-        'latest_posts' => $latestPosts,
-    ]);
+    return view('dashboard', compact('user', 'stats', 'latestPosts'));
 }
+```
+
+#### ビュー（dashboard.blade.php）
+
+```blade
+<h1>ダッシュボード</h1>
+
+<div class="stats">
+    <p>総投稿数: {{ $stats['total_posts'] }}</p>
+    <p>公開済み: {{ $stats['published_posts'] }}</p>
+    <p>下書き: {{ $stats['draft_posts'] }}</p>
+</div>
+
+<h2>最新の投稿</h2>
+@forelse ($latestPosts as $post)
+    <div class="post">
+        <h3>{{ $post->title }}</h3>
+        <p>{{ $post->created_at->format('Y/m/d') }}</p>
+    </div>
+@empty
+    <p>投稿がありません</p>
+@endforelse
 ```
 
 ---
@@ -337,11 +319,6 @@ public function dashboard(Request $request)
         'provider' => 'users',
     ],
 
-    'api' => [
-        'driver' => 'sanctum',
-        'provider' => 'users',
-    ],
-
     'admin' => [
         'driver' => 'session',
         'provider' => 'admins',
@@ -352,7 +329,7 @@ public function dashboard(Request $request)
 **使用例**
 
 ```php
-$user = auth('admin')->user();
+$admin = auth('admin')->user();
 
 Route::middleware('auth:admin')->group(function () {
     // 管理者のみがアクセスできるルート
@@ -370,13 +347,19 @@ $user = auth()->user();
 echo $user->name; // ログインしていない場合、エラーになる
 ```
 
-**対処法**: 認証チェックをします。
+**対処法**: 認証チェックをするか、`auth`ミドルウェアを使います。
 
 ```php
+// 方法1: 認証チェック
 if (auth()->check()) {
     $user = auth()->user();
     echo $user->name;
 }
+
+// 方法2: authミドルウェアを使う（推奨）
+Route::middleware('auth')->group(function () {
+    // このルート内では auth()->user() は必ず存在する
+});
 ```
 
 ---
@@ -387,7 +370,7 @@ if (auth()->check()) {
 public function show(Request $request)
 {
     if (!auth()->check()) {
-        return response()->json(['message' => 'Unauthenticated'], 401);
+        return redirect('/login');
     }
     
     // 処理
@@ -397,7 +380,7 @@ public function show(Request $request)
 **対処法**: `auth`ミドルウェアを使います。
 
 ```php
-Route::middleware('auth:sanctum')->group(function () {
+Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'show']);
 });
 ```
@@ -408,11 +391,12 @@ Route::middleware('auth:sanctum')->group(function () {
 
 このセクションでは、認証済みユーザーの取得とミドルウェアについて学びました。
 
-*   `auth()->user()`を使って、認証済みユーザーを取得できる。
-*   `auth()->check()`を使って、ログイン状態を確認できる。
-*   `auth`ミドルウェアを使って、認証済みユーザーのみがアクセスできるルートを作成できる。
-*   `$request->user()`を使って、コントローラー内で認証済みユーザーを取得できる。
+*   `auth()->user()`を使って、認証済みユーザーを取得できる
+*   `auth()->check()`を使って、ログイン状態を確認できる
+*   `auth`ミドルウェアを使って、認証済みユーザーのみがアクセスできるルートを作成できる
+*   `$request->user()`を使って、コントローラー内で認証済みユーザーを取得できる
+*   `@auth` / `@guest`ディレクティブで、ログイン状態に応じた表示ができる
 
-これで、Chapter 7「認証機能」の全5セクションが完了しました。次は、Chapter 8「HTTPライフサイクルとミドルウェア」の残りのセクションに進みます。
+これで、Chapter 1「認証機能」の全5セクションが完了しました。次のセクションでは、ハンズオンで実際に認証機能を実装します。
 
 ---

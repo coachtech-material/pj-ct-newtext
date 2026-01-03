@@ -28,7 +28,7 @@ Laravel Sailを使えば、これらの作業が**全て自動化**されます�
 |:---|:---|:---|
 | 設定ファイル作成 | 手動で複数ファイル作成 | 自動生成 |
 | PHP拡張機能 | 手動インストール | 事前に最適化済み |
-| コマンド実行 | `docker compose exec php php artisan ...` | `sail artisan ...` |
+| コマンド実行 | `sail artisan ...` | `sail artisan ...` |
 | 学習コスト | 高い | 低い |
 | Laravel最適化 | 自分で調整 | 公式が最適化済み |
 
