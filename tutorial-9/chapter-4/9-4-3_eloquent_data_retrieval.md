@@ -1,4 +1,4 @@
-# Tutorial 9-4-2: Eloquentでデータを取得する
+# Tutorial 9-4-3: Eloquentによるデータ取得する
 
 ## 🎯 このセクションで学ぶこと
 

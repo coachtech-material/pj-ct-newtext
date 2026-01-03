@@ -1,4 +1,4 @@
-# Tutorial 9-4-7: Eloquent ORM - ハンズオン演習
+# Tutorial 9-4-9: Eloquent ORM - ハンズオン演習
 
 ## 📝 このセクションの目的
 

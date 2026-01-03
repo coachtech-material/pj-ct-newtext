@@ -1,4 +1,4 @@
-# Tutorial 9-3-2.5: UUIDとULID - 主キーの代替手段
+# Tutorial 9-3-3: UUIDとULID - 主キーの代替手段
 
 ## 🎯 このセクションで学ぶこと
 

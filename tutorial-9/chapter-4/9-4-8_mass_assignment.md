@@ -1,4 +1,4 @@
-# Tutorial 9-4-6: マスアサインメントと$fillable
+# Tutorial 9-4-8: マスアサインメントと$fillable
 
 ## 🎯 このセクションで学ぶこと
 
