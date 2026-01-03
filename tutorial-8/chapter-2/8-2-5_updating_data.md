@@ -50,7 +50,7 @@ WHERE id = 1;
 
 **phpMyAdminでの実行と確認**
 
-1.  phpMyAdminで、`laravel_db` データベースを、選択し、「SQL」タブを、開きます。
+1.  phpMyAdminで、`practice_db` データベースを、選択し、「SQL」タブを、開きます。
 2.  上記の、`UPDATE` 文を、実行します。
 3.  「表示」タブを、クリックして、`id` が `1` の、ユーザーの、名前が、変わっていることを、確認します。
 
