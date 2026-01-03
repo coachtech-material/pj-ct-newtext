@@ -1,4 +1,4 @@
-# Tutorial 6-2-6: Dockerのトラブルシューティング
+# Tutorial 6-2-5: Dockerのトラブルシューティング
 
 ## 🎯 このセクションで学ぶこと
 
@@ -252,5 +252,7 @@ docker-compose up -d
 3. `docker-compose down`→`docker-compose up -d`で再起動
 
 トラブルが発生しても、慌てずに、一つずつ確認していきましょう。
+
+次のセクションでは、実際に手を動かして、PHP実行環境をDocker Composeで構築してみましょう。
 
 ---
