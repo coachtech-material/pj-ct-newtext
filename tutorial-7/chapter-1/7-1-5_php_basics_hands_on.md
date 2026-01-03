@@ -150,11 +150,13 @@ PHPのプログラムは「データを入力→処理→出力」という流�
 # php-practiceディレクトリに移動
 cd ~/php-practice
 
-# price_calculator.phpを作成
-touch src/price_calculator.php
+# VSCodeでプロジェクトを開く
+code .
 ```
 
-`src/price_calculator.php`をエディタで開き、入力データを変数に格納します。
+VSCodeが開いたら、エクスプローラーで`src`フォルダを右クリックし、「新しいファイル」を選択して`price_calculator.php`を作成してください。
+
+`src/price_calculator.php`ファイルに、入力データを変数に格納します。
 
 **✅ ディレクトリ構造の確認**
 

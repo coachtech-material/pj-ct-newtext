@@ -124,11 +124,13 @@ echo htmlspecialchars($name, ENT_QUOTES, 'UTF-8');
 # php-practiceディレクトリに移動
 cd ~/php-practice
 
-# input.phpを作成
-touch src/input.php
+# VSCodeでプロジェクトを開く
+code .
 ```
 
-`src/input.php`をエディタで開き、以下の内容を記述します：
+VSCodeが開いたら、エクスプローラーで`src`フォルダを右クリックし、「新しいファイル」を選択して`input.php`を作成してください。
+
+`src/input.php`ファイルに、以下の内容を記述します：
 
 ```php
 <!DOCTYPE html>
@@ -190,14 +192,9 @@ touch src/input.php
 - 「完了画面にデータを渡すために、`hidden`フィールドを使おう」
 - 「XSS対策のために`htmlspecialchars`を使おう」
 
-次に、ターミナルで以下のコマンドを実行して、`confirm.php`ファイルを作成します：
+VSCodeのエクスプローラーで`src`フォルダを右クリックし、「新しいファイル」を選択して`confirm.php`を作成してください。
 
-```bash
-# confirm.phpを作成
-touch src/confirm.php
-```
-
-`src/confirm.php`をエディタで開き、以下の内容を記述します：
+`src/confirm.php`ファイルに、以下の内容を記述します：
 
 ```php
 <?php
@@ -278,14 +275,9 @@ $name = $_POST["name"];
 - 「実際のアプリケーションでは、ここでデータベースに保存する」
 - 「登録完了のメッセージを表示しよう」
 
-最後に、ターミナルで以下のコマンドを実行して、`complete.php`ファイルを作成します：
+VSCodeのエクスプローラーで`src`フォルダを右クリックし、「新しいファイル」を選択して`complete.php`を作成してください。
 
-```bash
-# complete.phpを作成
-touch src/complete.php
-```
-
-`src/complete.php`をエディタで開き、以下の内容を記述します：
+`src/complete.php`ファイルに、以下の内容を記述します：
 
 ```php
 <?php

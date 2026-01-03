@@ -164,11 +164,13 @@ $average = $total_score / count($students);
 # php-practiceディレクトリに移動
 cd ~/php-practice
 
-# grade_calculator.phpを作成
-touch src/grade_calculator.php
+# VSCodeでプロジェクトを開く
+code .
 ```
 
-`src/grade_calculator.php`をエディタで開き、学生データを定義します：
+VSCodeが開いたら、エクスプローラーで`src`フォルダを右クリックし、「新しいファイル」を選択して`grade_calculator.php`を作成してください。
+
+`src/grade_calculator.php`ファイルに、学生データを定義します：
 
 ```php
 <?php

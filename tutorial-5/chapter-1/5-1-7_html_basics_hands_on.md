@@ -204,9 +204,14 @@ mkdir html-practice
 
 # ディレクトリに移動
 cd html-practice
+
+# VSCodeでプロジェクトを開く
+code .
 ```
 
-次に、`self-introduction.html`という名前のファイルを作成します。VSCodeなどのエディタで、`~/html-practice/self-introduction.html`を作成し、HTML5の基本構造を書きます。
+`code .`コマンドを実行すると、VSCodeが起動し、`html-practice`フォルダがプロジェクトとして開かれます。
+
+次に、`self-introduction.html`という名前のファイルを作成します。VSCodeのエクスプローラーで`html-practice`フォルダを右クリックし、「新しいファイル」を選択して`self-introduction.html`を作成してください。HTML5の基本構造を書きます。
 
 **何を考えているか**：
 - 「まずはHTMLの土台を作ろう」

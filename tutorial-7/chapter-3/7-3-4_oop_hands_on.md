@@ -136,11 +136,13 @@ $user1->introduce();
 # php-practiceディレクトリに移動
 cd ~/php-practice
 
-# user.phpを作成
-touch src/user.php
+# VSCodeでプロジェクトを開く
+code .
 ```
 
-`src/user.php`をエディタで開き、クラスを定義します：
+VSCodeが開いたら、エクスプローラーで`src`フォルダを右クリックし、「新しいファイル」を選択して`user.php`を作成してください。
+
+`src/user.php`ファイルに、クラスを定義します：
 
 ```php
 <?php
