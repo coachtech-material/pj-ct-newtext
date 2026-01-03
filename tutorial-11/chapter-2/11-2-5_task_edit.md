@@ -157,7 +157,11 @@ public function edit(Task $task)
 
 ### 3-1. ビューファイルを作成する
 
-タスク編集フォームのビューを作成します。
+ターミナルで以下のコマンドを実行して、タスク編集フォームのビューを作成します：
+
+```bash
+touch resources/views/tasks/edit.blade.php
+```
 
 **ファイル**: `resources/views/tasks/edit.blade.php`
 

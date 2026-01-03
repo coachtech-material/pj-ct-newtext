@@ -235,7 +235,13 @@ User::create($request->validated());
 - 「@errorディレクティブで簡単に表示できる」
 - 「old()ヘルパーで入力値を保持しよう」
 
-`resources/views/register.blade.php`を作成します：
+ターミナルで以下のコマンドを実行して、`register.blade.php`ファイルを作成します：
+
+```bash
+touch resources/views/register.blade.php
+```
+
+`resources/views/register.blade.php`をエディタで開き、以下の内容を記述します：
 
 ```blade
 <form action="{{ route('users.store') }}" method="POST">

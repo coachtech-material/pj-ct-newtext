@@ -38,7 +38,17 @@ cd php-practice
 
 ### Step 2: Nginxの設定ファイルを作成
 
-VSCodeなどのエディタで、`docker/nginx/default.conf`ファイルを作成し、以下の内容を記述してください。
+次に、Nginxの設定ファイルを作成します。ターミナルで以下のコマンドを実行して、空のファイルを作成します。
+
+```bash
+# php-practiceディレクトリにいることを確認
+cd ~/php-practice
+
+# Nginxの設定ファイルを作成
+touch docker/nginx/default.conf
+```
+
+VSCodeなどのエディタで、`docker/nginx/default.conf`ファイルを開き、以下の内容を記述してください。
 
 ```nginx
 # docker/nginx/default.conf
@@ -65,7 +75,14 @@ server {
 
 ### Step 3: PHPファイルの作成
 
-`src/index.php`ファイルを作成し、以下の内容を記述してください。
+次に、PHPの動作確認用ファイルを作成します。
+
+```bash
+# PHPファイルを作成
+touch src/index.php
+```
+
+`src/index.php`ファイルをエディタで開き、以下の内容を記述してください。
 
 ```php
 <?php
@@ -78,7 +95,14 @@ echo "<p>現在時刻: " . date("Y-m-d H:i:s") . "</p>";
 
 ### Step 4: docker-compose.ymlの作成
 
-`php-practice`フォルダ直下に、`docker-compose.yml`ファイルを作成し、以下の内容を記述してください。
+最後に、Docker Composeの設定ファイルを作成します。
+
+```bash
+# docker-compose.ymlを作成
+touch docker-compose.yml
+```
+
+`docker-compose.yml`ファイルをエディタで開き、以下の内容を記述してください。
 
 ```yaml
 version: '3.8'

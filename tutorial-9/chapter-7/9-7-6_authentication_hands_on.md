@@ -258,7 +258,17 @@ Route::get('/mypage', [MypageController::class, 'index'])->middleware('auth');
 - 「ログインフォームとマイページを作ろう」
 - 「ログインフォームには@csrfを必ず追加しよう」
 
-`resources/views/auth/login.blade.php`を作成します：
+ターミナルで以下のコマンドを実行して、ビューファイルを作成します：
+
+```bash
+# authディレクトリを作成
+mkdir -p resources/views/auth
+
+# ログインビューを作成
+touch resources/views/auth/login.blade.php
+```
+
+`resources/views/auth/login.blade.php`をエディタで開き、以下の内容を記述します：
 
 ```blade
 <h1>ログイン</h1>
@@ -279,7 +289,13 @@ Route::get('/mypage', [MypageController::class, 'index'])->middleware('auth');
 </form>
 ```
 
-`resources/views/mypage.blade.php`を作成します：
+次に、マイページのビューを作成します：
+
+```bash
+touch resources/views/mypage.blade.php
+```
+
+`resources/views/mypage.blade.php`をエディタで開き、以下の内容を記述します：
 
 ```blade
 <h1>マイページ</h1>

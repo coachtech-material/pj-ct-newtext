@@ -144,7 +144,17 @@ PHPのプログラムは「データを入力→処理→出力」という流�
 - 「`<?php`でPHPコードを開始しよう」
 - 「商品情報を変数に格納しよう」
 
-まず、`~/php-practice/src/`ディレクトリに`price_calculator.php`を作成して、入力データを変数に格納します。
+まず、ターミナルで以下のコマンドを実行して、`price_calculator.php`ファイルを作成します：
+
+```bash
+# php-practiceディレクトリに移動
+cd ~/php-practice
+
+# price_calculator.phpを作成
+touch src/price_calculator.php
+```
+
+`src/price_calculator.php`をエディタで開き、入力データを変数に格納します。
 
 **✅ ディレクトリ構造の確認**
 

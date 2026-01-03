@@ -137,7 +137,11 @@ public function create()
 
 ### 3-1. ビューファイルを作成する
 
-タスク作成フォームのビューを作成します。
+ターミナルで以下のコマンドを実行して、タスク作成フォームのビューを作成します：
+
+```bash
+touch resources/views/tasks/create.blade.php
+```
 
 **ファイル**: `resources/views/tasks/create.blade.php`
 

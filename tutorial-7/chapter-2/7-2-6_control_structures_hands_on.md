@@ -158,7 +158,17 @@ $average = $total_score / count($students);
 - 「連想配列を使って名前と点数をペアにしよう」
 - 「配列の配列（多次元配列）で表現しよう」
 
-まず、`~/php-practice/src/grade_calculator.php`を作成して、学生データを定義します：
+まず、ターミナルで以下のコマンドを実行して、`grade_calculator.php`ファイルを作成します：
+
+```bash
+# php-practiceディレクトリに移動
+cd ~/php-practice
+
+# grade_calculator.phpを作成
+touch src/grade_calculator.php
+```
+
+`src/grade_calculator.php`をエディタで開き、学生データを定義します：
 
 ```php
 <?php

@@ -118,7 +118,17 @@ echo htmlspecialchars($name, ENT_QUOTES, 'UTF-8');
 - 「送信先は確認画面（`confirm.php`）にしよう」
 - 「`method="post"`でデータを送信しよう」
 
-まず、`~/php-practice/src/input.php`を作成します：
+まず、ターミナルで以下のコマンドを実行して、`input.php`ファイルを作成します：
+
+```bash
+# php-practiceディレクトリに移動
+cd ~/php-practice
+
+# input.phpを作成
+touch src/input.php
+```
+
+`src/input.php`をエディタで開き、以下の内容を記述します：
 
 ```php
 <!DOCTYPE html>
@@ -180,7 +190,14 @@ echo htmlspecialchars($name, ENT_QUOTES, 'UTF-8');
 - 「完了画面にデータを渡すために、`hidden`フィールドを使おう」
 - 「XSS対策のために`htmlspecialchars`を使おう」
 
-次に、`~/php-practice/src/confirm.php`を作成します：
+次に、ターミナルで以下のコマンドを実行して、`confirm.php`ファイルを作成します：
+
+```bash
+# confirm.phpを作成
+touch src/confirm.php
+```
+
+`src/confirm.php`をエディタで開き、以下の内容を記述します：
 
 ```php
 <?php
@@ -261,7 +278,14 @@ $name = $_POST["name"];
 - 「実際のアプリケーションでは、ここでデータベースに保存する」
 - 「登録完了のメッセージを表示しよう」
 
-最後に、`~/php-practice/src/complete.php`を作成します：
+最後に、ターミナルで以下のコマンドを実行して、`complete.php`ファイルを作成します：
+
+```bash
+# complete.phpを作成
+touch src/complete.php
+```
+
+`src/complete.php`をエディタで開き、以下の内容を記述します：
 
 ```php
 <?php

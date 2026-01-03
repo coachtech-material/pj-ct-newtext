@@ -167,7 +167,11 @@ public function show(Task $task)
 
 ### 3-1. ビューファイルを作成する
 
-タスク詳細のビューを作成します。
+ターミナルで以下のコマンドを実行して、タスク詳細のビューを作成します：
+
+```bash
+touch resources/views/tasks/show.blade.php
+```
 
 **ファイル**: `resources/views/tasks/show.blade.php`
 

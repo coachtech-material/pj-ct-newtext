@@ -130,7 +130,17 @@ $user1->introduce();
 - 「ユーザーに必要なデータをプロパティとして定義しよう」
 - 「まずは`public`でシンプルに作ろう」
 
-まず、`~/php-practice/src/user.php`を作成して、クラスを定義します：
+まず、ターミナルで以下のコマンドを実行して、`user.php`ファイルを作成します：
+
+```bash
+# php-practiceディレクトリに移動
+cd ~/php-practice
+
+# user.phpを作成
+touch src/user.php
+```
+
+`src/user.php`をエディタで開き、クラスを定義します：
 
 ```php
 <?php
