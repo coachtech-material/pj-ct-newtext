@@ -524,3 +524,17 @@ SELECT * FROM tasks WHERE title = 'API開発';
 引き続き、次のセクションも頑張りましょう！
 
 ---
+
+## 🧹 後片付け（任意）
+
+このハンズオンで作成した`task_management`データベースは、演習専用のデータベースです。次のChapter以降では使用しません。
+
+phpMyAdminの左ペインを整理したい場合は、以下のSQLでデータベースを削除できます。ただし、削除すると元に戻せないので、注意してください。
+
+```sql
+DROP DATABASE task_management;
+```
+
+> 💡 **ポイント**：`practice_db`データベースは、Chapter 3以降でも使用するので、削除しないでください。
+
+---

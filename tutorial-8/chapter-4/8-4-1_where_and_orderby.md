@@ -2,6 +2,21 @@
 # Tutorial 8-4-1: より高度な絞り込みと並び替え
 
 > 📌 **使用するデータベースとテーブル**：このチャプターでは、引き続き`practice_db`データベースを使用します。Chapter 2・3で作成した`users`、`posts`、`tags`、`post_tag`テーブルを使ってSQLを実行していきます。phpMyAdminで`practice_db`を選択してから、学習を始めてください。
+>
+> 💡 **データの前提条件**：このチャプターの例では、Chapter 2・3で作成したデータを使用します。もしテーブルが空の場合やデータが少ない場合は、結果が0件になることがあります。その場合は、Chapter 2・3に戻ってデータを追加するか、以下のサンプルデータを実行してください。
+>
+> ```sql
+> -- ユーザーデータ（usersテーブルが空の場合）
+> INSERT INTO users (name, email, password) VALUES
+>     ('John Doe', 'john@example.com', 'password123'),
+>     ('Jane Smith', 'jane@example.com', 'password456');
+>
+> -- 投稿データ（postsテーブルが空の場合）
+> INSERT INTO posts (user_id, title, content) VALUES
+>     (1, 'Laravel入門', 'Laravelは楽しい！'),
+>     (1, 'SQLの基本', 'SELECT文を学びました'),
+>     (2, 'PHPの基礎', 'PHPはサーバーサイド言語です');
+> ```
 
 ## 🎯 このセクションで学ぶこと
 

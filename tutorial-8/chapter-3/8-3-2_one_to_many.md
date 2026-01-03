@@ -91,7 +91,16 @@ CREATE TABLE posts (
 
 #### 成功する例：存在するユーザーで投稿を作成
 
-まず、`users`テーブルに`id=1`のユーザーが存在することを確認してください。その上で、`id=1`のユーザーが新しい投稿をする、という`INSERT`文を実行します。
+まず、`users`テーブルに`id=1`のユーザーが存在することを確認してください。
+
+> ⚠️ **確認方法**：phpMyAdminで`users`テーブルを開き、データが存在するか確認してください。もし`users`テーブルが空の場合は、Tutorial 8-2-3でユーザーを追加していない可能性があります。以下のSQLを実行して、テスト用のユーザーを追加してください。
+>
+> ```sql
+> INSERT INTO users (name, email, password)
+> VALUES ('John Doe', 'john.doe@example.com', 'password123');
+> ```
+
+ユーザーが存在することを確認したら、`id=1`のユーザーが新しい投稿をする、という`INSERT`文を実行します。
 
 ```sql
 INSERT INTO posts (user_id, title, content) VALUES (1, '初めての投稿', 'リレーションシップを学びました！');

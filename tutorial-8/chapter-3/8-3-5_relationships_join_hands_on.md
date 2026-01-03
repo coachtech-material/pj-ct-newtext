@@ -583,3 +583,20 @@ WHERE orders.order_id IS NULL;
 引き続き、次のセクションも頑張りましょう！
 
 ---
+
+## 🧹 後片付け（任意）
+
+このハンズオンで作成した`customers`、`products`、`orders`テーブルは、`practice_db`データベース内に作成されています。これらは演習専用のテーブルで、Chapter 4以降では使用しません。
+
+phpMyAdminのテーブル一覧を整理したい場合は、以下のSQLでテーブルを削除できます。ただし、削除すると元に戻せないので、注意してください。
+
+```sql
+-- 外部キー制約があるため、順番に削除する必要があります
+DROP TABLE orders;
+DROP TABLE customers;
+DROP TABLE products;
+```
+
+> 💡 **ポイント**：`users`、`posts`、`tags`、`post_tag`テーブルは、Chapter 4でも使用するので、削除しないでください。
+
+---

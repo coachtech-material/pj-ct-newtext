@@ -522,6 +522,25 @@ WHERE (price * quantity) > (SELECT AVG(price * quantity) FROM sales)
 - ✅ 集計関数（COUNT、SUM、AVG、MAX、MIN）を使える
 - ✅ サブクエリを活用できる
 
-引き続き、次のセクションも頑張りましょう！
+これでTutorial 8の学習は完了です！お疲れ様でした！
+
+---
+
+## 🧹 後片付け（任意）
+
+このハンズオンで作成した`sales_analysis`データベースは、演習専用のデータベースです。
+
+phpMyAdminの左ペインを整理したい場合は、以下のSQLでデータベースを削除できます。ただし、削除すると元に戻せないので、注意してください。
+
+```sql
+DROP DATABASE sales_analysis;
+```
+
+> 💡 **Tutorial 8で作成したデータベースのまとめ**：
+> - `practice_db`：Chapter 2・3・4で使用したメインのデータベース
+> - `task_management`：Chapter 2のハンズオンで作成
+> - `sales_analysis`：Chapter 4のハンズオンで作成
+>
+> これらはすべて演習用なので、学習が終わったら削除しても構いません。
 
 ---

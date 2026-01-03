@@ -99,37 +99,47 @@ CREATE TABLE post_tag (
 2.  デザイナービューで、3つのテーブルが正しく関連付いていることを確認しましょう。
 3.  次に、サンプルデータを登録して、多対多の関係を実際に作ってみます。
 
+> ⚠️ **重要**：中間テーブルにデータを登録する前に、`posts`テーブルに複数の投稿が必要です。8-3-2で作成した投稿は1件のみなので、以下のSQLをすべて実行してください。
+
 ```sql
 -- タグを登録
 INSERT INTO tags (name) VALUES ('PHP'), ('Laravel'), ('SQL');
 
--- 投稿を登録（すでにあれば不要）
--- INSERT INTO posts (user_id, title, content) VALUES (1, 'Laravel入門', 'Laravelは楽しい！');
--- INSERT INTO posts (user_id, title, content) VALUES (1, 'SQLの基本', 'SELECT文を学びました');
+-- 投稿を追加登録（中間テーブルのテスト用）
+INSERT INTO posts (user_id, title, content) VALUES (1, 'Laravel入門', 'Laravelは楽しい！');
+INSERT INTO posts (user_id, title, content) VALUES (1, 'SQLの基本', 'SELECT文を学びました');
+```
 
--- 中間テーブルにデータを登録して、投稿とタグを紐付ける
--- 前提：投稿ID=1「Laravel入門」、投稿ID=2「SQLの基本」
--- 前提：タグID=1「PHP」、タグID=2「Laravel」、タグID=3「SQL」
+上記を実行したら、`posts`テーブルの中身を確認してください。以下のようになっているはずです。
 
--- 投稿ID=1に、タグID=1(PHP)とタグID=2(Laravel)を紐付ける
-INSERT INTO post_tag (post_id, tag_id) VALUES (1, 1);
-INSERT INTO post_tag (post_id, tag_id) VALUES (1, 2);
+| id | user_id | title | content |
+|:---|:---|:---|:---|
+| 1 | 1 | 初めての投稿 | リレーションシップを学びました！ |
+| 2 | 1 | Laravel入門 | Laravelは楽しい！ |
+| 3 | 1 | SQLの基本 | SELECT文を学びました |
 
--- 投稿ID=2に、タグID=3(SQL)を紐付ける
-INSERT INTO post_tag (post_id, tag_id) VALUES (2, 3);
+次に、中間テーブルにデータを登録して、投稿とタグを紐付けます。
+
+```sql
+-- 投稿ID=2「Laravel入門」に、タグID=1(PHP)とタグID=2(Laravel)を紐付ける
+INSERT INTO post_tag (post_id, tag_id) VALUES (2, 1);
+INSERT INTO post_tag (post_id, tag_id) VALUES (2, 2);
+
+-- 投稿ID=3「SQLの基本」に、タグID=3(SQL)を紐付ける
+INSERT INTO post_tag (post_id, tag_id) VALUES (3, 3);
 ```
 
 `post_tag`テーブルの中身を見てみましょう。
 
 | id | post_id | tag_id |
 |:---|:---|:---|
-| 1 | 1 | 1 |
-| 2 | 1 | 2 |
-| 3 | 2 | 3 |
+| 1 | 2 | 1 |
+| 2 | 2 | 2 |
+| 3 | 3 | 3 |
 
-この中間テーブルを見ることで、「投稿ID=1は、タグID=1と2に関連している」という多対多の関係が見事に表現できています。
+この中間テーブルを見ることで、「投稿ID=2（Laravel入門）は、タグID=1（PHP）とタグID=2（Laravel）に関連している」という多対多の関係が見事に表現できています。
 
-もしここで、再度 `INSERT INTO post_tag (post_id, tag_id) VALUES (1, 1);` を実行しようとすると、先ほど設定した複合ユニークキー制約によってエラーとなり、重複した関連付けが防がれます。
+もしここで、再度 `INSERT INTO post_tag (post_id, tag_id) VALUES (2, 1);` を実行しようとすると、先ほど設定した複合ユニークキー制約によってエラーとなり、重複した関連付けが防がれます。
 
 **[ここに、複合ユニークキー制約違反のエラーメッセージが表示されたスクリーンショットを挿入]**
 
