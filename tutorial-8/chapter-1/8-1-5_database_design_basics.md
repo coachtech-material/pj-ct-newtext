@@ -143,27 +143,54 @@
 
 ER図には、いくつかの、記法がありますが、ここでは、最も、一般的な、**IE記法（鳥の足記法）**を、紹介します。
 
-**[ここに、顧客、注文、商品の、3つの、テーブルからなる、ER図の、画像を、挿入]**
+以下は、顧客、注文、注文明細、商品の4つのテーブルからなる、ER図の例です。
 
+```mermaid
+erDiagram
+    customers ||--o{ orders : "一人の顧客は複数の注文を持つ"
+    orders ||--o{ order_details : "一つの注文は複数の明細を持つ"
+    products ||--o{ order_details : "一つの商品は複数の明細に登場する"
+
+    customers {
+        bigint id PK
+        string name
+        string email
+    }
+
+    orders {
+        bigint id PK
+        bigint customer_id FK
+        date order_date
+    }
+
+    order_details {
+        bigint id PK
+        bigint order_id FK
+        bigint product_id FK
+        int quantity
+    }
+
+    products {
+        bigint id PK
+        string name
+        int price
+    }
 ```
-+-------------+       +-------------+       +-----------------+
-| customers   |       | orders      |       | order_details   |
-+-------------+       +-------------+       +-----------------+
-| id (PK)     |-------<| id (PK)     |-------<| id (PK)         |
-| name        |       | customer_id (FK) |    | order_id (FK)   |
-| email       |       | order_date  |       | product_id (FK) |
-+-------------+       +-------------+       | quantity        |
-                                          +-----------------+
-                                              ^
-                                              |
-                                          +---v---------+
-                                          | products    |
-                                          +-------------+
-                                          | id (PK)     |
-                                          | name        |
-                                          | price       |
-                                          +-------------+
-```
+
+#### Mermaid記法の読み方
+
+上記の図は、**Mermaid**という、テキストから図を生成するツールの記法で書かれています。GitHubや、多くの、Markdownエディタで、そのまま、表示できます。
+
+リレーションシップの記号の意味は、以下の通りです。
+
+| 記号 | 意味 | 説明 |
+| :--- | :--- | :--- |
+| `\|\|` | 「1」（必須） | 必ず1つ存在する |
+| `o{` | 「多」（任意） | 0以上存在する可能性がある |
+| `\|{` | 「多」（必須） | 1つ以上必ず存在する |
+| `o\|` | 「1」（任意） | 0または1つ存在する |
+
+例えば、`customers ||--o{ orders` は、「一人の顧客は、0件以上の注文を持つことができる（1対多）」と、読み取れます。
 
 *   **エンティティ (Entity)**: 四角形で、表現され、データベースの、**テーブル**に、相当します。（例: `customers`, `orders`）
 *   **アトリビュート (Attribute)**: エンティティの中に、記述され、テーブルの、**カラム**に、相当します。主キーには `(PK)`、外部キーには `(FK)` と、印を付けます。
