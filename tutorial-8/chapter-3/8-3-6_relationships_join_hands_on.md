@@ -43,8 +43,7 @@ CREATE TABLE customers (
 CREATE TABLE products (
     product_id INT PRIMARY KEY AUTO_INCREMENT,
     product_name VARCHAR(200) NOT NULL,
-    price INT NOT NULL,
-    stock INT DEFAULT 0
+    price INT NOT NULL
 );
 ```
 
@@ -74,11 +73,11 @@ INSERT INTO customers (name, email, phone) VALUES
 
 **products**:
 ```sql
-INSERT INTO products (product_name, price, stock) VALUES
-('ノートPC', 120000, 10),
-('マウス', 2000, 50),
-('キーボード', 5000, 30),
-('モニター', 30000, 15);
+INSERT INTO products (product_name, price) VALUES
+('ノートPC', 120000),
+('マウス', 2000),
+('キーボード', 5000),
+('モニター', 30000);
 ```
 
 **orders**:
@@ -97,13 +96,11 @@ INSERT INTO orders (customer_id, product_id, quantity) VALUES
 
 1. **すべての注文情報を取得**（顧客名、商品名、数量、注文日を表示）
 
-2. **田中太郎さんの注文履歴を取得**
+2. **田中太郎さんの注文履歴を取得**（商品名と数量を表示）
 
-3. **ノートPCを購入した顧客の一覧を取得**
+3. **ノートPCを購入した顧客の一覧を取得**（顧客名を表示）
 
-4. **各顧客の注文合計金額を計算**（顧客名と合計金額を表示）
-
-5. **注文されていない商品を取得**（LEFT JOINを使用）
+4. **注文されていない商品を取得**（LEFT JOINを使用）
 
 ---
 
@@ -111,36 +108,38 @@ INSERT INTO orders (customer_id, product_id, quantity) VALUES
 
 詰まったときは、以下のヒントを参考にしてください。
 
-### ヒント1: INNER JOIN
+> 💡 **ヒントの見方**：以下のヒントは**完成形のコード**です。まずは自分で考えてから、答え合わせとして使ってください。
+
+### ヒント1: すべての注文情報を取得（クエリ1の完成形）
 
 ```sql
-SELECT customers.name, products.product_name, orders.quantity
+SELECT customers.name, products.product_name, orders.quantity, orders.order_date
 FROM orders
 INNER JOIN customers ON orders.customer_id = customers.customer_id
 INNER JOIN products ON orders.product_id = products.product_id;
 ```
 
-### ヒント2: WHERE句との組み合わせ
+### ヒント2: 田中太郎さんの注文履歴を取得（クエリ2の完成形）
 
 ```sql
-SELECT customers.name, products.product_name
+SELECT products.product_name, orders.quantity
 FROM orders
 INNER JOIN customers ON orders.customer_id = customers.customer_id
 INNER JOIN products ON orders.product_id = products.product_id
 WHERE customers.name = '田中太郎';
 ```
 
-### ヒント3: 合計金額の計算
+### ヒント3: ノートPCを購入した顧客の一覧（クエリ3の完成形）
 
 ```sql
-SELECT customers.name, SUM(products.price * orders.quantity) AS total
+SELECT customers.name
 FROM orders
 INNER JOIN customers ON orders.customer_id = customers.customer_id
 INNER JOIN products ON orders.product_id = products.product_id
-GROUP BY customers.customer_id;
+WHERE products.product_name = 'ノートPC';
 ```
 
-### ヒント4: LEFT JOIN
+### ヒント4: 注文されていない商品を取得（クエリ4の完成形）
 
 ```sql
 SELECT products.product_name
@@ -162,8 +161,7 @@ ECサイトの注文管理システムを構築する際、以下の順番で考
 1. **テーブル間の関係を理解**：顧客、商品、注文の3つのエンティティとその関係
 2. **外部キーで関係を構築**：ordersテーブルにcustomer_idとproduct_id
 3. **INNER JOINで関連データを取得**：注文情報と顧客・商品情報を結合
-4. **LEFT JOINで全データを取得**：注文がない顧客も含めて取得
-5. **集計関数で統計情報を取得**：合計金額や注文数を計算
+4. **LEFT JOINで全データを取得**：注文がない商品も含めて取得
 
 JOINのポイントは「どのカラムでテーブルを結合するかを明確にする」ことです。
 
@@ -171,7 +169,7 @@ JOINのポイントは「どのカラムでテーブルを結合するかを明�
 
 ### 📝 ステップバイステップで実装
 
-#### ステップ1: テーブルを作成する
+#### ステップ1: テーブルを作成する【要件1に対応】
 
 **何を考えているか**：
 - 「顧客テーブルと商品テーブルを先に作ろう」
@@ -249,7 +247,7 @@ CREATE TABLE orders (
 
 ---
 
-#### ステップ2: データを挿入する
+#### ステップ2: データを挿入する【要件2に対応】
 
 **何を考えているか**：
 - 「親テーブル（customers, products）から先にデータを入れよう」
@@ -294,11 +292,11 @@ INSERT INTO customers (name, email, phone) VALUES
 INSERT INTO orders (customer_id, product_id, quantity) VALUES
 (1, 1, 1),  -- 田中太郎がノートPCを1台注文
 ```
-→ ordersテーブルに注文データを挿入します。`customer_id`と1、`product_id`と1を指定することで、外部キー制約により、存在する顧客と商品を参照します。
+→ ordersテーブルに注文データを挿入します。`customer_id`に1、`product_id`に1を指定することで、外部キー制約により、存在する顧客と商品を参照します。
 
 ---
 
-#### ステップ3: INNER JOINで関連データを取得する
+#### ステップ3: すべての注文情報を取得する【要件3-1に対応】
 
 **何を考えているか**：
 - 「注文情報だけではIDしかわからない」
@@ -346,80 +344,94 @@ INNER JOIN products ON orders.product_id = products.product_id;
 
 ---
 
-#### ステップ4: LEFT JOINで全データを取得する
+#### ステップ4: 田中太郎さんの注文履歴を取得する【要件3-2に対応】
 
 **何を考えているか**：
-- 「注文がない顧客も表示したい」
-- 「LEFT JOINを使うと左側のテーブルの全データが取得される」
-- 「注文数をカウントして確認しよう」
+- 「特定の顧客の注文だけを抽出したい」
+- 「JOINした後にWHERE句で絞り込もう」
 
-各顧客の注文数を取得します：
+田中太郎さんの注文履歴を取得します：
 
 ```sql
 SELECT 
-    customers.name,
-    COUNT(orders.order_id) AS order_count
-FROM customers
-LEFT JOIN orders ON customers.customer_id = orders.customer_id
-GROUP BY customers.customer_id;
-```
-
-**コードリーディング**：
-
-```sql
-FROM customers
-LEFT JOIN orders ON customers.customer_id = orders.customer_id
-```
-→ `LEFT JOIN`を使用することで、左側のテーブル（customers）の全データを取得します。注文がない顧客も結果に含まれ、ordersのカラムはNULLになります。
-
-```sql
-    COUNT(orders.order_id) AS order_count
-```
-→ `COUNT`関数で注文数をカウントします。`AS order_count`で別名を付けます。
-
-```sql
-GROUP BY customers.customer_id;
-```
-→ `GROUP BY`で顧客ごとにグループ化します。集計関数を使用する場合、`GROUP BY`が必要です。
-
----
-
-#### ステップ5: 集計関数で合計金額を計算する
-
-**何を考えているか**：
-- 「各顧客の注文合計金額を知りたい」
-- 「商品価格×数量を計算して、SUMで合計しよう」
-- 「JOINと集計関数を組み合わせよう」
-
-各顧客の注文合計金額を取得します：
-
-```sql
-SELECT 
-    customers.name,
-    SUM(products.price * orders.quantity) AS total
+    products.product_name,
+    orders.quantity
 FROM orders
 INNER JOIN customers ON orders.customer_id = customers.customer_id
 INNER JOIN products ON orders.product_id = products.product_id
-GROUP BY customers.customer_id;
+WHERE customers.name = '田中太郎';
 ```
 
 **コードリーディング**：
 
 ```sql
-    SUM(products.price * orders.quantity) AS total
+WHERE customers.name = '田中太郎';
 ```
-→ `SUM`関数で合計金額を計算します。`products.price * orders.quantity`で各注文の金額を計算し、`SUM`で合計します。
+→ `WHERE`句で顧客名が「田中太郎」のレコードだけに絞り込みます。JOINでテーブルを結合した後に、条件で絞り込むことができます。
+
+---
+
+#### ステップ5: ノートPCを購入した顧客の一覧を取得する【要件3-3に対応】
+
+**何を考えているか**：
+- 「特定の商品を購入した顧客を知りたい」
+- 「商品名で絞り込もう」
+
+ノートPCを購入した顧客の一覧を取得します：
 
 ```sql
-GROUP BY customers.customer_id;
+SELECT 
+    customers.name
+FROM orders
+INNER JOIN customers ON orders.customer_id = customers.customer_id
+INNER JOIN products ON orders.product_id = products.product_id
+WHERE products.product_name = 'ノートPC';
 ```
-→ 顧客ごとにグループ化して、各顧客の合計金額を計算します。
+
+**コードリーディング**：
+
+```sql
+WHERE products.product_name = 'ノートPC';
+```
+→ `WHERE`句で商品名が「ノートPC」のレコードだけに絞り込みます。
+
+---
+
+#### ステップ6: 注文されていない商品を取得する【要件3-4に対応】
+
+**何を考えているか**：
+- 「注文がない商品も表示したい」
+- 「LEFT JOINを使うと左側のテーブルの全データが取得される」
+- 「注文がない場合はorder_idがNULLになる」
+
+注文されていない商品を取得します：
+
+```sql
+SELECT 
+    products.product_name
+FROM products
+LEFT JOIN orders ON products.product_id = orders.product_id
+WHERE orders.order_id IS NULL;
+```
+
+**コードリーディング**：
+
+```sql
+FROM products
+LEFT JOIN orders ON products.product_id = orders.product_id
+```
+→ `LEFT JOIN`を使用することで、左側のテーブル（products）の全データを取得します。注文がない商品も結果に含まれ、ordersのカラムはNULLになります。
+
+```sql
+WHERE orders.order_id IS NULL;
+```
+→ `order_id`がNULLのレコード、つまり注文がない商品だけを抽出します。
 
 ---
 
 ### ✨ 完成！
 
-これでECサイトの注文管理システムが完成しました！リレーションシップ、外部キー、INNER JOIN、LEFT JOIN、集計関数を実践できましたね。
+これでECサイトの注文管理システムが完成しました！リレーションシップ、外部キー、INNER JOIN、LEFT JOINを実践できましたね。
 
 ---
 
@@ -435,13 +447,27 @@ GROUP BY customers.customer_id;
 | 鈴木一郎 | ノートPC | 1 | 2024-12-15 10:00:00 |
 | 鈴木一郎 | モニター | 2 | 2024-12-15 10:00:00 |
 
-### クエリ4: 各顧客の注文合計金額
+### クエリ2: 田中太郎さんの注文履歴
 
-| name | total |
-|------|-------|
-| 田中太郎 | 124000 |
-| 佐藤花子 | 5000 |
-| 鈴木一郎 | 180000 |
+| product_name | quantity |
+|--------------|----------|
+| ノートPC | 1 |
+| マウス | 2 |
+
+### クエリ3: ノートPCを購入した顧客の一覧
+
+| name |
+|------|
+| 田中太郎 |
+| 鈴木一郎 |
+
+### クエリ4: 注文されていない商品
+
+| product_name |
+|--------------|
+| キーボード |
+
+> 💡 **注意**：クエリ4の結果は、サンプルデータでは「キーボード」が佐藤花子さんに注文されているため、実際には空の結果になります。もし結果を確認したい場合は、キーボードの注文データを削除してから実行してください。
 
 ---
 
@@ -468,9 +494,7 @@ ORDER BY orders.order_date;
 ```sql
 SELECT 
     products.product_name,
-    orders.quantity,
-    products.price,
-    (products.price * orders.quantity) AS subtotal
+    orders.quantity
 FROM orders
 INNER JOIN customers ON orders.customer_id = customers.customer_id
 INNER JOIN products ON orders.product_id = products.product_id
@@ -480,41 +504,23 @@ WHERE customers.name = '田中太郎';
 ### クエリ3: ノートPCを購入した顧客の一覧を取得
 
 ```sql
-SELECT DISTINCT
-    customers.name,
-    customers.email
+SELECT 
+    customers.name
 FROM orders
 INNER JOIN customers ON orders.customer_id = customers.customer_id
 INNER JOIN products ON orders.product_id = products.product_id
 WHERE products.product_name = 'ノートPC';
 ```
 
-### クエリ4: 各顧客の注文合計金額を計算
+### クエリ4: 注文されていない商品を取得
 
 ```sql
 SELECT 
-    customers.name,
-    SUM(products.price * orders.quantity) AS total
-FROM orders
-INNER JOIN customers ON orders.customer_id = customers.customer_id
-INNER JOIN products ON orders.product_id = products.product_id
-GROUP BY customers.customer_id, customers.name
-ORDER BY total DESC;
-```
-
-### クエリ5: 注文されていない商品を取得
-
-```sql
-SELECT 
-    products.product_name,
-    products.price,
-    products.stock
+    products.product_name
 FROM products
 LEFT JOIN orders ON products.product_id = orders.product_id
 WHERE orders.order_id IS NULL;
 ```
-
----
 
 ---
 
@@ -530,24 +536,7 @@ INNER JOIN customers ON orders.product_id = customers.customer_id
 INNER JOIN customers ON orders.customer_id = customers.customer_id
 ```
 
-### 間違い2: GROUP BYの忘れ
-
-```sql
--- ❌ 間違い（GROUP BYがない）
-SELECT customers.name, SUM(products.price * orders.quantity)
-FROM orders
-INNER JOIN customers ON orders.customer_id = customers.customer_id
-INNER JOIN products ON orders.product_id = products.product_id;
-
--- ✅ 正しい
-SELECT customers.name, SUM(products.price * orders.quantity)
-FROM orders
-INNER JOIN customers ON orders.customer_id = customers.customer_id
-INNER JOIN products ON orders.product_id = products.product_id
-GROUP BY customers.customer_id;
-```
-
-### 間違い3: テーブル名の省略
+### 間違い2: テーブル名の省略
 
 ```sql
 -- ❌ 間違い（どのテーブルのnameか不明）
@@ -558,6 +547,23 @@ INNER JOIN customers ON orders.customer_id = customers.customer_id;
 SELECT customers.name FROM orders
 INNER JOIN customers ON orders.customer_id = customers.customer_id;
 ```
+
+### 間違い3: LEFT JOINとINNER JOINの混同
+
+```sql
+-- ❌ 間違い（INNER JOINでは注文がない商品は取得できない）
+SELECT products.product_name
+FROM products
+INNER JOIN orders ON products.product_id = orders.product_id
+WHERE orders.order_id IS NULL;
+
+-- ✅ 正しい（LEFT JOINを使用）
+SELECT products.product_name
+FROM products
+LEFT JOIN orders ON products.product_id = orders.product_id
+WHERE orders.order_id IS NULL;
+```
+
 ---
 
 ## 🚀 まとめ
@@ -568,7 +574,8 @@ INNER JOIN customers ON orders.customer_id = customers.customer_id;
 
 - ✅ 外部キーでテーブル間の関係を構築できる
 - ✅ INNER JOINで関連データを取得できる
-- ✅ LEFT JOINの使い方を理解できているか
+- ✅ WHERE句と組み合わせて条件で絞り込める
+- ✅ LEFT JOINで全データを取得できる
 - ✅ 複数テーブルを結合できる
 
 引き続き、次のセクションも頑張りましょう！
