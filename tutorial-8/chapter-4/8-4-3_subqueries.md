@@ -84,40 +84,43 @@ WHERE id NOT IN (SELECT DISTINCT post_id FROM post_tag);
 
 *   インラインビューには、`AS`を使って**必ず別名を付ける必要があります。**
 
-**例：導入で提示した「平均投稿数よりも多くの投稿をしているユーザー」を探す**
+**例：各ユーザーの投稿数を一覧表示する**
+
+まずはシンプルな例で、インラインビューの基本を理解しましょう。
 
 ```sql
 SELECT
     u.name,
-    user_post_counts.post_count
+    post_counts.count
 FROM
     users AS u
 JOIN
-    -- ① ユーザーごとの投稿数を計算するインラインビュー
     (
-        SELECT user_id, COUNT(id) AS post_count
+        SELECT user_id, COUNT(*) AS count
         FROM posts
         GROUP BY user_id
-    ) AS user_post_counts ON u.id = user_post_counts.user_id
-WHERE
-    user_post_counts.post_count > 
-    -- ② 全投稿のユーザーごとの平均投稿数を計算するサブクエリ
-    (
-        SELECT AVG(post_count) 
-        FROM (
-            SELECT COUNT(id) AS post_count 
-            FROM posts 
-            GROUP BY user_id
-        ) AS avg_counts
-    );
+    ) AS post_counts ON u.id = post_counts.user_id;
 ```
-これは非常に複雑に見えますが、分解すれば理解できます。
 
-*   `①`のインラインビューは、`user_id`と`post_count`という2つのカラムを持つ`user_post_counts`という名前の一時的なテーブルを生成します。
-*   メインクエリは、`users`テーブルとこの`user_post_counts`テーブルを`JOIN`します。
-*   `②`のサブクエリは、さらにその中でインラインビューを使い、ユーザーごとの投稿数の平均値を計算しています。
+**コードリーディング**：
 
-このように、サブクエリを入れ子にすることで、非常に複雑な集計や比較が可能になります。
+```sql
+    (
+        SELECT user_id, COUNT(*) AS count
+        FROM posts
+        GROUP BY user_id
+    ) AS post_counts
+```
+→ この部分がインラインビューです。`posts`テーブルからユーザーごとの投稿数を集計し、その結果に`post_counts`という別名を付けています。
+
+```sql
+JOIN ... ON u.id = post_counts.user_id
+```
+→ `users`テーブルと、インラインビューの結果を`JOIN`しています。インラインビューは一時的なテーブルのように扱えるので、通常のテーブルと同じように`JOIN`できます。
+
+> 💡 **ポイント**：インラインビューは、「集計結果を一時的なテーブルとして使いたい」ときに便利です。上の例では、ユーザーごとの投稿数を集計した結果を、`users`テーブルと結合しています。
+
+このインラインビューを応用すると、「平均投稿数より多く投稿しているユーザーを探す」のような複雑なクエリも作成できますが、まずは上記の基本パターンを理解しておきましょう。
 
 ### 3. `EXISTS`演算子で使うサブクエリ
 
