@@ -68,7 +68,7 @@ CREATE TABLE posts (
 
 それでは、phpMyAdminで上記のSQL文を実行してみましょう。
 
-1.  phpMyAdminで`laravel_db`データベースを選択し、「SQL」タブを開きます。
+1.  phpMyAdminで`practice_db`データベースを選択し、「SQL」タブを開きます。
 2.  上記の`CREATE TABLE`文を貼り付けて、「実行」ボタンをクリックします。
 3.  「テーブル `posts` を作成しました」というメッセージが表示されれば成功です。左側のテーブル一覧に`posts`テーブルが追加されていることを確認してください。
 

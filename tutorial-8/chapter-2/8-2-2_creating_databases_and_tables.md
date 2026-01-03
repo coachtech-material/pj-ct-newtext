@@ -74,30 +74,37 @@ CREATE DATABASE sample_db CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
 
 ```sql
 CREATE TABLE users (
-    id INT AUTO_INCREMENT PRIMARY KEY,
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     name VARCHAR(255) NOT NULL,
     email VARCHAR(255) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (id)
 );
 ```
+
+> 💡 **ポイント**：`id`カラムに`BIGINT UNSIGNED`を使用しています。これは、Laravelのマイグレーションがデフォルトで使用する形式です。後のセクションで、このテーブルを参照する外部キーを作成する際に、型を一致させる必要があります。
 
 この、SQL文を、分解して、見ていきましょう。
 
 *   `CREATE TABLE users (...)`: `users` という、名前の、テーブルを、作成します。`()` の中に、カラムの、定義を、記述していきます。
-*   `id INT AUTO_INCREMENT PRIMARY KEY`: `id` という、名前の、カラムを、作成します。
-    *   `INT`: データ型は、整数（INTEGER）です。
+*   `id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT`: `id` という、名前の、カラムを、作成します。
+    *   `BIGINT UNSIGNED`: データ型は、符号なしの大きな整数です。Laravelのデフォルト形式で、外部キーとの型一致に重要です。
+    *   `NOT NULL`: NULL値を、許可しません。
     *   `AUTO_INCREMENT`: 新しい、レコードが、追加されるたびに、自動で、連番を、割り振ります。
-    *   `PRIMARY KEY`: このカラムを、主キーに、設定します。
+*   `PRIMARY KEY (id)`: `id`カラムを、主キーに、設定します。
 *   `name VARCHAR(255) NOT NULL`: `name` という、名前の、カラムを、作成します。
     *   `VARCHAR(255)`: データ型は、最大255文字の、可変長文字列です。
     *   `NOT NULL`: このカラムに、NULL（空の値）を、許可しません。必ず、何らかの、値を、入力する必要があります。
 *   `email VARCHAR(255) NOT NULL UNIQUE`: `email` という、名前の、カラムを、作成します。
     *   `UNIQUE`: このカラムの値は、テーブル内で、重複してはならない、という、一意性制約を、設定します。同じ、メールアドレスで、複数の、ユーザーが、登録されるのを、防ぎます。
 *   `password VARCHAR(255) NOT NULL`: `password` という、名前の、カラムを、作成します。
-*   `created_at DATETIME DEFAULT CURRENT_TIMESTAMP`: `created_at` という、名前の、カラムを、作成します。
-    *   `DATETIME`: データ型は、日付と、時刻です。
-    *   `DEFAULT CURRENT_TIMESTAMP`: レコードが、作成された際に、何も、指定がなければ、自動的に、現在の日時を、デフォルト値として、設定します。
+*   `created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP`: `created_at` という、名前の、カラムを、作成します。
+    *   `TIMESTAMP`: データ型は、タイムスタンプです。
+    *   `DEFAULT CURRENT_TIMESTAMP`: レコードが、作成された際に、自動的に、現在の日時を、設定します。
+*   `updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP`: `updated_at` という、名前の、カラムを、作成します。
+    *   `ON UPDATE CURRENT_TIMESTAMP`: レコードが、更新された際に、自動的に、現在の日時を、設定します。
 
 **phpMyAdminでの実行手順**
 
