@@ -460,45 +460,6 @@ INSERT INTO loans (book_id, member_id, loan_date, return_date, due_date) VALUES
 
 ---
 
-## 🎓 解説
-
-### ポイント1: 主キーの設計
-
-```sql
-book_id INT PRIMARY KEY AUTO_INCREMENT
-```
-
-- `PRIMARY KEY`: 主キーとして設定
-- `AUTO_INCREMENT`: 自動的に連番を振る
-- 各レコードを一意に識別できる
-
-### ポイント2: 外部キーの設計
-
-```sql
-FOREIGN KEY (book_id) REFERENCES books(book_id)
-```
-
-- `loansテーブル`の`book_id`が`booksテーブル`の`book_id`を参照
-- これにより、存在しない`book_id`は登録できない（参照整合性）
-
-### ポイント3: データ型の選択
-
-- `VARCHAR(長さ)`: 可変長文字列（タイトル、名前など）
-- `INT`: 整数（ID、年など）
-- `DATE`: 日付（貸出日、返却日など）
-
-### ポイント4: 制約の活用
-
-- `NOT NULL`: 必須項目（空欄不可）
-- `UNIQUE`: 重複不可（メールアドレス、ISBNなど）
-- `FOREIGN KEY`: 他のテーブルとの関連付け
-
-### ポイント5: 正規化
-
-- 各テーブルは1つの主題に焦点を当てる
-- 重複データを避ける
-- テーブル間の関係を外部キーで表現
-
 ---
 
 ## 🔍 よくある間違い
