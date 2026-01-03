@@ -51,38 +51,36 @@ phpMyAdminは、Webブラウザを、通して、MySQLの、中身を、見た�
 
 ### 🛠️ MySQLとphpMyAdminの環境構築
 
-まず、MySQLとphpMyAdminを、Dockerで、起動します。Tutorial 6で作成した、`php-practice`ディレクトリの、`docker-compose.yml`を、拡張します。
+まず、MySQLとphpMyAdminを、Dockerで、起動します。データベース学習用の、新しいディレクトリを、作成します。
 
-#### Step 1: docker-compose.ymlの更新
+#### Step 1: プロジェクトフォルダの作成
 
-ターミナルで、`php-practice`ディレクトリに、移動し、VSCodeで、プロジェクトを、開きます。
+ターミナルで、以下のコマンドを、実行してください。
 
 ```bash
-cd ~/php-practice
+# ホームディレクトリに移動
+cd ~
+
+# データベース学習用ディレクトリを作成
+mkdir mysql-practice
+
+# ディレクトリに移動
+cd mysql-practice
+
+# VSCodeでプロジェクトを開く
 code .
 ```
 
-VSCodeで、`docker-compose.yml`を、開き、以下の内容に、更新してください。MySQLとphpMyAdminの、コンテナを、追加します。
+#### Step 2: docker-compose.ymlの作成
+
+VSCodeのエクスプローラーで、`mysql-practice`フォルダを、右クリックし、「新しいファイル」を、選択して、`docker-compose.yml`を、作成してください。
+
+`docker-compose.yml`ファイルに、以下の内容を、記述してください。
 
 ```yaml
 version: '3.8'
 
 services:
-  nginx:
-    image: nginx:latest
-    ports:
-      - "8000:80"
-    volumes:
-      - ./src:/var/www/html
-      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
-    depends_on:
-      - php
-
-  php:
-    image: php:8.2-fpm
-    volumes:
-      - ./src:/var/www/html
-
   mysql:
     image: mysql:8.0
     environment:
@@ -108,7 +106,7 @@ volumes:
   mysql_data:
 ```
 
-追加した、設定の、意味を、確認しましょう。
+設定の、意味を、確認しましょう。
 
 | 項目 | 説明 |
 | :--- | :--- |
@@ -120,7 +118,7 @@ volumes:
 | `ports: - "8080:80"` | ホストの8080番ポートでphpMyAdminにアクセス |
 | `volumes: mysql_data:` | データを永続化するためのボリューム |
 
-#### Step 2: コンテナの起動
+#### Step 3: コンテナの起動
 
 ターミナルで、以下のコマンドを、実行して、コンテナを、起動します。
 
