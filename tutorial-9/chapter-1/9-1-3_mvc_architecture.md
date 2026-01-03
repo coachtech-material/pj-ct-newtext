@@ -226,6 +226,102 @@ src/
 
 ---
 
+## 💻 実際のコードで見てみよう
+
+ここまでレストランの比喩で理解してきました。次は、実際のコードで同じ流れを確認してみましょう。
+
+> **📌 注意**
+> 
+> ここでは**コードの雰囲気だけ**を掌んでください。
+> 「このコードが何をやっているのか」をなんとなく理解できればOKです。
+> 実際の書き方は、次のセクション以降で詳しく学びます。
+
+---
+
+### ルーティング（routes/web.php）
+
+```php
+Route::get('/users', [UserController::class, 'index']);
+```
+
+**やっていること**: 「`/users`にアクセスされたら、UserControllerのindexメソッドを実行する」という対応付けを定義しています。
+
+レストランで言えば、**受付係がメニュー表を見て、担当のウェイターを決めている**ところです。
+
+---
+
+### コントローラー（app/Http/Controllers/UserController.php）
+
+```php
+public function index()
+{
+    $users = User::all();
+    return view('users.index', compact('users'));
+}
+```
+
+**やっていること**: 
+1. モデル（User）に「全てのユーザーを取得して」と依頼
+2. 取得したデータをビュー（users.index）に渡す
+
+レストランで言えば、**ウェイターがシェフに食材を依頼し、受け取った食材を盛り付け担当に渡している**ところです。
+
+---
+
+### モデル（app/Models/User.php）
+
+```php
+class User extends Model
+{
+    // User::all() で全てのユーザーを取得できる
+}
+```
+
+**やっていること**: データベースの`users`テーブルと対応し、データの取得を担当しています。
+
+レストランで言えば、**シェフが冷蔵庫（データベース）から食材を取り出している**ところです。
+
+---
+
+### ビュー（resources/views/users/index.blade.php）
+
+```html
+@foreach ($users as $user)
+    <p>{{ $user->name }}</p>
+@endforeach
+```
+
+**やっていること**: コントローラーから受け取ったユーザーデータを、HTMLとして整形しています。
+
+レストランで言えば、**盛り付け担当が食材をお皿に綺麗に盛り付けている**ところです。
+
+---
+
+### 📊 処理の流れ（コード版）
+
+```
+[ブラウザ]
+   ↓ GET /users
+[ルーティング (routes/web.php)]
+   ↓ UserController@index を呼び出す
+[Controller (UserController.php)]
+   ↓ User::all() を呼び出す
+[Model (User.php)]
+   ↓ SELECT * FROM users を実行
+[データベース (MySQL)]
+   ↑ ユーザーデータを返す
+[Model (User.php)]
+   ↑ データをオブジェクトに変換して返す
+[Controller (UserController.php)]
+   ↓ view('users.index', compact('users')) を呼び出す
+[View (users/index.blade.php)]
+   ↓ HTMLを生成
+[ブラウザ]
+   ← HTMLが表示される
+```
+
+---
+
 ## 💡 TIP: なぜ役割を分けるのか？
 
 レストランで、受付係・ウェイター・シェフ・盛り付け担当が別々にいるのはなぜでしょうか？
