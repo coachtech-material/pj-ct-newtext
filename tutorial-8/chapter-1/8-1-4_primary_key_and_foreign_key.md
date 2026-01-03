@@ -1,4 +1,3 @@
-""
 # Tutorial 8-1-4: 主キー（Primary Key）と外部キー（Foreign Key）
 
 ## 🎯 このセクションで学ぶこと
