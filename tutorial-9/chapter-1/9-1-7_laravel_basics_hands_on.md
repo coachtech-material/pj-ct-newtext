@@ -103,45 +103,46 @@ Laravel開発のポイントは「ルーティング → コントローラー �
 > ```
 > ~/laravel-practice/
 > ├── laravel-docker/      ← Tutorial 9-1-2で作成したプロジェクト
-> ├── profile-app/         ← このハンズオンで使用
-> ├── todo-app/            ← 今後のハンズオンで使用
+> ├── profile-app/         ← このハンズオンで作成
+> ├── todo-app/            ← 今後のハンズオンで作成
 > └── ...
 > ```
 
-**方法A: Tutorial 9-1-2で作成したプロジェクトを使う場合**
+**新しいプロジェクトを作成する**
 
-Tutorial 9-1-2で作成した`laravel-docker`プロジェクトをそのまま使うことができます。
-
-```bash
-# 既存のプロジェクトディレクトリに移動
-cd ~/laravel-practice/laravel-docker
-
-# Sailでコンテナを起動（バックグラウンドで実行）
-./vendor/bin/sail up -d
-```
-
-**方法B: 新しいプロジェクトを作成する場合**
-
-ハンズオン専用の新しいプロジェクトを作成することもできます。
+このハンズオン用の新しいプロジェクトを作成します。Dockerを使って環境構築を行います。
 
 ```bash
 # laravel-practiceディレクトリに移動
 cd ~/laravel-practice
 
-# 新しいプロジェクトを作成
+# 新しいプロジェクトを作成（Laravel Sailを使用）
 curl -s "https://laravel.build/profile-app" | bash
+```
 
+> **📌 コマンドの説明**
+> 
+> `curl -s "https://laravel.build/profile-app" | bash`は、Laravelの公式インストーラーです。
+> このコマンドを実行すると、以下が自動的に行われます：
+> - `profile-app`ディレクトリの作成
+> - Laravelのファイル一式のダウンロード
+> - Docker環境（Laravel Sail）のセットアップ
+> - 必要な依存パッケージのインストール
+
+インストールが完了したら、プロジェクトディレクトリに移動してDockerコンテナを起動します。
+
+```bash
 # 作成したプロジェクトに移動
 cd profile-app
 
-# Sailでコンテナを起動
+# Dockerコンテナを起動（バックグラウンドで実行）
 ./vendor/bin/sail up -d
 ```
 
-> 💡 **どちらを選ぶべき？**
+> **📌 Dockerが起動していることを確認**
 > 
-> - **方法A（既存プロジェクトを使う）**: 手軽に始めたい場合におすすめ。Tutorial 9-1-2で作成したプロジェクトにコードを追加していきます。
-> - **方法B（新規作成）**: ハンズオンごとにプロジェクトを分けたい場合におすすめ。クリーンな状態から始められます。
+> `sail up -d`を実行する前に、Docker Desktop（またはDocker Engine）が起動していることを確認してください。
+> 起動していない場合は、Docker Desktopを開いてからコマンドを実行してください。
 
 **コマンド解説**：
 
