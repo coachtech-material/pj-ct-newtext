@@ -60,17 +60,21 @@ Tutorial 11で作ったタスク管理アプリを、APIで操作できるよう
 
 ## Step 1: モデルとマイグレーション
 
-### 1-1. マイグレーションとモデルの作成
+### 1-1. 既存のモデルとマイグレーションを確認
 
-```bash
-sail artisan make:model Task -m
-```
+Tutorial 11で既に`Task`モデルとマイグレーションを作成済みです。
+
+**新たに作成する必要はありません。**
+
+ここでは、既存のファイルの内容を確認しましょう。
 
 ---
 
-### 1-2. マイグレーションファイル
+### 1-2. マイグレーションファイル（確認）
 
 **ファイル**: `database/migrations/xxxx_xx_xx_xxxxxx_create_tasks_table.php`
+
+Tutorial 11で作成したマイグレーションファイルは以下のようになっています。
 
 ```php
 <?php
@@ -86,6 +90,7 @@ return new class extends Migration
         Schema::create('tasks', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('category_id')->nullable()->constrained()->onDelete('set null');
             $table->string('title');
             $table->text('description')->nullable();
             $table->enum('status', ['pending', 'in_progress', 'completed'])->default('pending');
@@ -101,43 +106,131 @@ return new class extends Migration
 };
 ```
 
+| カラム | 説明 |
+|--------|------|
+| `user_id` | タスクの所有者（ユーザー削除時にタスクも削除） |
+| `category_id` | カテゴリー（任意、カテゴリー削除時はnullに） |
+| `title` | タスクのタイトル |
+| `description` | タスクの説明（任意） |
+| `status` | ステータス（pending/in_progress/completed） |
+| `due_date` | 期限日（任意） |
+
 ---
 
-### 1-3. モデルファイル
+### 1-3. モデルファイル（確認）
 
 **ファイル**: `app/Models/Task.php`
+
+Tutorial 11・12で作成したモデルファイルは以下のようになっています。
 
 ```php
 <?php
 
 namespace App\Models;
 
+use App\Models\Scopes\UserScope;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\Auth;
 
 class Task extends Model
 {
     use HasFactory;
 
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array<int, string>
+     */
     protected $fillable = [
         'user_id',
+        'category_id',
         'title',
         'description',
         'status',
         'due_date',
     ];
 
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array<string, string>
+     */
     protected $casts = [
         'due_date' => 'date',
     ];
 
-    public function user(): BelongsTo
+    /**
+     * The "booted" method of the model.
+     */
+    protected static function booted(): void
+    {
+        static::addGlobalScope(new UserScope);
+    }
+
+    /**
+     * タスクが属するユーザー（多対1）
+     */
+    public function user()
     {
         return $this->belongsTo(User::class);
     }
+
+    /**
+     * このタスクが属するカテゴリー
+     */
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
+    }
+
+    /**
+     * このタスクに付いているタグ
+     */
+    public function tags()
+    {
+        return $this->belongsToMany(Tag::class);
+    }
+
+    /**
+     * ログインユーザーのタスクのみを取得するスコープ
+     */
+    public function scopeForCurrentUser($query)
+    {
+        return $query->where('user_id', Auth::id());
+    }
+
+    /**
+     * 完了したタスクのみを取得するスコープ
+     */
+    public function scopeCompleted($query)
+    {
+        return $query->where('status', 'completed');
+    }
+
+    /**
+     * 未完了のタスクのみを取得するスコープ
+     */
+    public function scopePending($query)
+    {
+        return $query->where('status', 'pending');
+    }
 }
 ```
+
+---
+
+### 1-4. モデルのポイント
+
+| ポイント | 説明 |
+|----------|------|
+| `$fillable` | 一括代入を許可するカラム（`category_id`も含む） |
+| `$casts` | 日付型への自動変換 |
+| `booted()` | グローバルスコープでユーザーフィルタリング |
+| リレーション | `user()`, `category()`, `tags()`で関連データを取得 |
+| ローカルスコープ | `scopeCompleted()`, `scopePending()`でクエリを簡潔に |
+
+> 💡 **ポイント**: 既存のモデルにはグローバルスコープ（`UserScope`）が設定されているため、自動的にログインユーザーのタスクのみが取得されます。APIコントローラーでもこの機能が活用されます。
 
 ---
 
