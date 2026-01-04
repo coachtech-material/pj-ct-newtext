@@ -39,31 +39,70 @@
 
 ## 🔧 環境準備
 
-### 1. Laravelプロジェクトを作成
+### プロジェクトのディレクトリ構造
+
+本教材では、ホームディレクトリ直下の`laravel-practice`フォルダ内に、ハンズオンごとにプロジェクトを作成します。
+
+```
+~/laravel-practice/
+├── ... (前のハンズオンのプロジェクト)
+├── secure-blog/         ← このハンズオンで作成
+└── ...
+```
+
+### 新しいプロジェクトを作成する
+
+> **📌 Dockerが起動していることを確認**
+> 
+> 以下のコマンドを実行する前に、Docker Desktop（またはDocker Engine）が起動していることを確認してください。
+
+**Step 1: Laravelプロジェクトの作成**
 
 ```bash
-composer create-project laravel/laravel secure-blog
+cd ~/laravel-practice
+
+docker run --rm \
+    -u "$(id -u):$(id -g)" \
+    -v "$(pwd):/var/www/html" \
+    -w /var/www/html \
+    -e COMPOSER_CACHE_DIR=/tmp/composer_cache \
+    laravelsail/php82-composer:latest \
+    composer create-project laravel/laravel:^10.0 secure-blog
+```
+
+**Step 2: プロジェクトディレクトリに移動してSailをセットアップ**
+
+```bash
 cd secure-blog
+
+docker run --rm \
+    -u "$(id -u):$(id -g)" \
+    -v "$(pwd):/var/www/html" \
+    -w /var/www/html \
+    -e COMPOSER_CACHE_DIR=/tmp/composer_cache \
+    laravelsail/php82-composer:latest \
+    composer require laravel/sail --dev
+
+docker run --rm \
+    -u "$(id -u):$(id -g)" \
+    -v "$(pwd):/var/www/html" \
+    -w /var/www/html \
+    -e COMPOSER_CACHE_DIR=/tmp/composer_cache \
+    laravelsail/php82-composer:latest \
+    php artisan sail:install --with=mysql
 ```
 
-### 2. データベース設定
-
-**.env**
-
-```env
-DB_CONNECTION=mysql
-DB_HOST=127.0.0.1
-DB_PORT=3306
-DB_DATABASE=secure_blog
-DB_USERNAME=root
-DB_PASSWORD=
-```
-
-### 3. データベースを作成
+**Step 3: Sailの起動と初期設定**
 
 ```bash
-mysql -u root -e "CREATE DATABASE secure_blog"
+./vendor/bin/sail up -d
+./vendor/bin/sail artisan key:generate
+./vendor/bin/sail artisan migrate
 ```
+
+> 💡 **環境構築が完了！** `http://localhost` にアクセスして確認してください。
+
+> **注意**: Laravel Sailを使用する場合、`.env`のデータベース設定は自動的に設定されます。手動で変更する必要はありません。
 
 ---
 

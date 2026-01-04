@@ -44,6 +44,99 @@ public function rules()
 
 ちゃんとできましたか？バリデーションはデータの品質を保つために不可欠です。一緒に手を動かしながら、ユーザー登録フォームのバリデーションを実装していきましょう。
 
+---
+
+### 💻 環境準備
+
+#### プロジェクトのディレクトリ構造
+
+本教材では、ホームディレクトリ直下の`laravel-practice`フォルダ内に、ハンズオンごとにプロジェクトを作成します。
+
+```
+~/laravel-practice/
+├── profile-app/         ← Tutorial 9-1-7で作成
+├── blade-app/           ← Tutorial 9-2-5で作成
+├── database-app/        ← Tutorial 9-3-8で作成
+├── eloquent-app/        ← Tutorial 9-4-9で作成
+├── task-app/            ← Tutorial 9-5-6で作成
+├── validation-app/      ← このハンズオンで作成
+└── ...
+```
+
+#### 新しいプロジェクトを作成する
+
+> **📌 Dockerが起動していることを確認**
+> 
+> 以下のコマンドを実行する前に、Docker Desktop（またはDocker Engine）が起動していることを確認してください。
+
+**Step 1: Laravelプロジェクトの作成**
+
+```bash
+# laravel-practiceディレクトリに移動
+cd ~/laravel-practice
+
+# Laravel 10.xプロジェクトを作成
+docker run --rm \
+    -u "$(id -u):$(id -g)" \
+    -v "$(pwd):/var/www/html" \
+    -w /var/www/html \
+    -e COMPOSER_CACHE_DIR=/tmp/composer_cache \
+    laravelsail/php82-composer:latest \
+    composer create-project laravel/laravel:^10.0 validation-app
+```
+
+**Step 2: プロジェクトディレクトリに移動**
+
+```bash
+cd validation-app
+```
+
+**Step 3: Laravel Sailのインストール**
+
+```bash
+docker run --rm \
+    -u "$(id -u):$(id -g)" \
+    -v "$(pwd):/var/www/html" \
+    -w /var/www/html \
+    -e COMPOSER_CACHE_DIR=/tmp/composer_cache \
+    laravelsail/php82-composer:latest \
+    composer require laravel/sail --dev
+```
+
+**Step 4: Sailの設定ファイルを生成**
+
+```bash
+docker run --rm \
+    -u "$(id -u):$(id -g)" \
+    -v "$(pwd):/var/www/html" \
+    -w /var/www/html \
+    -e COMPOSER_CACHE_DIR=/tmp/composer_cache \
+    laravelsail/php82-composer:latest \
+    php artisan sail:install --with=mysql
+```
+
+**Step 5: Sailの起動**
+
+```bash
+./vendor/bin/sail up -d
+```
+
+**Step 6: アプリケーションキーの生成**
+
+```bash
+./vendor/bin/sail artisan key:generate
+```
+
+**Step 7: データベースのマイグレーション**
+
+```bash
+./vendor/bin/sail artisan migrate
+```
+
+> 💡 **環境構築が完了！**
+> 
+> ブラウザで `http://localhost` にアクセスして、Laravelのウェルカムページが表示されれば成功です。
+
 ### 💭 実装の思考プロセス
 
 バリデーションを実装する際、以下の順番で考えると効率的です：

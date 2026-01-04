@@ -40,6 +40,73 @@ $this->authorize('update', $post);
 
 ちゃんとできましたか？認可機能はユーザーごとのアクセス制御を実現する重要な機能です。一緒に手を動かしながら、投稿の編集権限制御を実装していきましょう。
 
+---
+
+### 💻 環境準備
+
+#### プロジェクトのディレクトリ構造
+
+本教材では、ホームディレクトリ直下の`laravel-practice`フォルダ内に、ハンズオンごとにプロジェクトを作成します。
+
+```
+~/laravel-practice/
+├── ... (前のハンズオンのプロジェクト)
+├── authorization-app/   ← このハンズオンで作成
+└── ...
+```
+
+#### 新しいプロジェクトを作成する
+
+> **📌 Dockerが起動していることを確認**
+> 
+> 以下のコマンドを実行する前に、Docker Desktop（またはDocker Engine）が起動していることを確認してください。
+
+**Step 1: Laravelプロジェクトの作成**
+
+```bash
+cd ~/laravel-practice
+
+docker run --rm \
+    -u "$(id -u):$(id -g)" \
+    -v "$(pwd):/var/www/html" \
+    -w /var/www/html \
+    -e COMPOSER_CACHE_DIR=/tmp/composer_cache \
+    laravelsail/php82-composer:latest \
+    composer create-project laravel/laravel:^10.0 authorization-app
+```
+
+**Step 2: プロジェクトディレクトリに移動してSailをセットアップ**
+
+```bash
+cd authorization-app
+
+docker run --rm \
+    -u "$(id -u):$(id -g)" \
+    -v "$(pwd):/var/www/html" \
+    -w /var/www/html \
+    -e COMPOSER_CACHE_DIR=/tmp/composer_cache \
+    laravelsail/php82-composer:latest \
+    composer require laravel/sail --dev
+
+docker run --rm \
+    -u "$(id -u):$(id -g)" \
+    -v "$(pwd):/var/www/html" \
+    -w /var/www/html \
+    -e COMPOSER_CACHE_DIR=/tmp/composer_cache \
+    laravelsail/php82-composer:latest \
+    php artisan sail:install --with=mysql
+```
+
+**Step 3: Sailの起動と初期設定**
+
+```bash
+./vendor/bin/sail up -d
+./vendor/bin/sail artisan key:generate
+./vendor/bin/sail artisan migrate
+```
+
+> 💡 **環境構築が完了！** `http://localhost` にアクセスして確認してください。
+
 ### 💭 実装の思考プロセス
 
 認可機能を実装する際、以下の順番で考えると効率的です：
