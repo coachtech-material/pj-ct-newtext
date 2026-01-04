@@ -127,7 +127,12 @@ cd your-project-name
 - 「Artisanコマンドで簡単に生成できる」
 - 「ProfileControllerという名前にしよう」
 
-ターミナルで以下のコマンドを実行します：
+**ターミナルでプロジェクトのルートディレクトリにいることを確認**してから、以下のコマンドを実行します：
+
+> **📌 コマンドの実行場所**
+> 
+> `sail artisan`コマンドは、**Laravelプロジェクトのルートディレクトリ**（`docker-compose.yml`があるディレクトリ）で実行する必要があります。
+> Step 0で移動したプロジェクトディレクトリにいることを確認してください。
 
 ```bash
 sail artisan make:controller ProfileController
@@ -232,7 +237,25 @@ class ProfileController extends Controller
 - 「BladeテンプレートでHTMLを記述しよう」
 - 「コントローラーから渡されたデータを表示しよう」
 
-`resources/views/profile.blade.php`を新規作成して、以下のように記述します：
+`resources/views/profile.blade.php`を新規作成します。
+
+> **📌 ファイルの作成方法**
+> 
+> **方法1: ターミナルで作成**
+> ```bash
+> touch resources/views/profile.blade.php
+> ```
+> 
+> **方法2: エディタ（VSCodeなど）で作成**
+> `resources/views/`フォルダを右クリックして「新しいファイル」を選択し、`profile.blade.php`と入力します。
+
+> **💡 Bladeテンプレートについて**
+> 
+> 以下のコードには`{{ }}`や`@foreach`などの**Blade構文**が含まれています。
+> Bladeの詳細は**次のChapter（Chapter 2: ビューとBlade）**で学びます。
+> 今は「こういう書き方をするんだな」と思いながら、**コピペでOK**です。
+
+以下の内容を記述します：
 
 ```blade
 <!DOCTYPE html>
