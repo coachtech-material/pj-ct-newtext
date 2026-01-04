@@ -2,15 +2,33 @@
 
 ## 🎯 このセクションで学ぶこと
 
-*   HTTPリクエストとレスポンスの概念を理解する。
-*   `Request`オブジェクトを使って、ユーザーからの入力データを取得できるようになる。
-*   様々な形式のレスポンス（ビュー、JSON、リダイレクト）を返せるようになる。
+- HTTPリクエストとレスポンスの概念を理解する
+- `Request`オブジェクトを使って、ユーザーからの入力データを取得できるようになる
+- **「入力 → 処理 → 出力」というWebアプリの基本サイクル**を体験する
+
+> **📌 このセクションのポイント**
+> 
+> このセクションでは、**データベースは使いません**。
+> 「ユーザーの入力が、どうやってコントローラーに届き、どうやって画面に返されるか」という**データの流れ**に集中して学びます。
 
 ---
 
 ## 導入：Webアプリケーションの「会話」
 
 Webアプリケーションは、ユーザー（ブラウザ）とサーバーの「会話」で成り立っています。
+
+```
+【ユーザー】                    【サーバー】
+    |                              |
+    |  ① リクエスト（お願い）      |
+    | ─────────────────────────→  |
+    |  「名前を送るよ」            |
+    |                              |
+    |  ② レスポンス（返事）        |
+    | ←─────────────────────────  |
+    |  「こんにちは、〇〇さん」    |
+    |                              |
+```
 
 1. **リクエスト（Request）**: ユーザーがブラウザでURLにアクセスしたり、フォームを送信したりすると、サーバーに「リクエスト」が送られます。
 2. **レスポンス（Response）**: サーバーはリクエストを処理し、HTMLページやJSONデータなどの「レスポンス」を返します。
@@ -19,28 +37,69 @@ Laravelでは、この「リクエスト」と「レスポンス」を簡単に�
 
 ---
 
-## 詳細解説
+## 🎯 実践フロー：挨拶アプリを作ろう
 
-### 📥 リクエスト（Request）とは
+**データベースを使わずに**、リクエストとレスポンスの流れを体験しましょう。
 
-リクエストには、以下のような情報が含まれています。
+### 完成イメージ
 
-| 情報 | 説明 | 例 |
-|:---|:---|:---|
-| **URL** | アクセス先のURL | `/users/1` |
-| **HTTPメソッド** | リクエストの種類 | GET, POST, PUT, DELETE |
-| **クエリパラメータ** | URLの`?`以降のパラメータ | `?page=2&sort=name` |
-| **フォームデータ** | POSTで送信されたデータ | `name=山田&email=yamada@example.com` |
-| **ヘッダー** | メタ情報 | `Content-Type`, `Authorization` |
-| **Cookie** | ブラウザに保存されたデータ | セッションIDなど |
+1. **入力画面**: 名前を入力するフォーム
+2. **結果画面**: 「こんにちは、〇〇さん！」と表示
 
-Laravelでは、これらの情報を`Request`オブジェクトを通じて取得できます。
+```
+【入力画面】                    【結果画面】
+┌─────────────────┐           ┌─────────────────┐
+│  名前を入力      │           │                 │
+│  ┌───────────┐  │   送信    │  こんにちは、   │
+│  │ 山田太郎   │  │  ───→   │  山田太郎さん！ │
+│  └───────────┘  │           │                 │
+│  [送信]         │           │  [戻る]         │
+└─────────────────┘           └─────────────────┘
+```
 
 ---
 
-### 🛠️ Requestオブジェクトの取得
+### Step 1: ルーティングを定義する
 
-コントローラーのメソッドで、`Request`オブジェクトを引数として受け取ることができます。
+まず、2つのルートを定義します。
+
+**`routes/web.php`**
+
+```php
+<?php
+
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\GreetingController;
+
+Route::get('/', function () {
+    return view('welcome');
+});
+
+// 挨拶アプリのルーティング
+Route::get('/greeting', [GreetingController::class, 'showForm'])->name('greeting.form');
+Route::post('/greeting', [GreetingController::class, 'greet'])->name('greeting.greet');
+```
+
+| URL | メソッド | 名前 | 処理 |
+|:---|:---|:---|:---|
+| `/greeting` | GET | `greeting.form` | 入力フォームを表示 |
+| `/greeting` | POST | `greeting.greet` | 名前を受け取って挨拶を表示 |
+
+> **💡 ポイント**
+> 
+> 同じURL `/greeting` でも、**HTTPメソッドが違えば別のルート**として扱われます。
+> - GET: フォームを「見せて」
+> - POST: データを「受け取って」
+
+---
+
+### Step 2: コントローラーを作成する
+
+```bash
+sail artisan make:controller GreetingController
+```
+
+**`app/Http/Controllers/GreetingController.php`**
 
 ```php
 <?php
@@ -49,25 +108,238 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 
-class UserController extends Controller
+class GreetingController extends Controller
 {
-    public function store(Request $request)
+    /**
+     * 入力フォームを表示する（GET /greeting）
+     */
+    public function showForm()
     {
-        // $request を使ってリクエストの情報を取得
+        return view('greeting.form');
+    }
+
+    /**
+     * 名前を受け取って挨拶を表示する（POST /greeting）
+     */
+    public function greet(Request $request)
+    {
+        // ① リクエストから名前を取得
+        $name = $request->input('name');
+
+        // ② ビューにデータを渡して表示
+        return view('greeting.result', ['name' => $name]);
     }
 }
 ```
 
 **コードリーディング**
 
-*   `use Illuminate\Http\Request;`: `Request`クラスをインポートします。
-*   `Request $request`: 引数に`Request`型を指定すると、Laravelが自動的に`Request`オブジェクトを注入します（依存性注入）。
+| コード | 説明 |
+|:---|:---|
+| `use Illuminate\Http\Request;` | `Request`クラスをインポート |
+| `Request $request` | Laravelが自動的にリクエスト情報を渡してくれる |
+| `$request->input('name')` | フォームから送信された`name`フィールドの値を取得 |
+| `return view('greeting.result', ['name' => $name])` | 取得した名前をビューに渡す |
 
 ---
 
-### 📝 フォームデータの取得
+### Step 3: 入力フォームを作成する
 
-フォームから送信されたデータを取得する方法を学びましょう。
+**`resources/views/greeting/form.blade.php`**
+
+```blade
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>挨拶アプリ</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            max-width: 400px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        h1 {
+            color: #333;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h1>挨拶アプリ</h1>
+    
+    {{-- フォームの送信先を名前付きルートで指定 --}}
+    <form action="{{ route('greeting.greet') }}" method="POST">
+        {{-- CSRFトークン（セキュリティ対策） --}}
+        @csrf
+        
+        <div class="form-group">
+            <label for="name">お名前を入力してください</label>
+            <input type="text" id="name" name="name" placeholder="例: 山田太郎">
+        </div>
+        
+        <button type="submit">送信</button>
+    </form>
+</body>
+</html>
+```
+
+**コードリーディング**
+
+| コード | 説明 |
+|:---|:---|
+| `action="{{ route('greeting.greet') }}"` | フォームの送信先を名前付きルートで指定 |
+| `method="POST"` | POSTメソッドでデータを送信 |
+| `@csrf` | CSRF対策のトークンを自動生成（Laravelのセキュリティ機能） |
+| `name="name"` | この名前でコントローラーがデータを受け取る |
+
+> **📌 @csrf について**
+> 
+> `@csrf`は、悪意のある第三者からの不正なリクエストを防ぐためのセキュリティ対策です。
+> LaravelでPOSTフォームを作成する際は、**必ず`@csrf`を入れる**ことを覚えておきましょう。
+
+---
+
+### Step 4: 結果画面を作成する
+
+**`resources/views/greeting/result.blade.php`**
+
+```blade
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>挨拶</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            max-width: 400px;
+            margin: 50px auto;
+            padding: 20px;
+            text-align: center;
+        }
+        h1 {
+            color: #333;
+        }
+        .greeting {
+            font-size: 24px;
+            color: #007bff;
+            margin: 30px 0;
+        }
+        a {
+            color: #007bff;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <h1>挨拶</h1>
+    
+    <p class="greeting">
+        こんにちは、{{ $name }}さん！
+    </p>
+    
+    {{-- 戻るリンクも名前付きルートで --}}
+    <a href="{{ route('greeting.form') }}">← 戻る</a>
+</body>
+</html>
+```
+
+**コードリーディング**
+
+| コード | 説明 |
+|:---|:---|
+| `{{ $name }}` | コントローラーから渡された`$name`を表示 |
+| `route('greeting.form')` | 入力フォームへのリンクを名前付きルートで生成 |
+
+---
+
+### Step 5: ブラウザで確認する
+
+1. ブラウザで `http://localhost/greeting` にアクセス
+2. 名前を入力して「送信」ボタンをクリック
+3. 「こんにちは、〇〇さん！」と表示されれば成功！
+
+---
+
+### データの流れを確認しよう
+
+```
+① ユーザーが /greeting にアクセス（GET）
+       ↓
+② ルーティングが greeting.form を見つける
+       ↓
+③ GreetingController の showForm() が実行される
+       ↓
+④ form.blade.php が表示される
+       ↓
+⑤ ユーザーが名前を入力して送信（POST）
+       ↓
+⑥ ルーティングが greeting.greet を見つける
+       ↓
+⑦ GreetingController の greet() が実行される
+       ↓
+⑧ $request->input('name') で名前を取得
+       ↓
+⑨ result.blade.php に名前を渡して表示
+```
+
+> **📌 これがWebアプリの基本サイクル！**
+> 
+> **入力（Request）→ 処理（Controller）→ 出力（Response）**
+> 
+> この流れを理解することが、Laravelを使いこなす第一歩です。
+
+---
+
+## 📥 リクエストの詳細
+
+### Requestオブジェクトとは
+
+`Request`オブジェクトには、ユーザーからのリクエストに関する様々な情報が含まれています。
+
+| 情報 | 説明 | 例 |
+|:---|:---|:---|
+| **URL** | アクセス先のURL | `/greeting` |
+| **HTTPメソッド** | リクエストの種類 | GET, POST |
+| **フォームデータ** | POSTで送信されたデータ | `name=山田太郎` |
+| **クエリパラメータ** | URLの`?`以降のパラメータ | `?page=2` |
+
+---
+
+### フォームデータの取得方法
 
 #### `input()` - 値を取得する（最も基本的）
 
@@ -84,8 +356,7 @@ $name = $request->input('name', 'ゲスト');
 ```php
 // 全てのフォームデータを配列で取得
 $data = $request->all();
-
-// 例: ['name' => '山田', 'email' => 'yamada@example.com']
+// 例: ['name' => '山田太郎', 'email' => 'yamada@example.com']
 ```
 
 #### `only()` - 指定したフィールドのみ取得
@@ -95,51 +366,15 @@ $data = $request->all();
 $data = $request->only(['name', 'email']);
 ```
 
-#### `except()` - 指定したフィールドを除外して取得
-
-```php
-// '_token'を除外して取得（CSRFトークンを除外するときに便利）
-$data = $request->except(['_token']);
-```
-
 ---
 
-### 🔍 クエリパラメータの取得
-
-URLの`?`以降のパラメータ（クエリパラメータ）を取得する方法です。
-
-例えば、`/users?page=2&sort=name`というURLの場合：
-
-```php
-// クエリパラメータを取得
-$page = $request->query('page');      // '2'
-$sort = $request->query('sort');      // 'name'
-
-// デフォルト値を指定
-$page = $request->query('page', 1);   // 値がなければ 1
-
-// 全てのクエリパラメータを取得
-$queryParams = $request->query();     // ['page' => '2', 'sort' => 'name']
-```
-
-> 💡 **TIP**: `input()`メソッドは、フォームデータとクエリパラメータの両方から値を取得できます。明示的にクエリパラメータのみを取得したい場合は`query()`を使います。
-
----
-
-### ✅ 値の存在チェック
-
-フォームデータが存在するかどうかを確認するメソッドです。
+### 値の存在チェック
 
 #### `has()` - キーが存在するか確認
 
 ```php
 if ($request->has('name')) {
     // 'name'キーが存在する（値が空でも true）
-}
-
-// 複数のキーを同時にチェック
-if ($request->has(['name', 'email'])) {
-    // 'name'と'email'の両方が存在する
 }
 ```
 
@@ -151,135 +386,41 @@ if ($request->filled('name')) {
 }
 ```
 
-#### `missing()` - キーが存在しないか確認
-
-```php
-if ($request->missing('name')) {
-    // 'name'キーが存在しない
-}
-```
-
-#### 比較表
-
 | メソッド | 値がない | 値が空文字 | 値がある |
 |:---|:---|:---|:---|
 | `has()` | false | true | true |
 | `filled()` | false | false | true |
-| `missing()` | true | false | false |
 
 ---
 
-### 📁 ファイルアップロードの取得
-
-フォームからアップロードされたファイルを取得する方法です。
-
-```php
-// ファイルを取得
-$file = $request->file('avatar');
-
-// ファイルが存在するか確認
-if ($request->hasFile('avatar')) {
-    // ファイルが有効か確認
-    if ($request->file('avatar')->isValid()) {
-        // ファイルを保存
-        $path = $request->file('avatar')->store('avatars');
-    }
-}
-```
-
-**コードリーディング**
-
-*   `$request->file('avatar')`: `avatar`という名前のファイルを取得します。
-*   `hasFile()`: ファイルがアップロードされたか確認します。
-*   `isValid()`: ファイルが正常にアップロードされたか確認します。
-*   `store('avatars')`: `storage/app/avatars`ディレクトリにファイルを保存します。
-
----
-
-### 📤 レスポンス（Response）の返し方
+## 📤 レスポンスの種類
 
 コントローラーのメソッドは、様々な形式でレスポンスを返すことができます。
 
-#### 1. ビューを返す
-
-最も一般的な方法です。HTMLページを返します。
+### 1. ビューを返す（最も一般的）
 
 ```php
 // シンプルにビューを返す
-return view('users.index');
+return view('greeting.form');
 
 // データをビューに渡す
-return view('users.index', ['users' => $users]);
+return view('greeting.result', ['name' => $name]);
 
 // compact()を使う（変数名と同じキーで渡す）
-return view('users.index', compact('users'));
+return view('greeting.result', compact('name'));
 ```
 
-#### 2. 文字列を返す
-
-シンプルなテキストを返します。
-
-```php
-return 'Hello, World!';
-```
-
-#### 3. JSONを返す（API用）
-
-APIを作成する際に使用します。
-
-```php
-// 基本的なJSONレスポンス
-return response()->json([
-    'message' => '成功しました',
-    'data' => $users
-]);
-
-// ステータスコードを指定
-return response()->json([
-    'message' => '作成しました',
-    'data' => $user
-], 201);
-
-// エラーレスポンス
-return response()->json([
-    'error' => 'ユーザーが見つかりません'
-], 404);
-```
-
-**よく使うHTTPステータスコード**
-
-| コード | 意味 | 使用場面 |
-|:---|:---|:---|
-| 200 | OK | 成功（デフォルト） |
-| 201 | Created | リソース作成成功 |
-| 204 | No Content | 成功（返すデータなし） |
-| 400 | Bad Request | リクエストが不正 |
-| 401 | Unauthorized | 認証が必要 |
-| 403 | Forbidden | アクセス権限がない |
-| 404 | Not Found | リソースが見つからない |
-| 422 | Unprocessable Entity | バリデーションエラー |
-| 500 | Internal Server Error | サーバーエラー |
-
-#### 4. リダイレクトする
+### 2. リダイレクトする
 
 別のページに転送します。
 
 ```php
 // 名前付きルートにリダイレクト
-return redirect()->route('users.index');
-
-// パラメータ付きでリダイレクト
-return redirect()->route('users.show', ['user' => $user->id]);
-
-// URLを直接指定
-return redirect('/users');
-
-// 前のページに戻る
-return back();
+return redirect()->route('greeting.form');
 
 // フラッシュメッセージ付きでリダイレクト
-return redirect()->route('users.index')
-    ->with('success', 'ユーザーを作成しました');
+return redirect()->route('greeting.form')
+    ->with('success', '送信しました');
 ```
 
 **フラッシュメッセージの表示（Blade）**
@@ -292,90 +433,98 @@ return redirect()->route('users.index')
 @endif
 ```
 
-#### 5. ダウンロードさせる
-
-ファイルをダウンロードさせます。
+### 3. JSONを返す（API用）
 
 ```php
-// ファイルをダウンロード
-return response()->download($pathToFile);
-
-// ファイル名を指定
-return response()->download($pathToFile, 'report.pdf');
+return response()->json([
+    'message' => '成功しました',
+    'name' => $name
+]);
 ```
 
 ---
 
-### 🧩 実践例：検索機能の実装
+## 🔄 挨拶アプリを改良してみよう
 
-リクエストとレスポンスを使った実践的な例を見てみましょう。
+基本の流れが理解できたら、以下の改良に挑戦してみましょう。
 
-**ルーティング（`routes/web.php`）**
-
-```php
-Route::get('/users', [UserController::class, 'index']);
-```
-
-**コントローラー（`UserController.php`）**
+### 改良1: 空の名前をチェックする
 
 ```php
-public function index(Request $request)
+public function greet(Request $request)
 {
-    // クエリパラメータを取得
-    $keyword = $request->query('keyword');
-    $sort = $request->query('sort', 'created_at');
-    $order = $request->query('order', 'desc');
+    $name = $request->input('name');
 
-    // クエリを構築
-    $query = User::query();
-
-    // キーワードがあれば検索条件を追加
-    if ($request->filled('keyword')) {
-        $query->where('name', 'like', "%{$keyword}%")
-              ->orWhere('email', 'like', "%{$keyword}%");
+    // 名前が空の場合はデフォルト値を使用
+    if (empty($name)) {
+        $name = 'ゲスト';
     }
 
-    // ソート
-    $users = $query->orderBy($sort, $order)->paginate(10);
-
-    // ビューを返す
-    return view('users.index', compact('users', 'keyword', 'sort', 'order'));
+    return view('greeting.result', ['name' => $name]);
 }
 ```
 
-**URL例**
+### 改良2: 時間帯によって挨拶を変える
 
+```php
+public function greet(Request $request)
+{
+    $name = $request->input('name', 'ゲスト');
+    $hour = now()->hour;
+
+    if ($hour < 12) {
+        $greeting = 'おはようございます';
+    } elseif ($hour < 18) {
+        $greeting = 'こんにちは';
+    } else {
+        $greeting = 'こんばんは';
+    }
+
+    return view('greeting.result', [
+        'name' => $name,
+        'greeting' => $greeting
+    ]);
+}
 ```
-/users?keyword=山田&sort=name&order=asc
+
+```blade
+{{-- result.blade.php --}}
+<p class="greeting">
+    {{ $greeting }}、{{ $name }}さん！
+</p>
 ```
-
----
-
-### 💡 TIP: リクエストの便利なメソッド
-
-| メソッド | 説明 | 例 |
-|:---|:---|:---|
-| `$request->url()` | クエリパラメータを除いたURL | `/users` |
-| `$request->fullUrl()` | クエリパラメータを含むURL | `/users?page=2` |
-| `$request->method()` | HTTPメソッド | `GET`, `POST` |
-| `$request->isMethod('post')` | メソッドの確認 | `true` / `false` |
-| `$request->ip()` | クライアントのIPアドレス | `192.168.1.1` |
-| `$request->header('Content-Type')` | ヘッダーの取得 | `application/json` |
-| `$request->bearerToken()` | Bearerトークンの取得 | APIの認証トークン |
 
 ---
 
 ## ✨ まとめ
 
-このセクションでは、Laravelのリクエストとレスポンスの基礎を学びました。
+このセクションでは、**データベースを使わずに**リクエストとレスポンスの基本的な流れを体験しました。
 
-*   **リクエスト**は、ユーザーからサーバーへの要求であり、URL、HTTPメソッド、フォームデータなどの情報を含む。
-*   `Request`オブジェクトを使って、`input()`, `query()`, `all()`, `only()`, `except()`などでデータを取得できる。
-*   `has()`, `filled()`, `missing()`で値の存在をチェックできる。
-*   **レスポンス**は、サーバーからユーザーへの応答であり、ビュー、JSON、リダイレクトなど様々な形式で返せる。
-*   `response()->json()`でJSONを返し、`redirect()->route()`でリダイレクトできる。
-*   フラッシュメッセージを使って、リダイレクト後にメッセージを表示できる。
+| Step | 内容 | ファイル |
+|:---|:---|:---|
+| 1 | ルーティングを定義 | `routes/web.php` |
+| 2 | コントローラーを作成 | `GreetingController.php` |
+| 3 | 入力フォームを作成 | `greeting/form.blade.php` |
+| 4 | 結果画面を作成 | `greeting/result.blade.php` |
+| 5 | ブラウザで確認 | `http://localhost/greeting` |
 
-これらの知識は、次のセクションで学ぶコントローラーの基礎や、Chapter 6のバリデーションで活用します。
+### 学んだこと
+
+| 項目 | 内容 |
+|:---|:---|
+| **リクエスト** | ユーザーからサーバーへの要求（フォームデータなど） |
+| **レスポンス** | サーバーからユーザーへの応答（ビュー、リダイレクトなど） |
+| **$request->input()** | フォームから送信されたデータを取得 |
+| **@csrf** | POSTフォームに必須のセキュリティ対策 |
+| **route()** | 名前付きルートからURLを生成 |
+
+> **📌 ポイント**
+> 
+> **入力（Request）→ 処理（Controller）→ 出力（Response）**
+> 
+> この「データのバケツリレー」がWebアプリケーションの基本です。
+> データベースを使う場合も、この流れは変わりません。
+> 
+> 次のセクションでは、コントローラーについてさらに詳しく学びます。
 
 ---

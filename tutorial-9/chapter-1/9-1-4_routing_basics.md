@@ -2,9 +2,10 @@
 
 ## 🎯 このセクションで学ぶこと
 
-- ルーティングの基本的な書き方を理解する
+- ルーティングが「道案内」として果たす役割を理解する
+- 基本的なルーティングの書き方を理解する
+- **名前付きルート**と`route()`ヘルパーの使い方を学ぶ
 - HTTPメソッド（GET / POST）の違いを理解する
-- ルートパラメータの使い方を理解する
 
 > **📌 前提知識**
 > 
@@ -13,11 +14,25 @@
 
 ---
 
-## 📍 ルーティングとは
+## 📍 ルーティングとは：リクエストの「道案内」
 
 ルーティングとは、**「どのURLにアクセスされたら、どの処理を実行するか」を定義する仕組み**です。
 
 前のセクションのレストランの比喩で言えば、**受付係がメニュー表を見て、どのウェイターに注文を渡すか決める**のがルーティングです。
+
+### ルーティングの役割
+
+```
+ユーザー → ブラウザでURLにアクセス
+              ↓
+         【ルーティング】← 「この道を通ってください」と案内
+              ↓
+         コントローラー → 処理を実行
+              ↓
+         ビュー → 画面を表示
+```
+
+ルーティングは、ユーザーのリクエストを**正しいコントローラーに届ける「道案内」**の役割を担っています。
 
 Laravelでは、`routes/web.php`ファイルにルーティングを定義します。
 
@@ -64,6 +79,95 @@ Route::get('/users', [UserController::class, 'index']);
 
 ---
 
+## 🏷️ 名前付きルート：URLに「名札」を付ける
+
+### なぜ名前付きルートが必要なのか
+
+URLを直接書くと、URLを変更したときに**全ての箇所を修正**する必要があります。
+
+```php
+// URLを直接書いた場合
+<a href="/users">ユーザー一覧</a>
+<a href="/users/create">新規作成</a>
+
+// もしURLを /members に変更したら...
+// 全ての箇所を修正しなければならない！
+```
+
+名前付きルートを使えば、**URLに「名札」を付けて管理**できます。URLを変更しても、名前を使っている箇所は自動的に新しいURLを参照します。
+
+---
+
+### 名前付きルートの定義
+
+ルーティングに`->name()`を付けて名前を定義します。
+
+```php
+use App\Http\Controllers\UserController;
+
+// 名前付きルートの定義
+Route::get('/users', [UserController::class, 'index'])->name('users.index');
+Route::get('/users/create', [UserController::class, 'create'])->name('users.create');
+Route::get('/users/{id}', [UserController::class, 'show'])->name('users.show');
+```
+
+| URL | 名前 | 説明 |
+|:---|:---|:---|
+| `/users` | `users.index` | ユーザー一覧 |
+| `/users/create` | `users.create` | 作成フォーム |
+| `/users/{id}` | `users.show` | 詳細表示 |
+
+> **💡 命名規則**
+> 
+> 名前は「`リソース名.アクション名`」の形式で付けるのが一般的です。
+> 例：`users.index`、`users.create`、`users.show`
+
+---
+
+### route()ヘルパー：名前からURLを生成
+
+Bladeテンプレートやコントローラーで、`route()`ヘルパーを使って名前からURLを生成できます。
+
+**Bladeテンプレートでの使用例**
+
+```blade
+{{-- 名前付きルートを使ったリンク --}}
+<a href="{{ route('users.index') }}">ユーザー一覧</a>
+
+{{-- パラメータ付きの場合 --}}
+<a href="{{ route('users.show', ['id' => 1]) }}">ユーザー詳細</a>
+```
+
+**コントローラーでの使用例（リダイレクト）**
+
+```php
+// 名前付きルートにリダイレクト
+return redirect()->route('users.index');
+
+// パラメータ付きでリダイレクト
+return redirect()->route('users.show', ['id' => $user->id]);
+```
+
+---
+
+### 名前付きルートのメリット
+
+| 方法 | URLを変更したとき |
+|:---|:---|
+| URLを直接書く | 全ての箇所を手動で修正 |
+| 名前付きルート | ルーティングの定義だけ修正すればOK |
+
+```php
+// URLを /members に変更しても...
+Route::get('/members', [UserController::class, 'index'])->name('users.index');
+
+// Bladeテンプレートは変更不要！
+<a href="{{ route('users.index') }}">ユーザー一覧</a>
+// → 自動的に /members を参照
+```
+
+---
+
 ## 🔀 HTTPメソッド
 
 Webアプリケーションでは、**HTTPメソッド**によってリクエストの種類を区別します。
@@ -85,17 +189,17 @@ Webアプリケーションでは、**HTTPメソッド**によってリクエス
 
 ```php
 // ユーザー一覧を表示
-Route::get('/users', [UserController::class, 'index']);
+Route::get('/users', [UserController::class, 'index'])->name('users.index');
 
 // ユーザー詳細を表示
-Route::get('/users/{id}', [UserController::class, 'show']);
+Route::get('/users/{id}', [UserController::class, 'show'])->name('users.show');
 ```
 
 **POST**は、データを送信するときに使います。
 
 ```php
 // 新しいユーザーを作成
-Route::post('/users', [UserController::class, 'store']);
+Route::post('/users', [UserController::class, 'store'])->name('users.store');
 ```
 
 > **💡 覚え方**
@@ -112,7 +216,7 @@ URLの一部を**変数**として受け取ることができます。これを*
 ### 基本的なルートパラメータ
 
 ```php
-Route::get('/users/{id}', [UserController::class, 'show']);
+Route::get('/users/{id}', [UserController::class, 'show'])->name('users.show');
 ```
 
 このルーティングは、以下のようなURLにマッチします：
@@ -137,49 +241,92 @@ public function show($id)
 
 ---
 
-## 📋 よく使うルーティングパターン
+## 🔗 ルーティングとビューの連携：実践例
 
-Webアプリケーションでよく使うルーティングのパターンをまとめます。
+ここまで学んだことを使って、**ルーティングとビューがどう繋がるか**を確認しましょう。
+
+### Step 1: ルーティングを定義
+
+**`routes/web.php`**
 
 ```php
-use App\Http\Controllers\TaskController;
+use App\Http\Controllers\PageController;
 
-// 一覧表示
-Route::get('/tasks', [TaskController::class, 'index']);
-
-// 作成フォーム表示
-Route::get('/tasks/create', [TaskController::class, 'create']);
-
-// 新規作成（フォーム送信）
-Route::post('/tasks', [TaskController::class, 'store']);
-
-// 詳細表示
-Route::get('/tasks/{id}', [TaskController::class, 'show']);
-
-// 編集フォーム表示
-Route::get('/tasks/{id}/edit', [TaskController::class, 'edit']);
-
-// 更新（フォーム送信）
-Route::put('/tasks/{id}', [TaskController::class, 'update']);
-
-// 削除
-Route::delete('/tasks/{id}', [TaskController::class, 'destroy']);
+Route::get('/', [PageController::class, 'home'])->name('home');
+Route::get('/about', [PageController::class, 'about'])->name('about');
+Route::get('/contact', [PageController::class, 'contact'])->name('contact');
 ```
 
-| URL | メソッド | 処理 |
-|:---|:---|:---|
-| `/tasks` | GET | 一覧表示 |
-| `/tasks/create` | GET | 作成フォーム表示 |
-| `/tasks` | POST | 新規作成 |
-| `/tasks/{id}` | GET | 詳細表示 |
-| `/tasks/{id}/edit` | GET | 編集フォーム表示 |
-| `/tasks/{id}` | PUT | 更新 |
-| `/tasks/{id}` | DELETE | 削除 |
+### Step 2: コントローラーを作成
 
-> **📌 補足**
+**`app/Http/Controllers/PageController.php`**
+
+```php
+<?php
+
+namespace App\Http\Controllers;
+
+class PageController extends Controller
+{
+    public function home()
+    {
+        return view('pages.home');
+    }
+
+    public function about()
+    {
+        return view('pages.about');
+    }
+
+    public function contact()
+    {
+        return view('pages.contact');
+    }
+}
+```
+
+### Step 3: ビューでリンクを作成
+
+**`resources/views/pages/home.blade.php`**
+
+```blade
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>ホーム</title>
+</head>
+<body>
+    <nav>
+        {{-- route()ヘルパーで名前付きルートからURLを生成 --}}
+        <a href="{{ route('home') }}">ホーム</a>
+        <a href="{{ route('about') }}">会社概要</a>
+        <a href="{{ route('contact') }}">お問い合わせ</a>
+    </nav>
+    
+    <h1>ホームページへようこそ</h1>
+</body>
+</html>
+```
+
+### データの流れ
+
+```
+1. ユーザーが /about にアクセス
+       ↓
+2. ルーティングが「about という名前のルートだ」と判断
+       ↓
+3. PageController の about() メソッドを呼び出し
+       ↓
+4. about() が pages.about ビューを返す
+       ↓
+5. ブラウザに会社概要ページが表示される
+```
+
+> **📌 ポイント**
 > 
-> このパターンは**CRUD（クラッド）**と呼ばれ、Webアプリケーションの基本的な操作パターンです。
-> CRUDについては、後のセクションで詳しく学びます。
+> `route('about')`は、ルーティングで定義した名前`about`から、自動的にURL`/about`を生成します。
+> これにより、**ルーティングとビューが名前で繋がる**ことを意識してください。
 
 ---
 
@@ -194,10 +341,10 @@ sail artisan route:list
 このコマンドを実行すると、現在定義されている全てのルーティングが表示されます。
 
 ```
-GET|HEAD   / ..................................... 
-GET|HEAD   users .............. UserController@index
-GET|HEAD   users/{id} ......... UserController@show
-POST       users .............. UserController@store
+GET|HEAD   / ........................ home › PageController@home
+GET|HEAD   about .................... about › PageController@about
+GET|HEAD   contact .................. contact › PageController@contact
+GET|HEAD   users .................... users.index › UserController@index
 ```
 
 > **💡 TIP**
@@ -236,23 +383,27 @@ use App\Http\Controllers\UserController;
 
 ## ✨ まとめ
 
-このセクションでは、ルーティングの基本的な書き方を学びました。
+このセクションでは、ルーティングの基本的な書き方と、名前付きルートの重要性を学びました。
 
 | 項目 | 内容 |
 |:---|:---|
 | **ルーティングの場所** | `routes/web.php` |
 | **基本構文** | `Route::get('/url', [Controller::class, 'method']);` |
+| **名前付きルート** | `->name('route.name')`で名前を付ける |
+| **route()ヘルパー** | `route('route.name')`で名前からURLを生成 |
 | **HTTPメソッド** | GET（取得）、POST（送信）、PUT（更新）、DELETE（削除） |
 | **ルートパラメータ** | `{id}`で変数を受け取る |
 | **確認コマンド** | `sail artisan route:list` |
 
 > **📌 ポイント**
 > 
-> ルーティングは、Laravelアプリケーションの**入り口**です。
-> ユーザーがアクセスするURLは、全てルーティングで定義されています。
+> ルーティングは、Laravelアプリケーションの**入り口**であり、**道案内**です。
+> 
+> - **名前付きルート**を使うことで、URLの変更に強いコードが書ける
+> - **route()ヘルパー**を使うことで、ルーティングとビューが繋がる
 > 
 > 「このURLにアクセスしたら、どのコントローラーが動くのか？」を意識しながら開発を進めましょう。
 
-次のセクションでは、リクエストとレスポンスについて学びます。
+次のセクションでは、リクエストとレスポンスについて学び、**ユーザーの入力を受け取って処理する流れ**を体験します。
 
 ---
