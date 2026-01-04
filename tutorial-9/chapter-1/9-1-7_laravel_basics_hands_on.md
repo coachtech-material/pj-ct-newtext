@@ -112,37 +112,88 @@ Laravel開発のポイントは「ルーティング → コントローラー �
 
 このハンズオン用の新しいプロジェクトを作成します。Dockerを使って環境構築を行います。
 
+> **📌 Dockerが起動していることを確認**
+> 
+> 以下のコマンドを実行する前に、Docker Desktop（またはDocker Engine）が起動していることを確認してください。
+> 起動していない場合は、Docker Desktopを開いてからコマンドを実行してください。
+
+**Step 0-1: Laravelプロジェクトの作成**
+
 ```bash
 # laravel-practiceディレクトリに移動
 cd ~/laravel-practice
 
-# 新しいプロジェクトを作成（Laravel Sailを使用）
-curl -s "https://laravel.build/profile-app" | bash
+# Laravel 10.xプロジェクトを作成
+docker run --rm \
+    -u "$(id -u):$(id -g)" \
+    -v "$(pwd):/var/www/html" \
+    -w /var/www/html \
+    -e COMPOSER_CACHE_DIR=/tmp/composer_cache \
+    laravelsail/php82-composer:latest \
+    composer create-project laravel/laravel:^10.0 profile-app
 ```
 
-> **📌 コマンドの説明**
-> 
-> `curl -s "https://laravel.build/profile-app" | bash`は、Laravelの公式インストーラーです。
-> このコマンドを実行すると、以下が自動的に行われます：
-> - `profile-app`ディレクトリの作成
-> - Laravelのファイル一式のダウンロード
-> - Docker環境（Laravel Sail）のセットアップ
-> - 必要な依存パッケージのインストール
+| オプション | 説明 |
+|:---|:---|
+| `--rm` | コマンド実行後、コンテナを自動削除 |
+| `-u "$(id -u):$(id -g)"` | ホストマシンのユーザー権限でファイルを作成（権限問題を防ぐ） |
+| `-v "$(pwd):/var/www/html"` | 現在のディレクトリをコンテナ内にマウント |
+| `laravelsail/php82-composer:latest` | Laravel Sail公式のPHP 8.2 + Composerイメージ |
+| `composer create-project laravel/laravel:^10.0 profile-app` | Laravel 10.xをインストール |
 
-インストールが完了したら、プロジェクトディレクトリに移動してDockerコンテナを起動します。
+> ⚠️ **注意**: このコマンドは初回実行時に数分かかることがあります。Dockerイメージのダウンロードと、Laravelの依存パッケージのインストールが行われます。
+
+**Step 0-2: プロジェクトディレクトリに移動**
 
 ```bash
-# 作成したプロジェクトに移動
 cd profile-app
+```
 
-# Dockerコンテナを起動（バックグラウンドで実行）
+**Step 0-3: Laravel Sailのインストール**
+
+```bash
+docker run --rm \
+    -u "$(id -u):$(id -g)" \
+    -v "$(pwd):/var/www/html" \
+    -w /var/www/html \
+    -e COMPOSER_CACHE_DIR=/tmp/composer_cache \
+    laravelsail/php82-composer:latest \
+    composer require laravel/sail --dev
+```
+
+**Step 0-4: Sailの設定ファイルを生成**
+
+MySQLを使用するように指定して、`docker-compose.yml`を生成します。
+
+```bash
+docker run --rm \
+    -u "$(id -u):$(id -g)" \
+    -v "$(pwd):/var/www/html" \
+    -w /var/www/html \
+    -e COMPOSER_CACHE_DIR=/tmp/composer_cache \
+    laravelsail/php82-composer:latest \
+    php artisan sail:install --with=mysql
+```
+
+**Step 0-5: Sailの起動**
+
+```bash
 ./vendor/bin/sail up -d
 ```
 
-> **📌 Dockerが起動していることを確認**
+初回起動時は、Dockerイメージのビルドが行われるため、数分かかることがあります。
+
+**Step 0-6: アプリケーションキーの生成**
+
+```bash
+./vendor/bin/sail artisan key:generate
+```
+
+このコマンドは、`.env`ファイルの`APP_KEY`に暗号化キーを設定します。
+
+> 💡 **環境構築が完了！**
 > 
-> `sail up -d`を実行する前に、Docker Desktop（またはDocker Engine）が起動していることを確認してください。
-> 起動していない場合は、Docker Desktopを開いてからコマンドを実行してください。
+> ブラウザで `http://localhost` にアクセスして、Laravelのウェルカムページが表示されれば成功です。
 
 **コマンド解説**：
 
