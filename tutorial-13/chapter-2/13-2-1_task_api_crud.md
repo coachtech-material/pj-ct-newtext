@@ -400,32 +400,111 @@ Route::apiResource('tasks', TaskController::class);
 
 ---
 
-### 3-2. curlでのテスト
+### 3-2. トークンの発行（認証が必要な場合）
+
+APIに認証をかけている場合、リクエストには**トークン**が必要です。
+
+Laravel Sanctumを使ってトークンを発行するには、`tinker`を使います。
 
 ```bash
-# タスク一覧を取得
-curl -X GET http://localhost/api/tasks
+sail artisan tinker
+```
 
-# タスクを作成
-curl -X POST http://localhost/api/tasks \
-  -H "Content-Type: application/json" \
-  -d '{"title": "新しいタスク", "description": "これは新しいタスクです"}'
+`tinker`内で以下を実行します。
 
-# タスク詳細を取得
-curl -X GET http://localhost/api/tasks/1
+```php
+$user = App\Models\User::first();
+$token = $user->createToken('test-token')->plainTextToken;
+echo $token;
+```
 
-# タスクを更新
-curl -X PUT http://localhost/api/tasks/1 \
-  -H "Content-Type: application/json" \
-  -d '{"title": "更新されたタスク", "status": "completed"}'
+表示されたトークンをコピーしておきます。
 
-# タスクを削除
-curl -X DELETE http://localhost/api/tasks/1
+---
+
+### 3-3. curlでのテスト
+
+APIリクエストでは、以下のヘッダーが重要です。
+
+| ヘッダー | 説明 |
+|----------|------|
+| `Authorization: Bearer トークン` | 認証用のトークン（認証が必要な場合） |
+| `Content-Type: application/json` | リクエストボディのJSON形式を指定 |
+| `Accept: application/json` | レスポンスをJSON形式で受け取る |
+
+> 💡 **ポイント**: `Accept: application/json`がないと、認証失敗時にHTMLのリダイレクトが返されることがあります。APIリクエストでは必ず指定しましょう。
+
+---
+
+#### タスク一覧を取得
+
+```bash
+curl -X GET http://localhost/api/tasks \
+  -H "Authorization: Bearer 発行したトークン" \
+  -H "Accept: application/json"
 ```
 
 ---
 
-### 3-3. バリデーションエラーのレスポンス
+#### タスクを作成
+
+```bash
+curl -X POST http://localhost/api/tasks \
+  -H "Authorization: Bearer 発行したトークン" \
+  -H "Content-Type: application/json" \
+  -H "Accept: application/json" \
+  -d '{"title": "新しいタスク", "description": "これは新しいタスクです"}'
+```
+
+---
+
+#### タスク詳細を取得
+
+```bash
+curl -X GET http://localhost/api/tasks/1 \
+  -H "Authorization: Bearer 発行したトークン" \
+  -H "Accept: application/json"
+```
+
+---
+
+#### タスクを更新
+
+```bash
+curl -X PUT http://localhost/api/tasks/1 \
+  -H "Authorization: Bearer 発行したトークン" \
+  -H "Content-Type: application/json" \
+  -H "Accept: application/json" \
+  -d '{"title": "更新されたタスク", "status": "completed"}'
+```
+
+---
+
+#### タスクを削除
+
+```bash
+curl -X DELETE http://localhost/api/tasks/1 \
+  -H "Authorization: Bearer 発行したトークン" \
+  -H "Accept: application/json"
+```
+
+---
+
+### 3-4. 認証失敗時のレスポンス
+
+トークンが無効または未指定の場合、以下のJSONが返されます。
+
+```json
+{"message": "Unauthenticated."}
+```
+
+| ステータスコード | 意味 |
+|------------------|------|
+| 401 Unauthorized | 認証が必要または失敗 |
+
+---
+
+### 3-5. バリデーションエラーのレスポンス
 
 バリデーションエラーが発生した場合、Laravelは自動的に422ステータスコードを返します。
 
