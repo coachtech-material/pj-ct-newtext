@@ -126,8 +126,118 @@ public function store(Request $request): JsonResponse
 | コード | 説明 |
 |--------|------|
 | `$request->validate([...])` | バリデーションを行う |
-| `Task::create($validated)` | タスクを作成する |
+| `Auth::id()` | ログイン中のユーザーIDを取得 |
+| `...$validated` | スプレッド構文で配列を展開 |
+| `Task::create([...])` | タスクを作成する |
 | `response()->json([...], 201)` | 201 Createdを返す |
+
+---
+
+### 1-4. スプレッド構文（`...`）の解説
+
+`...$validated`は**スプレッド構文**と呼ばれ、配列を展開して別の配列にマージします。
+
+```php
+// $validatedの中身
+$validated = [
+    'title' => '新しいタスク',
+    'description' => 'テスト説明',
+    'status' => 'pending',
+];
+
+// スプレッド構文で展開
+Task::create([
+    'user_id' => Auth::id(),
+    ...$validated,
+]);
+
+// 上記は以下と同じ意味
+Task::create([
+    'user_id' => Auth::id(),
+    'title' => '新しいタスク',
+    'description' => 'テスト説明',
+    'status' => 'pending',
+]);
+```
+
+| ポイント | 説明 |
+|----------|------|
+| `user_id` | ログインユーザーのIDを追加 |
+| `...$validated` | バリデーション済みのデータを展開 |
+
+> 💡 **ポイント**: スプレッド構文を使うと、バリデーション済みのデータに`user_id`を追加するコードが簡潔に書けます。
+
+---
+
+### 1-5. 認証の前提条件
+
+`Auth::id()`を使うためには、**ユーザーが認証されている必要**があります。
+
+以下の2つの設定が必要です。
+
+---
+
+#### 前提⚠️①: APIルートに認証ミドルウェアを適用
+
+**ファイル**: `routes/api.php`
+
+```php
+<?php
+
+use App\Http\Controllers\Api\TaskController;
+use Illuminate\Support\Facades\Route;
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::apiResource('tasks', TaskController::class);
+});
+```
+
+| コード | 説明 |
+|--------|------|
+| `middleware('auth:sanctum')` | Sanctum認証を適用 |
+| `group(function () {...})` | グループ内のルートにミドルウェアを適用 |
+
+> 📌 **注意**: 前のセクションで認証なしでテストしていた場合は、ここでミドルウェアを追加してください。
+
+---
+
+#### 前提⚠️②: トークンを発行する
+
+APIリクエストには、**Bearerトークン**をヘッダーに添える必要があります。
+
+**トークンの発行手順**:
+
+```bash
+sail artisan tinker
+```
+
+`tinker`内で以下を実行します。
+
+```php
+$user = App\Models\User::first();
+$token = $user->createToken('test-token')->plainTextToken;
+echo $token;
+```
+
+表示されたトークンをコピーしておきます。
+
+---
+
+#### Thunder Clientでトークンを設定する
+
+Thunder Clientで認証ヘッダーを設定する方法です。
+
+1. Thunder Clientで新しいリクエストを作成
+2. **Auth**タブをクリック
+3. **Type**で`Bearer`を選択
+4. **Token**欄に発行したトークンを貼り付け
+
+| 設定項目 | 値 |
+|----------|------|
+| Type | Bearer |
+| Token | 発行したトークン |
+
+> 💡 **ポイント**: Headersタブで`Authorization: Bearer トークン`を直接設定することもできますが、Authタブを使う方が簡単です。
 
 ---
 
@@ -186,10 +296,13 @@ return response()->json($task, 201);
 
 ### 3-1. Thunder Clientでテスト
 
+> 📌 **前提**: 1-5で設定した認証ミドルウェアとトークンが必要です。AuthタブでBearerトークンを設定してください。
+
 **1. 成功する場合**
 
 - メソッド: `POST`
-- URL: `http://localhost:8000/api/tasks`
+- URL: `http://localhost/api/tasks`
+- Auth: Bearerトークンを設定
 - Body（JSON）:
 
 ```json
@@ -205,7 +318,8 @@ return response()->json($task, 201);
 **2. バリデーションエラーが発生する場合**
 
 - メソッド: `POST`
-- URL: `http://localhost:8000/api/tasks`
+- URL: `http://localhost/api/tasks`
+- Auth: Bearerトークンを設定
 - Body（JSON）:
 
 ```json
@@ -281,10 +395,12 @@ public function store(TaskRequest $request): JsonResponse
 ### 3-4. クライアント側での処理例（JavaScript）
 
 ```javascript
-fetch('http://localhost:8000/api/tasks', {
+fetch('http://localhost/api/tasks', {
   method: 'POST',
   headers: {
     'Content-Type': 'application/json',
+    'Accept': 'application/json',
+    'Authorization': 'Bearer 発行したトークン',
   },
   body: JSON.stringify({
     title: '新しいタスク',
