@@ -104,6 +104,17 @@ class PostTest extends TestCase
 }
 ```
 
+**コードリーディング（メソッドチェーンの分解）**
+
+`$this->actingAs($user)->post('/posts', $data)` を分解してみましょう。
+
+| ステップ | コード | 演算子 | 戻り値 | 意味 |
+|:---:|:---|:---:|:---|:---|
+| 1 | `$this->actingAs($user)` | `->` | TestCaseインスタンス | 指定ユーザーとして認証状態を設定 |
+| 2 | `->post('/posts', $data)` | `->` | TestResponse | POSTリクエストを送信してレスポンスを取得 |
+
+> **💡 Tutorial 7の復習**: `$this`は現在のテストクラスのインスタンスを指します。`actingAs()`はテストクラス自身を返すので、続けて`->post()`を呼び出せます。
+
 ---
 
 ### 🚀 実践例3: PUTリクエスト
@@ -294,6 +305,16 @@ public function test_can_create_post_with_custom_header()
     $response->assertRedirect();
 }
 ```
+
+**コードリーディング（複数のメソッドチェーン）**
+
+| ステップ | コード | 演算子 | 戻り値 | 意味 |
+|:---:|:---|:---:|:---|:---|
+| 1 | `$this->actingAs($user)` | `->` | TestCase | 認証状態を設定 |
+| 2 | `->withHeaders([...])` | `->` | TestCase | カスタムヘッダーを設定 |
+| 3 | `->post('/posts', $data)` | `->` | TestResponse | POSTリクエストを送信 |
+
+> **💡 ポイント**: このように複数のメソッドをチェーンすることで、認証、ヘッダー設定、リクエスト送信を一連の流れで記述できます。
 
 ---
 

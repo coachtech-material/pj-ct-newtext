@@ -126,11 +126,15 @@ class WeatherController extends Controller
 
 ### 1-3. コードリーディング
 
-| コード | 説明 |
-|--------|------|
-| `Http::get(url, params)` | GETリクエストを送信 |
-| `$response->failed()` | リクエストが失敗したか確認 |
-| `$response->json()` | レスポンスをJSON形式で取得 |
+**メソッドチェーンの分解**
+
+| コード | 演算子 | 戻り値 | 意味 |
+|:---|:---:|:---|:---|
+| `Http::get(url, params)` | `::` | Responseインスタンス | Httpファサードの静的メソッドでGETリクエストを送信 |
+| `$response->failed()` | `->` | 真偽値 | Responseインスタンスのメソッドで失敗を確認 |
+| `$response->json()` | `->` | 配列 | ResponseインスタンスのメソッドでJSONを配列に変換 |
+
+> **💡 Tutorial 7の復習**: `Http::get()`は静的メソッドなので`::`を使います。このメソッドはResponseインスタンスを返すので、その後は`->`でインスタンスメソッドを呼び出します。
 
 ---
 
@@ -154,6 +158,15 @@ $response = Http::withHeaders([
 ])->get('https://api.example.com/tasks');
 ```
 
+**コードリーディング（メソッドチェーンの分解）**
+
+| ステップ | コード | 演算子 | 戻り値 | 意味 |
+|:---:|:---|:---:|:---|:---|
+| 1 | `Http::withHeaders([...])` | `::` | PendingRequest | ヘッダーを設定したリクエストビルダーを取得 |
+| 2 | `->get(url)` | `->` | Response | GETリクエストを送信してレスポンスを取得 |
+
+> **💡 ポイント**: `Http::withHeaders()`は静的メソッドでPendingRequestインスタンスを返します。その後は`->`でインスタンスメソッドを呼び出します。
+
 ---
 
 ## Step 2: エラーハンドリング
@@ -164,6 +177,13 @@ $response = Http::withHeaders([
 $response = Http::timeout(10)->get('https://api.example.com/tasks');
 ```
 
+**コードリーディング**
+
+| ステップ | コード | 演算子 | 戻り値 | 意味 |
+|:---:|:---|:---:|:---|:---|
+| 1 | `Http::timeout(10)` | `::` | PendingRequest | タイムアウトを10秒に設定 |
+| 2 | `->get(url)` | `->` | Response | GETリクエストを送信 |
+
 ---
 
 ### 2-2. リトライの設定
@@ -171,6 +191,13 @@ $response = Http::timeout(10)->get('https://api.example.com/tasks');
 ```php
 $response = Http::retry(3, 100)->get('https://api.example.com/tasks');
 ```
+
+**コードリーディング**
+
+| ステップ | コード | 演算子 | 戻り値 | 意味 |
+|:---:|:---|:---:|:---|:---|
+| 1 | `Http::retry(3, 100)` | `::` | PendingRequest | 3回リトライ、100ms間隔を設定 |
+| 2 | `->get(url)` | `->` | Response | GETリクエストを送信 |
 
 | 引数 | 説明 |
 |------|------|

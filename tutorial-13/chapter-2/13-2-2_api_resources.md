@@ -233,12 +233,11 @@ public function toArray(Request $request)
 'id' => $this->id,
 ```
 
-| 部分 | 説明 |
-|------|------|
-| `$this` | TaskResourceに渡されたTaskモデル |
-| `->id` | モデルのidカラムの値 |
+| コード | 演算子 | 意味 |
+|:---|:---:|:---|
+| `$this->id` | `->` | TaskResourceに渡されたTaskモデルのidプロパティにアクセス |
 
-TaskResourceは、渡されたモデルを`$this`として扱えます。
+> **💡 Tutorial 7の復習**: `$this`は現在のインスタンスを指します。TaskResourceでは、`$this`を通じて渡されたTaskモデルのプロパティにアクセスできます。
 
 ---
 
@@ -248,10 +247,14 @@ TaskResourceは、渡されたモデルを`$this`として扱えます。
 'created_at' => $this->created_at->format('Y-m-d H:i:s'),
 ```
 
-| 部分 | 説明 |
-|------|------|
-| `$this->created_at` | Carbonオブジェクト（日付） |
-| `->format('Y-m-d H:i:s')` | 日付を文字列に変換 |
+**コードリーディング（メソッドチェーンの分解）**
+
+| ステップ | コード | 演算子 | 戻り値 | 意味 |
+|:---:|:---|:---:|:---|:---|
+| 1 | `$this->created_at` | `->` | Carbonインスタンス | モデルのcreated_atプロパティを取得 |
+| 2 | `->format('Y-m-d H:i:s')` | `->` | 文字列 | Carbonインスタンスのメソッドで日付を文字列に変換 |
+
+> **💡 ポイント**: `created_at`はCarbonインスタンスなので、`->`で`format()`メソッドを呼び出せます。
 
 ---
 
@@ -485,10 +488,11 @@ use App\Http\Resources\TaskResource;
 return TaskResource::collection($tasks);
 ```
 
-| 部分 | 説明 |
-|------|------|
-| `TaskResource::collection()` | 複数のモデルをResourceに変換 |
-| `$tasks` | Taskモデルのコレクション |
+| コード | 演算子 | 戻り値 | 意味 |
+|:---|:---:|:---|:---|
+| `TaskResource::collection($tasks)` | `::` | AnonymousResourceCollection | 複数のモデルをResourceに変換 |
+
+> **💡 Tutorial 7の復習**: `TaskResource::collection()`は静的メソッドなので`::`を使います。インスタンスを作成せずにクラスから直接呼び出しています。
 
 **レスポンス例**:
 
