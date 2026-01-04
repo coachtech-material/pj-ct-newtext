@@ -80,7 +80,7 @@ $ php artisan tinker
 以下のコマンドを実行します。
 
 ```bash
-php artisan make:migration create_tasks_table
+sail artisan make:migration create_tasks_table
 ```
 
 **実行結果**:
@@ -188,7 +188,7 @@ return new class extends Migration
 マイグレーションファイルを作成したら、以下のコマンドを実行して、データベースにテーブルを作成します。
 
 ```bash
-php artisan migrate
+sail artisan migrate
 ```
 
 **実行結果**:
@@ -209,7 +209,7 @@ Migrated:  2024_01_15_123456_create_tasks_table (50.23ms)
 以下のコマンドを実行します。
 
 ```bash
-php artisan make:model Task
+sail artisan make:model Task
 ```
 
 **実行結果**:
@@ -296,7 +296,7 @@ class Task extends Model
 ### 3-1. categoriesテーブルのマイグレーションを作成する
 
 ```bash
-php artisan make:migration create_categories_table
+sail artisan make:migration create_categories_table
 ```
 
 ---
@@ -335,7 +335,7 @@ return new class extends Migration
 ### 3-3. マイグレーションを実行する
 
 ```bash
-php artisan migrate
+sail artisan migrate
 ```
 
 ---
@@ -343,7 +343,7 @@ php artisan migrate
 ### 3-4. Categoryモデルを作成する
 
 ```bash
-php artisan make:model Category
+sail artisan make:model Category
 ```
 
 ---
@@ -388,7 +388,7 @@ phpMyAdminを開き、テーブルが作成されているか確認しましょ�
 ### 4-2. Tinkerでデータ操作をテストする
 
 ```bash
-php artisan tinker
+sail artisan tinker
 ```
 
 ```php
@@ -441,7 +441,7 @@ Add [title] to fillable property to allow mass assignment on [App\Models\Task].
 以下のコマンドを使うと、マイグレーションとモデルを同時に作成できます。
 
 ```bash
-php artisan make:model Task -m
+sail artisan make:model Task -m
 ```
 
 `-m`オプションを付けると、モデルと一緒にマイグレーションファイルも作成されます。

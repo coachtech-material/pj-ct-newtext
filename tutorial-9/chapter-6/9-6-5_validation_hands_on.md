@@ -24,7 +24,7 @@ Chapter 6で学んだバリデーションを実際に手を動かして確認�
 ## 💡 ヒント
 
 ```bash
-php artisan make:request StoreUserRequest
+sail artisan make:request StoreUserRequest
 ```
 
 ```php
@@ -70,13 +70,13 @@ public function rules()
 ターミナルで以下のコマンドを実行します：
 
 ```bash
-php artisan make:request StoreUserRequest
+sail artisan make:request StoreUserRequest
 ```
 
 **コマンド解説**：
 
 ```bash
-php artisan make:request StoreUserRequest
+sail artisan make:request StoreUserRequest
 ```
 → `StoreUserRequest`フォームリクエストを生成します。`app/Http/Requests/StoreUserRequest.php`が作成されます。
 

@@ -61,7 +61,7 @@ post_tag テーブル（中間テーブル）
 #### postsテーブル
 
 ```bash
-php artisan make:migration create_posts_table
+sail artisan make:migration create_posts_table
 ```
 
 ```php
@@ -81,7 +81,7 @@ public function up()
 #### commentsテーブル
 
 ```bash
-php artisan make:migration create_comments_table
+sail artisan make:migration create_comments_table
 ```
 
 ```php
@@ -100,7 +100,7 @@ public function up()
 #### tagsテーブル
 
 ```bash
-php artisan make:migration create_tags_table
+sail artisan make:migration create_tags_table
 ```
 
 ```php
@@ -117,7 +117,7 @@ public function up()
 #### post_tagテーブル
 
 ```bash
-php artisan make:migration create_post_tag_table
+sail artisan make:migration create_post_tag_table
 ```
 
 ```php

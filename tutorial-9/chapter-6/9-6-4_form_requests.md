@@ -44,7 +44,7 @@ Laravelでは、**フォームリクエスト**を使うことで、バリデー
 #### ステップ1: フォームリクエストを生成
 
 ```bash
-php artisan make:request StorePostRequest
+sail artisan make:request StorePostRequest
 ```
 
 **`app/Http/Requests/StorePostRequest.php`**
@@ -175,7 +175,7 @@ public function attributes()
 #### フォームリクエスト
 
 ```bash
-php artisan make:request RegisterRequest
+sail artisan make:request RegisterRequest
 ```
 
 **`app/Http/Requests/RegisterRequest.php`**
@@ -250,7 +250,7 @@ public function register(RegisterRequest $request)
 #### フォームリクエスト
 
 ```bash
-php artisan make:request UpdatePostRequest
+sail artisan make:request UpdatePostRequest
 ```
 
 **`app/Http/Requests/UpdatePostRequest.php`**

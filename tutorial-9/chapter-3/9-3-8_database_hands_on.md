@@ -37,8 +37,8 @@ Chapter 3で学んだLaravelのデータベース操作を実際に手を動か�
 ## 💡 ヒント
 
 ```bash
-php artisan make:migration create_products_table
-php artisan make:seeder ProductSeeder
+sail artisan make:migration create_products_table
+sail artisan make:seeder ProductSeeder
 ```
 
 ```php
@@ -84,13 +84,13 @@ Laravelのデータベース操作のポイントは「マイグレーション�
 ターミナルで以下のコマンドを実行します：
 
 ```bash
-php artisan make:migration create_products_table
+sail artisan make:migration create_products_table
 ```
 
 **コマンド解説**：
 
 ```bash
-php artisan make:migration create_products_table
+sail artisan make:migration create_products_table
 ```
 → `create_products_table`という名前のマイグレーションファイルを生成します。`database/migrations/`ディレクトリにファイルが作成されます。
 
@@ -146,13 +146,13 @@ $table->timestamps();
 ターミナルで以下のコマンドを実行します：
 
 ```bash
-php artisan migrate
+sail artisan migrate
 ```
 
 **コマンド解説**：
 
 ```bash
-php artisan migrate
+sail artisan migrate
 ```
 → 未実行のマイグレーションをすべて実行して、テーブルを作成します。`products`テーブルがデータベースに作成されます。
 
@@ -168,7 +168,7 @@ php artisan migrate
 ターミナルで以下のコマンドを実行します：
 
 ```bash
-php artisan make:seeder ProductSeeder
+sail artisan make:seeder ProductSeeder
 ```
 
 `database/seeders/ProductSeeder.php`を開いて、`run`メソッドを以下のように編集します：
@@ -201,7 +201,7 @@ DB::table('products')->insert([
 シーダーを実行します：
 
 ```bash
-php artisan db:seed --class=ProductSeeder
+sail artisan db:seed --class=ProductSeeder
 ```
 
 ---
@@ -216,7 +216,7 @@ php artisan db:seed --class=ProductSeeder
 `ProductController`を作成します：
 
 ```bash
-php artisan make:controller ProductController
+sail artisan make:controller ProductController
 ```
 
 `app/Http/Controllers/ProductController.php`を開いて、以下のように編集します：

@@ -21,7 +21,7 @@ Chapter 9で学んだ認可機能を実際に手を動かして確認します�
 ## 💡 ヒント
 
 ```bash
-php artisan make:policy PostPolicy --model=Post
+sail artisan make:policy PostPolicy --model=Post
 ```
 
 ```php
@@ -66,13 +66,13 @@ $this->authorize('update', $post);
 ターミナルで以下のコマンドを実行します：
 
 ```bash
-php artisan make:policy PostPolicy --model=Post
+sail artisan make:policy PostPolicy --model=Post
 ```
 
 **コマンド解説**：
 
 ```bash
-php artisan make:policy PostPolicy --model=Post
+sail artisan make:policy PostPolicy --model=Post
 ```
 → `PostPolicy`ポリシーを生成します。`--model=Post`でPostモデルと紐付け、基本的なメソッドが自動生成されます。`app/Policies/PostPolicy.php`が作成されます。
 

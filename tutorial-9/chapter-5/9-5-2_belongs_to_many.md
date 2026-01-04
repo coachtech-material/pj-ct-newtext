@@ -78,7 +78,7 @@ role_user テーブル（中間テーブル）
 #### ステップ1: rolesテーブルを作成
 
 ```bash
-php artisan make:migration create_roles_table
+sail artisan make:migration create_roles_table
 ```
 
 **マイグレーションファイル**
@@ -97,7 +97,7 @@ public function up()
 #### ステップ2: 中間テーブルを作成
 
 ```bash
-php artisan make:migration create_role_user_table
+sail artisan make:migration create_role_user_table
 ```
 
 **マイグレーションファイル**
@@ -332,8 +332,8 @@ foreach ($user->roles as $role) {
 #### マイグレーション
 
 ```bash
-php artisan make:migration create_tags_table
-php artisan make:migration create_post_tag_table
+sail artisan make:migration create_tags_table
+sail artisan make:migration create_post_tag_table
 ```
 
 **tagsテーブル**

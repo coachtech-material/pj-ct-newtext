@@ -21,7 +21,7 @@ Chapter 11で学んだテストを実際に手を動かして確認します。�
 ## 💡 ヒント
 
 ```bash
-php artisan make:test TaskTest
+sail artisan make:test TaskTest
 ```
 
 ```php
@@ -71,13 +71,13 @@ public function test_task_can_be_created()
 ターミナルで以下のコマンドを実行します：
 
 ```bash
-php artisan make:test TaskTest
+sail artisan make:test TaskTest
 ```
 
 **コマンド解説**：
 
 ```bash
-php artisan make:test TaskTest
+sail artisan make:test TaskTest
 ```
 → `TaskTest`フィーチャーテストを生成します。`tests/Feature/TaskTest.php`が作成されます。
 
@@ -225,25 +225,25 @@ $response->assertSessionHasErrors('title');
 
 **何を考えているか**：
 - 「全テストがパスすることを確認しよう」
-- 「php artisan testで実行できる」
+- 「sail artisan testで実行できる」
 
 ターミナルで以下のコマンドを実行します：
 
 ```bash
-php artisan test
+sail artisan test
 ```
 
 **コマンド解説**：
 
 ```bash
-php artisan test
+sail artisan test
 ```
 → 全テストを実行します。緑色のチェックマークが表示されればテスト成功です。
 
 特定のテストファイルだけを実行する場合：
 
 ```bash
-php artisan test --filter TaskTest
+sail artisan test --filter TaskTest
 ```
 
 ---
@@ -340,8 +340,8 @@ class TaskTest extends TestCase
 ### テスト実行
 
 ```bash
-php artisan test
-php artisan test --filter TaskTest
+sail artisan test
+sail artisan test --filter TaskTest
 ```
 ---
 

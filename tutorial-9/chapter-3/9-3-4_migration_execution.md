@@ -185,7 +185,7 @@ Migration name .................................................. Batch / Status
 #### 本番環境でのマイグレーション実行
 
 ```bash
-php artisan migrate --force
+sail artisan migrate --force
 ```
 
 本番環境では、`--force`オプションを付けないと、確認プロンプトが表示されます。

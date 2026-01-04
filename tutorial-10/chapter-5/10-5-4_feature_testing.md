@@ -28,7 +28,7 @@
 ### 🔧 ステップ1: テストファイルを作成
 
 ```bash
-php artisan make:test PostTest
+sail artisan make:test PostTest
 ```
 
 **`tests/Feature/PostTest.php`**
@@ -56,7 +56,7 @@ class PostTest extends TestCase
 ### 🔧 ステップ2: テストを実行
 
 ```bash
-php artisan test
+sail artisan test
 ```
 
 ---

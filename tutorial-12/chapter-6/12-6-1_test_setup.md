@@ -150,10 +150,10 @@ abstract class TestCase extends BaseTestCase
 
 ```bash
 # フィーチャーテストを作成
-php artisan make:test TaskTest
+sail artisan make:test TaskTest
 
 # ユニットテストを作成
-php artisan make:test TaskTest --unit
+sail artisan make:test TaskTest --unit
 ```
 
 ---
@@ -204,13 +204,13 @@ class TaskTest extends TestCase
 
 ```bash
 # Laravelのテストコマンド
-php artisan test
+sail artisan test
 
 # PHPUnitを直接実行
 ./vendor/bin/phpunit
 
 # 並列実行で高速化
-php artisan test --parallel
+sail artisan test --parallel
 ```
 
 ---
@@ -220,7 +220,7 @@ php artisan test --parallel
 ### 4-1. ファクトリーを作成する
 
 ```bash
-php artisan make:factory TaskFactory --model=Task
+sail artisan make:factory TaskFactory --model=Task
 ```
 
 ---
@@ -306,7 +306,7 @@ $response->assertViewIs('tasks.index');
 **解答例**:
 
 ```bash
-php artisan make:test TaskTest
+sail artisan make:test TaskTest
 ```
 
 **ファイル**: `tests/Feature/TaskTest.php`

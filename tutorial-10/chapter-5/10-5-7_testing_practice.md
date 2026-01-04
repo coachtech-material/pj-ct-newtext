@@ -27,7 +27,7 @@
 ### 🔧 ステップ1: テストファイルを作成
 
 ```bash
-php artisan make:test PostCrudTest
+sail artisan make:test PostCrudTest
 ```
 
 ---
@@ -303,7 +303,7 @@ public function test_create_post_requires_content()
 ### 🚀 ステップ9: テストを実行
 
 ```bash
-php artisan test
+sail artisan test
 ```
 
 **実行結果**

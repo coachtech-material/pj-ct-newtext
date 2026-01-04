@@ -404,7 +404,7 @@ public function changePassword(Request $request)
 Laravelは、パスワードリセット機能を標準で提供しています。
 
 ```bash
-php artisan make:migration create_password_resets_table
+sail artisan make:migration create_password_resets_table
 ```
 
 ---

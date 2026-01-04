@@ -395,8 +395,8 @@ $sessionId = session()->getId();
 #### databaseドライバーの設定
 
 ```bash
-php artisan session:table
-php artisan migrate
+sail artisan session:table
+sail artisan migrate
 ```
 
 **config/session.php**

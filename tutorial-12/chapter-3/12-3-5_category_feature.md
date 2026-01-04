@@ -65,7 +65,7 @@
 カテゴリーテーブルを作成します。
 
 ```bash
-php artisan make:model Category -m
+sail artisan make:model Category -m
 ```
 
 **ファイル**: `database/migrations/xxxx_xx_xx_create_categories_table.php`
@@ -102,7 +102,7 @@ return new class extends Migration
 すでに`category_id`カラムがある場合はスキップしてください。
 
 ```bash
-php artisan make:migration add_category_id_to_tasks_table
+sail artisan make:migration add_category_id_to_tasks_table
 ```
 
 **ファイル**: `database/migrations/xxxx_xx_xx_add_category_id_to_tasks_table.php`
@@ -138,7 +138,7 @@ return new class extends Migration
 ### 1-3. マイグレーションを実行する
 
 ```bash
-php artisan migrate
+sail artisan migrate
 ```
 
 ---
@@ -209,7 +209,7 @@ class CategorySeeder extends Seeder
 シーダーを実行します。
 
 ```bash
-php artisan db:seed --class=CategorySeeder
+sail artisan db:seed --class=CategorySeeder
 ```
 
 ---
@@ -505,7 +505,7 @@ Undefined variable: categories
 カテゴリーの管理画面を作成すると、ユーザーが自由にカテゴリーを追加・編集・削除できるようになります。
 
 ```bash
-php artisan make:controller CategoryController --resource
+sail artisan make:controller CategoryController --resource
 ```
 
 タスクのCRUDと同じパターンで実装できます。

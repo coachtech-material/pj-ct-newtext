@@ -483,7 +483,7 @@ Route::middleware('auth')->group(function () {
 *   Fortifyはバックエンドの認証処理を提供する
 *   フロントエンド（Bladeファイル）は自由に設計できる
 *   ルートはFortifyが自動的に登録する
-*   `php artisan route:list`でルートを確認できる
+*   `sail artisan route:list`でルートを確認できる
 
 ---
 

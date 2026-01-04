@@ -236,7 +236,7 @@ public function update(Request $request, Task $task)
 ### 3-2. フォームリクエストを作成する
 
 ```bash
-php artisan make:request TaskRequest
+sail artisan make:request TaskRequest
 ```
 
 **ファイル**: `app/Http/Requests/TaskRequest.php`

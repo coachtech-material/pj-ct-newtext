@@ -40,7 +40,7 @@ public function test_add_function()
 ### 🔧 ステップ1: テストファイルを作成
 
 ```bash
-php artisan make:test CalculatorTest --unit
+sail artisan make:test CalculatorTest --unit
 ```
 
 **`tests/Unit/CalculatorTest.php`**
@@ -67,7 +67,7 @@ class CalculatorTest extends TestCase
 ### 🔧 ステップ2: テストを実行
 
 ```bash
-php artisan test
+sail artisan test
 ```
 
 **実行結果**
@@ -327,7 +327,7 @@ public function test_add()
 このセクションでは、単体テストの基礎を学びました。
 
 *   単体テストは、個々の関数やメソッドが正しく動作するかを検証する。
-*   `php artisan test`でテストを実行できる。
+*   `sail artisan test`でテストを実行できる。
 *   アサーションメソッドを使って、期待値と実際の値を比較する。
 *   データプロバイダーを使って、複数のテストケースを効率的に実行できる。
 

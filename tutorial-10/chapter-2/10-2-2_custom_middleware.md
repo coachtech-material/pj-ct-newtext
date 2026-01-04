@@ -21,7 +21,7 @@
 ### 🔧 ステップ1: ミドルウェアを生成
 
 ```bash
-php artisan make:middleware CheckAge
+sail artisan make:middleware CheckAge
 ```
 
 **`app/Http/Middleware/CheckAge.php`**
@@ -92,7 +92,7 @@ Route::middleware('check.age')->group(function () {
 #### ステップ1: ミドルウェアを生成
 
 ```bash
-php artisan make:middleware CheckApiKey
+sail artisan make:middleware CheckApiKey
 ```
 
 #### ステップ2: ミドルウェアを実装
@@ -145,7 +145,7 @@ Route::middleware('api.key')->group(function () {
 #### ステップ1: ミドルウェアを生成
 
 ```bash
-php artisan make:middleware LogRequests
+sail artisan make:middleware LogRequests
 ```
 
 #### ステップ2: ミドルウェアを実装
@@ -192,7 +192,7 @@ class LogRequests
 #### ステップ1: ミドルウェアを生成
 
 ```bash
-php artisan make:middleware CheckRole
+sail artisan make:middleware CheckRole
 ```
 
 #### ステップ2: ミドルウェアを実装
@@ -272,7 +272,7 @@ Route::middleware('role:admin,manage_users')->group(function () {
 #### ステップ1: ミドルウェアを生成
 
 ```bash
-php artisan make:middleware RestrictIp
+sail artisan make:middleware RestrictIp
 ```
 
 #### ステップ2: ミドルウェアを実装
@@ -312,7 +312,7 @@ class RestrictIp
 #### ステップ1: ミドルウェアを生成
 
 ```bash
-php artisan make:middleware CheckMaintenance
+sail artisan make:middleware CheckMaintenance
 ```
 
 #### ステップ2: ミドルウェアを実装
@@ -379,7 +379,7 @@ protected $middlewareGroups = [
 #### ステップ1: ミドルウェアを生成
 
 ```bash
-php artisan make:middleware Cors
+sail artisan make:middleware Cors
 ```
 
 #### ステップ2: ミドルウェアを実装
@@ -452,7 +452,7 @@ Route::middleware('role:admin,manage_users')->group(function () {
 
 このセクションでは、カスタムミドルウェアの作成方法を学びました。
 
-*   `php artisan make:middleware`を使って、ミドルウェアを生成できる。
+*   `sail artisan make:middleware`を使って、ミドルウェアを生成できる。
 *   `handle()`メソッドを実装して、ミドルウェアの処理を定義できる。
 *   `Kernel.php`に登録して、ミドルウェアを使用できるようにする。
 *   パラメータを受け取るミドルウェアを作成できる。

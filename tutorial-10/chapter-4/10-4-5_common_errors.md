@@ -58,7 +58,7 @@ Route::get('/posts', [PostController::class, 'index']);
 **ケース3: ファイルが存在しない**
 
 ```bash
-php artisan make:controller PostController
+sail artisan make:controller PostController
 ```
 
 ---
@@ -227,7 +227,7 @@ SQLSTATE[42S02]: Base table or view not found: 1146 Table 'blog.posts' doesn't e
 #### 対処法
 
 ```bash
-php artisan migrate
+sail artisan migrate
 ```
 
 ---

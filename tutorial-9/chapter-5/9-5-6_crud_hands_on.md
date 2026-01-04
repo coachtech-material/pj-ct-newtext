@@ -43,7 +43,7 @@ Chapter 5で学んだCRUD機能を実際に手を動かして確認します。�
 ## 💡 ヒント
 
 ```bash
-php artisan make:model Task -mcr
+sail artisan make:model Task -mcr
 ```
 
 ```php
@@ -95,13 +95,13 @@ CRUDのポイントは「リソースコントローラーとリソースルー�
 ターミナルで以下のコマンドを実行します：
 
 ```bash
-php artisan make:model Task -mcr
+sail artisan make:model Task -mcr
 ```
 
 **コマンド解説**：
 
 ```bash
-php artisan make:model Task -mcr
+sail artisan make:model Task -mcr
 ```
 → `-m`でマイグレーション、`-c`でコントローラー、`-r`でリソースコントローラーを同時に生成します。一度に必要なファイルが作成されます。
 
@@ -155,7 +155,7 @@ $table->date('due_date')->nullable();
 マイグレーションを実行します：
 
 ```bash
-php artisan migrate
+sail artisan migrate
 ```
 
 ---

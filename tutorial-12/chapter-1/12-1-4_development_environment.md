@@ -80,7 +80,7 @@ composer require laravel/sail --dev
 Sailを初期化します。
 
 ```bash
-php artisan sail:install
+sail artisan sail:install
 ```
 
 以下のサービスを選択します（スペースキーで選択、Enterで決定）。

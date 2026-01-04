@@ -78,23 +78,23 @@ mysql -u root -e "CREATE DATABASE secure_blog"
 - **comments**：コメント情報（content, user_id, post_id）
 
 ```bash
-php artisan make:migration create_posts_table
-php artisan make:migration create_comments_table
+sail artisan make:migration create_posts_table
+sail artisan make:migration create_comments_table
 ```
 
 ### ヒント2：モデルの作成
 
 ```bash
-php artisan make:model Post
-php artisan make:model Comment
+sail artisan make:model Post
+sail artisan make:model Comment
 ```
 
 ### ヒント3：コントローラーの作成
 
 ```bash
-php artisan make:controller AuthController
-php artisan make:controller PostController
-php artisan make:controller CommentController
+sail artisan make:controller AuthController
+sail artisan make:controller PostController
+sail artisan make:controller CommentController
 ```
 
 ### ヒント4：CSRF保護
@@ -222,7 +222,7 @@ return new class extends Migration
 ```
 
 ```bash
-php artisan migrate
+sail artisan migrate
 ```
 
 ---
@@ -801,7 +801,7 @@ Route::middleware('auth')->group(function () {
 ### 1. サーバーを起動
 
 ```bash
-php artisan serve
+sail artisan serve
 ```
 
 ### 2. ブラウザでアクセス

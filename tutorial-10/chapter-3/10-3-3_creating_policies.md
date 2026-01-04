@@ -32,7 +32,7 @@ Laravelでは、**ポリシー（Policy）**を使って、モデルに対する
 ### 🔧 ステップ1: ポリシーを生成
 
 ```bash
-php artisan make:policy PostPolicy --model=Post
+sail artisan make:policy PostPolicy --model=Post
 ```
 
 **`app/Policies/PostPolicy.php`**
@@ -260,7 +260,7 @@ public function viewAny(User $user)
 #### ステップ1: ポリシーを生成
 
 ```bash
-php artisan make:policy CommentPolicy --model=Comment
+sail artisan make:policy CommentPolicy --model=Comment
 ```
 
 #### ステップ2: ポリシーを実装

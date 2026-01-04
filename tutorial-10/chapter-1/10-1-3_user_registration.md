@@ -392,7 +392,7 @@ return User::create([
 *   **Bladeファイル**を作成し、`FortifyServiceProvider`で指定した
 *   **CreateNewUser**アクションクラスで、バリデーションとパスワードのハッシュ化を行う
 *   **コントローラーを自作する必要がない**：Fortifyが内部で処理を行う
-*   **ルートはFortifyが自動的に登録する**：`php artisan route:list`で確認できる
+*   **ルートはFortifyが自動的に登録する**：`sail artisan route:list`で確認できる
 
 次のセクションでは、ログイン・ログアウト機能を実装します。
 

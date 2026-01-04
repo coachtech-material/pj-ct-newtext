@@ -104,7 +104,7 @@ $request->validate([
 #### ステップ1: Ruleクラスを生成
 
 ```bash
-php artisan make:rule Uppercase
+sail artisan make:rule Uppercase
 ```
 
 **`app/Rules/Uppercase.php`**
@@ -154,7 +154,7 @@ $request->validate([
 #### ステップ1: Ruleクラスを生成
 
 ```bash
-php artisan make:rule NoForbiddenWords
+sail artisan make:rule NoForbiddenWords
 ```
 
 **`app/Rules/NoForbiddenWords.php`**
@@ -205,7 +205,7 @@ $request->validate([
 #### ステップ1: Ruleクラスを生成
 
 ```bash
-php artisan make:rule MinWords
+sail artisan make:rule MinWords
 ```
 
 **`app/Rules/MinWords.php`**
@@ -256,7 +256,7 @@ $request->validate([
 #### ステップ1: Ruleクラスを生成
 
 ```bash
-php artisan make:rule UniqueSlug
+sail artisan make:rule UniqueSlug
 ```
 
 **`app/Rules/UniqueSlug.php`**
@@ -319,7 +319,7 @@ $request->validate([
 #### ステップ1: Ruleクラスを生成
 
 ```bash
-php artisan make:rule ValidDateRange
+sail artisan make:rule ValidDateRange
 ```
 
 **`app/Rules/ValidDateRange.php`**

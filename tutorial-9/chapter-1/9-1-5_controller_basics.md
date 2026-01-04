@@ -23,7 +23,7 @@ MVCアーキテクチャにおいて、コントローラーは**「司令塔」
 
 ### 🛠️ コントローラーの生成
 
-コントローラーは、`php artisan make:controller`コマンドで生成します。
+コントローラーは、`sail artisan make:controller`コマンド（`php artisan make:controller`）で生成します。
 
 ```bash
 sail artisan make:controller SampleController
@@ -227,7 +227,7 @@ class ProductController extends Controller
 Route::resource('products', ProductController::class);
 ```
 
-この1行で、上記の7つのルートが全て定義されます。`php artisan route:list`で確認すると、以下のようになります。
+この1行で、上記の7つのルートが全て定義されます。`sail artisan route:list`で確認すると、以下のようになります。
 
 | Method | URI | Name | Action |
 |:---|:---|:---|:---|
@@ -283,7 +283,7 @@ return response()->download($pathToFile);
 このセクションでは、Laravelのコントローラーの基礎を学びました。
 
 *   コントローラーは、MVCアーキテクチャにおいて「司令塔」の役割を果たし、リクエストを受け取り、モデルとビューを橋渡しする。
-*   `php artisan make:controller`コマンドで、コントローラーを生成できる。
+*   `sail artisan make:controller`コマンドで、コントローラーを生成できる。
 *   コントローラーのメソッドは、ルーティングで指定されたときに実行され、ビューやリダイレクトなどのレスポンスを返す。
 *   ルートパラメータは、メソッドの引数として受け取ることができ、ルートモデルバインディングを使うとさらに簡潔に書ける。
 *   `--resource`オプションを使うと、CRUD操作の7つのメソッドを持つリソースコントローラーを一括生成できる。

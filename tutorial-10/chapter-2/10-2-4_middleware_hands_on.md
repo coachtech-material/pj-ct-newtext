@@ -21,7 +21,7 @@ Chapter 8で学んだミドルウェアを実際に手を動かして確認し�
 ## 💡 ヒント
 
 ```bash
-php artisan make:middleware CheckAdmin
+sail artisan make:middleware CheckAdmin
 ```
 
 ```php
@@ -66,13 +66,13 @@ public function handle(Request $request, Closure $next)
 ターミナルで以下のコマンドを実行します：
 
 ```bash
-php artisan make:middleware CheckAdmin
+sail artisan make:middleware CheckAdmin
 ```
 
 **コマンド解説**：
 
 ```bash
-php artisan make:middleware CheckAdmin
+sail artisan make:middleware CheckAdmin
 ```
 → `CheckAdmin`ミドルウェアを生成します。`app/Http/Middleware/CheckAdmin.php`が作成されます。
 
@@ -164,7 +164,7 @@ protected $middlewareAliases = [
 まず、`AdminController`を作成します：
 
 ```bash
-php artisan make:controller AdminController
+sail artisan make:controller AdminController
 ```
 
 `app/Http/Controllers/AdminController.php`を開いて、以下のように編集します：

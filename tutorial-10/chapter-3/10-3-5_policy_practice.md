@@ -28,7 +28,7 @@
 #### マイグレーション
 
 ```bash
-php artisan make:migration add_role_to_users_table
+sail artisan make:migration add_role_to_users_table
 ```
 
 **`database/migrations/xxxx_add_role_to_users_table.php`**
@@ -50,7 +50,7 @@ public function down()
 ```
 
 ```bash
-php artisan migrate
+sail artisan migrate
 ```
 
 ---
@@ -81,7 +81,7 @@ public function isUser()
 ### 🔧 ステップ3: ポリシーを作成
 
 ```bash
-php artisan make:policy PostPolicy --model=Post
+sail artisan make:policy PostPolicy --model=Post
 ```
 
 **`app/Policies/PostPolicy.php`**

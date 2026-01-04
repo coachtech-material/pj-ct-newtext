@@ -393,7 +393,7 @@ Laravelのページネーションは、Bootstrapのスタイルをデフォル�
 #### ページネーションビューを公開
 
 ```bash
-php artisan vendor:publish --tag=laravel-pagination
+sail artisan vendor:publish --tag=laravel-pagination
 ```
 
 `resources/views/vendor/pagination/`に、ページネーションビューが生成されます。これを編集することで、デザインをカスタマイズできます。

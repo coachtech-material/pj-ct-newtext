@@ -117,7 +117,7 @@ public function update(Request $request, Task $task)
 ### 2-1. フォームリクエストを生成する
 
 ```bash
-php artisan make:request TaskRequest
+sail artisan make:request TaskRequest
 ```
 
 ---
@@ -342,7 +342,7 @@ public function store(Request $request)
 **解答例**:
 
 ```bash
-php artisan make:request UserRequest
+sail artisan make:request UserRequest
 ```
 
 **ファイル**: `app/Http/Requests/UserRequest.php`
@@ -436,8 +436,8 @@ $data = $request->validated();
 作成用と更新用で、別々のフォームリクエストを作成することもできます。
 
 ```bash
-php artisan make:request TaskStoreRequest
-php artisan make:request TaskUpdateRequest
+sail artisan make:request TaskStoreRequest
+sail artisan make:request TaskUpdateRequest
 ```
 
 - `TaskStoreRequest`: 作成用（パスワード必須など）

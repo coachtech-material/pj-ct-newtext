@@ -71,7 +71,7 @@ tasks ← task_tag → tags
 ### 1-1. tagsテーブルを作成する
 
 ```bash
-php artisan make:model Tag -m
+sail artisan make:model Tag -m
 ```
 
 **ファイル**: `database/migrations/xxxx_xx_xx_create_tags_table.php`
@@ -108,7 +108,7 @@ return new class extends Migration
 多対多リレーションシップには、**中間テーブル**が必要です。
 
 ```bash
-php artisan make:migration create_task_tag_table
+sail artisan make:migration create_task_tag_table
 ```
 
 **ファイル**: `database/migrations/xxxx_xx_xx_create_task_tag_table.php`
@@ -165,7 +165,7 @@ return new class extends Migration
 ### 1-4. マイグレーションを実行する
 
 ```bash
-php artisan migrate
+sail artisan migrate
 ```
 
 ---
@@ -206,7 +206,7 @@ class TagSeeder extends Seeder
 シーダーを実行します。
 
 ```bash
-php artisan db:seed --class=TagSeeder
+sail artisan db:seed --class=TagSeeder
 ```
 
 ---

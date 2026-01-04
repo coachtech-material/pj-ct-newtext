@@ -65,7 +65,7 @@ Policyで定義した認可ロジックが**正しく動作する**ことを確�
 ### 1-1. ポリシーを生成する
 
 ```bash
-php artisan make:policy TaskPolicy --model=Task
+sail artisan make:policy TaskPolicy --model=Task
 ```
 
 ---
@@ -289,7 +289,7 @@ public function test_他人のタスクを削除できない()
 ### 4-1. ユニットテストを作成する
 
 ```bash
-php artisan make:test TaskPolicyTest --unit
+sail artisan make:test TaskPolicyTest --unit
 ```
 
 ---

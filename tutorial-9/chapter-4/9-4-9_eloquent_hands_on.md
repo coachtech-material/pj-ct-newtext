@@ -42,7 +42,7 @@ Chapter 4で学んだEloquent ORMを実際に手を動かして確認します�
 ## 💡 ヒント
 
 ```bash
-php artisan make:model Post -m
+sail artisan make:model Post -m
 ```
 
 ```php
@@ -101,13 +101,13 @@ Eloquentのポイントは「モデルを中心に、オブジェクト指向で
 ターミナルで以下のコマンドを実行します：
 
 ```bash
-php artisan make:model Post -m
+sail artisan make:model Post -m
 ```
 
 **コマンド解説**：
 
 ```bash
-php artisan make:model Post -m
+sail artisan make:model Post -m
 ```
 → `Post`モデルとマイグレーションファイルを同時に生成します。`-m`オプションでマイグレーションも作成されます。
 
@@ -157,7 +157,7 @@ $table->dateTime('published_at')->nullable();
 マイグレーションを実行します：
 
 ```bash
-php artisan migrate
+sail artisan migrate
 ```
 
 ---
@@ -237,7 +237,7 @@ public function user()
 `PostController`を作成します：
 
 ```bash
-php artisan make:controller PostController
+sail artisan make:controller PostController
 ```
 
 `app/Http/Controllers/PostController.php`を開いて、以下のように編集します：

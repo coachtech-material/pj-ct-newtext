@@ -2,7 +2,7 @@
 
 ## 🎯 このセクションで学ぶこと
 
-*   `php artisan make:migration`コマンドを使って、マイグレーションファイルを生成できるようになる。
+*   `sail artisan make:migration`コマンド（`php artisan make:migration`）を使って、マイグレーションファイルを生成できるようになる。
 *   `Blueprint`クラスを使って、様々なカラム型を定義できるようになる。
 *   外部キー制約、インデックス、ユニーク制約などを設定できるようになる。
 
@@ -20,7 +20,7 @@
 
 ### 🛠️ マイグレーションファイルの生成
 
-マイグレーションファイルは、`php artisan make:migration`コマンドで生成します。
+マイグレーションファイルは、`sail artisan make:migration`コマンドで生成します。
 
 ```bash
 sail artisan make:migration create_posts_table
@@ -286,7 +286,7 @@ sail artisan migrate
 
 このセクションでは、マイグレーションファイルの作成方法を学びました。
 
-*   `php artisan make:migration`コマンドで、マイグレーションファイルを生成できる。
+*   `sail artisan make:migration`コマンドで、マイグレーションファイルを生成できる。
 *   `Blueprint`クラスを使って、様々なカラム型（`string`, `text`, `integer`, `boolean`, `timestamp`など）を定義できる。
 *   `->nullable()`, `->default()`, `->unique()`などの修飾子を使って、カラムの制約を設定できる。
 *   `foreignId()->constrained()`を使って、外部キー制約を設定できる。
