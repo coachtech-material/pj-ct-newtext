@@ -104,6 +104,7 @@ class TaskResource extends JsonResource
             'description' => $this->description,
             'status' => $this->status,
             'due_date' => $this->due_date?->format('Y-m-d'),
+            'category_id' => $this->category_id,
             'created_at' => $this->created_at->format('Y-m-d H:i:s'),
             'updated_at' => $this->updated_at->format('Y-m-d H:i:s'),
         ];
@@ -113,12 +114,30 @@ class TaskResource extends JsonResource
 
 ---
 
-### 1-4. コードリーディング
+### 1-4. 各フィールドの説明
+
+| フィールド | 説明 |
+|--------|------|
+| `id` | タスクの一意の識別子 |
+| `title` | タスクのタイトル |
+| `description` | タスクの詳細説明（nullの場合あり） |
+| `status` | タスクの状態（pending, in_progress, completed） |
+| `due_date` | 締切日（Y-m-d形式でフォーマット） |
+| `category_id` | カテゴリーID（タスクの分類に使用） |
+| `created_at` | 作成日時（Y-m-d H:i:s形式） |
+| `updated_at` | 更新日時（Y-m-d H:i:s形式） |
+
+---
+
+### 1-5. コードリーディング
 
 | コード | 説明 |
 |--------|------|
 | `$this->id` | Taskモデルのインスタンスからidを取得 |
 | `$this->due_date?->format('Y-m-d')` | Null Safe Operator（nullの場合はnullを返す） |
+| `$this->category_id` | カテゴリーIDをそのまま取得 |
+
+> 💡 **ポイント**: `$this`はリソースに渡されたTaskモデルのインスタンスを指します。モデルのプロパティに直接アクセスできます。
 
 ---
 
@@ -224,10 +243,13 @@ class TaskController extends Controller
 
 ### 2-2. 使い分け
 
-| 用途 | コード |
-|------|--------|
-| 単一のタスク | `return new TaskResource($task);` |
-| 複数のタスク | `return TaskResource::collection($tasks);` |
+| 用途 | コード | 説明 |
+|------|--------|------|
+| 単一のタスク | `return new TaskResource($task);` | 1件のタスクを返す |
+| 複数のタスク | `return TaskResource::collection($tasks);` | シンプルなコレクション |
+| 複数のタスク（カスタム） | `return new TaskCollection($tasks);` | メタ情報を含むコレクション |
+
+> 💡 **ポイント**: `TaskCollection`を使う場合は、先に`sail artisan make:resource TaskCollection`でコレクションクラスを作成しておく必要があります。
 
 ---
 
@@ -365,6 +387,8 @@ public function toArray(Request $request): array
 
 ### 3-4. リソースコレクションのカスタマイズ
 
+複数のタスクを返す際に、メタ情報（合計件数など）を含めたい場合は、リソースコレクションを使います。
+
 ```bash
 sail artisan make:resource TaskCollection
 ```
@@ -394,6 +418,50 @@ class TaskCollection extends ResourceCollection
     }
 }
 ```
+
+---
+
+### 3-5. コントローラーでのTaskCollectionの使い方
+
+**ファイル**: `app/Http/Controllers/Api/TaskController.php`
+
+```php
+use App\Http\Resources\TaskCollection;
+
+public function index()
+{
+    $tasks = Task::where('user_id', Auth::id())->get();
+
+    // TaskCollectionを使ってメタ情報を含めて返す
+    return new TaskCollection($tasks);
+}
+```
+
+**レスポンス例**:
+
+```json
+{
+  "data": [
+    {
+      "id": 1,
+      "title": "タスク1",
+      "status": "pending"
+    },
+    {
+      "id": 2,
+      "title": "タスク2",
+      "status": "completed"
+    }
+  ],
+  "meta": {
+    "total": 2,
+    "pending_count": 1,
+    "completed_count": 1
+  }
+}
+```
+
+> 💡 **ポイント**: `TaskResource::collection($tasks)`と`new TaskCollection($tasks)`の違いは、後者はカスタムの`toArray()`メソッドでメタ情報を追加できる点です。
 
 ---
 
