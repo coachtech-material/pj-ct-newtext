@@ -133,6 +133,64 @@ public function update(Request $request, string $id): JsonResponse
 
 ---
 
+### 1-4. 認証の前提条件
+
+`Auth::id()`を使うためには、**ユーザーが認証されている必要**があります。
+
+Tutorial 13-2-4で設定した以下の2つが必要です。
+
+---
+
+#### 前提⚠️①: APIルートに認証ミドルウェアを適用
+
+**ファイル**: `routes/api.php`
+
+```php
+Route::middleware('auth:sanctum')->group(function () {
+    Route::apiResource('tasks', TaskController::class);
+});
+```
+
+---
+
+#### 前提⚠️②: Bearerトークンを発行する
+
+APIリクエストには、**Bearerトークン**をヘッダーに添える必要があります。
+
+**トークンの発行手順**:
+
+```bash
+sail artisan tinker
+```
+
+`tinker`内で以下を実行します。
+
+```php
+$user = App\Models\User::first();
+$token = $user->createToken('test-token')->plainTextToken;
+echo $token;
+```
+
+表示されたトークンをコピーしておきます。
+
+---
+
+#### Thunder Clientでトークンを設定する
+
+1. Thunder Clientで新しいリクエストを作成
+2. **Auth**タブをクリック
+3. **Type**で`Bearer`を選択
+4. **Token**欄に発行したトークンを貼り付け
+
+| 設定項目 | 値 |
+|----------|------|
+| Type | Bearer |
+| Token | 発行したトークン |
+
+> 💡 **ポイント**: Tutorial 13-2-4で発行したトークンをそのまま使えます。
+
+---
+
 ## Step 2: HTTPステータスコード
 
 ### 2-1. 200 OK
@@ -250,10 +308,13 @@ public function update(Request $request, string $id): JsonResponse
 
 ### 3-4. Thunder Clientでテスト
 
+> 📌 **前提**: 1-4で設定した認証ミドルウェアとトークンが必要です。AuthタブでBearerトークンを設定してください。
+
 **1. 成功する場合**
 
 - メソッド: `PUT`
-- URL: `http://localhost:8000/api/tasks/1`
+- URL: `http://localhost/api/tasks/1`
+- Auth: Bearerトークンを設定
 - Body（JSON）:
 
 ```json
@@ -269,13 +330,15 @@ public function update(Request $request, string $id): JsonResponse
 **2. タスクが見つからない場合**
 
 - メソッド: `PUT`
-- URL: `http://localhost:8000/api/tasks/9999`
+- URL: `http://localhost/api/tasks/9999`
+- Auth: Bearerトークンを設定
 - 期待: ステータスコード `404 Not Found`
 
 **3. バリデーションエラーが発生する場合**
 
 - メソッド: `PUT`
-- URL: `http://localhost:8000/api/tasks/1`
+- URL: `http://localhost/api/tasks/1`
+- Auth: Bearerトークンを設定
 - Body（JSON）:
 
 ```json
