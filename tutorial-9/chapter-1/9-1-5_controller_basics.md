@@ -52,9 +52,20 @@ class SampleController extends Controller
 
 **コードリーディング**
 
-*   `namespace App\Http\Controllers;`: このクラスが`App\Http\Controllers`という名前空間に属することを示します。
-*   `use Illuminate\Http\Request;`: `Request`クラスをインポートします。これは、HTTPリクエストの情報を扱うためのクラスです。
-*   `class SampleController extends Controller`: `SampleController`クラスを定義し、`Controller`クラスを継承します。
+| コード | 説明 |
+|:---|:---|
+| `namespace App\Http\Controllers;` | このクラスが属する「住所」のようなもの。Laravelのコントローラーはこの名前空間に配置されます。 |
+| `use Illuminate\Http\Request;` | `Request`クラスをインポート（使えるように準備）します。HTTPリクエストの情報を扱うためのクラスです。 |
+| `class SampleController extends Controller` | `SampleController`クラスを定義し、`Controller`クラスを継承します。 |
+
+> **📌 初学者向け用語解説**
+> 
+> | 用語 | 意味 | 例え |
+> |:---|:---|:---|
+> | **namespace（名前空間）** | クラスの「住所」。同じ名前のクラスがあっても、住所が違えば区別できる | 「東京都の田中さん」と「大阪府の田中さん」は別人 |
+> | **use** | 他の場所にあるクラスを「使えるようにする」宣言 | 「このファイルでRequestクラスを使います」 |
+> | **extends（継承）** | 親クラスの機能を引き継ぐこと | 「動物」クラスを継承した「犬」クラスは、動物の機能を持つ |
+> | **class** | 設計図のようなもの。データと処理をまとめたもの | 「車」クラスには「走る」「止まる」などの機能がある |
 
 現時点では、クラスの中身は空です。ここに、メソッドを追加していきます。
 
@@ -65,6 +76,18 @@ class SampleController extends Controller
 ### 📝 メソッドの追加
 
 コントローラーのメソッドは、ルーティングで指定されたときに実行されます。例えば、ユーザー一覧を表示する`index`メソッドを追加してみましょう。
+
+> **📌 publicとは？**
+> 
+> `public`はメソッドの「可視性」を表します。`public`は「外部から呼び出せる」という意味です。
+> 
+> | 可視性 | 意味 |
+> |:---|:---|
+> | `public` | どこからでも呼び出せる（ルーティングから呼ばれるメソッドはこれ） |
+> | `private` | 同じクラス内からのみ呼び出せる |
+> | `protected` | 同じクラスと子クラスから呼び出せる |
+> 
+> コントローラーのメソッドは、ルーティングから呼び出されるため、**必ず`public`にする必要があります**。
 
 ```php
 <?php
@@ -92,6 +115,21 @@ class UserController extends Controller
 *   `public function index()`: `index`メソッドを定義します。このメソッドは、ルーティングで`[UserController::class, 'index']`と指定されたときに実行されます。
 *   `User::all()`: `User`モデルの`all()`メソッドを呼び出し、データベースから全てのユーザーを取得します。
 *   `return view('users.index', compact('users'));`: `resources/views/users/index.blade.php`というビューを読み込み、`$users`変数をビューに渡します。
+
+> **📌 compact()関数とは？**
+> 
+> `compact()`はPHPの組み込み関数で、**変数名をキー、変数の値を値とする配列**を作成します。
+> 
+> ```php
+> $users = User::all();
+> 
+> // compact()を使う場合
+> return view('users.index', compact('users'));
+> // ↑ これは以下と同じ意味 ↓
+> return view('users.index', ['users' => $users]);
+> ```
+> 
+> 変数名とキー名が同じ場合は`compact()`を使うと短く書けます。
 
 ### 🔢 ルートパラメータの受け取り
 
@@ -357,9 +395,27 @@ Route::resource('products', ProductController::class)->except(['destroy']);
 
 #### 1. ビューを返す
 
+`view()`ヘルパーの第2引数で、ビューにデータを渡すことができます。
+
 ```php
+// 方法1: 配列で渡す
+$users = User::all();
+return view('users.index', ['users' => $users]);
+
+// 方法2: compact()で渡す（変数名とキー名が同じ場合）
+$users = User::all();
 return view('users.index', compact('users'));
+
+// 方法3: 複数の変数を渡す
+$users = User::all();
+$title = 'ユーザー一覧';
+return view('users.index', compact('users', 'title'));
 ```
+
+| 書き方 | 特徴 |
+|:---|:---|
+| `['users' => $users]` | キー名と変数名を自由に指定できる |
+| `compact('users')` | 変数名とキー名が同じ場合に短く書ける |
 
 #### 2. 文字列を返す
 
@@ -399,6 +455,6 @@ return response()->download($pathToFile);
 *   `--resource`オプションを使うと、CRUD操作の7つのメソッドを持つリソースコントローラーを一括生成できる。
 *   `Route::resource()`を使うと、リソースコントローラーのルートを一括定義できる。
 
-これで、Tutorial 9のChapter 1「Laravelの基礎」が完了しました。次のChapter 2では、ビューとテンプレートエンジンであるBladeについて学んでいきます。
+次のセクションでは、リクエストとレスポンスについて学び、「ユーザーの入力を受け取って処理する流れ」を体験します。
 
 ---

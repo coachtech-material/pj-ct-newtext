@@ -468,6 +468,6 @@ Route::get('/profile', [ProfileController::class, 'index']);
 | ビューへのデータ渡し | `view('profile', $data)`でデータを渡す |
 | Bladeでのデータ表示 | `{{ $変数 }}`や`@foreach`でデータを表示 |
 
-引き続き、次のChapterも頑張りましょう！
+これで、Tutorial 9のChapter 1「Laravelの基礎」が完了しました。次のChapter 2では、ビューとテンプレートエンジンであるBladeについて学んでいきます。引き続き頑張りましょう！
 
 ---
