@@ -144,6 +144,8 @@ docker run --rm \
 > 
 > ブラウザで `http://localhost` にアクセスして、Laravelのウェルカムページが表示されれば成功です。
 
+> 💡 **ポイント**: このハンズオンでは、シーダーを作成してデータを投入します。実践セクションの「ステップ3」でシーダーの作成方法を学びます。
+
 **ここから先は、自分の力で実装してみましょう！**
 
 ---
@@ -391,16 +393,28 @@ DB::table('products')->insert([
 ['name' => 'ノートPC', 'price' => 120000, 'stock' => 10, 'category' => '電子機器', 'created_at' => now(), 'updated_at' => now()],
 ```
 → 各商品のデータを連想配列で定義します。`now()`で現在のタイムスタンプを取得します。
-
 シーダーを実行します：
 
 ```bash
 sail artisan db:seed --class=ProductSeeder
 ```
 
+**データが投入されたか確認しましょう**：
+
+```bash
+sail artisan tinker
+```
+
+```php
+>>> use Illuminate\Support\Facades\DB;
+>>> DB::table('products')->get();
+```
+
+5件の商品データが表示されれば成功です。`exit`でtinkerを終了します。
+
 ---
 
-#### ステップ4: クエリビルダでデータを取得する
+#### ステップ4: クエリビルダーでデータを取得する
 
 **何を考えているか**：
 - 「全商品を取得して表示したい」

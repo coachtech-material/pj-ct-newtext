@@ -136,6 +136,32 @@ docker run --rm \
 ./vendor/bin/sail artisan migrate
 ```
 
+**📦 テストユーザーの作成**
+
+投稿を作成するにはユーザーが必要です。`tinker`を使ってテストユーザーを作成します：
+
+```bash
+# tinkerを起動
+sail artisan tinker
+```
+
+```php
+# tinker内で実行
+App\Models\User::create([
+    'name' => 'テストユーザー',
+    'email' => 'test@example.com',
+    'password' => bcrypt('password'),
+]);
+
+# 作成されたユーザーを確認
+App\Models\User::first();
+
+# tinkerを終了
+exit
+```
+
+> 💡 **ポイント**: このユーザーのIDは`1`になります。後で投稿を作成する際に`user_id = 1`として使用します。
+
 **✅ ディレクトリ構造の確認**
 
 ```
@@ -255,6 +281,32 @@ docker run --rm \
 # データベースのマイグレーション
 ./vendor/bin/sail artisan migrate
 ```
+
+**📦 テストユーザーの作成**
+
+投稿を作成するにはユーザーが必要です。`tinker`を使ってテストユーザーを作成します：
+
+```bash
+# tinkerを起動
+sail artisan tinker
+```
+
+```php
+# tinker内で実行
+App\Models\User::create([
+    'name' => 'テストユーザー',
+    'email' => 'test@example.com',
+    'password' => bcrypt('password'),
+]);
+
+# 作成されたユーザーを確認
+App\Models\User::first();
+
+# tinkerを終了
+exit
+```
+
+> 💡 **ポイント**: このユーザーのIDは`1`になります。後で投稿を作成する際に`user_id = 1`として使用します。
 
 **✅ ディレクトリ構造の確認**
 

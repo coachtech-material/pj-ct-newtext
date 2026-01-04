@@ -2,7 +2,7 @@
 
 ## 📝 このセクションの目的
 
-Chapter 5で学んだテストを実際に手を動かして確認します。フィーチャーテストを作成して、アプリケーションの動作を検証しましょう。
+Chapter 5で学んだテストを実際に手を動かして確認します。Laravelに最初から用意されている機能を使って、シンプルなテストを作成しましょう。
 
 > 分からない文法や実装があっても、すぐに答えを見るのではなく、過去の教材を見たり、AIにヒントをもらいながら進めるなど、自身で創意工夫しながら進めてみましょう🔥
 
@@ -16,19 +16,13 @@ Chapter 5で学んだテストを実際に手を動かして確認します。�
 ~/laravel-practice/
 ├── 10-5-8_hands-on/                      ← このハンズオン用のディレクトリ
 │   ├── testing-app-practice/             ← 要件を見て自分で作成するプロジェクト
-│   │   ├── app/
-│   │   │   ├── Http/Controllers/
-│   │   │   └── Models/
 │   │   └── tests/
 │   │       └── Feature/
-│   │           └── TaskTest.php
+│   │           └── UserTest.php
 │   └── testing-app-sample/               ← 実践で一緒に作成するプロジェクト
-│       ├── app/
-│       │   ├── Http/Controllers/
-│       │   └── Models/
 │       └── tests/
 │           └── Feature/
-│               └── TaskTest.php
+│               └── UserTest.php
 └── ...
 ```
 
@@ -43,13 +37,17 @@ Chapter 5で学んだテストを実際に手を動かして確認します。�
 
 ---
 
-## 🎯 演習課題：タスク作成機能のテスト
+## 🎯 演習課題：ユーザー作成機能のテスト
 
 ### 📋 要件
 
-1. `TaskTest`を作成
-2. タスク作成のテストを実装
-3. バリデーションのテストを実装
+このハンズオンでは、**Laravelに最初から用意されているUserモデル**を使ってテストを作成します。
+
+1. `UserTest`を作成
+2. ユーザーがデータベースに保存されることをテスト
+3. メールアドレスの重複チェックをテスト
+
+> 💡 **ポイント**: Laravelプロジェクトには最初から`User`モデルと`users`テーブルのマイグレーションが用意されています。新しくモデルやコントローラーを作成する必要はありません。
 
 ---
 
@@ -126,8 +124,11 @@ docker run --rm \
 └── 10-5-8_hands-on/
     └── testing-app-practice/     ← 自分で作成する用（今ここ）
         ├── app/
-        │   ├── Http/Controllers/
         │   └── Models/
+        │       └── User.php      ← 最初から用意されている
+        ├── database/
+        │   └── migrations/
+        │       └── ..._create_users_table.php  ← 最初から用意されている
         └── tests/
             └── Feature/
 ```
@@ -142,30 +143,51 @@ docker run --rm \
 
 ## 💡 ヒント
 
+### ヒント1: テストファイルの作成
+
 ```bash
-sail artisan make:test TaskTest
+sail artisan make:test UserTest
 ```
 
+### ヒント2: RefreshDatabaseトレイト
+
+テストごとにデータベースをリセットするには、`RefreshDatabase`トレイトを使います。
+
 ```php
-public function test_task_can_be_created()
+use Illuminate\Foundation\Testing\RefreshDatabase;
+
+class UserTest extends TestCase
 {
-    $response = $this->post('/tasks', [
-        'title' => 'テストタスク',
-        'description' => 'テスト説明',
-    ]);
-    
-    $response->assertStatus(302);
-    $this->assertDatabaseHas('tasks', [
-        'title' => 'テストタスク',
-    ]);
+    use RefreshDatabase;
 }
+```
+
+### ヒント3: ユーザーの作成
+
+`User::factory()->create()`でテスト用ユーザーを作成できます。
+
+```php
+$user = User::factory()->create([
+    'name' => 'テストユーザー',
+    'email' => 'test@example.com',
+]);
+```
+
+### ヒント4: データベースの確認
+
+`assertDatabaseHas()`でデータベースにデータが存在することを確認できます。
+
+```php
+$this->assertDatabaseHas('users', [
+    'email' => 'test@example.com',
+]);
 ```
 
 ---
 
 ## 🏃 実践: 一緒に作ってみましょう！
 
-ちゃんとできましたか？テストはアプリケーションの品質を保つために不可欠です。一緒に手を動かしながら、タスク作成機能のテストを実装していきましょう。
+ちゃんとできましたか？テストはアプリケーションの品質を保つために不可欠です。一緒に手を動かしながら、ユーザー作成機能のテストを実装していきましょう。
 
 > 📌 **注意**: ここからは`testing-app-sample/`ディレクトリで作業します。自分で作成したコードと比較できるように、別のプロジェクトで進めましょう。
 
@@ -239,8 +261,8 @@ docker run --rm \
     ├── testing-app-practice/     ← 自分で作成した用（停止中）
     └── testing-app-sample/       ← 実践用（今ここ、起動中）
         ├── app/
-        │   ├── Http/Controllers/
         │   └── Models/
+        │       └── User.php
         └── tests/
             └── Feature/
 ```
@@ -258,7 +280,7 @@ docker run --rm \
 1. **テストクラスを作成**：Artisanコマンドで生成
 2. **RefreshDatabaseを使用**：テスト用データベースをリセット
 3. **正常系テストを実装**：機能が正しく動作することを確認
-4. **異常系テストを実装**：バリデーションエラーをテスト
+4. **異常系テストを実装**：エラーケースをテスト
 5. **テストを実行**：全テストがパスすることを確認
 
 テストのポイントは「正常系と異常系の両方をテストし、アプリケーションの品質を保つ」ことです。
@@ -270,22 +292,24 @@ docker run --rm \
 #### ステップ1: テストクラスを作成する
 
 **何を考えているか**：
-- 「タスク機能をテストするクラスが必要だ」
-- 「TaskTestという名前にしよう」
+- 「ユーザー機能をテストするクラスが必要だ」
+- 「UserTestという名前にしよう」
 - 「Artisanコマンドで簡単に生成できる」
 
 ターミナルで以下のコマンドを実行します：
 
 ```bash
-sail artisan make:test TaskTest
+sail artisan make:test UserTest
 ```
 
 **コマンド解説**：
 
-```bash
-sail artisan make:test TaskTest
-```
-→ `TaskTest`フィーチャーテストを生成します。`tests/Feature/TaskTest.php`が作成されます。
+| 部分 | 説明 |
+|------|------|
+| `make:test` | テストファイルを作成 |
+| `UserTest` | テストクラス名 |
+
+→ `tests/Feature/UserTest.php`が作成されます。
 
 ---
 
@@ -296,19 +320,18 @@ sail artisan make:test TaskTest
 - 「RefreshDatabaseトレイトで簡単に実現できる」
 - 「テスト間の干渉を防ぐ」
 
-`tests/Feature/TaskTest.php`を開いて、以下のように編集します：
+`tests/Feature/UserTest.php`を開いて、以下のように編集します：
 
 ```php
 <?php
 
 namespace Tests\Feature;
 
-use App\Models\Task;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
-class TaskTest extends TestCase
+class UserTest extends TestCase
 {
     use RefreshDatabase;
 }
@@ -316,114 +339,85 @@ class TaskTest extends TestCase
 
 **コード解説**：
 
-```php
-use Illuminate\Foundation\Testing\RefreshDatabase;
-```
-→ `RefreshDatabase`トレイトをインポートします。
-
-```php
-use RefreshDatabase;
-```
-→ `RefreshDatabase`トレイトを使用します。各テストの前にデータベースがリセットされ、テスト間の干渉を防ぎます。
+| 行 | コード | 説明 |
+|:---|:---|:---|
+| 1 | `use App\Models\User;` | Userモデルをインポート |
+| 2 | `use Illuminate\Foundation\Testing\RefreshDatabase;` | RefreshDatabaseトレイトをインポート |
+| 3 | `use RefreshDatabase;` | 各テストの前にデータベースをリセット |
 
 ---
 
 #### ステップ3: 正常系テストを実装する
 
 **何を考えているか**：
-- 「タスクが正しく作成されることをテストしよう」
-- 「テストユーザーを作成して認証しよう」
-- 「データベースにデータが保存されることを確認しよう」
+- 「ユーザーがデータベースに保存されることをテストしよう」
+- 「User::factory()でテストユーザーを作成しよう」
+- 「assertDatabaseHas()でデータベースを確認しよう」
 
 テストメソッドを追加します：
 
 ```php
-public function test_task_can_be_created()
+public function test_user_can_be_created()
 {
-    $user = User::factory()->create();
-    
-    $response = $this->actingAs($user)->post('/tasks', [
-        'title' => 'テストタスク',
-        'description' => 'テスト説明',
-        'status' => 'pending',
+    // ユーザーを作成
+    $user = User::factory()->create([
+        'name' => 'テストユーザー',
+        'email' => 'test@example.com',
     ]);
     
-    $response->assertStatus(302);
-    $response->assertRedirect('/tasks');
-    
-    $this->assertDatabaseHas('tasks', [
-        'title' => 'テストタスク',
-        'description' => 'テスト説明',
+    // データベースにユーザーが存在することを確認
+    $this->assertDatabaseHas('users', [
+        'name' => 'テストユーザー',
+        'email' => 'test@example.com',
     ]);
 }
 ```
 
 **コード解説**：
 
-```php
-$user = User::factory()->create();
-```
-→ `User::factory()->create()`でテスト用ユーザーを作成します。Factoryでダミーデータを簡単に生成できます。
-
-```php
-$response = $this->actingAs($user)->post('/tasks', [
-    'title' => 'テストタスク',
-    'description' => 'テスト説明',
-    'status' => 'pending',
-]);
-```
-→ `actingAs($user)`でユーザーとして認証し、`post()`でタスク作成リクエストを送信します。
-
-```php
-$response->assertStatus(302);
-$response->assertRedirect('/tasks');
-```
-→ `assertStatus(302)`でリダイレクトステータスを確認し、`assertRedirect()`でリダイレクト先を確認します。
-
-```php
-$this->assertDatabaseHas('tasks', [
-    'title' => 'テストタスク',
-    'description' => 'テスト説明',
-]);
-```
-→ `assertDatabaseHas()`でデータベースにデータが保存されていることを確認します。
+| 行 | コード | 説明 |
+|:---|:---|:---|
+| 1 | `User::factory()->create([...])` | 指定した属性でユーザーを作成 |
+| 2 | `'name' => 'テストユーザー'` | ユーザー名を指定 |
+| 3 | `'email' => 'test@example.com'` | メールアドレスを指定 |
+| 4 | `$this->assertDatabaseHas('users', [...])` | usersテーブルにデータが存在することを確認 |
 
 ---
 
 #### ステップ4: 異常系テストを実装する
 
 **何を考えているか**：
-- 「バリデーションエラーが正しく発生することをテストしよう」
-- 「必須項目が空の場合のテストを追加しよう」
+- 「メールアドレスの重複をテストしよう」
+- 「同じメールアドレスで2人目のユーザーを作成しようとするとエラーになるはず」
 
 テストメソッドを追加します：
 
 ```php
-public function test_task_title_is_required()
+public function test_email_must_be_unique()
 {
-    $user = User::factory()->create();
-    
-    $response = $this->actingAs($user)->post('/tasks', [
-        'description' => 'テスト説明',
+    // 1人目のユーザーを作成
+    User::factory()->create([
+        'email' => 'duplicate@example.com',
     ]);
     
-    $response->assertSessionHasErrors('title');
+    // 同じメールアドレスで2人目を作成しようとすると例外が発生
+    $this->expectException(\Illuminate\Database\QueryException::class);
+    
+    User::factory()->create([
+        'email' => 'duplicate@example.com',
+    ]);
 }
 ```
 
 **コード解説**：
 
-```php
-$response = $this->actingAs($user)->post('/tasks', [
-    'description' => 'テスト説明',
-]);
-```
-→ `title`を含まないデータでリクエストを送信します。
+| 行 | コード | 説明 |
+|:---|:---|:---|
+| 1 | `User::factory()->create([...])` | 1人目のユーザーを作成 |
+| 2 | `$this->expectException(...)` | 例外が発生することを期待 |
+| 3 | `QueryException::class` | データベースエラーの例外クラス |
 
-```php
-$response->assertSessionHasErrors('title');
-```
-→ `assertSessionHasErrors()`で`title`フィールドにバリデーションエラーがあることを確認します。
+> 💡 **ポイント**: `users`テーブルの`email`カラムには`unique`制約があるため、同じメールアドレスで2人目を作成しようとすると`QueryException`が発生します。
 
 ---
 
@@ -436,21 +430,28 @@ $response->assertSessionHasErrors('title');
 ターミナルで以下のコマンドを実行します：
 
 ```bash
-sail artisan test
+sail artisan test --filter UserTest
 ```
 
 **コマンド解説**：
 
-```bash
-sail artisan test
-```
-→ 全テストを実行します。緑色のチェックマークが表示されればテスト成功です。
+| 部分 | 説明 |
+|------|------|
+| `test` | テストを実行 |
+| `--filter UserTest` | UserTestクラスのテストのみ実行 |
 
-特定のテストファイルだけを実行する場合：
+**期待される出力**：
 
-```bash
-sail artisan test --filter TaskTest
 ```
+PASS  Tests\Feature\UserTest
+✓ user can be created
+✓ email must be unique
+
+Tests:    2 passed (3 assertions)
+Duration: 0.50s
+```
+
+緑色のチェックマークが表示されればテスト成功です！
 
 ---
 
@@ -459,141 +460,136 @@ sail artisan test --filter TaskTest
 これでフィーチャーテストが実装できました！正常系と異常系の両方をテストし、アプリケーションの品質を保つことができましたね。
 
 **自分で作成したコードと比較してみましょう**：
-- `testing-app-practice/`: 自分で作成したプロジェクト
-- `testing-app-sample/`: 一緒に作成したプロジェクト
+- `testing-app-practice/tests/Feature/UserTest.php`: 自分で作成したテスト
+- `testing-app-sample/tests/Feature/UserTest.php`: 一緒に作成したテスト
 
-両方のプロジェクトを見比べて、違いがあれば確認してみてください。
+両方のファイルを比較して、実装内容を確認してみてください。
 
 ---
 
 ## 📖 模範解答
 
-### TaskTest.php
+### tests/Feature/UserTest.php
 
 ```php
 <?php
 
 namespace Tests\Feature;
 
-use App\Models\Task;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
-class TaskTest extends TestCase
+class UserTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_task_can_be_created()
+    /**
+     * ユーザーがデータベースに保存されることをテスト
+     */
+    public function test_user_can_be_created()
     {
-        $user = User::factory()->create();
-        
-        $response = $this->actingAs($user)->post('/tasks', [
-            'title' => 'テストタスク',
-            'description' => 'テスト説明',
-            'status' => 'pending',
+        // ユーザーを作成
+        $user = User::factory()->create([
+            'name' => 'テストユーザー',
+            'email' => 'test@example.com',
         ]);
         
-        $response->assertStatus(302);
-        $response->assertRedirect('/tasks');
-        
-        $this->assertDatabaseHas('tasks', [
-            'title' => 'テストタスク',
-            'description' => 'テスト説明',
+        // データベースにユーザーが存在することを確認
+        $this->assertDatabaseHas('users', [
+            'name' => 'テストユーザー',
+            'email' => 'test@example.com',
         ]);
     }
 
-    public function test_task_title_is_required()
+    /**
+     * メールアドレスの重複チェックをテスト
+     */
+    public function test_email_must_be_unique()
     {
-        $user = User::factory()->create();
-        
-        $response = $this->actingAs($user)->post('/tasks', [
-            'description' => 'テスト説明',
+        // 1人目のユーザーを作成
+        User::factory()->create([
+            'email' => 'duplicate@example.com',
         ]);
         
-        $response->assertSessionHasErrors('title');
-    }
-
-    public function test_task_can_be_updated()
-    {
-        $user = User::factory()->create();
-        $task = Task::factory()->create();
+        // 同じメールアドレスで2人目を作成しようとすると例外が発生
+        $this->expectException(\Illuminate\Database\QueryException::class);
         
-        $response = $this->actingAs($user)->put("/tasks/{$task->id}", [
-            'title' => '更新されたタスク',
-            'description' => '更新された説明',
-            'status' => 'completed',
-        ]);
-        
-        $response->assertStatus(302);
-        
-        $this->assertDatabaseHas('tasks', [
-            'id' => $task->id,
-            'title' => '更新されたタスク',
-        ]);
-    }
-
-    public function test_task_can_be_deleted()
-    {
-        $user = User::factory()->create();
-        $task = Task::factory()->create();
-        
-        $response = $this->actingAs($user)->delete("/tasks/{$task->id}");
-        
-        $response->assertStatus(302);
-        
-        $this->assertDatabaseMissing('tasks', [
-            'id' => $task->id,
+        User::factory()->create([
+            'email' => 'duplicate@example.com',
         ]);
     }
 }
 ```
 
-### テスト実行
+---
+
+## 🚨 うまくいかない場合
+
+### エラー1: テストが見つからない
+
+**原因**: テストファイルが正しい場所にない
+
+**対処法**:
 
 ```bash
-sail artisan test
-sail artisan test --filter TaskTest
+# テストファイルの場所を確認
+ls tests/Feature/
+```
+
+`UserTest.php`が存在することを確認してください。
+
+---
+
+### エラー2: RefreshDatabase関連のエラー
+
+**原因**: データベース接続の問題
+
+**対処法**:
+
+```bash
+# Sailが起動しているか確認
+sail ps
+
+# 起動していない場合
+sail up -d
 ```
 
 ---
 
-## 🧪 動作確認の方法
+### エラー3: User::factory()が見つからない
 
-### プロジェクトの切り替え
+**原因**: Factoryが存在しない
 
-2つのプロジェクトを切り替えて動作確認する方法：
+**対処法**:
+
+Laravelプロジェクトには最初から`database/factories/UserFactory.php`が用意されています。ファイルが存在することを確認してください。
 
 ```bash
-# testing-app-practiceで確認したい場合
-cd ~/laravel-practice/10-5-8_hands-on/testing-app-sample
-./vendor/bin/sail down
-
-cd ~/laravel-practice/10-5-8_hands-on/testing-app-practice
-./vendor/bin/sail up -d
-
-# testing-app-sampleで確認したい場合
-cd ~/laravel-practice/10-5-8_hands-on/testing-app-practice
-./vendor/bin/sail down
-
-cd ~/laravel-practice/10-5-8_hands-on/testing-app-sample
-./vendor/bin/sail up -d
+ls database/factories/
 ```
 
 ---
 
-## 🚀 まとめ
+## ✨ まとめ
 
-**ハンズオンお疲れ様でした！**
+このハンズオンでは、Laravelのテスト機能を使ってユーザー作成機能のテストを実装しました。
 
-このハンズオンで、以下のことができるようになりました：
+| Step | 学んだこと |
+|------|-----------|
+| Step 1 | `make:test`でテストファイルを作成 |
+| Step 2 | `RefreshDatabase`でテストごとにDBをリセット |
+| Step 3 | `User::factory()->create()`でテストデータを作成 |
+| Step 4 | `assertDatabaseHas()`でDBの状態を確認 |
+| Step 5 | `expectException()`で例外発生をテスト |
 
-- ✅ フィーチャーテストを作成できる
-- ✅ RefreshDatabaseトレイトでテスト用データベースをリセットできる
-- ✅ 正常系テスト（タスク作成）を実装できる
-- ✅ 異常系テスト（バリデーションエラー）を実装できる
-- ✅ テストを実行して結果を確認できる
+**テストの重要なポイント**:
 
-引き続き、次のセクションも頑張りましょう！
+- ✅ 正常系テスト：期待通りに動作することを確認
+- ✅ 異常系テスト：エラーケースを確認
+- ✅ RefreshDatabase：テスト間の干渉を防ぐ
+- ✅ Factory：テストデータを簡単に作成
+
+次のChapter 6では、Webセキュリティについて学びます。
 
 ---

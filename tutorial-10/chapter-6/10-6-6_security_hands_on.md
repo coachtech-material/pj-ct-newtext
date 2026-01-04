@@ -2,13 +2,9 @@
 
 ## 🎯 このハンズオンで実践すること
 
-> 分からない文法や実装があっても、すぐに答えを見るのではなく、過去の教材を見たり、AIにヒントをもらいながら進めるなど、自身で創意工夫しながら進めてみましょう🔥
+Chapter 6で学んだセキュリティ対策を実際に手を動かして確認します。このハンズオンでは、**CSRF保護**と**XSS対策**に焦点を当てて実装します。
 
-*   CSRF保護を実装したフォームを作成する。
-*   SQLインジェクション対策を意識した検索機能を実装する。
-*   XSS対策を意識したコメント機能を実装する。
-*   安全な認証機能を実装する。
-*   パスワードハッシュ化を実装する。
+> 分からない文法や実装があっても、すぐに答えを見るのではなく、過去の教材を見たり、AIにヒントをもらいながら進めるなど、自身で創意工夫しながら進めてみましょう🔥
 
 ---
 
@@ -19,30 +15,25 @@
 ```
 ~/laravel-practice/
 ├── 10-6-6_hands-on/                      ← このハンズオン用のディレクトリ
-│   ├── secure-blog-practice/             ← 要件を見て自分で作成するプロジェクト
+│   ├── security-app-practice/            ← 要件を見て自分で作成するプロジェクト
 │   │   ├── app/
-│   │   │   ├── Http/Controllers/
-│   │   │   │   ├── AuthController.php
-│   │   │   │   ├── PostController.php
-│   │   │   │   └── CommentController.php
-│   │   │   └── Models/
-│   │   │       ├── Post.php
-│   │   │       └── Comment.php
+│   │   │   └── Http/Controllers/
+│   │   │       └── ContactController.php
 │   │   └── resources/views/
-│   │       ├── auth/
-│   │       └── posts/
-│   └── secure-blog-sample/               ← 実践で一緒に作成するプロジェクト
+│   │       └── contact/
+│   │           ├── form.blade.php
+│   │           └── thanks.blade.php
+│   └── security-app-sample/              ← 実践で一緒に作成するプロジェクト
 │       ├── app/
-│       │   ├── Http/Controllers/
-│       │   └── Models/
+│       │   └── Http/Controllers/
 │       └── resources/views/
 └── ...
 ```
 
-| ディレクトリ | 用途 | URL |
-|:---|:---|:---|
-| `secure-blog-practice/` | 📋 要件を見て、自分の力で作成する | `http://localhost` |
-| `secure-blog-sample/` | 🏃 実践セクションで、一緒に手を動かしながら作成する | `http://localhost` |
+| ディレクトリ | 用途 |
+|:---|:---|
+| `security-app-practice/` | 📋 要件を見て、自分の力で作成する |
+| `security-app-sample/` | 🏃 実践セクションで、一緒に手を動かしながら作成する |
 
 > 💡 **なぜ2つに分けるのか？**: 自分で考えて作成したコードと、解答を見ながら作成したコードを比較することで、理解が深まります。
 
@@ -50,28 +41,25 @@
 
 ---
 
-## 📝 課題：セキュアなブログシステムを構築しよう
+## 📝 課題：CSRF保護付きお問い合わせフォームを作成しよう
 
-このハンズオンでは、**セキュリティを意識したブログシステム**を構築します。以下の機能を実装してください。
+このハンズオンでは、**セキュリティを意識したお問い合わせフォーム**を作成します。
 
-### 実装する機能
+### 📋 要件
 
-1. **ユーザー登録・ログイン機能**
-   - パスワードは安全にハッシュ化して保存
-   - ログイン時にセッションIDを再生成
-   - ログアウト時にセッションを無効化
+1. **お問い合わせフォームを作成**
+   - 名前、メールアドレス、メッセージを入力
+   - CSRF保護を実装（`@csrf`ディレクティブ）
 
-2. **記事投稿機能**
-   - CSRF保護を実装
-   - XSS対策を実装（ユーザー入力を安全に表示）
+2. **送信完了画面を作成**
+   - 入力内容を表示
+   - XSS対策を実装（`{{ }}`構文でエスケープ）
 
-3. **記事検索機能**
-   - SQLインジェクション対策を実装
-   - Eloquent ORMを使った安全なクエリ
+3. **ルーティングを設定**
+   - `GET /contact` → フォーム表示
+   - `POST /contact` → 送信処理
 
-4. **コメント機能**
-   - XSS対策を実装
-   - 認証済みユーザーのみコメント可能
+> 💡 **ポイント**: このハンズオンでは、データベースへの保存は行いません。フォームの送信とセキュリティ対策に集中しましょう。
 
 ---
 
@@ -106,12 +94,12 @@ docker run --rm \
     -w /var/www/html \
     -e COMPOSER_CACHE_DIR=/tmp/composer_cache \
     laravelsail/php82-composer:latest \
-    composer create-project laravel/laravel:^10.0 secure-blog-practice
+    composer create-project laravel/laravel:^10.0 security-app-practice
 ```
 
 ```bash
 # プロジェクトディレクトリに移動
-cd secure-blog-practice
+cd security-app-practice
 
 # Laravel Sailのインストール
 docker run --rm \
@@ -136,9 +124,6 @@ docker run --rm \
 
 # アプリケーションキーの生成
 ./vendor/bin/sail artisan key:generate
-
-# データベースのマイグレーション
-./vendor/bin/sail artisan migrate
 ```
 
 **✅ ディレクトリ構造の確認**
@@ -146,10 +131,9 @@ docker run --rm \
 ```
 ~/laravel-practice/
 └── 10-6-6_hands-on/
-    └── secure-blog-practice/     ← 自分で作成する用（今ここ）
+    └── security-app-practice/     ← 自分で作成する用（今ここ）
         ├── app/
-        │   ├── Http/Controllers/
-        │   └── Models/
+        │   └── Http/Controllers/
         └── resources/views/
 ```
 
@@ -157,109 +141,53 @@ docker run --rm \
 > 
 > ブラウザで `http://localhost` にアクセスして、Laravelのウェルカムページが表示されれば成功です。
 
-> **注意**: Laravel Sailを使用する場合、`.env`のデータベース設定は自動的に設定されます。手動で変更する必要はありません。
-
 **ここから先は、自分の力で実装してみましょう！**
 
 ---
 
 ## 💡 ヒント
 
-### ヒント1：マイグレーションの作成
-
-以下のテーブルが必要です：
-
-- **users**：ユーザー情報（name, email, password）
-- **posts**：記事情報（title, content, user_id）
-- **comments**：コメント情報（content, user_id, post_id）
+### ヒント1: コントローラーの作成
 
 ```bash
-sail artisan make:migration create_posts_table
-sail artisan make:migration create_comments_table
+sail artisan make:controller ContactController
 ```
 
-### ヒント2：モデルの作成
-
-```bash
-sail artisan make:model Post
-sail artisan make:model Comment
-```
-
-### ヒント3：コントローラーの作成
-
-```bash
-sail artisan make:controller AuthController
-sail artisan make:controller PostController
-sail artisan make:controller CommentController
-```
-
-### ヒント4：CSRF保護
+### ヒント2: CSRF保護
 
 フォームには必ず`@csrf`ディレクティブを追加してください。
 
 ```blade
-<form method="POST" action="/posts">
+<form method="POST" action="/contact">
     @csrf
     <!-- フォームの内容 -->
 </form>
 ```
 
-### ヒント5：XSS対策
+### ヒント3: XSS対策
 
 ユーザー入力を表示する際は、`{{ }}`構文を使ってください。
 
 ```blade
-<p>{{ $post->content }}</p>
+<p>{{ $name }}</p>
 ```
 
-`{!! !!}`は使わないでください。
+`{!! !!}`は使わないでください（HTMLがそのまま出力されてしまいます）。
 
-### ヒント6：SQLインジェクション対策
-
-Eloquent ORMを使ってください。生SQLは使わないでください。
+### ヒント4: ルーティング
 
 ```php
-// ✅ 安全
-$posts = Post::where('title', 'like', '%' . $keyword . '%')->get();
-
-// 🚨 危険
-$posts = DB::select("SELECT * FROM posts WHERE title LIKE '%$keyword%'");
-```
-
-### ヒント7：パスワードハッシュ化
-
-```php
-use Illuminate\Support\Facades\Hash;
-
-User::create([
-    'password' => Hash::make($request->password),
-]);
-```
-
-### ヒント8：認証
-
-```php
-use Illuminate\Support\Facades\Auth;
-
-// ログイン
-if (Auth::attempt($credentials)) {
-    $request->session()->regenerate();
-    return redirect('/dashboard');
-}
-
-// ログアウト
-Auth::logout();
-$request->session()->invalidate();
-$request->session()->regenerateToken();
+Route::get('/contact', [ContactController::class, 'showForm']);
+Route::post('/contact', [ContactController::class, 'submit']);
 ```
 
 ---
 
 ## 🏃 実践: 一緒に作ってみましょう！
 
-ちゃんとできましたか？セキュリティを意識したWebアプリケーション開発は重要です。一緒に手を動かしながら、セキュアなブログシステムを構築していきましょう。
+ちゃんとできましたか？セキュリティを意識したWebアプリケーション開発は重要です。一緒に手を動かしながら、CSRF保護付きお問い合わせフォームを作成していきましょう。
 
-> 📌 **注意**: ここからは`secure-blog-sample/`ディレクトリで作業します。自分で作成したコードと比較できるように、別のプロジェクトで進めましょう。
+> 📌 **注意**: ここからは`security-app-sample/`ディレクトリで作業します。自分で作成したコードと比較できるように、別のプロジェクトで進めましょう。
 
 ---
 
@@ -268,8 +196,8 @@ $request->session()->regenerateToken();
 まず、**自分で作成する用のプロジェクトを停止**します：
 
 ```bash
-# secure-blog-practiceディレクトリに移動
-cd ~/laravel-practice/10-6-6_hands-on/secure-blog-practice
+# security-app-practiceディレクトリに移動
+cd ~/laravel-practice/10-6-6_hands-on/security-app-practice
 
 # Sailを停止
 ./vendor/bin/sail down
@@ -288,12 +216,12 @@ docker run --rm \
     -w /var/www/html \
     -e COMPOSER_CACHE_DIR=/tmp/composer_cache \
     laravelsail/php82-composer:latest \
-    composer create-project laravel/laravel:^10.0 secure-blog-sample
+    composer create-project laravel/laravel:^10.0 security-app-sample
 ```
 
 ```bash
 # プロジェクトディレクトリに移動
-cd secure-blog-sample
+cd security-app-sample
 
 # Laravel Sailのインストール
 docker run --rm \
@@ -318,9 +246,6 @@ docker run --rm \
 
 # アプリケーションキーの生成
 ./vendor/bin/sail artisan key:generate
-
-# データベースのマイグレーション
-./vendor/bin/sail artisan migrate
 ```
 
 **✅ ディレクトリ構造の確認**
@@ -328,11 +253,10 @@ docker run --rm \
 ```
 ~/laravel-practice/
 └── 10-6-6_hands-on/
-    ├── secure-blog-practice/     ← 自分で作成した用（停止中）
-    └── secure-blog-sample/       ← 実践用（今ここ、起動中）
+    ├── security-app-practice/     ← 自分で作成した用（停止中）
+    └── security-app-sample/       ← 実践用（今ここ、起動中）
         ├── app/
-        │   ├── Http/Controllers/
-        │   └── Models/
+        │   └── Http/Controllers/
         └── resources/views/
 ```
 
@@ -342,711 +266,531 @@ docker run --rm \
 
 ---
 
-## 📖 模範解答
+### 💭 実装の思考プロセス
 
-### 1. マイグレーション
+セキュリティを意識したフォームを実装する際、以下の順番で考えると効率的です：
 
-#### database/migrations/xxxx_create_posts_table.php
+1. **コントローラーを作成**：フォーム表示と送信処理
+2. **ビューを作成**：フォームと完了画面
+3. **CSRF保護を追加**：`@csrf`ディレクティブ
+4. **XSS対策を確認**：`{{ }}`構文でエスケープ
+5. **ルーティングを設定**：GETとPOST
 
-```php
-<?php
+---
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
+### 📝 ステップバイステップで実装
 
-return new class extends Migration
-{
-    public function up(): void
-    {
-        Schema::create('posts', function (Blueprint $table) {
-            $table->id();
-            $table->string('title');
-            $table->text('content');
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->timestamps();
-        });
-    }
+#### ステップ1: コントローラーを作成する
 
-    public function down(): void
-    {
-        Schema::dropIfExists('posts');
-    }
-};
-```
+**何を考えているか**：
+- 「お問い合わせフォームを表示するメソッドが必要だ」
+- 「フォーム送信を処理するメソッドも必要だ」
 
-#### database/migrations/xxxx_create_comments_table.php
-
-```php
-<?php
-
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
-
-return new class extends Migration
-{
-    public function up(): void
-    {
-        Schema::create('comments', function (Blueprint $table) {
-            $table->id();
-            $table->text('content');
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->foreignId('post_id')->constrained()->onDelete('cascade');
-            $table->timestamps();
-        });
-    }
-
-    public function down(): void
-    {
-        Schema::dropIfExists('comments');
-    }
-};
-```
+ターミナルで以下のコマンドを実行します：
 
 ```bash
-sail artisan migrate
+sail artisan make:controller ContactController
 ```
+
+**コマンド解説**：
+
+| 部分 | 説明 |
+|------|------|
+| `make:controller` | コントローラーを作成 |
+| `ContactController` | コントローラー名 |
+
+→ `app/Http/Controllers/ContactController.php`が作成されます。
 
 ---
 
-### 2. モデル
+#### ステップ2: コントローラーにメソッドを追加する
 
-#### app/Models/Post.php
+**何を考えているか**：
+- 「フォームを表示するメソッドを作ろう」
+- 「送信処理を行うメソッドを作ろう」
 
-```php
-<?php
-
-namespace App\Models;
-
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-
-class Post extends Model
-{
-    protected $fillable = ['title', 'content', 'user_id'];
-
-    public function user(): BelongsTo
-    {
-        return $this->belongsTo(User::class);
-    }
-
-    public function comments(): HasMany
-    {
-        return $this->hasMany(Comment::class);
-    }
-}
-```
-
-#### app/Models/Comment.php
-
-```php
-<?php
-
-namespace App\Models;
-
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-
-class Comment extends Model
-{
-    protected $fillable = ['content', 'user_id', 'post_id'];
-
-    public function user(): BelongsTo
-    {
-        return $this->belongsTo(User::class);
-    }
-
-    public function post(): BelongsTo
-    {
-        return $this->belongsTo(Post::class);
-    }
-}
-```
-
----
-
-### 3. コントローラー
-
-#### app/Http/Controllers/AuthController.php
+`app/Http/Controllers/ContactController.php`を開いて、以下のように編集します：
 
 ```php
 <?php
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
 
-class AuthController extends Controller
+class ContactController extends Controller
 {
-    // 登録フォームを表示
-    public function showRegisterForm()
+    /**
+     * お問い合わせフォームを表示
+     */
+    public function showForm()
     {
-        return view('auth.register');
+        return view('contact.form');
     }
 
-    // ユーザー登録処理
-    public function register(Request $request)
+    /**
+     * お問い合わせを送信
+     */
+    public function submit(Request $request)
     {
-        $request->validate([
+        // バリデーション
+        $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users',
-            'password' => 'required|string|min:8|confirmed',
-        ]);
-
-        User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password), // パスワードをハッシュ化
-        ]);
-
-        return redirect('/login')->with('success', 'アカウントを作成しました');
-    }
-
-    // ログインフォームを表示
-    public function showLoginForm()
-    {
-        return view('auth.login');
-    }
-
-    // ログイン処理
-    public function login(Request $request)
-    {
-        $credentials = $request->validate([
             'email' => 'required|email',
-            'password' => 'required',
+            'message' => 'required|string',
         ]);
 
-        if (Auth::attempt($credentials)) {
-            $request->session()->regenerate(); // セッションIDを再生成（セキュリティ対策）
-            return redirect()->intended('/posts');
-        }
-
-        return back()->withErrors([
-            'email' => 'メールアドレスまたはパスワードが正しくありません。',
+        // 完了画面にデータを渡す
+        return view('contact.thanks', [
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'message' => $validated['message'],
         ]);
-    }
-
-    // ログアウト処理
-    public function logout(Request $request)
-    {
-        Auth::logout();
-        $request->session()->invalidate(); // セッションを無効化
-        $request->session()->regenerateToken(); // CSRFトークンを再生成
-        return redirect('/');
     }
 }
 ```
 
----
+**コード解説**：
 
-#### app/Http/Controllers/PostController.php
-
-```php
-<?php
-
-namespace App\Http\Controllers;
-
-use App\Models\Post;
-use Illuminate\Http\Request;
-
-class PostController extends Controller
-{
-    // 記事一覧を表示
-    public function index(Request $request)
-    {
-        $query = Post::with('user');
-
-        // 検索機能（SQLインジェクション対策）
-        if ($request->has('keyword')) {
-            $keyword = $request->keyword;
-            // Eloquent ORMを使うことで、自動的にエスケープされる
-            $query->where('title', 'like', '%' . $keyword . '%');
-        }
-
-        $posts = $query->latest()->paginate(10);
-
-        return view('posts.index', compact('posts'));
-    }
-
-    // 記事詳細を表示
-    public function show($id)
-    {
-        $post = Post::with(['user', 'comments.user'])->findOrFail($id);
-        return view('posts.show', compact('post'));
-    }
-
-    // 記事作成フォームを表示
-    public function create()
-    {
-        return view('posts.create');
-    }
-
-    // 記事を保存
-    public function store(Request $request)
-    {
-        $request->validate([
-            'title' => 'required|string|max:255',
-            'content' => 'required|string',
-        ]);
-
-        Post::create([
-            'title' => $request->title,
-            'content' => $request->content,
-            'user_id' => auth()->id(),
-        ]);
-
-        return redirect('/posts')->with('success', '記事を投稿しました');
-    }
-
-    // 記事を削除
-    public function destroy($id)
-    {
-        $post = Post::findOrFail($id);
-
-        // 自分の記事のみ削除可能
-        if ($post->user_id !== auth()->id()) {
-            abort(403, '権限がありません');
-        }
-
-        $post->delete();
-
-        return redirect('/posts')->with('success', '記事を削除しました');
-    }
-}
-```
+| 行 | コード | 説明 |
+|:---|:---|:---|
+| 1 | `public function showForm()` | フォーム表示用メソッド |
+| 2 | `return view('contact.form')` | `contact/form.blade.php`を表示 |
+| 3 | `public function submit(Request $request)` | 送信処理用メソッド |
+| 4 | `$request->validate([...])` | 入力値のバリデーション |
+| 5 | `return view('contact.thanks', [...])` | 完了画面にデータを渡す |
 
 ---
 
-#### app/Http/Controllers/CommentController.php
+#### ステップ3: フォームのビューを作成する
 
-```php
-<?php
+**何を考えているか**：
+- 「お問い合わせフォームのビューを作ろう」
+- 「CSRF保護を忘れずに追加しよう」
 
-namespace App\Http\Controllers;
-
-use App\Models\Comment;
-use Illuminate\Http\Request;
-
-class CommentController extends Controller
-{
-    // コメントを保存
-    public function store(Request $request, $postId)
-    {
-        $request->validate([
-            'content' => 'required|string|max:500',
-        ]);
-
-        Comment::create([
-            'content' => $request->content,
-            'user_id' => auth()->id(),
-            'post_id' => $postId,
-        ]);
-
-        return redirect()->back()->with('success', 'コメントを投稿しました');
-    }
-}
-```
-
----
-
-### 4. ルート
-
-#### routes/web.php
-
-```php
-<?php
-
-use App\Http\Controllers\AuthController;
-use App\Http\Controllers\PostController;
-use App\Http\Controllers\CommentController;
-use Illuminate\Support\Facades\Route;
-
-// トップページ
-Route::get('/', function () {
-    return redirect('/posts');
-});
-
-// 認証
-Route::get('/register', [AuthController::class, 'showRegisterForm'])->name('register');
-Route::post('/register', [AuthController::class, 'register']);
-Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
-Route::post('/login', [AuthController::class, 'login']);
-Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth');
-
-// 記事
-Route::get('/posts', [PostController::class, 'index']);
-Route::get('/posts/{id}', [PostController::class, 'show']);
-
-// 認証が必要なルート
-Route::middleware('auth')->group(function () {
-    Route::get('/posts/create', [PostController::class, 'create']);
-    Route::post('/posts', [PostController::class, 'store']);
-    Route::delete('/posts/{id}', [PostController::class, 'destroy']);
-    
-    // コメント
-    Route::post('/posts/{postId}/comments', [CommentController::class, 'store']);
-});
-```
-
----
-
-### 5. ビュー
-
-#### resources/views/auth/register.blade.php
-
-```blade
-<!DOCTYPE html>
-<html>
-<head>
-    <title>ユーザー登録</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body>
-    <div class="container mt-5">
-        <h1>ユーザー登録</h1>
-
-        @if ($errors->any())
-            <div class="alert alert-danger">
-                <ul>
-                    @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-        @endif
-
-        <form method="POST" action="/register">
-            @csrf <!-- CSRF保護 -->
-            
-            <div class="mb-3">
-                <label class="form-label">名前</label>
-                <input type="text" name="name" class="form-control" value="{{ old('name') }}" required>
-            </div>
-
-            <div class="mb-3">
-                <label class="form-label">メールアドレス</label>
-                <input type="email" name="email" class="form-control" value="{{ old('email') }}" required>
-            </div>
-
-            <div class="mb-3">
-                <label class="form-label">パスワード</label>
-                <input type="password" name="password" class="form-control" required>
-            </div>
-
-            <div class="mb-3">
-                <label class="form-label">パスワード（確認）</label>
-                <input type="password" name="password_confirmation" class="form-control" required>
-            </div>
-
-            <button type="submit" class="btn btn-primary">登録</button>
-        </form>
-
-        <p class="mt-3">すでにアカウントをお持ちですか？ <a href="/login">ログイン</a></p>
-    </div>
-</body>
-</html>
-```
-
----
-
-#### resources/views/auth/login.blade.php
-
-```blade
-<!DOCTYPE html>
-<html>
-<head>
-    <title>ログイン</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body>
-    <div class="container mt-5">
-        <h1>ログイン</h1>
-
-        @if (session('success'))
-            <div class="alert alert-success">{{ session('success') }}</div>
-        @endif
-
-        @if ($errors->any())
-            <div class="alert alert-danger">
-                <ul>
-                    @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-        @endif
-
-        <form method="POST" action="/login">
-            @csrf <!-- CSRF保護 -->
-            
-            <div class="mb-3">
-                <label class="form-label">メールアドレス</label>
-                <input type="email" name="email" class="form-control" value="{{ old('email') }}" required>
-            </div>
-
-            <div class="mb-3">
-                <label class="form-label">パスワード</label>
-                <input type="password" name="password" class="form-control" required>
-            </div>
-
-            <button type="submit" class="btn btn-primary">ログイン</button>
-        </form>
-
-        <p class="mt-3">アカウントをお持ちでないですか？ <a href="/register">新規登録</a></p>
-    </div>
-</body>
-</html>
-```
-
----
-
-#### resources/views/posts/index.blade.php
-
-```blade
-<!DOCTYPE html>
-<html>
-<head>
-    <title>記事一覧</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body>
-    <div class="container mt-5">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h1>記事一覧</h1>
-            <div>
-                @auth
-                    <a href="/posts/create" class="btn btn-primary">新規投稿</a>
-                    <form method="POST" action="/logout" class="d-inline">
-                        @csrf
-                        <button type="submit" class="btn btn-secondary">ログアウト</button>
-                    </form>
-                @else
-                    <a href="/login" class="btn btn-primary">ログイン</a>
-                    <a href="/register" class="btn btn-secondary">新規登録</a>
-                @endauth
-            </div>
-        </div>
-
-        @if (session('success'))
-            <div class="alert alert-success">{{ session('success') }}</div>
-        @endif
-
-        <!-- 検索フォーム -->
-        <form method="GET" action="/posts" class="mb-4">
-            <div class="input-group">
-                <input type="text" name="keyword" class="form-control" placeholder="キーワード検索" value="{{ request('keyword') }}">
-                <button type="submit" class="btn btn-outline-secondary">検索</button>
-            </div>
-        </form>
-
-        <!-- 記事一覧 -->
-        @foreach ($posts as $post)
-            <div class="card mb-3">
-                <div class="card-body">
-                    <h5 class="card-title">
-                        <a href="/posts/{{ $post->id }}">{{ $post->title }}</a>
-                    </h5>
-                    <!-- XSS対策：{{ }}構文で自動エスケープ -->
-                    <p class="card-text">{{ Str::limit($post->content, 100) }}</p>
-                    <small class="text-muted">投稿者: {{ $post->user->name }} | {{ $post->created_at->diffForHumans() }}</small>
-                </div>
-            </div>
-        @endforeach
-
-        <!-- ページネーション -->
-        {{ $posts->appends(request()->query())->links() }}
-    </div>
-</body>
-</html>
-```
-
----
-
-#### resources/views/posts/show.blade.php
-
-```blade
-<!DOCTYPE html>
-<html>
-<head>
-    <title>{{ $post->title }}</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body>
-    <div class="container mt-5">
-        <a href="/posts" class="btn btn-secondary mb-3">← 戻る</a>
-
-        @if (session('success'))
-            <div class="alert alert-success">{{ session('success') }}</div>
-        @endif
-
-        <div class="card mb-4">
-            <div class="card-body">
-                <!-- XSS対策：{{ }}構文で自動エスケープ -->
-                <h1 class="card-title">{{ $post->title }}</h1>
-                <p class="card-text">{{ $post->content }}</p>
-                <small class="text-muted">投稿者: {{ $post->user->name }} | {{ $post->created_at->format('Y年m月d日') }}</small>
-
-                @if (auth()->check() && auth()->id() === $post->user_id)
-                    <form method="POST" action="/posts/{{ $post->id }}" class="mt-3" onsubmit="return confirm('本当に削除しますか？')">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="btn btn-danger">削除</button>
-                    </form>
-                @endif
-            </div>
-        </div>
-
-        <!-- コメント一覧 -->
-        <h3>コメント</h3>
-        @foreach ($post->comments as $comment)
-            <div class="card mb-2">
-                <div class="card-body">
-                    <!-- XSS対策：{{ }}構文で自動エスケープ -->
-                    <p>{{ $comment->content }}</p>
-                    <small class="text-muted">{{ $comment->user->name }} | {{ $comment->created_at->diffForHumans() }}</small>
-                </div>
-            </div>
-        @endforeach
-
-        <!-- コメント投稿フォーム -->
-        @auth
-            <form method="POST" action="/posts/{{ $post->id }}/comments" class="mt-4">
-                @csrf <!-- CSRF保護 -->
-                <div class="mb-3">
-                    <label class="form-label">コメントを投稿</label>
-                    <textarea name="content" class="form-control" rows="3" required></textarea>
-                </div>
-                <button type="submit" class="btn btn-primary">投稿</button>
-            </form>
-        @else
-            <p class="mt-4">コメントを投稿するには、<a href="/login">ログイン</a>してください。</p>
-        @endauth
-    </div>
-</body>
-</html>
-```
-
----
-
-#### resources/views/posts/create.blade.php
-
-```blade
-<!DOCTYPE html>
-<html>
-<head>
-    <title>記事を投稿</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body>
-    <div class="container mt-5">
-        <h1>記事を投稿</h1>
-
-        @if ($errors->any())
-            <div class="alert alert-danger">
-                <ul>
-                    @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-        @endif
-
-        <form method="POST" action="/posts">
-            @csrf <!-- CSRF保護 -->
-            
-            <div class="mb-3">
-                <label class="form-label">タイトル</label>
-                <input type="text" name="title" class="form-control" value="{{ old('title') }}" required>
-            </div>
-
-            <div class="mb-3">
-                <label class="form-label">本文</label>
-                <textarea name="content" class="form-control" rows="10" required>{{ old('content') }}</textarea>
-            </div>
-
-            <button type="submit" class="btn btn-primary">投稿</button>
-            <a href="/posts" class="btn btn-secondary">キャンセル</a>
-        </form>
-    </div>
-</body>
-</html>
-```
-
----
-
-## 🧪 動作確認の方法
-
-### プロジェクトの切り替え
-
-2つのプロジェクトを切り替えて動作確認する方法：
+まず、ビュー用のディレクトリを作成します：
 
 ```bash
-# secure-blog-practiceで確認したい場合
-cd ~/laravel-practice/10-6-6_hands-on/secure-blog-sample
-./vendor/bin/sail down
-
-cd ~/laravel-practice/10-6-6_hands-on/secure-blog-practice
-./vendor/bin/sail up -d
-
-# secure-blog-sampleで確認したい場合
-cd ~/laravel-practice/10-6-6_hands-on/secure-blog-practice
-./vendor/bin/sail down
-
-cd ~/laravel-practice/10-6-6_hands-on/secure-blog-sample
-./vendor/bin/sail up -d
+mkdir -p resources/views/contact
 ```
 
-### ブラウザでアクセス
+`resources/views/contact/form.blade.php`を作成します：
 
+```blade
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>お問い合わせ</title>
+    <style>
+        body { font-family: sans-serif; max-width: 600px; margin: 50px auto; padding: 20px; }
+        h1 { color: #333; }
+        label { display: block; margin-top: 15px; font-weight: bold; }
+        input, textarea { width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ccc; border-radius: 4px; }
+        textarea { height: 150px; }
+        button { margin-top: 20px; padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        .error { color: red; font-size: 14px; }
+    </style>
+</head>
+<body>
+    <h1>お問い合わせ</h1>
+
+    <form method="POST" action="/contact">
+        @csrf
+
+        <label for="name">お名前</label>
+        <input type="text" id="name" name="name" value="{{ old('name') }}">
+        @error('name')
+            <p class="error">{{ $message }}</p>
+        @enderror
+
+        <label for="email">メールアドレス</label>
+        <input type="email" id="email" name="email" value="{{ old('email') }}">
+        @error('email')
+            <p class="error">{{ $message }}</p>
+        @enderror
+
+        <label for="message">メッセージ</label>
+        <textarea id="message" name="message">{{ old('message') }}</textarea>
+        @error('message')
+            <p class="error">{{ $message }}</p>
+        @enderror
+
+        <button type="submit">送信</button>
+    </form>
+</body>
+</html>
 ```
-http://localhost
-```
 
-### 確認項目
+**コード解説**：
 
-- [ ] ユーザー登録ができる
-- [ ] パスワードがハッシュ化されてデータベースに保存される
-- [ ] ログインができる
-- [ ] ログイン後、記事を投稿できる
-- [ ] 記事にコメントを投稿できる
-- [ ] 記事を検索できる（SQLインジェクション対策が効いている）
-- [ ] ユーザー入力が安全に表示される（XSS対策が効いている）
-- [ ] CSRF保護が効いている（`@csrf`を削除すると419エラーになる）
-- [ ] ログアウトができる
+| 行 | コード | 説明 |
+|:---|:---|:---|
+| 1 | `<form method="POST" action="/contact">` | POSTメソッドで`/contact`に送信 |
+| 2 | `@csrf` | **CSRF保護トークンを埋め込む**（重要！） |
+| 3 | `value="{{ old('name') }}"` | バリデーションエラー時に入力値を保持 |
+| 4 | `@error('name')` | バリデーションエラーを表示 |
+
+> 💡 **CSRF保護のポイント**: `@csrf`を忘れると、フォーム送信時に「419 Page Expired」エラーが発生します。
 
 ---
 
-## ✨ 完成！
+#### ステップ4: 完了画面のビューを作成する
 
-お疲れさまでした！これで、**セキュリティを意識したブログシステム**が完成しました。
+**何を考えているか**：
+- 「送信完了画面を作ろう」
+- 「ユーザー入力を表示するときはXSS対策を忘れずに」
+
+`resources/views/contact/thanks.blade.php`を作成します：
+
+```blade
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>送信完了</title>
+    <style>
+        body { font-family: sans-serif; max-width: 600px; margin: 50px auto; padding: 20px; }
+        h1 { color: #28a745; }
+        .info { background: #f8f9fa; padding: 20px; border-radius: 4px; margin-top: 20px; }
+        .info p { margin: 10px 0; }
+        .label { font-weight: bold; color: #666; }
+        a { color: #007bff; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <h1>送信完了</h1>
+    <p>お問い合わせありがとうございます。</p>
+
+    <div class="info">
+        <p><span class="label">お名前：</span>{{ $name }}</p>
+        <p><span class="label">メールアドレス：</span>{{ $email }}</p>
+        <p><span class="label">メッセージ：</span></p>
+        <p>{{ $message }}</p>
+    </div>
+
+    <p style="margin-top: 20px;"><a href="/contact">戻る</a></p>
+</body>
+</html>
+```
+
+**コード解説**：
+
+| 行 | コード | 説明 |
+|:---|:---|:---|
+| 1 | `{{ $name }}` | **XSS対策済み**（HTMLエスケープされる） |
+| 2 | `{{ $email }}` | **XSS対策済み** |
+| 3 | `{{ $message }}` | **XSS対策済み** |
+
+> 💡 **XSS対策のポイント**: `{{ }}`構文を使うと、`<script>`タグなどの危険な文字が自動的にエスケープされます。
+
+---
+
+#### ステップ5: ルーティングを設定する
+
+**何を考えているか**：
+- 「フォーム表示用のGETルートが必要だ」
+- 「送信処理用のPOSTルートも必要だ」
+
+`routes/web.php`を開いて、以下を追加します：
+
+```php
+use App\Http\Controllers\ContactController;
+
+Route::get('/contact', [ContactController::class, 'showForm']);
+Route::post('/contact', [ContactController::class, 'submit']);
+```
+
+**コード解説**：
+
+| 行 | コード | 説明 |
+|:---|:---|:---|
+| 1 | `Route::get('/contact', ...)` | GETリクエストでフォームを表示 |
+| 2 | `Route::post('/contact', ...)` | POSTリクエストで送信処理 |
+
+---
+
+#### ステップ6: 動作確認
+
+ブラウザで `http://localhost/contact` にアクセスして、以下を確認します：
+
+1. **フォームが表示される**
+2. **必須項目を空にして送信** → バリデーションエラーが表示される
+3. **正しく入力して送信** → 完了画面が表示される
+4. **完了画面に入力内容が表示される**
+
+---
+
+### 🔍 CSRF保護の確認
+
+CSRF保護が正しく機能しているか確認してみましょう。
+
+#### 確認方法1: HTMLソースを確認
+
+ブラウザで `http://localhost/contact` を開き、HTMLソースを確認します（右クリック → 「ページのソースを表示」）。
+
+以下のような隠しフィールドが含まれていれば、CSRF保護が有効です：
+
+```html
+<input type="hidden" name="_token" value="ランダムな文字列">
+```
+
+#### 確認方法2: @csrfを削除してテスト
+
+試しに`@csrf`を削除してフォームを送信すると、「419 Page Expired」エラーが発生します。これはCSRF保護が正しく機能している証拠です。
+
+> ⚠️ **注意**: 確認後は必ず`@csrf`を元に戻してください。
+
+---
+
+### 🔍 XSS対策の確認
+
+XSS対策が正しく機能しているか確認してみましょう。
+
+#### 確認方法: スクリプトタグを入力
+
+フォームのメッセージ欄に以下を入力して送信します：
+
+```
+<script>alert('XSS攻撃')</script>
+```
+
+**期待される結果**:
+- 完了画面で、スクリプトが**実行されず**、文字列としてそのまま表示される
+- HTMLソースを確認すると、`<script>`が`&lt;script&gt;`にエスケープされている
+
+これはXSS対策が正しく機能している証拠です。
+
+---
+
+### ✨ 完成！
+
+これでCSRF保護とXSS対策を実装したお問い合わせフォームが完成しました！
 
 **自分で作成したコードと比較してみましょう**：
-- `secure-blog-practice/`: 自分で作成したプロジェクト
-- `secure-blog-sample/`: 一緒に作成したプロジェクト
+- `security-app-practice/`: 自分で作成したプロジェクト
+- `security-app-sample/`: 一緒に作成したプロジェクト
 
 両方のプロジェクトを見比べて、違いがあれば確認してみてください。
 
-このハンズオンで学んだセキュリティ対策は、すべてのWebアプリケーション開発で必須の知識です。今後のプロジェクトでも、必ず実践してください。
+---
+
+## 📖 模範解答
+
+### app/Http/Controllers/ContactController.php
+
+```php
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+
+class ContactController extends Controller
+{
+    /**
+     * お問い合わせフォームを表示
+     */
+    public function showForm()
+    {
+        return view('contact.form');
+    }
+
+    /**
+     * お問い合わせを送信
+     */
+    public function submit(Request $request)
+    {
+        // バリデーション
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email',
+            'message' => 'required|string',
+        ]);
+
+        // 完了画面にデータを渡す
+        return view('contact.thanks', [
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'message' => $validated['message'],
+        ]);
+    }
+}
+```
+
+### routes/web.php
+
+```php
+<?php
+
+use App\Http\Controllers\ContactController;
+use Illuminate\Support\Facades\Route;
+
+Route::get('/', function () {
+    return view('welcome');
+});
+
+Route::get('/contact', [ContactController::class, 'showForm']);
+Route::post('/contact', [ContactController::class, 'submit']);
+```
+
+### resources/views/contact/form.blade.php
+
+```blade
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>お問い合わせ</title>
+    <style>
+        body { font-family: sans-serif; max-width: 600px; margin: 50px auto; padding: 20px; }
+        h1 { color: #333; }
+        label { display: block; margin-top: 15px; font-weight: bold; }
+        input, textarea { width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ccc; border-radius: 4px; }
+        textarea { height: 150px; }
+        button { margin-top: 20px; padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        .error { color: red; font-size: 14px; }
+    </style>
+</head>
+<body>
+    <h1>お問い合わせ</h1>
+
+    <form method="POST" action="/contact">
+        @csrf
+
+        <label for="name">お名前</label>
+        <input type="text" id="name" name="name" value="{{ old('name') }}">
+        @error('name')
+            <p class="error">{{ $message }}</p>
+        @enderror
+
+        <label for="email">メールアドレス</label>
+        <input type="email" id="email" name="email" value="{{ old('email') }}">
+        @error('email')
+            <p class="error">{{ $message }}</p>
+        @enderror
+
+        <label for="message">メッセージ</label>
+        <textarea id="message" name="message">{{ old('message') }}</textarea>
+        @error('message')
+            <p class="error">{{ $message }}</p>
+        @enderror
+
+        <button type="submit">送信</button>
+    </form>
+</body>
+</html>
+```
+
+### resources/views/contact/thanks.blade.php
+
+```blade
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>送信完了</title>
+    <style>
+        body { font-family: sans-serif; max-width: 600px; margin: 50px auto; padding: 20px; }
+        h1 { color: #28a745; }
+        .info { background: #f8f9fa; padding: 20px; border-radius: 4px; margin-top: 20px; }
+        .info p { margin: 10px 0; }
+        .label { font-weight: bold; color: #666; }
+        a { color: #007bff; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <h1>送信完了</h1>
+    <p>お問い合わせありがとうございます。</p>
+
+    <div class="info">
+        <p><span class="label">お名前：</span>{{ $name }}</p>
+        <p><span class="label">メールアドレス：</span>{{ $email }}</p>
+        <p><span class="label">メッセージ：</span></p>
+        <p>{{ $message }}</p>
+    </div>
+
+    <p style="margin-top: 20px;"><a href="/contact">戻る</a></p>
+</body>
+</html>
+```
 
 ---
 
-## 🚀 まとめ
+## 🚨 うまくいかない場合
 
-**ハンズオンお疲れ様でした！**
+### エラー1: 419 Page Expired
 
-このハンズオンで、以下のことができるようになりました：
+**原因**: CSRF保護が機能している（`@csrf`が不足している）
 
-- ✅ CSRF保護を実装できる
-- ✅ SQLインジェクション対策を実装できる
-- ✅ XSS対策を実装できる
-- ✅ パスワードハッシュ化を実装できる
-- ✅ 安全な認証機能を実装できる
+**対処法**: フォームに`@csrf`を追加してください。
 
-引き続き、次のセクションも頑張りましょう！
+```blade
+<form method="POST" action="/contact">
+    @csrf
+    <!-- フォームの内容 -->
+</form>
+```
+
+---
+
+### エラー2: ルートが見つからない
+
+**原因**: ルーティングが設定されていない
+
+**対処法**: `routes/web.php`にルートを追加してください。
+
+```php
+use App\Http\Controllers\ContactController;
+
+Route::get('/contact', [ContactController::class, 'showForm']);
+Route::post('/contact', [ContactController::class, 'submit']);
+```
+
+---
+
+### エラー3: ビューが見つからない
+
+**原因**: ビューファイルが正しい場所にない
+
+**対処法**: 以下のディレクトリ構造を確認してください。
+
+```
+resources/views/
+└── contact/
+    ├── form.blade.php
+    └── thanks.blade.php
+```
+
+---
+
+## ✨ まとめ
+
+このハンズオンでは、セキュリティを意識したお問い合わせフォームを作成しました。
+
+| Step | 学んだこと |
+|------|-----------|
+| Step 1 | コントローラーの作成 |
+| Step 2 | フォーム表示と送信処理の実装 |
+| Step 3 | `@csrf`によるCSRF保護 |
+| Step 4 | `{{ }}`構文によるXSS対策 |
+| Step 5 | ルーティングの設定 |
+
+**セキュリティの重要なポイント**:
+
+| 対策 | 実装方法 | 効果 |
+|------|----------|------|
+| CSRF保護 | `@csrf`ディレクティブ | 不正なフォーム送信を防ぐ |
+| XSS対策 | `{{ }}`構文 | 悪意のあるスクリプト実行を防ぐ |
+
+これでTutorial 10のハンズオンは全て完了です。お疲れ様でした！
 
 ---
