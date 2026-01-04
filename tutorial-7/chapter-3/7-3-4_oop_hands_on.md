@@ -14,17 +14,88 @@ Chapter 3で学んだオブジェクト指向の基礎を実際に手を動か�
 
 ---
 
+## 📁 ディレクトリ構成
+
+このハンズオンでは、**「自分で作成する用」**と**「解答を確認する用」**の2つのディレクトリを作成します。
+
+Tutorial 6で作成した`php-practice`ディレクトリ内の`src/`フォルダに、ハンズオン用のディレクトリを作成します。
+
+```
+~/php-practice/
+├── docker/
+│   └── nginx/
+│       └── default.conf
+├── src/
+│   ├── index.php                         ← Tutorial 6で作成済み
+│   ├── 7-1-5_hands-on/                   ← Tutorial 7-1-5のハンズオン
+│   ├── 7-2-6_hands-on/                   ← Tutorial 7-2-6のハンズオン
+│   └── 7-3-4_hands-on/                   ← このハンズオン用のディレクトリ
+│       ├── practice/                     ← 要件を見て自分で作成するディレクトリ
+│       │   └── user.php
+│       └── sample/                       ← 実践で一緒に作成するディレクトリ
+│           └── user.php
+└── docker-compose.yml
+```
+
+| ディレクトリ | 用途 | アクセスURL |
+|:---|:---|:---|
+| `practice/` | 📋 要件を見て、自分の力で作成する | `http://localhost:8000/7-3-4_hands-on/practice/user.php` |
+| `sample/` | 🏃 実践セクションで、一緒に手を動かしながら作成する | `http://localhost:8000/7-3-4_hands-on/sample/user.php` |
+
+> 💡 **なぜ2つに分けるのか？**: 自分で考えて作成したコードと、解答を見ながら作成したコードを比較することで、理解が深まります。
+
+---
+
 ## 🎯 演習課題：ユーザー管理プログラムを作成しよう
 
 ### 課題の概要
 
 ユーザー情報を管理するシンプルなプログラムを作成してください。`User`クラスを定義し、ユーザーの情報を表示する機能を実装します。
 
+---
+
+### 📁 Step 0: 環境を準備する
+
+まず、ハンズオン用のディレクトリを作成します。ターミナルで以下のコマンドを実行してください。
+
+```bash
+# php-practiceディレクトリに移動
+cd ~/php-practice
+
+# ハンズオン用ディレクトリを作成
+mkdir -p src/7-3-4_hands-on/practice
+mkdir -p src/7-3-4_hands-on/sample
+
+# 自分で作成する用のディレクトリに移動
+cd src/7-3-4_hands-on/practice
+
+# VSCodeでphp-practiceプロジェクト全体を開く
+code ~/php-practice
+```
+
+**コマンド解説**：
+
+| コマンド | 説明 |
+|:---|:---|
+| `cd ~/php-practice` | php-practiceディレクトリに移動します |
+| `mkdir -p` | ディレクトリを作成します。`-p`オプションで、親ディレクトリも一緒に作成します |
+| `code ~/php-practice` | php-practiceディレクトリ全体をVSCodeで開きます |
+
+**Docker環境の起動**：
+
+```bash
+# php-practiceディレクトリでDocker環境を起動
+cd ~/php-practice
+docker-compose up -d
+```
+
+> 📌 **確認**: ブラウザで`http://localhost:8000`にアクセスして、「Hello from Docker!」が表示されることを確認してください。
+
+---
+
 ### 📋 要件
 
-以下の要件を満たすPHPファイル（`user.php`）を作成してください。
-
-> 📁 **作業ディレクトリ**: Tutorial 7-1-2で作成した`~/php-practice/src/`ディレクトリ内にファイルを作成してください。ブラウザで`http://localhost:8000/user.php`にアクセスして確認します。
+以下の要件を満たすPHPファイル（`user.php`）を`practice/`ディレクトリ内に作成してください。
 
 #### 1. Userクラスの定義
 
@@ -55,6 +126,8 @@ Chapter 3で学んだオブジェクト指向の基礎を実際に手を動か�
 | 田中太郎 | 25 |
 | 佐藤花子 | 17 |
 | 鈴木一郎 | 30 |
+
+**動作確認URL**: `http://localhost:8000/7-3-4_hands-on/practice/user.php`
 
 ---
 
@@ -109,6 +182,8 @@ $user1->introduce();
 
 ちゃんとできましたか？オブジェクト指向の基本は「データと処理をまとめる」ことです。一緒に手を動かしながら、ユーザー管理プログラムを作っていきましょう。
 
+> 📌 **注意**: ここからは`sample/`ディレクトリで作業します。自分で作成したコードと比較できるように、別のディレクトリで進めましょう。
+
 ### 💭 実装の思考プロセス
 
 ユーザー管理プログラムを作る際、以下の順番で考えると効率的です：
@@ -123,26 +198,47 @@ $user1->introduce();
 
 ### 📝 ステップバイステップで実装
 
-#### ステップ1: クラスを定義してプロパティを追加する
+#### ステップ1: 実践用ディレクトリに移動し、PHPファイルを作成する
 
 **何を考えているか**：
+- 「`sample/`ディレクトリに`user.php`を作ろう」
 - 「`User`クラスを作ろう」
 - 「ユーザーに必要なデータをプロパティとして定義しよう」
-- 「まずは`public`でシンプルに作ろう」
 
-まず、ターミナルで以下のコマンドを実行して、`user.php`ファイルを作成します：
+まず、ターミナルで以下のコマンドを実行して、実践用ディレクトリに移動します：
 
 ```bash
-# php-practiceディレクトリに移動
-cd ~/php-practice
+# 実践用ディレクトリに移動
+cd ~/php-practice/src/7-3-4_hands-on/sample
 
-# VSCodeでプロジェクトを開く
-code .
+# PHPファイルを作成
+touch user.php
 ```
 
-VSCodeが開いたら、エクスプローラーで`src`フォルダを右クリックし、「新しいファイル」を選択して`user.php`を作成してください。
+VSCodeのエクスプローラーで`src/7-3-4_hands-on/sample/user.php`を開いてください。
 
-`src/user.php`ファイルに、クラスを定義します：
+**✅ ディレクトリ構造の確認**
+
+ファイルを作成すると、以下のようなディレクトリ構造になります。この構造になっていれば正解です！
+
+```
+~/php-practice/
+├── docker/
+│   └── nginx/
+│       └── default.conf
+├── src/
+│   ├── index.php
+│   ├── 7-1-5_hands-on/
+│   ├── 7-2-6_hands-on/
+│   └── 7-3-4_hands-on/
+│       ├── practice/
+│       │   └── user.php    ← 自分で作成したファイル
+│       └── sample/
+│           └── user.php    ← これから一緒に作成するファイル
+└── docker-compose.yml
+```
+
+`src/7-3-4_hands-on/sample/user.php`ファイルに、クラスを定義します：
 
 ```php
 <?php
@@ -336,9 +432,28 @@ if ($user1->isAdult()) {
 
 ---
 
+#### ステップ6: ブラウザで確認する
+
+**何を考えているか**：
+- 「ファイルを保存してブラウザで開こう」
+- 「意図通りに表示されているか確認しよう」
+
+1. ファイルを保存します
+2. Docker環境が起動していることを確認します（`docker-compose up -d`）
+3. ブラウザで`http://localhost:8000/7-3-4_hands-on/sample/user.php`を開きます
+4. ユーザー情報と成人判定が表示されることを確認します
+
+---
+
 ### ✨ 完成！
 
 これでユーザー管理プログラムが完成しました！クラス、プロパティ、メソッド、コンストラクタ、オブジェクトの生成と使用を実践できましたね。
+
+**自分で作成したコードと比較してみましょう**：
+- `practice/user.php`: 自分で作成したコード
+- `sample/user.php`: 一緒に作成したコード
+
+両方のファイルを見比べて、違いがあれば確認してみてください。
 
 ---
 
@@ -518,6 +633,21 @@ public function __construct($name, $age) {
     // ...
 }
 ```
+
+---
+
+## 🧪 動作確認の方法
+
+### Docker環境で実行
+
+Tutorial 6で構築したDocker環境を使用します。
+
+1. Docker環境を起動（`cd ~/php-practice && docker-compose up -d`）
+2. ブラウザで以下のURLにアクセス：
+   - 自分で作成したコード: `http://localhost:8000/7-3-4_hands-on/practice/user.php`
+   - 一緒に作成したコード: `http://localhost:8000/7-3-4_hands-on/sample/user.php`
+
+> 💡 **ヒント**: ファイルを保存すると、ブラウザをリロードするだけで変更が反映されます。
 
 ---
 

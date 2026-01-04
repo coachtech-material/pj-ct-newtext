@@ -14,17 +14,93 @@ Chapter 4で学んだフォームデータの受け取りとPHPファイル間�
 
 ---
 
+## 📁 ディレクトリ構成
+
+このハンズオンでは、**「自分で作成する用」**と**「解答を確認する用」**の2つのディレクトリを作成します。
+
+Tutorial 6で作成した`php-practice`ディレクトリ内の`src/`フォルダに、ハンズオン用のディレクトリを作成します。
+
+```
+~/php-practice/
+├── docker/
+│   └── nginx/
+│       └── default.conf
+├── src/
+│   ├── index.php                         ← Tutorial 6で作成済み
+│   ├── 7-1-5_hands-on/                   ← Tutorial 7-1-5のハンズオン
+│   ├── 7-2-6_hands-on/                   ← Tutorial 7-2-6のハンズオン
+│   ├── 7-3-4_hands-on/                   ← Tutorial 7-3-4のハンズオン
+│   └── 7-4-3_hands-on/                   ← このハンズオン用のディレクトリ
+│       ├── practice/                     ← 要件を見て自分で作成するディレクトリ
+│       │   ├── input.php
+│       │   ├── confirm.php
+│       │   └── complete.php
+│       └── sample/                       ← 実践で一緒に作成するディレクトリ
+│           ├── input.php
+│           ├── confirm.php
+│           └── complete.php
+└── docker-compose.yml
+```
+
+| ディレクトリ | 用途 | アクセスURL |
+|:---|:---|:---|
+| `practice/` | 📋 要件を見て、自分の力で作成する | `http://localhost:8000/7-4-3_hands-on/practice/input.php` |
+| `sample/` | 🏃 実践セクションで、一緒に手を動かしながら作成する | `http://localhost:8000/7-4-3_hands-on/sample/input.php` |
+
+> 💡 **なぜ2つに分けるのか？**: 自分で考えて作成したコードと、解答を見ながら作成したコードを比較することで、理解が深まります。
+
+---
+
 ## 🎯 演習課題：ユーザー登録フォームを作成しよう
 
 ### 課題の概要
 
 入力→確認→完了の3ステップで動作するユーザー登録フォームを作成してください。3つのPHPファイルを連携させて、データを受け渡します。
 
+---
+
+### 📁 Step 0: 環境を準備する
+
+まず、ハンズオン用のディレクトリを作成します。ターミナルで以下のコマンドを実行してください。
+
+```bash
+# php-practiceディレクトリに移動
+cd ~/php-practice
+
+# ハンズオン用ディレクトリを作成
+mkdir -p src/7-4-3_hands-on/practice
+mkdir -p src/7-4-3_hands-on/sample
+
+# 自分で作成する用のディレクトリに移動
+cd src/7-4-3_hands-on/practice
+
+# VSCodeでphp-practiceプロジェクト全体を開く
+code ~/php-practice
+```
+
+**コマンド解説**：
+
+| コマンド | 説明 |
+|:---|:---|
+| `cd ~/php-practice` | php-practiceディレクトリに移動します |
+| `mkdir -p` | ディレクトリを作成します。`-p`オプションで、親ディレクトリも一緒に作成します |
+| `code ~/php-practice` | php-practiceディレクトリ全体をVSCodeで開きます |
+
+**Docker環境の起動**：
+
+```bash
+# php-practiceディレクトリでDocker環境を起動
+cd ~/php-practice
+docker-compose up -d
+```
+
+> 📌 **確認**: ブラウザで`http://localhost:8000`にアクセスして、「Hello from Docker!」が表示されることを確認してください。
+
+---
+
 ### 📋 要件
 
-以下の要件を満たす3つのPHPファイルを作成してください。
-
-> 📁 **作業ディレクトリ**: Tutorial 7-1-2で作成した`~/php-practice/src/`ディレクトリ内にファイルを作成してください。ブラウザで`http://localhost:8000/input.php`にアクセスして確認します。
+以下の要件を満たす3つのPHPファイルを`practice/`ディレクトリ内に作成してください。
 
 #### 1. 入力画面（`input.php`）
 
@@ -51,6 +127,8 @@ Chapter 4で学んだフォームデータの受け取りとPHPファイル間�
 **表示内容**：
 - 登録完了メッセージ
 - 入力された名前を使った挨拶
+
+**動作確認URL**: `http://localhost:8000/7-4-3_hands-on/practice/input.php`
 
 ---
 
@@ -97,6 +175,8 @@ echo htmlspecialchars($name, ENT_QUOTES, 'UTF-8');
 
 ちゃんとできましたか？フォームとデータ受け渡しはWebアプリケーションの基本です。一緒に手を動かしながら、ユーザー登録フォームを作っていきましょう。
 
+> 📌 **注意**: ここからは`sample/`ディレクトリで作業します。自分で作成したコードと比較できるように、別のディレクトリで進めましょう。
+
 ### 💭 実装の思考プロセス
 
 ユーザー登録フォームを作る際、以下の順番で考えると効率的です：
@@ -111,30 +191,53 @@ echo htmlspecialchars($name, ENT_QUOTES, 'UTF-8');
 
 ### 📝 ステップバイステップで実装
 
-#### Step 1: 入力画面を作成する
+#### Step 1: 実践用ディレクトリに移動し、入力画面を作成する
 
 **何を考えているか**：
+- 「`sample/`ディレクトリにファイルを作ろう」
 - 「ユーザーに名前、メールアドレス、年齢を入力してもらおう」
 - 「送信先は確認画面（`confirm.php`）にしよう」
 - 「`method="post"`でデータを送信しよう」
 
-まず、ターミナルで以下のコマンドを実行して、`input.php`ファイルを作成します：
+まず、ターミナルで以下のコマンドを実行して、実践用ディレクトリに移動します：
 
 ```bash
-# php-practiceディレクトリに移動
-cd ~/php-practice
+# 実践用ディレクトリに移動
+cd ~/php-practice/src/7-4-3_hands-on/sample
 
-# VSCodeでプロジェクトを開く
-code .
+# PHPファイルを作成
+touch input.php confirm.php complete.php
 ```
 
-VSCodeが開いたら、ターミナルで以下のコマンドを実行して`input.php`を作成してください。
+VSCodeのエクスプローラーで`src/7-4-3_hands-on/sample/input.php`を開いてください。
 
-```bash
-touch src/input.php
+**✅ ディレクトリ構造の確認**
+
+ファイルを作成すると、以下のようなディレクトリ構造になります。この構造になっていれば正解です！
+
+```
+~/php-practice/
+├── docker/
+│   └── nginx/
+│       └── default.conf
+├── src/
+│   ├── index.php
+│   ├── 7-1-5_hands-on/
+│   ├── 7-2-6_hands-on/
+│   ├── 7-3-4_hands-on/
+│   └── 7-4-3_hands-on/
+│       ├── practice/
+│       │   ├── input.php       ← 自分で作成するファイル
+│       │   ├── confirm.php
+│       │   └── complete.php
+│       └── sample/
+│           ├── input.php       ← これから一緒に作成するファイル
+│           ├── confirm.php
+│           └── complete.php
+└── docker-compose.yml
 ```
 
-VSCodeのエクスプローラーに`src/input.php`が表示されるので、クリックして開き、以下の内容を記述します：
+`src/7-4-3_hands-on/sample/input.php`ファイルに、以下の内容を記述します：
 
 ```php
 <!DOCTYPE html>
@@ -196,13 +299,7 @@ VSCodeのエクスプローラーに`src/input.php`が表示されるので、�
 - 「完了画面にデータを渡すために、`hidden`フィールドを使おう」
 - 「XSS対策のために`htmlspecialchars`を使おう」
 
-ターミナルで以下のコマンドを実行して`confirm.php`を作成してください。
-
-```bash
-touch src/confirm.php
-```
-
-VSCodeのエクスプローラーに`src/confirm.php`が表示されるので、クリックして開き、以下の内容を記述します：
+`src/7-4-3_hands-on/sample/confirm.php`ファイルに、以下の内容を記述します：
 
 ```php
 <?php
@@ -283,13 +380,7 @@ $name = $_POST["name"];
 - 「実際のアプリケーションでは、ここでデータベースに保存する」
 - 「登録完了のメッセージを表示しよう」
 
-ターミナルで以下のコマンドを実行して`complete.php`を作成してください。
-
-```bash
-touch src/complete.php
-```
-
-VSCodeのエクスプローラーに`src/complete.php`が表示されるので、クリックして開き、以下の内容を記述します：
+`src/7-4-3_hands-on/sample/complete.php`ファイルに、以下の内容を記述します：
 
 ```php
 <?php
@@ -335,9 +426,28 @@ $name = $_POST["name"];
 
 ---
 
+#### Step 4: ブラウザで確認する
+
+**何を考えているか**：
+- 「ファイルを保存してブラウザで開こう」
+- 「入力→確認→完了の流れを確認しよう」
+
+1. ファイルを保存します
+2. Docker環境が起動していることを確認します（`docker-compose up -d`）
+3. ブラウザで`http://localhost:8000/7-4-3_hands-on/sample/input.php`を開きます
+4. 入力→確認→完了の流れを確認します
+
+---
+
 ### ✨ 完成！
 
 これでユーザー登録フォームが完成しました！3つのPHPファイルが連携して、データを受け渡しながら動作します。
+
+**自分で作成したコードと比較してみましょう**：
+- `practice/input.php`, `practice/confirm.php`, `practice/complete.php`: 自分で作成したコード
+- `sample/input.php`, `sample/confirm.php`, `sample/complete.php`: 一緒に作成したコード
+
+両方のファイルを見比べて、違いがあれば確認してみてください。
 
 ---
 
@@ -726,6 +836,21 @@ echo htmlspecialchars($_POST["name"], ENT_QUOTES, 'UTF-8');
 // ✅ 正しい
 <form action="confirm.php" method="post">
 ```
+
+---
+
+## 🧪 動作確認の方法
+
+### Docker環境で実行
+
+Tutorial 6で構築したDocker環境を使用します。
+
+1. Docker環境を起動（`cd ~/php-practice && docker-compose up -d`）
+2. ブラウザで以下のURLにアクセス：
+   - 自分で作成したコード: `http://localhost:8000/7-4-3_hands-on/practice/input.php`
+   - 一緒に作成したコード: `http://localhost:8000/7-4-3_hands-on/sample/input.php`
+
+> 💡 **ヒント**: ファイルを保存すると、ブラウザをリロードするだけで変更が反映されます。
 
 ---
 

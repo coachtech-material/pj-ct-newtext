@@ -14,17 +14,89 @@ Chapter 2で学んだ制御構文（if文、switch文、for文、while文）を�
 
 ---
 
+## 📁 ディレクトリ構成
+
+このハンズオンでは、**「自分で作成する用」**と**「解答を確認する用」**の2つのディレクトリを作成します。
+
+Tutorial 6で作成した`php-practice`ディレクトリ内の`src/`フォルダに、ハンズオン用のディレクトリを作成します。
+
+```
+~/php-practice/
+├── docker/
+│   └── nginx/
+│       └── default.conf
+├── src/
+│   ├── index.php                         ← Tutorial 6で作成済み
+│   ├── 7-1-5_hands-on/                   ← Tutorial 7-1-5のハンズオン
+│   │   ├── practice/
+│   │   └── sample/
+│   └── 7-2-6_hands-on/                   ← このハンズオン用のディレクトリ
+│       ├── practice/                     ← 要件を見て自分で作成するディレクトリ
+│       │   └── grade_calculator.php
+│       └── sample/                       ← 実践で一緒に作成するディレクトリ
+│           └── grade_calculator.php
+└── docker-compose.yml
+```
+
+| ディレクトリ | 用途 | アクセスURL |
+|:---|:---|:---|
+| `practice/` | 📋 要件を見て、自分の力で作成する | `http://localhost:8000/7-2-6_hands-on/practice/grade_calculator.php` |
+| `sample/` | 🏃 実践セクションで、一緒に手を動かしながら作成する | `http://localhost:8000/7-2-6_hands-on/sample/grade_calculator.php` |
+
+> 💡 **なぜ2つに分けるのか？**: 自分で考えて作成したコードと、解答を見ながら作成したコードを比較することで、理解が深まります。
+
+---
+
 ## 🎯 演習課題：成績判定プログラムを作成しよう
 
 ### 課題の概要
 
 学生の成績を判定するプログラムを作成してください。点数に応じて評価を表示し、複数の学生の成績を一覧表示します。
 
+---
+
+### 📁 Step 0: 環境を準備する
+
+まず、ハンズオン用のディレクトリを作成します。ターミナルで以下のコマンドを実行してください。
+
+```bash
+# php-practiceディレクトリに移動
+cd ~/php-practice
+
+# ハンズオン用ディレクトリを作成
+mkdir -p src/7-2-6_hands-on/practice
+mkdir -p src/7-2-6_hands-on/sample
+
+# 自分で作成する用のディレクトリに移動
+cd src/7-2-6_hands-on/practice
+
+# VSCodeでphp-practiceプロジェクト全体を開く
+code ~/php-practice
+```
+
+**コマンド解説**：
+
+| コマンド | 説明 |
+|:---|:---|
+| `cd ~/php-practice` | php-practiceディレクトリに移動します |
+| `mkdir -p` | ディレクトリを作成します。`-p`オプションで、親ディレクトリも一緒に作成します |
+| `code ~/php-practice` | php-practiceディレクトリ全体をVSCodeで開きます |
+
+**Docker環境の起動**：
+
+```bash
+# php-practiceディレクトリでDocker環境を起動
+cd ~/php-practice
+docker-compose up -d
+```
+
+> 📌 **確認**: ブラウザで`http://localhost:8000`にアクセスして、「Hello from Docker!」が表示されることを確認してください。
+
+---
+
 ### 📋 要件
 
-以下の要件を満たすPHPファイル（`grade_calculator.php`）を作成してください。
-
-> 📁 **作業ディレクトリ**: Tutorial 7-1-2で作成した`~/php-practice/src/`ディレクトリ内にファイルを作成してください。ブラウザで`http://localhost:8000/grade_calculator.php`にアクセスして確認します。
+以下の要件を満たすPHPファイル（`grade_calculator.php`）を`practice/`ディレクトリ内に作成してください。
 
 #### 1. 学生データの定義
 
@@ -73,6 +145,8 @@ $students = [
 - **if文**：点数に応じた評価の判定
 - **for文**：学生データのループ処理
 - **条件演算子**：合格/不合格の判定
+
+**動作確認URL**: `http://localhost:8000/7-2-6_hands-on/practice/grade_calculator.php`
 
 ---
 
@@ -135,6 +209,8 @@ $average = $total_score / count($students);
 
 ちゃんとできましたか？制御構文はif文とループが基本です。一緒に手を動かしながら、成績判定プログラムを作っていきましょう。
 
+> 📌 **注意**: ここからは`sample/`ディレクトリで作業します。自分で作成したコードと比較できるように、別のディレクトリで進めましょう。
+
 ### 💭 実装の思考プロセス
 
 成績判定プログラムを作る際、以下の順番で考えると効率的です：
@@ -151,26 +227,48 @@ $average = $total_score / count($students);
 
 ### 📝 ステップバイステップで実装
 
-#### ステップ1: 学生データを配列で定義する
+#### ステップ1: 実践用ディレクトリに移動し、PHPファイルを作成する
 
 **何を考えているか**：
+- 「`sample/`ディレクトリに`grade_calculator.php`を作ろう」
 - 「複数の学生のデータをまとめて管理したい」
 - 「連想配列を使って名前と点数をペアにしよう」
-- 「配列の配列（多次元配列）で表現しよう」
 
-まず、ターミナルで以下のコマンドを実行して、`grade_calculator.php`ファイルを作成します：
+まず、ターミナルで以下のコマンドを実行して、実践用ディレクトリに移動します：
 
 ```bash
-# php-practiceディレクトリに移動
-cd ~/php-practice
+# 実践用ディレクトリに移動
+cd ~/php-practice/src/7-2-6_hands-on/sample
 
-# VSCodeでプロジェクトを開く
-code .
+# PHPファイルを作成
+touch grade_calculator.php
 ```
 
-VSCodeが開いたら、エクスプローラーで`src`フォルダを右クリックし、「新しいファイル」を選択して`grade_calculator.php`を作成してください。
+VSCodeのエクスプローラーで`src/7-2-6_hands-on/sample/grade_calculator.php`を開いてください。
 
-`src/grade_calculator.php`ファイルに、学生データを定義します：
+**✅ ディレクトリ構造の確認**
+
+ファイルを作成すると、以下のようなディレクトリ構造になります。この構造になっていれば正解です！
+
+```
+~/php-practice/
+├── docker/
+│   └── nginx/
+│       └── default.conf
+├── src/
+│   ├── index.php
+│   ├── 7-1-5_hands-on/
+│   │   ├── practice/
+│   │   └── sample/
+│   └── 7-2-6_hands-on/
+│       ├── practice/
+│       │   └── grade_calculator.php    ← 自分で作成したファイル
+│       └── sample/
+│           └── grade_calculator.php    ← これから一緒に作成するファイル
+└── docker-compose.yml
+```
+
+`src/7-2-6_hands-on/sample/grade_calculator.php`ファイルに、学生データを定義します：
 
 ```php
 <?php
@@ -390,9 +488,28 @@ echo "平均点: " . number_format($average, 1) . "点<br>";
 
 ---
 
+#### ステップ5: ブラウザで確認する
+
+**何を考えているか**：
+- 「ファイルを保存してブラウザで開こう」
+- 「意図通りに表示されているか確認しよう」
+
+1. ファイルを保存します
+2. Docker環境が起動していることを確認します（`docker-compose up -d`）
+3. ブラウザで`http://localhost:8000/7-2-6_hands-on/sample/grade_calculator.php`を開きます
+4. 成績一覧と統計情報が表示されることを確認します
+
+---
+
 ### ✨ 完成！
 
 これで成績判定プログラムが完成しました！if文、foreachループ、関数の使い方を実践できましたね。
+
+**自分で作成したコードと比較してみましょう**：
+- `practice/grade_calculator.php`: 自分で作成したコード
+- `sample/grade_calculator.php`: 一緒に作成したコード
+
+両方のファイルを見比べて、違いがあれば確認してみてください。
 
 ---
 
@@ -630,6 +747,22 @@ foreach ($students as $student) {
     $pass_count++;
 }
 ```
+
+---
+
+## 🧪 動作確認の方法
+
+### Docker環境で実行
+
+Tutorial 6で構築したDocker環境を使用します。
+
+1. Docker環境を起動（`cd ~/php-practice && docker-compose up -d`）
+2. ブラウザで以下のURLにアクセス：
+   - 自分で作成したコード: `http://localhost:8000/7-2-6_hands-on/practice/grade_calculator.php`
+   - 一緒に作成したコード: `http://localhost:8000/7-2-6_hands-on/sample/grade_calculator.php`
+
+> 💡 **ヒント**: ファイルを保存すると、ブラウザをリロードするだけで変更が反映されます。
+
 ---
 
 ## 🚀 まとめ

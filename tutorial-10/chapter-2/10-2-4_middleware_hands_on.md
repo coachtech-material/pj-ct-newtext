@@ -8,6 +8,35 @@ Chapter 8で学んだミドルウェアを実際に手を動かして確認し�
 
 ---
 
+## 📁 ディレクトリ構成
+
+このハンズオンでは、**「自分で作成する用」**と**「解答を確認する用」**の2つのプロジェクトを作成します。
+
+```
+~/laravel-practice/
+├── 10-2-4_hands-on/                      ← このハンズオン用のディレクトリ
+│   ├── middleware-app-practice/          ← 要件を見て自分で作成するプロジェクト
+│   │   ├── app/
+│   │   │   └── Http/Middleware/
+│   │   └── ...
+│   └── middleware-app-sample/            ← 実践で一緒に作成するプロジェクト
+│       ├── app/
+│       │   └── Http/Middleware/
+│       └── ...
+└── ...
+```
+
+| ディレクトリ | 用途 | URL |
+|:---|:---|:---|
+| `middleware-app-practice/` | 📋 要件を見て、自分の力で作成する | `http://localhost/admin` |
+| `middleware-app-sample/` | 🏃 実践セクションで、一緒に手を動かしながら作成する | `http://localhost/admin` |
+
+> 💡 **なぜ2つに分けるのか？**: 自分で考えて作成したコードと、解答を見ながら作成したコードを比較することで、理解が深まります。
+
+> ⚠️ **注意**: 2つのプロジェクトを同時に起動することはできません（ポートが競合するため）。一方のプロジェクトで作業する際は、もう一方を停止してください。
+
+---
+
 ## 🎯 演習課題：管理者専用ページの実装
 
 ### 📋 要件
@@ -15,6 +44,91 @@ Chapter 8で学んだミドルウェアを実際に手を動かして確認し�
 1. `CheckAdmin`ミドルウェアを作成
 2. ユーザーが管理者でない場合は403エラーを返す
 3. `/admin`ルートにミドルウェアを適用
+
+---
+
+### 📁 Step 0: 環境を準備する（自分で作成する用）
+
+まず、ハンズオン用のディレクトリを作成し、**自分で作成する用**のプロジェクトを準備します。
+
+> **📌 Dockerが起動していることを確認**
+> 
+> 以下のコマンドを実行する前に、Docker Desktop（またはDocker Engine）が起動していることを確認してください。
+
+> **📌 前のハンズオンのプロジェクトを停止**
+> 
+> 前のハンズオン（10-1-6）のプロジェクトが起動している場合は、先に停止してください。
+> ```bash
+> cd ~/laravel-practice/10-1-6_hands-on/auth-app-sample
+> ./vendor/bin/sail down
+> ```
+
+```bash
+# laravel-practiceディレクトリに移動
+cd ~/laravel-practice
+
+# ハンズオン用ディレクトリを作成
+mkdir -p 10-2-4_hands-on
+cd 10-2-4_hands-on
+
+# Laravel 10.xプロジェクトを作成（自分で作成する用）
+docker run --rm \
+    -u "$(id -u):$(id -g)" \
+    -v "$(pwd):/var/www/html" \
+    -w /var/www/html \
+    -e COMPOSER_CACHE_DIR=/tmp/composer_cache \
+    laravelsail/php82-composer:latest \
+    composer create-project laravel/laravel:^10.0 middleware-app-practice
+```
+
+```bash
+# プロジェクトディレクトリに移動
+cd middleware-app-practice
+
+# Laravel Sailのインストール
+docker run --rm \
+    -u "$(id -u):$(id -g)" \
+    -v "$(pwd):/var/www/html" \
+    -w /var/www/html \
+    -e COMPOSER_CACHE_DIR=/tmp/composer_cache \
+    laravelsail/php82-composer:latest \
+    composer require laravel/sail --dev
+
+# Sailの設定ファイルを生成
+docker run --rm \
+    -u "$(id -u):$(id -g)" \
+    -v "$(pwd):/var/www/html" \
+    -w /var/www/html \
+    -e COMPOSER_CACHE_DIR=/tmp/composer_cache \
+    laravelsail/php82-composer:latest \
+    php artisan sail:install --with=mysql
+
+# Sailの起動
+./vendor/bin/sail up -d
+
+# アプリケーションキーの生成
+./vendor/bin/sail artisan key:generate
+
+# データベースのマイグレーション
+./vendor/bin/sail artisan migrate
+```
+
+**✅ ディレクトリ構造の確認**
+
+```
+~/laravel-practice/
+└── 10-2-4_hands-on/
+    └── middleware-app-practice/     ← 自分で作成する用（今ここ）
+        ├── app/
+        │   └── Http/Middleware/
+        └── ...
+```
+
+> 💡 **環境構築が完了！**
+> 
+> ブラウザで `http://localhost` にアクセスして、Laravelのウェルカムページが表示されれば成功です。
+
+**ここから先は、自分の力で実装してみましょう！**
 
 ---
 
@@ -40,46 +154,43 @@ public function handle(Request $request, Closure $next)
 
 ちゃんとできましたか？ミドルウェアはリクエストの前後に処理を挿入できる強力な機能です。一緒に手を動かしながら、管理者専用ページを実装していきましょう。
 
+> 📌 **注意**: ここからは`middleware-app-sample/`ディレクトリで作業します。自分で作成したコードと比較できるように、別のプロジェクトで進めましょう。
+
 ---
 
-### 💻 環境準備
+### 💻 環境準備（実践用プロジェクト）
 
-#### プロジェクトのディレクトリ構造
-
-本教材では、ホームディレクトリ直下の`laravel-practice`フォルダ内に、ハンズオンごとにプロジェクトを作成します。
-
-```
-~/laravel-practice/
-├── ... (前のハンズオンのプロジェクト)
-├── middleware-app/      ← このハンズオンで作成
-└── ...
-```
-
-#### 新しいプロジェクトを作成する
-
-> **📌 Dockerが起動していることを確認**
-> 
-> 以下のコマンドを実行する前に、Docker Desktop（またはDocker Engine）が起動していることを確認してください。
-
-**Step 1: Laravelプロジェクトの作成**
+まず、**自分で作成する用のプロジェクトを停止**します：
 
 ```bash
-cd ~/laravel-practice
+# middleware-app-practiceディレクトリに移動
+cd ~/laravel-practice/10-2-4_hands-on/middleware-app-practice
 
+# Sailを停止
+./vendor/bin/sail down
+```
+
+次に、**実践用のプロジェクトを作成**します：
+
+```bash
+# ハンズオンディレクトリに移動
+cd ~/laravel-practice/10-2-4_hands-on
+
+# Laravel 10.xプロジェクトを作成（実践用）
 docker run --rm \
     -u "$(id -u):$(id -g)" \
     -v "$(pwd):/var/www/html" \
     -w /var/www/html \
     -e COMPOSER_CACHE_DIR=/tmp/composer_cache \
     laravelsail/php82-composer:latest \
-    composer create-project laravel/laravel:^10.0 middleware-app
+    composer create-project laravel/laravel:^10.0 middleware-app-sample
 ```
 
-**Step 2: プロジェクトディレクトリに移動してSailをセットアップ**
-
 ```bash
-cd middleware-app
+# プロジェクトディレクトリに移動
+cd middleware-app-sample
 
+# Laravel Sailのインストール
 docker run --rm \
     -u "$(id -u):$(id -g)" \
     -v "$(pwd):/var/www/html" \
@@ -88,6 +199,7 @@ docker run --rm \
     laravelsail/php82-composer:latest \
     composer require laravel/sail --dev
 
+# Sailの設定ファイルを生成
 docker run --rm \
     -u "$(id -u):$(id -g)" \
     -v "$(pwd):/var/www/html" \
@@ -95,17 +207,34 @@ docker run --rm \
     -e COMPOSER_CACHE_DIR=/tmp/composer_cache \
     laravelsail/php82-composer:latest \
     php artisan sail:install --with=mysql
-```
 
-**Step 3: Sailの起動と初期設定**
-
-```bash
+# Sailの起動
 ./vendor/bin/sail up -d
+
+# アプリケーションキーの生成
 ./vendor/bin/sail artisan key:generate
+
+# データベースのマイグレーション
 ./vendor/bin/sail artisan migrate
 ```
 
-> 💡 **環境構築が完了！** `http://localhost` にアクセスして確認してください。
+**✅ ディレクトリ構造の確認**
+
+```
+~/laravel-practice/
+└── 10-2-4_hands-on/
+    ├── middleware-app-practice/     ← 自分で作成した用（停止中）
+    └── middleware-app-sample/       ← 実践用（今ここ、起動中）
+        ├── app/
+        │   └── Http/Middleware/
+        └── ...
+```
+
+> 💡 **環境構築が完了！**
+> 
+> ブラウザで `http://localhost` にアクセスして、Laravelのウェルカムページが表示されれば成功です。
+
+---
 
 ### 💭 実装の思考プロセス
 
@@ -286,6 +415,12 @@ Route::get('/admin', [AdminController::class, 'index'])->middleware('admin');
 
 これでカスタムミドルウェアが実装できました！リクエストの前後に処理を挿入し、管理者専用ページを作成できましたね。
 
+**自分で作成したコードと比較してみましょう**：
+- `middleware-app-practice/`: 自分で作成したプロジェクト
+- `middleware-app-sample/`: 一緒に作成したプロジェクト
+
+両方のプロジェクトを見比べて、違いがあれば確認してみてください。
+
 ---
 
 ## 📖 模範解答
@@ -327,6 +462,31 @@ protected $middlewareAliases = [
 ```php
 Route::get('/admin', [AdminController::class, 'index'])->middleware('admin');
 ```
+
+---
+
+## 🧪 動作確認の方法
+
+### プロジェクトの切り替え
+
+2つのプロジェクトを切り替えて動作確認する方法：
+
+```bash
+# middleware-app-practiceで確認したい場合
+cd ~/laravel-practice/10-2-4_hands-on/middleware-app-sample
+./vendor/bin/sail down
+
+cd ~/laravel-practice/10-2-4_hands-on/middleware-app-practice
+./vendor/bin/sail up -d
+
+# middleware-app-sampleで確認したい場合
+cd ~/laravel-practice/10-2-4_hands-on/middleware-app-practice
+./vendor/bin/sail down
+
+cd ~/laravel-practice/10-2-4_hands-on/middleware-app-sample
+./vendor/bin/sail up -d
+```
+
 ---
 
 ## 🚀 まとめ
@@ -335,7 +495,9 @@ Route::get('/admin', [AdminController::class, 'index'])->middleware('admin');
 
 このハンズオンで、以下のことができるようになりました：
 
-- ✅ Chapter 8で学んだミドルウェアを実際に手を動かして確認します。カスタムミドルウェアを作成して、リクエストの前処理・後処理を実装しましょう。
+- ✅ カスタムミドルウェアを作成できる
+- ✅ ミドルウェアでリクエストの前処理を実装できる
+- ✅ ミドルウェアをルートに適用できる
 
 引き続き、次のセクションも頑張りましょう！
 

@@ -12,6 +12,44 @@
 
 ---
 
+## 📁 ディレクトリ構成
+
+このハンズオンでは、**「自分で作成する用」**と**「解答を確認する用」**の2つのプロジェクトを作成します。
+
+```
+~/laravel-practice/
+├── 10-6-6_hands-on/                      ← このハンズオン用のディレクトリ
+│   ├── secure-blog-practice/             ← 要件を見て自分で作成するプロジェクト
+│   │   ├── app/
+│   │   │   ├── Http/Controllers/
+│   │   │   │   ├── AuthController.php
+│   │   │   │   ├── PostController.php
+│   │   │   │   └── CommentController.php
+│   │   │   └── Models/
+│   │   │       ├── Post.php
+│   │   │       └── Comment.php
+│   │   └── resources/views/
+│   │       ├── auth/
+│   │       └── posts/
+│   └── secure-blog-sample/               ← 実践で一緒に作成するプロジェクト
+│       ├── app/
+│       │   ├── Http/Controllers/
+│       │   └── Models/
+│       └── resources/views/
+└── ...
+```
+
+| ディレクトリ | 用途 | URL |
+|:---|:---|:---|
+| `secure-blog-practice/` | 📋 要件を見て、自分の力で作成する | `http://localhost` |
+| `secure-blog-sample/` | 🏃 実践セクションで、一緒に手を動かしながら作成する | `http://localhost` |
+
+> 💡 **なぜ2つに分けるのか？**: 自分で考えて作成したコードと、解答を見ながら作成したコードを比較することで、理解が深まります。
+
+> ⚠️ **注意**: 2つのプロジェクトを同時に起動することはできません（ポートが競合するため）。一方のプロジェクトで作業する際は、もう一方を停止してください。
+
+---
+
 ## 📝 課題：セキュアなブログシステムを構築しよう
 
 このハンズオンでは、**セキュリティを意識したブログシステム**を構築します。以下の機能を実装してください。
@@ -37,44 +75,45 @@
 
 ---
 
-## 🔧 環境準備
+## 🔧 環境準備（自分で作成する用）
 
-### プロジェクトのディレクトリ構造
-
-本教材では、ホームディレクトリ直下の`laravel-practice`フォルダ内に、ハンズオンごとにプロジェクトを作成します。
-
-```
-~/laravel-practice/
-├── ... (前のハンズオンのプロジェクト)
-├── secure-blog/         ← このハンズオンで作成
-└── ...
-```
-
-### 新しいプロジェクトを作成する
+まず、ハンズオン用のディレクトリを作成し、**自分で作成する用**のプロジェクトを準備します。
 
 > **📌 Dockerが起動していることを確認**
 > 
 > 以下のコマンドを実行する前に、Docker Desktop（またはDocker Engine）が起動していることを確認してください。
 
-**Step 1: Laravelプロジェクトの作成**
+> **📌 前のハンズオンのプロジェクトを停止**
+> 
+> 前のハンズオン（10-5-8）のプロジェクトが起動している場合は、先に停止してください。
+> ```bash
+> cd ~/laravel-practice/10-5-8_hands-on/testing-app-sample
+> ./vendor/bin/sail down
+> ```
 
 ```bash
+# laravel-practiceディレクトリに移動
 cd ~/laravel-practice
 
+# ハンズオン用ディレクトリを作成
+mkdir -p 10-6-6_hands-on
+cd 10-6-6_hands-on
+
+# Laravel 10.xプロジェクトを作成（自分で作成する用）
 docker run --rm \
     -u "$(id -u):$(id -g)" \
     -v "$(pwd):/var/www/html" \
     -w /var/www/html \
     -e COMPOSER_CACHE_DIR=/tmp/composer_cache \
     laravelsail/php82-composer:latest \
-    composer create-project laravel/laravel:^10.0 secure-blog
+    composer create-project laravel/laravel:^10.0 secure-blog-practice
 ```
 
-**Step 2: プロジェクトディレクトリに移動してSailをセットアップ**
-
 ```bash
-cd secure-blog
+# プロジェクトディレクトリに移動
+cd secure-blog-practice
 
+# Laravel Sailのインストール
 docker run --rm \
     -u "$(id -u):$(id -g)" \
     -v "$(pwd):/var/www/html" \
@@ -83,6 +122,7 @@ docker run --rm \
     laravelsail/php82-composer:latest \
     composer require laravel/sail --dev
 
+# Sailの設定ファイルを生成
 docker run --rm \
     -u "$(id -u):$(id -g)" \
     -v "$(pwd):/var/www/html" \
@@ -90,19 +130,36 @@ docker run --rm \
     -e COMPOSER_CACHE_DIR=/tmp/composer_cache \
     laravelsail/php82-composer:latest \
     php artisan sail:install --with=mysql
-```
 
-**Step 3: Sailの起動と初期設定**
-
-```bash
+# Sailの起動
 ./vendor/bin/sail up -d
+
+# アプリケーションキーの生成
 ./vendor/bin/sail artisan key:generate
+
+# データベースのマイグレーション
 ./vendor/bin/sail artisan migrate
 ```
 
-> 💡 **環境構築が完了！** `http://localhost` にアクセスして確認してください。
+**✅ ディレクトリ構造の確認**
+
+```
+~/laravel-practice/
+└── 10-6-6_hands-on/
+    └── secure-blog-practice/     ← 自分で作成する用（今ここ）
+        ├── app/
+        │   ├── Http/Controllers/
+        │   └── Models/
+        └── resources/views/
+```
+
+> 💡 **環境構築が完了！**
+> 
+> ブラウザで `http://localhost` にアクセスして、Laravelのウェルカムページが表示されれば成功です。
 
 > **注意**: Laravel Sailを使用する場合、`.env`のデータベース設定は自動的に設定されます。手動で変更する必要はありません。
+
+**ここから先は、自分の力で実装してみましょう！**
 
 ---
 
@@ -195,6 +252,93 @@ Auth::logout();
 $request->session()->invalidate();
 $request->session()->regenerateToken();
 ```
+
+---
+
+## 🏃 実践: 一緒に作ってみましょう！
+
+ちゃんとできましたか？セキュリティを意識したWebアプリケーション開発は重要です。一緒に手を動かしながら、セキュアなブログシステムを構築していきましょう。
+
+> 📌 **注意**: ここからは`secure-blog-sample/`ディレクトリで作業します。自分で作成したコードと比較できるように、別のプロジェクトで進めましょう。
+
+---
+
+### 💻 環境準備（実践用プロジェクト）
+
+まず、**自分で作成する用のプロジェクトを停止**します：
+
+```bash
+# secure-blog-practiceディレクトリに移動
+cd ~/laravel-practice/10-6-6_hands-on/secure-blog-practice
+
+# Sailを停止
+./vendor/bin/sail down
+```
+
+次に、**実践用のプロジェクトを作成**します：
+
+```bash
+# ハンズオンディレクトリに移動
+cd ~/laravel-practice/10-6-6_hands-on
+
+# Laravel 10.xプロジェクトを作成（実践用）
+docker run --rm \
+    -u "$(id -u):$(id -g)" \
+    -v "$(pwd):/var/www/html" \
+    -w /var/www/html \
+    -e COMPOSER_CACHE_DIR=/tmp/composer_cache \
+    laravelsail/php82-composer:latest \
+    composer create-project laravel/laravel:^10.0 secure-blog-sample
+```
+
+```bash
+# プロジェクトディレクトリに移動
+cd secure-blog-sample
+
+# Laravel Sailのインストール
+docker run --rm \
+    -u "$(id -u):$(id -g)" \
+    -v "$(pwd):/var/www/html" \
+    -w /var/www/html \
+    -e COMPOSER_CACHE_DIR=/tmp/composer_cache \
+    laravelsail/php82-composer:latest \
+    composer require laravel/sail --dev
+
+# Sailの設定ファイルを生成
+docker run --rm \
+    -u "$(id -u):$(id -g)" \
+    -v "$(pwd):/var/www/html" \
+    -w /var/www/html \
+    -e COMPOSER_CACHE_DIR=/tmp/composer_cache \
+    laravelsail/php82-composer:latest \
+    php artisan sail:install --with=mysql
+
+# Sailの起動
+./vendor/bin/sail up -d
+
+# アプリケーションキーの生成
+./vendor/bin/sail artisan key:generate
+
+# データベースのマイグレーション
+./vendor/bin/sail artisan migrate
+```
+
+**✅ ディレクトリ構造の確認**
+
+```
+~/laravel-practice/
+└── 10-6-6_hands-on/
+    ├── secure-blog-practice/     ← 自分で作成した用（停止中）
+    └── secure-blog-sample/       ← 実践用（今ここ、起動中）
+        ├── app/
+        │   ├── Http/Controllers/
+        │   └── Models/
+        └── resources/views/
+```
+
+> 💡 **環境構築が完了！**
+> 
+> ブラウザで `http://localhost` にアクセスして、Laravelのウェルカムページが表示されれば成功です。
 
 ---
 
@@ -835,21 +979,35 @@ Route::middleware('auth')->group(function () {
 
 ---
 
-## 🧪 動作確認
+## 🧪 動作確認の方法
 
-### 1. サーバーを起動
+### プロジェクトの切り替え
+
+2つのプロジェクトを切り替えて動作確認する方法：
 
 ```bash
-sail artisan serve
+# secure-blog-practiceで確認したい場合
+cd ~/laravel-practice/10-6-6_hands-on/secure-blog-sample
+./vendor/bin/sail down
+
+cd ~/laravel-practice/10-6-6_hands-on/secure-blog-practice
+./vendor/bin/sail up -d
+
+# secure-blog-sampleで確認したい場合
+cd ~/laravel-practice/10-6-6_hands-on/secure-blog-practice
+./vendor/bin/sail down
+
+cd ~/laravel-practice/10-6-6_hands-on/secure-blog-sample
+./vendor/bin/sail up -d
 ```
 
-### 2. ブラウザでアクセス
+### ブラウザでアクセス
 
 ```
-http://localhost:8000
+http://localhost
 ```
 
-### 3. 確認項目
+### 確認項目
 
 - [ ] ユーザー登録ができる
 - [ ] パスワードがハッシュ化されてデータベースに保存される
@@ -867,7 +1025,14 @@ http://localhost:8000
 
 お疲れさまでした！これで、**セキュリティを意識したブログシステム**が完成しました。
 
+**自分で作成したコードと比較してみましょう**：
+- `secure-blog-practice/`: 自分で作成したプロジェクト
+- `secure-blog-sample/`: 一緒に作成したプロジェクト
+
+両方のプロジェクトを見比べて、違いがあれば確認してみてください。
+
 このハンズオンで学んだセキュリティ対策は、すべてのWebアプリケーション開発で必須の知識です。今後のプロジェクトでも、必ず実践してください。
+
 ---
 
 ## 🚀 まとめ
@@ -876,8 +1041,11 @@ http://localhost:8000
 
 このハンズオンで、以下のことができるようになりました：
 
-- ✅ 実践的なプログラムを作成できる
-- ✅ 学んだ概念を実際のコードに適用できる
+- ✅ CSRF保護を実装できる
+- ✅ SQLインジェクション対策を実装できる
+- ✅ XSS対策を実装できる
+- ✅ パスワードハッシュ化を実装できる
+- ✅ 安全な認証機能を実装できる
 
 引き続き、次のセクションも頑張りましょう！
 

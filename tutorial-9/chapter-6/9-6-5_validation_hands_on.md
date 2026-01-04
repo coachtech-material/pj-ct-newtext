@@ -8,6 +8,37 @@ Chapter 6で学んだバリデーションを実際に手を動かして確認�
 
 ---
 
+## 📁 ディレクトリ構成
+
+このハンズオンでは、**「自分で作成する用」**と**「解答を確認する用」**の2つのプロジェクトを作成します。
+
+```
+~/laravel-practice/
+├── 9-6-5_hands-on/                       ← このハンズオン用のディレクトリ
+│   ├── validation-app-practice/          ← 要件を見て自分で作成するプロジェクト
+│   │   ├── app/
+│   │   │   └── Http/Requests/
+│   │   ├── resources/views/
+│   │   └── ...
+│   └── validation-app-sample/            ← 実践で一緒に作成するプロジェクト
+│       ├── app/
+│       │   └── Http/Requests/
+│       ├── resources/views/
+│       └── ...
+└── ...
+```
+
+| ディレクトリ | 用途 | URL |
+|:---|:---|:---|
+| `validation-app-practice/` | 📋 要件を見て、自分の力で作成する | `http://localhost/register` |
+| `validation-app-sample/` | 🏃 実践セクションで、一緒に手を動かしながら作成する | `http://localhost/register` |
+
+> 💡 **なぜ2つに分けるのか？**: 自分で考えて作成したコードと、解答を見ながら作成したコードを比較することで、理解が深まります。
+
+> ⚠️ **注意**: 2つのプロジェクトを同時に起動することはできません（ポートが競合するため）。一方のプロジェクトで作業する際は、もう一方を停止してください。
+
+---
+
 ## 🎯 演習課題：ユーザー登録フォームのバリデーション
 
 ### 📋 要件
@@ -18,6 +49,92 @@ Chapter 6で学んだバリデーションを実際に手を動かして確認�
    - email: 必須、メール形式、ユニーク
    - password: 必須、最小8文字、確認用と一致
 3. エラーメッセージを日本語化
+
+---
+
+### 📁 Step 0: 環境を準備する（自分で作成する用）
+
+まず、ハンズオン用のディレクトリを作成し、**自分で作成する用**のプロジェクトを準備します。
+
+> **📌 Dockerが起動していることを確認**
+> 
+> 以下のコマンドを実行する前に、Docker Desktop（またはDocker Engine）が起動していることを確認してください。
+
+> **📌 前のハンズオンのプロジェクトを停止**
+> 
+> 前のハンズオン（9-5-6）のプロジェクトが起動している場合は、先に停止してください。
+> ```bash
+> cd ~/laravel-practice/9-5-6_hands-on/task-app-sample
+> ./vendor/bin/sail down
+> ```
+
+```bash
+# laravel-practiceディレクトリに移動
+cd ~/laravel-practice
+
+# ハンズオン用ディレクトリを作成
+mkdir -p 9-6-5_hands-on
+cd 9-6-5_hands-on
+
+# Laravel 10.xプロジェクトを作成（自分で作成する用）
+docker run --rm \
+    -u "$(id -u):$(id -g)" \
+    -v "$(pwd):/var/www/html" \
+    -w /var/www/html \
+    -e COMPOSER_CACHE_DIR=/tmp/composer_cache \
+    laravelsail/php82-composer:latest \
+    composer create-project laravel/laravel:^10.0 validation-app-practice
+```
+
+```bash
+# プロジェクトディレクトリに移動
+cd validation-app-practice
+
+# Laravel Sailのインストール
+docker run --rm \
+    -u "$(id -u):$(id -g)" \
+    -v "$(pwd):/var/www/html" \
+    -w /var/www/html \
+    -e COMPOSER_CACHE_DIR=/tmp/composer_cache \
+    laravelsail/php82-composer:latest \
+    composer require laravel/sail --dev
+
+# Sailの設定ファイルを生成
+docker run --rm \
+    -u "$(id -u):$(id -g)" \
+    -v "$(pwd):/var/www/html" \
+    -w /var/www/html \
+    -e COMPOSER_CACHE_DIR=/tmp/composer_cache \
+    laravelsail/php82-composer:latest \
+    php artisan sail:install --with=mysql
+
+# Sailの起動
+./vendor/bin/sail up -d
+
+# アプリケーションキーの生成
+./vendor/bin/sail artisan key:generate
+
+# データベースのマイグレーション
+./vendor/bin/sail artisan migrate
+```
+
+**✅ ディレクトリ構造の確認**
+
+```
+~/laravel-practice/
+└── 9-6-5_hands-on/
+    └── validation-app-practice/     ← 自分で作成する用（今ここ）
+        ├── app/
+        │   └── Http/Requests/
+        ├── resources/views/
+        └── ...
+```
+
+> 💡 **環境構築が完了！**
+> 
+> ブラウザで `http://localhost` にアクセスして、Laravelのウェルカムページが表示されれば成功です。
+
+**ここから先は、自分の力で実装してみましょう！**
 
 ---
 
@@ -44,56 +161,43 @@ public function rules()
 
 ちゃんとできましたか？バリデーションはデータの品質を保つために不可欠です。一緒に手を動かしながら、ユーザー登録フォームのバリデーションを実装していきましょう。
 
+> 📌 **注意**: ここからは`validation-app-sample/`ディレクトリで作業します。自分で作成したコードと比較できるように、別のプロジェクトで進めましょう。
+
 ---
 
-### 💻 環境準備
+### 💻 環境準備（実践用プロジェクト）
 
-#### プロジェクトのディレクトリ構造
-
-本教材では、ホームディレクトリ直下の`laravel-practice`フォルダ内に、ハンズオンごとにプロジェクトを作成します。
-
-```
-~/laravel-practice/
-├── profile-app/         ← Tutorial 9-1-7で作成
-├── blade-app/           ← Tutorial 9-2-5で作成
-├── database-app/        ← Tutorial 9-3-8で作成
-├── eloquent-app/        ← Tutorial 9-4-9で作成
-├── task-app/            ← Tutorial 9-5-6で作成
-├── validation-app/      ← このハンズオンで作成
-└── ...
-```
-
-#### 新しいプロジェクトを作成する
-
-> **📌 Dockerが起動していることを確認**
-> 
-> 以下のコマンドを実行する前に、Docker Desktop（またはDocker Engine）が起動していることを確認してください。
-
-**Step 1: Laravelプロジェクトの作成**
+まず、**自分で作成する用のプロジェクトを停止**します：
 
 ```bash
-# laravel-practiceディレクトリに移動
-cd ~/laravel-practice
+# validation-app-practiceディレクトリに移動
+cd ~/laravel-practice/9-6-5_hands-on/validation-app-practice
 
-# Laravel 10.xプロジェクトを作成
+# Sailを停止
+./vendor/bin/sail down
+```
+
+次に、**実践用のプロジェクトを作成**します：
+
+```bash
+# ハンズオンディレクトリに移動
+cd ~/laravel-practice/9-6-5_hands-on
+
+# Laravel 10.xプロジェクトを作成（実践用）
 docker run --rm \
     -u "$(id -u):$(id -g)" \
     -v "$(pwd):/var/www/html" \
     -w /var/www/html \
     -e COMPOSER_CACHE_DIR=/tmp/composer_cache \
     laravelsail/php82-composer:latest \
-    composer create-project laravel/laravel:^10.0 validation-app
+    composer create-project laravel/laravel:^10.0 validation-app-sample
 ```
 
-**Step 2: プロジェクトディレクトリに移動**
-
 ```bash
-cd validation-app
-```
+# プロジェクトディレクトリに移動
+cd validation-app-sample
 
-**Step 3: Laravel Sailのインストール**
-
-```bash
+# Laravel Sailのインストール
 docker run --rm \
     -u "$(id -u):$(id -g)" \
     -v "$(pwd):/var/www/html" \
@@ -101,11 +205,8 @@ docker run --rm \
     -e COMPOSER_CACHE_DIR=/tmp/composer_cache \
     laravelsail/php82-composer:latest \
     composer require laravel/sail --dev
-```
 
-**Step 4: Sailの設定ファイルを生成**
-
-```bash
+# Sailの設定ファイルを生成
 docker run --rm \
     -u "$(id -u):$(id -g)" \
     -v "$(pwd):/var/www/html" \
@@ -113,29 +214,35 @@ docker run --rm \
     -e COMPOSER_CACHE_DIR=/tmp/composer_cache \
     laravelsail/php82-composer:latest \
     php artisan sail:install --with=mysql
-```
 
-**Step 5: Sailの起動**
-
-```bash
+# Sailの起動
 ./vendor/bin/sail up -d
-```
 
-**Step 6: アプリケーションキーの生成**
-
-```bash
+# アプリケーションキーの生成
 ./vendor/bin/sail artisan key:generate
+
+# データベースのマイグレーション
+./vendor/bin/sail artisan migrate
 ```
 
-**Step 7: データベースのマイグレーション**
+**✅ ディレクトリ構造の確認**
 
-```bash
-./vendor/bin/sail artisan migrate
+```
+~/laravel-practice/
+└── 9-6-5_hands-on/
+    ├── validation-app-practice/     ← 自分で作成した用（停止中）
+    └── validation-app-sample/       ← 実践用（今ここ、起動中）
+        ├── app/
+        │   └── Http/Requests/
+        ├── resources/views/
+        └── ...
 ```
 
 > 💡 **環境構築が完了！**
 > 
 > ブラウザで `http://localhost` にアクセスして、Laravelのウェルカムページが表示されれば成功です。
+
+---
 
 ### 💭 実装の思考プロセス
 
@@ -388,6 +495,12 @@ value="{{ old('name') }}"
 
 これでバリデーション機能が実装できました！フォームリクエストでバリデーションロジックを分離し、カスタムエラーメッセージを表示できましたね。
 
+**自分で作成したコードと比較してみましょう**：
+- `validation-app-practice/`: 自分で作成したプロジェクト
+- `validation-app-sample/`: 一緒に作成したプロジェクト
+
+両方のプロジェクトを見比べて、違いがあれば確認してみてください。
+
 ---
 
 ## 📖 模範解答
@@ -476,6 +589,31 @@ public function store(StoreUserRequest $request)
     <button type="submit">登録</button>
 </form>
 ```
+
+---
+
+## 🧪 動作確認の方法
+
+### プロジェクトの切り替え
+
+2つのプロジェクトを切り替えて動作確認する方法：
+
+```bash
+# validation-app-practiceで確認したい場合
+cd ~/laravel-practice/9-6-5_hands-on/validation-app-sample
+./vendor/bin/sail down
+
+cd ~/laravel-practice/9-6-5_hands-on/validation-app-practice
+./vendor/bin/sail up -d
+
+# validation-app-sampleで確認したい場合
+cd ~/laravel-practice/9-6-5_hands-on/validation-app-practice
+./vendor/bin/sail down
+
+cd ~/laravel-practice/9-6-5_hands-on/validation-app-sample
+./vendor/bin/sail up -d
+```
+
 ---
 
 ## 🚀 まとめ
@@ -484,7 +622,9 @@ public function store(StoreUserRequest $request)
 
 このハンズオンで、以下のことができるようになりました：
 
-- ✅ Chapter 6で学んだバリデーションを実際に手を動かして確認します。フォームリクエストを使って、入力値の検証を実装しましょう。
+- ✅ フォームリクエストを作成できる
+- ✅ バリデーションルールを定義できる
+- ✅ カスタムエラーメッセージを設定できる
 
 引き続き、次のセクションも頑張りましょう！
 

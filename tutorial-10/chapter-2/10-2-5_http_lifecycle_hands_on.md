@@ -10,6 +10,37 @@
 
 ---
 
+## 📁 ディレクトリ構成
+
+このハンズオンでは、**「自分で作成する用」**と**「解答を確認する用」**の2つのプロジェクトを作成します。
+
+```
+~/laravel-practice/
+├── 10-2-5_hands-on/                      ← このハンズオン用のディレクトリ
+│   ├── lifecycle-app-practice/           ← 要件を見て自分で作成するプロジェクト
+│   │   ├── app/
+│   │   │   ├── Http/Middleware/
+│   │   │   └── Models/
+│   │   └── ...
+│   └── lifecycle-app-sample/             ← 実践で一緒に作成するプロジェクト
+│       ├── app/
+│       │   ├── Http/Middleware/
+│       │   └── Models/
+│       └── ...
+└── ...
+```
+
+| ディレクトリ | 用途 | URL |
+|:---|:---|:---|
+| `lifecycle-app-practice/` | 📋 要件を見て、自分の力で作成する | `http://localhost/posts` |
+| `lifecycle-app-sample/` | 🏃 実践セクションで、一緒に手を動かしながら作成する | `http://localhost/posts` |
+
+> 💡 **なぜ2つに分けるのか？**: 自分で考えて作成したコードと、解答を見ながら作成したコードを比較することで、理解が深まります。
+
+> ⚠️ **注意**: 2つのプロジェクトを同時に起動することはできません（ポートが競合するため）。一方のプロジェクトで作業する際は、もう一方を停止してください。
+
+---
+
 ## 導入：理論を実践で確認する
 
 前のセクションで、HTTPライフサイクルの理論を学びました。このセクションでは、**実際にコードを書いて**、リクエストがどのように処理されるかを体験します。
@@ -19,9 +50,9 @@
 
 ---
 
-## 🏃 実践演習
+## 🎯 演習課題：ブログ記事の閲覧数カウンター
 
-### 📝 演習の目標
+### 📋 要件
 
 *   ブログ記事を表示する機能を作成する
 *   ミドルウェアを使って、閲覧数をカウントする
@@ -29,44 +60,45 @@
 
 ---
 
-### 💻 環境準備
+### 📁 Step 0: 環境を準備する（自分で作成する用）
 
-#### プロジェクトのディレクトリ構造
-
-本教材では、ホームディレクトリ直下の`laravel-practice`フォルダ内に、ハンズオンごとにプロジェクトを作成します。
-
-```
-~/laravel-practice/
-├── ... (前のハンズオンのプロジェクト)
-├── lifecycle-app/       ← このハンズオンで作成
-└── ...
-```
-
-#### 新しいプロジェクトを作成する
+まず、ハンズオン用のディレクトリを作成し、**自分で作成する用**のプロジェクトを準備します。
 
 > **📌 Dockerが起動していることを確認**
 > 
 > 以下のコマンドを実行する前に、Docker Desktop（またはDocker Engine）が起動していることを確認してください。
 
-**Step 1: Laravelプロジェクトの作成**
+> **📌 前のハンズオンのプロジェクトを停止**
+> 
+> 前のハンズオン（10-2-4）のプロジェクトが起動している場合は、先に停止してください。
+> ```bash
+> cd ~/laravel-practice/10-2-4_hands-on/middleware-app-sample
+> ./vendor/bin/sail down
+> ```
 
 ```bash
+# laravel-practiceディレクトリに移動
 cd ~/laravel-practice
 
+# ハンズオン用ディレクトリを作成
+mkdir -p 10-2-5_hands-on
+cd 10-2-5_hands-on
+
+# Laravel 10.xプロジェクトを作成（自分で作成する用）
 docker run --rm \
     -u "$(id -u):$(id -g)" \
     -v "$(pwd):/var/www/html" \
     -w /var/www/html \
     -e COMPOSER_CACHE_DIR=/tmp/composer_cache \
     laravelsail/php82-composer:latest \
-    composer create-project laravel/laravel:^10.0 lifecycle-app
+    composer create-project laravel/laravel:^10.0 lifecycle-app-practice
 ```
 
-**Step 2: プロジェクトディレクトリに移動してSailをセットアップ**
-
 ```bash
-cd lifecycle-app
+# プロジェクトディレクトリに移動
+cd lifecycle-app-practice
 
+# Laravel Sailのインストール
 docker run --rm \
     -u "$(id -u):$(id -g)" \
     -v "$(pwd):/var/www/html" \
@@ -75,6 +107,7 @@ docker run --rm \
     laravelsail/php82-composer:latest \
     composer require laravel/sail --dev
 
+# Sailの設定ファイルを生成
 docker run --rm \
     -u "$(id -u):$(id -g)" \
     -v "$(pwd):/var/www/html" \
@@ -82,17 +115,143 @@ docker run --rm \
     -e COMPOSER_CACHE_DIR=/tmp/composer_cache \
     laravelsail/php82-composer:latest \
     php artisan sail:install --with=mysql
-```
 
-**Step 3: Sailの起動と初期設定**
-
-```bash
+# Sailの起動
 ./vendor/bin/sail up -d
+
+# アプリケーションキーの生成
 ./vendor/bin/sail artisan key:generate
+
+# データベースのマイグレーション
 ./vendor/bin/sail artisan migrate
 ```
 
-> 💡 **環境構築が完了！** `http://localhost` にアクセスして確認してください。
+**✅ ディレクトリ構造の確認**
+
+```
+~/laravel-practice/
+└── 10-2-5_hands-on/
+    └── lifecycle-app-practice/     ← 自分で作成する用（今ここ）
+        ├── app/
+        │   ├── Http/Middleware/
+        │   └── Models/
+        └── ...
+```
+
+> 💡 **環境構築が完了！**
+> 
+> ブラウザで `http://localhost` にアクセスして、Laravelのウェルカムページが表示されれば成功です。
+
+**ここから先は、自分の力で実装してみましょう！**
+
+---
+
+## 💡 ヒント
+
+```bash
+# マイグレーションとモデルの作成
+sail artisan make:migration create_posts_table
+sail artisan make:model Post
+
+# ミドルウェアの作成
+sail artisan make:middleware LogHttpLifecycle
+sail artisan make:middleware CountPostViews
+```
+
+```php
+// ミドルウェアでログを記録
+Log::info('=== HTTP Lifecycle Start ===');
+$response = $next($request);
+Log::info('=== HTTP Lifecycle End ===');
+return $response;
+```
+
+---
+
+## 🏃 実践: 一緒に作ってみましょう！
+
+ちゃんとできましたか？HTTPライフサイクルを理解するには、実際にログを記録して流れを確認するのが一番です。一緒に手を動かしながら、ブログ記事の閲覧数カウンター機能を実装していきましょう。
+
+> 📌 **注意**: ここからは`lifecycle-app-sample/`ディレクトリで作業します。自分で作成したコードと比較できるように、別のプロジェクトで進めましょう。
+
+---
+
+### 💻 環境準備（実践用プロジェクト）
+
+まず、**自分で作成する用のプロジェクトを停止**します：
+
+```bash
+# lifecycle-app-practiceディレクトリに移動
+cd ~/laravel-practice/10-2-5_hands-on/lifecycle-app-practice
+
+# Sailを停止
+./vendor/bin/sail down
+```
+
+次に、**実践用のプロジェクトを作成**します：
+
+```bash
+# ハンズオンディレクトリに移動
+cd ~/laravel-practice/10-2-5_hands-on
+
+# Laravel 10.xプロジェクトを作成（実践用）
+docker run --rm \
+    -u "$(id -u):$(id -g)" \
+    -v "$(pwd):/var/www/html" \
+    -w /var/www/html \
+    -e COMPOSER_CACHE_DIR=/tmp/composer_cache \
+    laravelsail/php82-composer:latest \
+    composer create-project laravel/laravel:^10.0 lifecycle-app-sample
+```
+
+```bash
+# プロジェクトディレクトリに移動
+cd lifecycle-app-sample
+
+# Laravel Sailのインストール
+docker run --rm \
+    -u "$(id -u):$(id -g)" \
+    -v "$(pwd):/var/www/html" \
+    -w /var/www/html \
+    -e COMPOSER_CACHE_DIR=/tmp/composer_cache \
+    laravelsail/php82-composer:latest \
+    composer require laravel/sail --dev
+
+# Sailの設定ファイルを生成
+docker run --rm \
+    -u "$(id -u):$(id -g)" \
+    -v "$(pwd):/var/www/html" \
+    -w /var/www/html \
+    -e COMPOSER_CACHE_DIR=/tmp/composer_cache \
+    laravelsail/php82-composer:latest \
+    php artisan sail:install --with=mysql
+
+# Sailの起動
+./vendor/bin/sail up -d
+
+# アプリケーションキーの生成
+./vendor/bin/sail artisan key:generate
+
+# データベースのマイグレーション
+./vendor/bin/sail artisan migrate
+```
+
+**✅ ディレクトリ構造の確認**
+
+```
+~/laravel-practice/
+└── 10-2-5_hands-on/
+    ├── lifecycle-app-practice/     ← 自分で作成した用（停止中）
+    └── lifecycle-app-sample/       ← 実践用（今ここ、起動中）
+        ├── app/
+        │   ├── Http/Middleware/
+        │   └── Models/
+        └── ...
+```
+
+> 💡 **環境構築が完了！**
+> 
+> ブラウザで `http://localhost` にアクセスして、Laravelのウェルカムページが表示されれば成功です。
 
 ---
 
@@ -465,9 +624,15 @@ Route::middleware(['log.lifecycle'])->group(function () {
 
 ---
 
-### 🔧 ステップ7.5: ビューファイルの作成
+### 🔧 ステップ8: ビューファイルの作成
 
 #### 記事一覧ビュー
+
+ターミナルで以下のコマンドを実行して、ディレクトリを作成します：
+
+```bash
+mkdir -p resources/views/posts
+```
 
 **`resources/views/posts/index.blade.php`**
 
@@ -514,7 +679,7 @@ Route::middleware(['log.lifecycle'])->group(function () {
 
 ---
 
-### 🚀 ステップ8: 動作確認
+### 🚀 ステップ9: 動作確認
 
 #### 記事一覧を表示
 
@@ -592,6 +757,18 @@ Route::middleware(['log.lifecycle'])->group(function () {
 
 ---
 
+### ✨ 完成！
+
+おめでとうございます！HTTPライフサイクル全体を体験できました。
+
+**自分で作成したコードと比較してみましょう**：
+- `lifecycle-app-practice/`: 自分で作成したプロジェクト
+- `lifecycle-app-sample/`: 一緒に作成したプロジェクト
+
+両方のプロジェクトを見比べて、違いがあれば確認してみてください。
+
+---
+
 ### 💡 発展演習: レスポンスタイムを計測
 
 #### ミドルウェアを改良
@@ -622,16 +799,28 @@ public function handle(Request $request, Closure $next)
 
 ---
 
-## ✨ 完成！
+## 🧪 動作確認の方法
 
-おめでとうございます！HTTPライフサイクル全体を体験できました。
+### プロジェクトの切り替え
 
-**このハンズオンで学んだこと**：
+2つのプロジェクトを切り替えて動作確認する方法：
 
-*   ミドルウェアを使って、リクエストの前後処理を実装した
-*   ログを記録して、HTTPライフサイクルを可視化した
-*   閲覧数カウンターを実装して、ミドルウェアの後処理を体験した
-*   リクエストがどのように処理されるかを、実際のコードで確認した
+```bash
+# lifecycle-app-practiceで確認したい場合
+cd ~/laravel-practice/10-2-5_hands-on/lifecycle-app-sample
+./vendor/bin/sail down
+
+cd ~/laravel-practice/10-2-5_hands-on/lifecycle-app-practice
+./vendor/bin/sail up -d
+
+# lifecycle-app-sampleで確認したい場合
+cd ~/laravel-practice/10-2-5_hands-on/lifecycle-app-practice
+./vendor/bin/sail down
+
+cd ~/laravel-practice/10-2-5_hands-on/lifecycle-app-sample
+./vendor/bin/sail up -d
+```
+
 ---
 
 ## 🚀 まとめ
@@ -640,8 +829,10 @@ public function handle(Request $request, Closure $next)
 
 このハンズオンで、以下のことができるようになりました：
 
-- ✅ 実践的なプログラムを作成できる
-- ✅ 学んだ概念を実際のコードに適用できる
+- ✅ ミドルウェアを使って、リクエストの前後処理を実装した
+- ✅ ログを記録して、HTTPライフサイクルを可視化した
+- ✅ 閲覧数カウンターを実装して、ミドルウェアの後処理を体験した
+- ✅ リクエストがどのように処理されるかを、実際のコードで確認した
 
 引き続き、次のセクションも頑張りましょう！
 

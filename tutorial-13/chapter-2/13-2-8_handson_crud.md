@@ -6,19 +6,240 @@
 - Thunder Clientで各操作のステータスコードとレスポンスを確認する
 - バリデーションエラーと404エラーの挙動を確認する
 
+> 分からない文法や実装があっても、すぐに答えを見るのではなく、過去の教材を見たり、AIにヒントをもらいながら進めるなど、自身で創意工夫しながら進めてみましょう🔥
+
+---
+
+## 📁 ディレクトリ構成
+
+このハンズオンでは、**「自分で作成する用」**と**「解答を確認する用」**の2つのプロジェクトを作成します。
+
+```
+~/api-practice/
+├── 13-2-8_hands-on/                         ← このハンズオン用のディレクトリ
+│   ├── task-crud-practice/                  ← 要件を見て自分で作成するプロジェクト
+│   │   ├── app/Http/Controllers/
+│   │   │   └── TaskController.php
+│   │   └── routes/api.php
+│   └── task-crud-sample/                    ← 実践で一緒に作成するプロジェクト
+│       ├── app/Http/Controllers/
+│       │   └── TaskController.php
+│       └── routes/api.php
+└── ...
+```
+
+| ディレクトリ | 用途 |
+|:---|:---|
+| `task-crud-practice/` | 📋 要件を見て、自分の力で作成する |
+| `task-crud-sample/` | 🏃 実践セクションで、一緒に手を動かしながら作成する |
+
+> 💡 **なぜ2つに分けるのか？**: 自分で考えて作成したプロジェクトと、解答を見ながら作成したプロジェクトを比較することで、理解が深まります。
+
 ---
 
 ## 🛠️ 事前準備
 
-このハンズオンは、**Chapter 1のハンズオン（13-1-7）で構築した環境**を使用します。
+このハンズオンでは、**Tutorial 13専用のスターターキット**を使用します。
 
-まだ環境構築が完了していない場合は、先に13-1-7を完了してください。
+> 💡 **ポイント**: Chapter 1のハンズオン（13-1-7）とは別のプロジェクトを作成します。
 
 ---
 
-## Step 1: コントローラーの作成
+## 📋 要件
 
-### 1-1. TaskControllerを作成
+1. `TaskController`を作成し、CRUD操作を実装する
+2. `routes/api.php`にルーティングを設定する
+3. Thunder Clientで各操作の動作確認を行う
+
+**実装するAPI**:
+
+| HTTPメソッド | URL | 操作 | ステータスコード |
+|-------------|-----|------|----------------|
+| GET | /api/tasks | 一覧取得 | 200 |
+| POST | /api/tasks | 作成 | 201 / 422 |
+| GET | /api/tasks/{id} | 詳細取得 | 200 / 404 |
+| PUT | /api/tasks/{id} | 更新 | 200 / 404 / 422 |
+| DELETE | /api/tasks/{id} | 削除 | 204 / 404 |
+
+---
+
+## 🔧 環境準備（自分で作成する用）
+
+まず、ハンズオン用のディレクトリを作成し、**自分で作成する用**のプロジェクトを準備します。
+
+### Step 1: ディレクトリを作成
+
+```bash
+# api-practiceディレクトリに移動（なければ作成）
+mkdir -p ~/api-practice
+cd ~/api-practice
+
+# ハンズオン用ディレクトリを作成
+mkdir -p 13-2-8_hands-on
+cd 13-2-8_hands-on
+```
+
+### Step 2: スターターキットをクローン
+
+```bash
+# 自分で作成する用のプロジェクトをクローン
+git clone https://github.com/coachtech-material/laravel-api-starter-forTutorial13.git task-crud-practice
+cd task-crud-practice
+```
+
+### Step 3: 環境変数ファイルを作成
+
+```bash
+cp .env.example .env
+```
+
+### Step 4: Docker環境を起動
+
+```bash
+./vendor/bin/sail up -d
+```
+
+### Step 5: データベースの準備
+
+```bash
+sail artisan migrate:fresh --seed
+```
+
+### Step 6: セットアップ完了の確認
+
+ブラウザで `http://localhost` にアクセスし、Laravelのウェルカムページが表示されることを確認します。
+
+**✅ ディレクトリ構造の確認**
+
+```
+~/api-practice/
+└── 13-2-8_hands-on/
+    └── task-crud-practice/     ← 自分で作成する用（今ここ）
+        ├── app/Http/Controllers/
+        ├── routes/api.php
+        └── ...
+```
+
+> 💡 **環境構築が完了！**
+> 
+> `TaskController`を作成し、CRUD操作を実装してみましょう。
+
+**ここから先は、自分の力で実装してみましょう！**
+
+---
+
+## 💡 ヒント
+
+### コントローラーの作成
+
+```bash
+sail artisan make:controller TaskController --api
+```
+
+### ルーティング
+
+```php
+// routes/api.php
+Route::apiResource('tasks', TaskController::class);
+```
+
+### CRUDメソッドの実装ポイント
+
+| メソッド | ポイント |
+|----------|---------|
+| `index()` | `Task::all()`で全件取得 |
+| `store()` | `$request->validate()`でバリデーション、`Task::create()`で作成 |
+| `show()` | `Task::find($id)`で検索、見つからなければ404 |
+| `update()` | `$task->update()`で更新 |
+| `destroy()` | `$task->delete()`で削除、204を返す |
+
+---
+
+## 🏃 実践: 一緒に作ってみましょう！
+
+ちゃんとできましたか？タスク管理APIのCRUD実装は、API開発の基本です。一緒に手を動かしながら、各メソッドを実装していきましょう。
+
+> 📌 **注意**: ここからは`task-crud-sample/`ディレクトリで作業します。自分で作成したプロジェクトと比較できるように、別のプロジェクトで進めましょう。
+
+---
+
+### 💻 環境準備（実践用プロジェクト）
+
+### Step 1: 自分で作成したプロジェクトを停止
+
+まず、自分で作成したプロジェクトのDockerコンテナを停止します。
+
+```bash
+# task-crud-practiceディレクトリで実行
+cd ~/api-practice/13-2-8_hands-on/task-crud-practice
+sail down
+```
+
+### Step 2: 実践用のプロジェクトをクローン
+
+```bash
+# ハンズオンディレクトリに移動
+cd ~/api-practice/13-2-8_hands-on
+
+# 実践用のプロジェクトをクローン
+git clone https://github.com/coachtech-material/laravel-api-starter-forTutorial13.git task-crud-sample
+cd task-crud-sample
+```
+
+### Step 3: 環境変数ファイルを作成
+
+```bash
+cp .env.example .env
+```
+
+### Step 4: Docker環境を起動
+
+```bash
+./vendor/bin/sail up -d
+```
+
+### Step 5: データベースの準備
+
+```bash
+sail artisan migrate:fresh --seed
+```
+
+### Step 6: セットアップ完了の確認
+
+ブラウザで `http://localhost` にアクセスし、Laravelのウェルカムページが表示されることを確認します。
+
+**✅ ディレクトリ構造の確認**
+
+```
+~/api-practice/
+└── 13-2-8_hands-on/
+    ├── task-crud-practice/     ← 自分で作成した用
+    └── task-crud-sample/       ← 実践用（今ここ）
+        ├── app/Http/Controllers/
+        ├── routes/api.php
+        └── ...
+```
+
+---
+
+### 💭 実装の思考プロセス
+
+CRUD APIを実装する際、以下の順番で考えると効率的です：
+
+1. **コントローラーを作成**：`make:controller`コマンドで雛形を生成
+2. **各メソッドを実装**：index → store → show → update → destroy
+3. **ルーティングを設定**：`apiResource`で一括登録
+4. **動作確認**：Thunder Clientで各操作をテスト
+
+---
+
+### 📝 ステップバイステップで実装
+
+#### ステップ1: コントローラーを作成
+
+**何を考えているか**：
+- 「APIリソース用のコントローラーを作成しよう」
+- 「`--api`オプションでCRUDメソッドの雛形を生成しよう」
 
 ターミナルで以下のコマンドを実行します。
 
@@ -32,11 +253,7 @@ sail artisan make:controller TaskController --api
 | `TaskController` | コントローラー名 |
 | `--api` | APIリソース用のメソッドを自動生成 |
 
----
-
-### 1-2. 生成されるメソッド
-
-`--api`オプションを付けると、以下のメソッドが自動生成されます。
+**生成されるメソッド**:
 
 | メソッド | HTTPメソッド | 用途 |
 |----------|-------------|------|
@@ -48,9 +265,11 @@ sail artisan make:controller TaskController --api
 
 ---
 
-## Step 2: CRUDメソッドの実装
+#### ステップ2: CRUDメソッドを実装
 
-### 2-1. TaskControllerを編集
+**何を考えているか**：
+- 「各メソッドでどんな処理をするか考えよう」
+- 「エラーケースも考慮しよう」
 
 **ファイル**: `app/Http/Controllers/TaskController.php`
 
@@ -166,9 +385,9 @@ class TaskController extends Controller
 
 ---
 
-### 2-2. コードリーディング
+#### ステップ3: コードリーディング
 
-#### indexメソッド
+**indexメソッド**
 
 ```php
 public function index()
@@ -181,15 +400,16 @@ public function index()
 }
 ```
 
-| 部分 | 説明 |
-|------|------|
-| `Task::all()` | 全てのタスクを取得 |
-| `'data' => $tasks` | レスポンスのキー名を`data`に統一 |
-| `200` | ステータスコード（OK） |
+| 行 | コード | 説明 |
+|:---|:---|:---|
+| 1 | `$tasks = Task::all();` | 全てのタスクを取得 |
+| 2 | `return response()->json([...], 200);` | JSON形式でレスポンスを返す |
+| 3 | `'data' => $tasks` | レスポンスのキー名を`data`に統一 |
+| 4 | `200` | ステータスコード（OK） |
 
 ---
 
-#### storeメソッド
+**storeメソッド**
 
 ```php
 public function store(Request $request)
@@ -213,16 +433,17 @@ public function store(Request $request)
 }
 ```
 
-| 部分 | 説明 |
-|------|------|
-| `$request->validate()` | バリデーションを実行 |
-| `'user_id' => 1` | ユーザーIDを1に固定 |
-| `$validated['description'] ?? null` | descriptionがなければnull |
-| `201` | ステータスコード（Created） |
+| 行 | コード | 説明 |
+|:---|:---|:---|
+| 1 | `$validated = $request->validate([...]);` | バリデーションを実行 |
+| 2 | `'title' => 'required\|string\|max:255'` | タイトルは必須、文字列、最大255文字 |
+| 3 | `'user_id' => 1` | ユーザーIDを1に固定（認証なしのため） |
+| 4 | `$validated['description'] ?? null` | descriptionがなければnull |
+| 5 | `201` | ステータスコード（Created） |
 
 ---
 
-#### showメソッド
+**showメソッド**
 
 ```php
 public function show(string $id)
@@ -241,15 +462,15 @@ public function show(string $id)
 }
 ```
 
-| 部分 | 説明 |
-|------|------|
-| `Task::find($id)` | IDでタスクを検索（見つからなければnull） |
-| `if (!$task)` | タスクが見つからない場合 |
-| `404` | ステータスコード（Not Found） |
+| 行 | コード | 説明 |
+|:---|:---|:---|
+| 1 | `$task = Task::find($id);` | IDでタスクを検索（見つからなければnull） |
+| 2 | `if (!$task)` | タスクが見つからない場合 |
+| 3 | `404` | ステータスコード（Not Found） |
 
 ---
 
-#### destroyメソッド
+**destroyメソッド**
 
 ```php
 public function destroy(string $id)
@@ -268,17 +489,19 @@ public function destroy(string $id)
 }
 ```
 
-| 部分 | 説明 |
-|------|------|
-| `$task->delete()` | タスクを削除 |
-| `null` | レスポンスボディなし |
-| `204` | ステータスコード（No Content） |
+| 行 | コード | 説明 |
+|:---|:---|:---|
+| 1 | `$task->delete();` | タスクを削除 |
+| 2 | `null` | レスポンスボディなし |
+| 3 | `204` | ステータスコード（No Content） |
 
 ---
 
-## Step 3: ルーティングの設定
+#### ステップ4: ルーティングを設定
 
-### 3-1. api.phpを編集
+**何を考えているか**：
+- 「`apiResource`で一括登録しよう」
+- 「これで5つのルートが自動生成される」
 
 **ファイル**: `routes/api.php`
 
@@ -295,11 +518,7 @@ Route::get('/hello', function () {
 Route::apiResource('tasks', TaskController::class);
 ```
 
----
-
-### 3-2. apiResourceが生成するルート
-
-`Route::apiResource('tasks', TaskController::class);`は、以下のルートを自動生成します。
+**apiResourceが生成するルート**:
 
 | HTTPメソッド | URL | コントローラーメソッド |
 |-------------|-----|---------------------|
@@ -311,10 +530,13 @@ Route::apiResource('tasks', TaskController::class);
 
 ---
 
-## Step 4: Thunder Clientで動作確認
+#### ステップ5: Thunder Clientで動作確認
 
-### 4-1. タスク一覧を取得（GET）
+**何を考えているか**：
+- 「各操作が正しく動作するか確認しよう」
+- 「ステータスコードも確認しよう」
 
+**タスク一覧を取得（GET）**:
 - メソッド: `GET`
 - URL: `http://localhost/api/tasks`
 - 期待: ステータスコード `200 OK`
@@ -323,16 +545,25 @@ Route::apiResource('tasks', TaskController::class);
 
 ```json
 {
-  "data": []
+  "data": [
+    {
+      "id": 1,
+      "user_id": 1,
+      "title": "企画書を作成する",
+      "description": "来週の会議に向けて企画書を準備する",
+      "status": "pending",
+      ...
+    },
+    ...
+  ]
 }
 ```
 
-> 💡 **ポイント**: まだタスクがないので、空の配列が返ります。
+> 💡 **ポイント**: シーダーで作成されたサンプルタスクが表示されます。
 
 ---
 
-### 4-2. タスクを作成（POST）
-
+**タスクを作成（POST）**:
 - メソッド: `POST`
 - URL: `http://localhost/api/tasks`
 - Headers:
@@ -341,42 +572,23 @@ Route::apiResource('tasks', TaskController::class);
 
 ```json
 {
-  "title": "最初のタスク",
+  "title": "新しいタスク",
   "description": "これはテストタスクです"
 }
 ```
 
 - 期待: ステータスコード `201 Created`
 
-**レスポンス例**:
-
-```json
-{
-  "message": "タスクを作成しました",
-  "data": {
-    "id": 1,
-    "user_id": 1,
-    "title": "最初のタスク",
-    "description": "これはテストタスクです",
-    "status": "pending",
-    "created_at": "2024-01-01T00:00:00.000000Z",
-    "updated_at": "2024-01-01T00:00:00.000000Z"
-  }
-}
-```
-
 ---
 
-### 4-3. タスク詳細を取得（GET）
-
+**タスク詳細を取得（GET）**:
 - メソッド: `GET`
 - URL: `http://localhost/api/tasks/1`
 - 期待: ステータスコード `200 OK`
 
 ---
 
-### 4-4. タスクを更新（PUT）
-
+**タスクを更新（PUT）**:
 - メソッド: `PUT`
 - URL: `http://localhost/api/tasks/1`
 - Headers:
@@ -395,18 +607,16 @@ Route::apiResource('tasks', TaskController::class);
 
 ---
 
-### 4-5. タスクを削除（DELETE）
-
+**タスクを削除（DELETE）**:
 - メソッド: `DELETE`
 - URL: `http://localhost/api/tasks/1`
 - 期待: ステータスコード `204 No Content`
 
 ---
 
-## Step 5: エラーケースの確認
+#### ステップ6: エラーケースの確認
 
-### 5-1. バリデーションエラー（422）
-
+**バリデーションエラー（422）**:
 - メソッド: `POST`
 - URL: `http://localhost/api/tasks`
 - Headers:
@@ -439,8 +649,7 @@ Route::apiResource('tasks', TaskController::class);
 
 ---
 
-### 5-2. 存在しないタスク（404）
-
+**存在しないタスク（404）**:
 - メソッド: `GET`
 - URL: `http://localhost/api/tasks/9999`
 - 期待: ステータスコード `404 Not Found`
@@ -452,6 +661,18 @@ Route::apiResource('tasks', TaskController::class);
   "message": "タスクが見つかりません"
 }
 ```
+
+---
+
+### ✨ 完成！
+
+これでタスク管理APIのCRUD実装が完了しました！
+
+**自分で作成したプロジェクトと比較してみましょう**：
+- `task-crud-practice/app/Http/Controllers/TaskController.php`: 自分で作成したコード
+- `task-crud-sample/app/Http/Controllers/TaskController.php`: 一緒に作成したコード
+
+両方のファイルを比較して、実装内容を確認してみてください。
 
 ---
 

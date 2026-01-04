@@ -2,9 +2,40 @@
 
 ## 📝 このセクションの目的
 
-Chapter 9で学んだ認可機能を実際に手を動かして確認します。ポリシーを使って、ユーザーごとのアクセス制御を実装しましょう。
+Chapter 3で学んだ認可機能を実際に手を動かして確認します。ポリシーを使って、ユーザーごとのアクセス制御を実装しましょう。
 
 > 分からない文法や実装があっても、すぐに答えを見るのではなく、過去の教材を見たり、AIにヒントをもらいながら進めるなど、自身で創意工夫しながら進めてみましょう🔥
+
+---
+
+## 📁 ディレクトリ構成
+
+このハンズオンでは、**「自分で作成する用」**と**「解答を確認する用」**の2つのプロジェクトを作成します。
+
+```
+~/laravel-practice/
+├── 10-3-6_hands-on/                      ← このハンズオン用のディレクトリ
+│   ├── authorization-app-practice/       ← 要件を見て自分で作成するプロジェクト
+│   │   ├── app/
+│   │   │   ├── Http/Controllers/
+│   │   │   └── Policies/
+│   │   └── ...
+│   └── authorization-app-sample/         ← 実践で一緒に作成するプロジェクト
+│       ├── app/
+│       │   ├── Http/Controllers/
+│       │   └── Policies/
+│       └── ...
+└── ...
+```
+
+| ディレクトリ | 用途 | URL |
+|:---|:---|:---|
+| `authorization-app-practice/` | 📋 要件を見て、自分の力で作成する | `http://localhost/posts` |
+| `authorization-app-sample/` | 🏃 実践セクションで、一緒に手を動かしながら作成する | `http://localhost/posts` |
+
+> 💡 **なぜ2つに分けるのか？**: 自分で考えて作成したコードと、解答を見ながら作成したコードを比較することで、理解が深まります。
+
+> ⚠️ **注意**: 2つのプロジェクトを同時に起動することはできません（ポートが競合するため）。一方のプロジェクトで作業する際は、もう一方を停止してください。
 
 ---
 
@@ -15,6 +46,92 @@ Chapter 9で学んだ認可機能を実際に手を動かして確認します�
 1. `PostPolicy`を作成
 2. 投稿の作成者のみが編集・削除できるようにする
 3. コントローラーで`authorize()`を使用
+
+---
+
+### 📁 Step 0: 環境を準備する（自分で作成する用）
+
+まず、ハンズオン用のディレクトリを作成し、**自分で作成する用**のプロジェクトを準備します。
+
+> **📌 Dockerが起動していることを確認**
+> 
+> 以下のコマンドを実行する前に、Docker Desktop（またはDocker Engine）が起動していることを確認してください。
+
+> **📌 前のハンズオンのプロジェクトを停止**
+> 
+> 前のハンズオン（10-2-5）のプロジェクトが起動している場合は、先に停止してください。
+> ```bash
+> cd ~/laravel-practice/10-2-5_hands-on/lifecycle-app-sample
+> ./vendor/bin/sail down
+> ```
+
+```bash
+# laravel-practiceディレクトリに移動
+cd ~/laravel-practice
+
+# ハンズオン用ディレクトリを作成
+mkdir -p 10-3-6_hands-on
+cd 10-3-6_hands-on
+
+# Laravel 10.xプロジェクトを作成（自分で作成する用）
+docker run --rm \
+    -u "$(id -u):$(id -g)" \
+    -v "$(pwd):/var/www/html" \
+    -w /var/www/html \
+    -e COMPOSER_CACHE_DIR=/tmp/composer_cache \
+    laravelsail/php82-composer:latest \
+    composer create-project laravel/laravel:^10.0 authorization-app-practice
+```
+
+```bash
+# プロジェクトディレクトリに移動
+cd authorization-app-practice
+
+# Laravel Sailのインストール
+docker run --rm \
+    -u "$(id -u):$(id -g)" \
+    -v "$(pwd):/var/www/html" \
+    -w /var/www/html \
+    -e COMPOSER_CACHE_DIR=/tmp/composer_cache \
+    laravelsail/php82-composer:latest \
+    composer require laravel/sail --dev
+
+# Sailの設定ファイルを生成
+docker run --rm \
+    -u "$(id -u):$(id -g)" \
+    -v "$(pwd):/var/www/html" \
+    -w /var/www/html \
+    -e COMPOSER_CACHE_DIR=/tmp/composer_cache \
+    laravelsail/php82-composer:latest \
+    php artisan sail:install --with=mysql
+
+# Sailの起動
+./vendor/bin/sail up -d
+
+# アプリケーションキーの生成
+./vendor/bin/sail artisan key:generate
+
+# データベースのマイグレーション
+./vendor/bin/sail artisan migrate
+```
+
+**✅ ディレクトリ構造の確認**
+
+```
+~/laravel-practice/
+└── 10-3-6_hands-on/
+    └── authorization-app-practice/     ← 自分で作成する用（今ここ）
+        ├── app/
+        │   ├── Http/Controllers/
+        │   └── Policies/
+        └── ...
+```
+
+> 💡 **環境構築が完了！**
+> 
+> ブラウザで `http://localhost` にアクセスして、Laravelのウェルカムページが表示されれば成功です。
+
+**ここから先は、自分の力で実装してみましょう！**
 
 ---
 
@@ -40,46 +157,43 @@ $this->authorize('update', $post);
 
 ちゃんとできましたか？認可機能はユーザーごとのアクセス制御を実現する重要な機能です。一緒に手を動かしながら、投稿の編集権限制御を実装していきましょう。
 
+> 📌 **注意**: ここからは`authorization-app-sample/`ディレクトリで作業します。自分で作成したコードと比較できるように、別のプロジェクトで進めましょう。
+
 ---
 
-### 💻 環境準備
+### 💻 環境準備（実践用プロジェクト）
 
-#### プロジェクトのディレクトリ構造
-
-本教材では、ホームディレクトリ直下の`laravel-practice`フォルダ内に、ハンズオンごとにプロジェクトを作成します。
-
-```
-~/laravel-practice/
-├── ... (前のハンズオンのプロジェクト)
-├── authorization-app/   ← このハンズオンで作成
-└── ...
-```
-
-#### 新しいプロジェクトを作成する
-
-> **📌 Dockerが起動していることを確認**
-> 
-> 以下のコマンドを実行する前に、Docker Desktop（またはDocker Engine）が起動していることを確認してください。
-
-**Step 1: Laravelプロジェクトの作成**
+まず、**自分で作成する用のプロジェクトを停止**します：
 
 ```bash
-cd ~/laravel-practice
+# authorization-app-practiceディレクトリに移動
+cd ~/laravel-practice/10-3-6_hands-on/authorization-app-practice
 
+# Sailを停止
+./vendor/bin/sail down
+```
+
+次に、**実践用のプロジェクトを作成**します：
+
+```bash
+# ハンズオンディレクトリに移動
+cd ~/laravel-practice/10-3-6_hands-on
+
+# Laravel 10.xプロジェクトを作成（実践用）
 docker run --rm \
     -u "$(id -u):$(id -g)" \
     -v "$(pwd):/var/www/html" \
     -w /var/www/html \
     -e COMPOSER_CACHE_DIR=/tmp/composer_cache \
     laravelsail/php82-composer:latest \
-    composer create-project laravel/laravel:^10.0 authorization-app
+    composer create-project laravel/laravel:^10.0 authorization-app-sample
 ```
 
-**Step 2: プロジェクトディレクトリに移動してSailをセットアップ**
-
 ```bash
-cd authorization-app
+# プロジェクトディレクトリに移動
+cd authorization-app-sample
 
+# Laravel Sailのインストール
 docker run --rm \
     -u "$(id -u):$(id -g)" \
     -v "$(pwd):/var/www/html" \
@@ -88,6 +202,7 @@ docker run --rm \
     laravelsail/php82-composer:latest \
     composer require laravel/sail --dev
 
+# Sailの設定ファイルを生成
 docker run --rm \
     -u "$(id -u):$(id -g)" \
     -v "$(pwd):/var/www/html" \
@@ -95,17 +210,35 @@ docker run --rm \
     -e COMPOSER_CACHE_DIR=/tmp/composer_cache \
     laravelsail/php82-composer:latest \
     php artisan sail:install --with=mysql
-```
 
-**Step 3: Sailの起動と初期設定**
-
-```bash
+# Sailの起動
 ./vendor/bin/sail up -d
+
+# アプリケーションキーの生成
 ./vendor/bin/sail artisan key:generate
+
+# データベースのマイグレーション
 ./vendor/bin/sail artisan migrate
 ```
 
-> 💡 **環境構築が完了！** `http://localhost` にアクセスして確認してください。
+**✅ ディレクトリ構造の確認**
+
+```
+~/laravel-practice/
+└── 10-3-6_hands-on/
+    ├── authorization-app-practice/     ← 自分で作成した用（停止中）
+    └── authorization-app-sample/       ← 実践用（今ここ、起動中）
+        ├── app/
+        │   ├── Http/Controllers/
+        │   └── Policies/
+        └── ...
+```
+
+> 💡 **環境構築が完了！**
+> 
+> ブラウザで `http://localhost` にアクセスして、Laravelのウェルカムページが表示されれば成功です。
+
+---
 
 ### 💭 実装の思考プロセス
 
@@ -316,6 +449,12 @@ $this->authorize('delete', $post);
 
 これで認可機能が実装できました！ポリシーで権限ロジックを集約管理し、ユーザーごとのアクセス制御を実現できましたね。
 
+**自分で作成したコードと比較してみましょう**：
+- `authorization-app-practice/`: 自分で作成したプロジェクト
+- `authorization-app-sample/`: 一緒に作成したプロジェクト
+
+両方のプロジェクトを見比べて、違いがあれば確認してみてください。
+
 ---
 
 ## 📖 模範解答
@@ -390,6 +529,31 @@ public function destroy($id)
     </div>
 @endforeach
 ```
+
+---
+
+## 🧪 動作確認の方法
+
+### プロジェクトの切り替え
+
+2つのプロジェクトを切り替えて動作確認する方法：
+
+```bash
+# authorization-app-practiceで確認したい場合
+cd ~/laravel-practice/10-3-6_hands-on/authorization-app-sample
+./vendor/bin/sail down
+
+cd ~/laravel-practice/10-3-6_hands-on/authorization-app-practice
+./vendor/bin/sail up -d
+
+# authorization-app-sampleで確認したい場合
+cd ~/laravel-practice/10-3-6_hands-on/authorization-app-practice
+./vendor/bin/sail down
+
+cd ~/laravel-practice/10-3-6_hands-on/authorization-app-sample
+./vendor/bin/sail up -d
+```
+
 ---
 
 ## 🚀 まとめ
@@ -398,7 +562,10 @@ public function destroy($id)
 
 このハンズオンで、以下のことができるようになりました：
 
-- ✅ Chapter 9で学んだ認可機能を実際に手を動かして確認します。ポリシーを使って、ユーザーごとのアクセス制御を実装しましょう。
+- ✅ ポリシーを作成して権限ロジックを集約管理できる
+- ✅ コントローラーで`authorize()`を使って権限チェックができる
+- ✅ ビューで`@can`ディレクティブを使って表示を制御できる
+- ✅ ユーザーごとのアクセス制御を実装できる
 
 引き続き、次のセクションも頑張りましょう！
 
