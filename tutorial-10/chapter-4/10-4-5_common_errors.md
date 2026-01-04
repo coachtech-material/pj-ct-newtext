@@ -285,28 +285,27 @@ public function index()
 
 ---
 
-### 10. `Unauthenticated.`
+### 10. `Unauthenticated.` / ログインページへのリダイレクト
 
 #### エラーメッセージ
 
-```
-{
-    "message": "Unauthenticated."
-}
-```
+認証が必要なページにアクセスすると、ログインページにリダイレクトされる。
 
 #### 原因
 
 *   認証が必要なルートにアクセスしているが、ログインしていない
-*   認証トークンが不正
+*   セッションが切れている
 
 #### 対処法
 
-**Postmanでテスト**
+1. ログインしてからアクセスする
+2. `auth`ミドルウェアが適用されているか確認
 
-```
-GET http://localhost/api/profile
-Authorization: Bearer {your_token}
+```php
+// routes/web.php
+Route::middleware('auth')->group(function () {
+    Route::get('/dashboard', [DashboardController::class, 'index']);
+});
 ```
 
 ---

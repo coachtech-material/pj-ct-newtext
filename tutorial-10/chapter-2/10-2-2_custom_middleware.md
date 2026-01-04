@@ -134,7 +134,7 @@ protected $middlewareAliases = [
 
 ```php
 Route::middleware('api.key')->group(function () {
-    Route::get('/api/posts', [PostController::class, 'index']);
+    Route::get('/posts', [PostController::class, 'index']);
 });
 ```
 

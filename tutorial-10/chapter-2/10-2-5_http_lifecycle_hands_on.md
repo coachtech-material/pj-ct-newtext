@@ -413,7 +413,7 @@ class PostController extends Controller
         
         $posts = Post::all();
         
-        return response()->json(['posts' => $posts]);
+        return view('posts.index', compact('posts'));
     }
 
     public function show($id)
@@ -422,7 +422,7 @@ class PostController extends Controller
         
         $post = Post::findOrFail($id);
         
-        return response()->json(['post' => $post]);
+        return view('posts.show', compact('post'));
     }
 }
 ```
@@ -430,16 +430,16 @@ class PostController extends Controller
 **コードリーディング**：
 - `Post::all()`：全ての記事を取得
 - `Post::findOrFail($id)`：IDで記事を検索（見つからない場合は404エラー）
-- `response()->json()`：JSON形式でレスポンスを返す
+- `view()`：Bladeテンプレートを返す
 
 ---
 
 ### 🔧 ステップ7: ルートの定義
 
 #### 何を考えているか
-APIルートを定義し、ミドルウェアを適用します。
+Webルートを定義し、ミドルウェアを適用します。
 
-**`routes/api.php`**
+**`routes/web.php`**
 
 ```php
 <?php
@@ -450,11 +450,11 @@ use Illuminate\Support\Facades\Route;
 // HTTPライフサイクルログを記録するミドルウェアを適用
 Route::middleware(['log.lifecycle'])->group(function () {
     // 記事一覧
-    Route::get('/posts', [PostController::class, 'index']);
+    Route::get('/posts', [PostController::class, 'index'])->name('posts.index');
     
     // 記事詳細（閲覧数カウントミドルウェアも適用）
     Route::middleware(['count.views'])->group(function () {
-        Route::get('/posts/{id}', [PostController::class, 'show']);
+        Route::get('/posts/{id}', [PostController::class, 'show'])->name('posts.show');
     });
 });
 ```
@@ -465,54 +465,74 @@ Route::middleware(['log.lifecycle'])->group(function () {
 
 ---
 
+### 🔧 ステップ7.5: ビューファイルの作成
+
+#### 記事一覧ビュー
+
+**`resources/views/posts/index.blade.php`**
+
+```html
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>記事一覧</title>
+</head>
+<body>
+    <h1>記事一覧</h1>
+    <ul>
+        @foreach ($posts as $post)
+            <li>
+                <a href="{{ route('posts.show', $post->id) }}">{{ $post->title }}</a>
+                (閲覧数: {{ $post->views }})
+            </li>
+        @endforeach
+    </ul>
+</body>
+</html>
+```
+
+#### 記事詳細ビュー
+
+**`resources/views/posts/show.blade.php`**
+
+```html
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ $post->title }}</title>
+</head>
+<body>
+    <h1>{{ $post->title }}</h1>
+    <p>{{ $post->content }}</p>
+    <p>閲覧数: {{ $post->views }}</p>
+    <a href="{{ route('posts.index') }}">一覧に戻る</a>
+</body>
+</html>
+```
+
+---
+
 ### 🚀 ステップ8: 動作確認
 
-#### 記事一覧を取得
+#### 記事一覧を表示
 
-```bash
-curl http://localhost/api/posts
-```
+ブラウザで `http://localhost/posts` にアクセスします。
 
-**期待されるレスポンス**：
-
-```json
-{
-    "posts": [
-        {
-            "id": 1,
-            "title": "Laravelの基礎",
-            "content": "Laravelは、PHPのWebアプリケーションフレームワークです。",
-            "views": 0,
-            "created_at": "2024-01-01T00:00:00.000000Z",
-            "updated_at": "2024-01-01T00:00:00.000000Z"
-        },
-        ...
-    ]
-}
-```
+**期待される表示**：
+- 記事のタイトル一覧が表示される
+- 各記事の閲覧数が0と表示される
 
 ---
 
 #### 記事詳細を表示
 
-```bash
-curl http://localhost/api/posts/1
-```
+記事のタイトルをクリックして、`http://localhost/posts/1` にアクセスします。
 
-**期待されるレスポンス**：
-
-```json
-{
-    "post": {
-        "id": 1,
-        "title": "Laravelの基礎",
-        "content": "Laravelは、PHPのWebアプリケーションフレームワークです。",
-        "views": 1,
-        "created_at": "2024-01-01T00:00:00.000000Z",
-        "updated_at": "2024-01-01T00:00:00.000000Z"
-    }
-}
-```
+**期待される表示**：
+- 記事のタイトル、内容が表示される
+- 閲覧数が1に増えている
 
 **注目ポイント**：
 `views`が1に増えています！
@@ -525,7 +545,7 @@ curl http://localhost/api/posts/1
 
 ```
 [2024-01-01 00:00:00] local.INFO: === HTTP Lifecycle Start ===
-[2024-01-01 00:00:00] local.INFO: 1. Request received {"url":"http://localhost/api/posts/1","method":"GET"}
+[2024-01-01 00:00:00] local.INFO: 1. Request received {"url":"http://localhost/posts/1","method":"GET"}
 [2024-01-01 00:00:00] local.INFO: 2. Middleware processing (before controller)
 [2024-01-01 00:00:00] local.INFO: PostController@show called {"post_id":"1"}
 [2024-01-01 00:00:00] local.INFO: 3. Middleware processing (after controller)
@@ -547,7 +567,7 @@ curl http://localhost/api/posts/1
 ### 📊 HTTPライフサイクルの可視化
 
 ```
-1. ユーザーがGET /api/posts/1にアクセス
+1. ユーザーがGET /posts/1にアクセス
    ↓
 2. public/index.php（エントリーポイント）
    ↓
@@ -557,7 +577,7 @@ curl http://localhost/api/posts/1
    ↓
 5. CountPostViews ミドルウェア（前処理）
    ↓
-6. ルーター（routes/api.php）
+6. ルーター（routes/web.php）
    ↓
 7. PostController@show 実行 ← ログ記録
    ↓

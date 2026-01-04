@@ -4,7 +4,7 @@
 
 *   認証機能のテストを書き、ログイン・ログアウトの動作を検証できるようになる。
 *   `actingAs()`を使って、認証済みユーザーとしてテストを実行できるようになる。
-*   認証が必要なエンドポイントのテストを書けるようになる。
+*   認証が必要なページのテストを書けるようになる。
 
 ---
 
@@ -17,7 +17,7 @@
 *   ユーザー登録が正しく動作するか
 *   ログインが正しく動作するか
 *   ログアウトが正しく動作するか
-*   認証が必要なエンドポイントにアクセスできるか
+*   認証が必要なページにアクセスできるか
 
 このセクションでは、認証機能のテストの基礎を学びます。
 
@@ -43,18 +43,16 @@ class AuthTest extends TestCase
             'password_confirmation' => 'password',
         ];
 
-        $response = $this->post('/api/register', $data);
+        $response = $this->post('/register', $data);
 
-        $response->assertStatus(201);
-        $response->assertJsonStructure([
-            'user' => ['id', 'name', 'email'],
-            'token',
-        ]);
+        $response->assertRedirect('/dashboard');
 
         $this->assertDatabaseHas('users', [
             'name' => 'Test User',
             'email' => 'test@example.com',
         ]);
+
+        $this->assertAuthenticated();
     }
 }
 ```
@@ -76,13 +74,10 @@ public function test_user_can_login()
         'password' => 'password',
     ];
 
-    $response = $this->post('/api/login', $data);
+    $response = $this->post('/login', $data);
 
-    $response->assertStatus(200);
-    $response->assertJsonStructure([
-        'user' => ['id', 'name', 'email'],
-        'token',
-    ]);
+    $response->assertRedirect('/dashboard');
+    $this->assertAuthenticatedAs($user);
 }
 ```
 
@@ -103,12 +98,10 @@ public function test_user_cannot_login_with_invalid_credentials()
         'password' => 'wrong-password',
     ];
 
-    $response = $this->post('/api/login', $data);
+    $response = $this->post('/login', $data);
 
-    $response->assertStatus(401);
-    $response->assertJson([
-        'message' => 'Invalid credentials',
-    ]);
+    $response->assertSessionHasErrors();
+    $this->assertGuest();
 }
 ```
 
@@ -121,36 +114,28 @@ public function test_user_can_logout()
 {
     $user = User::factory()->create();
 
-    $response = $this->actingAs($user, 'sanctum')
-        ->post('/api/logout');
+    $response = $this->actingAs($user)
+        ->post('/logout');
 
-    $response->assertStatus(200);
-    $response->assertJson([
-        'message' => 'Logged out successfully',
-    ]);
+    $response->assertRedirect('/');
+    $this->assertGuest();
 }
 ```
 
 ---
 
-### 🚀 実践例5: 認証済みユーザーのプロフィール取得
+### 🚀 実践例5: 認証済みユーザーのダッシュボードアクセス
 
 ```php
-public function test_authenticated_user_can_get_profile()
+public function test_authenticated_user_can_access_dashboard()
 {
     $user = User::factory()->create();
 
-    $response = $this->actingAs($user, 'sanctum')
-        ->get('/api/profile');
+    $response = $this->actingAs($user)
+        ->get('/dashboard');
 
     $response->assertStatus(200);
-    $response->assertJson([
-        'user' => [
-            'id' => $user->id,
-            'name' => $user->name,
-            'email' => $user->email,
-        ]
-    ]);
+    $response->assertViewIs('dashboard');
 }
 ```
 
@@ -159,14 +144,11 @@ public function test_authenticated_user_can_get_profile()
 ### 🚀 実践例6: 未認証ユーザーはアクセスできない
 
 ```php
-public function test_unauthenticated_user_cannot_access_profile()
+public function test_unauthenticated_user_cannot_access_dashboard()
 {
-    $response = $this->get('/api/profile');
+    $response = $this->get('/dashboard');
 
-    $response->assertStatus(401);
-    $response->assertJson([
-        'message' => 'Unauthenticated.',
-    ]);
+    $response->assertRedirect('/login');
 }
 ```
 
@@ -184,10 +166,9 @@ public function test_register_requires_name()
         // nameが不足
     ];
 
-    $response = $this->post('/api/register', $data);
+    $response = $this->post('/register', $data);
 
-    $response->assertStatus(422);
-    $response->assertJsonValidationErrors(['name']);
+    $response->assertSessionHasErrors(['name']);
 }
 
 public function test_register_requires_valid_email()
@@ -199,10 +180,9 @@ public function test_register_requires_valid_email()
         'password_confirmation' => 'password',
     ];
 
-    $response = $this->post('/api/register', $data);
+    $response = $this->post('/register', $data);
 
-    $response->assertStatus(422);
-    $response->assertJsonValidationErrors(['email']);
+    $response->assertSessionHasErrors(['email']);
 }
 ```
 
@@ -220,16 +200,15 @@ public function test_register_requires_password_confirmation()
         'password_confirmation' => 'different-password', // 一致しない
     ];
 
-    $response = $this->post('/api/register', $data);
+    $response = $this->post('/register', $data);
 
-    $response->assertStatus(422);
-    $response->assertJsonValidationErrors(['password']);
+    $response->assertSessionHasErrors(['password']);
 }
 ```
 
 ---
 
-### 🚀 実践例9: 認証が必要なエンドポイント
+### 🚀 実践例9: 認証が必要なページ
 
 ```php
 public function test_authenticated_user_can_create_post()
@@ -241,10 +220,10 @@ public function test_authenticated_user_can_create_post()
         'content' => 'Test Content',
     ];
 
-    $response = $this->actingAs($user, 'sanctum')
-        ->post('/api/posts', $data);
+    $response = $this->actingAs($user)
+        ->post('/posts', $data);
 
-    $response->assertStatus(201);
+    $response->assertRedirect();
 
     $this->assertDatabaseHas('posts', [
         'title' => 'Test Post',
@@ -260,9 +239,9 @@ public function test_unauthenticated_user_cannot_create_post()
         'content' => 'Test Content',
     ];
 
-    $response = $this->post('/api/posts', $data);
+    $response = $this->post('/posts', $data);
 
-    $response->assertStatus(401);
+    $response->assertRedirect('/login');
 }
 ```
 
@@ -275,60 +254,25 @@ public function test_unauthenticated_user_cannot_create_post()
 ```php
 $user = User::factory()->create();
 
-$response = $this->actingAs($user, 'sanctum')
-    ->get('/api/profile');
+$response = $this->actingAs($user)
+    ->get('/dashboard');
 ```
 
 ---
 
-### 🚀 実践例10: トークンの検証
+### 💡 TIP: 認証関連のアサーションメソッド
 
-```php
-public function test_login_returns_valid_token()
-{
-    $user = User::factory()->create([
-        'email' => 'test@example.com',
-        'password' => bcrypt('password'),
-    ]);
-
-    $data = [
-        'email' => 'test@example.com',
-        'password' => 'password',
-    ];
-
-    $response = $this->post('/api/login', $data);
-
-    $response->assertStatus(200);
-    $token = $response->json('token');
-
-    // トークンを使ってプロフィールにアクセス
-    $response = $this->withHeaders([
-        'Authorization' => 'Bearer ' . $token,
-    ])->get('/api/profile');
-
-    $response->assertStatus(200);
-}
-```
+| メソッド | 説明 |
+|:---|:---|
+| `assertAuthenticated()` | ユーザーが認証済みであることを確認 |
+| `assertAuthenticatedAs($user)` | 指定したユーザーとして認証されていることを確認 |
+| `assertGuest()` | ユーザーが未認証（ゲスト）であることを確認 |
 
 ---
 
 ### 🚨 よくある間違い
 
-#### 間違い1: `actingAs()`のガード名を忘れる
-
-```php
-// NG
-$response = $this->actingAs($user)
-    ->get('/api/profile');
-
-// OK
-$response = $this->actingAs($user, 'sanctum')
-    ->get('/api/profile');
-```
-
----
-
-#### 間違い2: パスワードをハッシュ化していない
+#### 間違い1: パスワードをハッシュ化していない
 
 ```php
 // NG
@@ -342,6 +286,22 @@ $user = User::factory()->create([
 ]);
 ```
 
+> **💡 補足**: Laravelのデフォルトの`UserFactory`では、パスワードは自動的にハッシュ化されます。明示的に指定する場合のみ`bcrypt()`が必要です。
+
+---
+
+#### 間違い2: リダイレクト先を確認していない
+
+```php
+// NG: リダイレクトされることだけを確認
+$response = $this->post('/login', $data);
+$response->assertRedirect();
+
+// OK: リダイレクト先も確認
+$response = $this->post('/login', $data);
+$response->assertRedirect('/dashboard');
+```
+
 ---
 
 ## ✨ まとめ
@@ -350,8 +310,9 @@ $user = User::factory()->create([
 
 *   ユーザー登録、ログイン、ログアウトのテストを書ける。
 *   `actingAs()`を使って、認証済みユーザーとしてテストを実行できる。
-*   認証が必要なエンドポイントのテストを書ける。
+*   認証が必要なページのテストを書ける。
 *   バリデーションエラーのテストを書ける。
+*   `assertAuthenticated()`、`assertGuest()`などの認証関連アサーションを使える。
 
 次のセクションでは、CRUD+認証+DBアサートの連続演習を行います。
 

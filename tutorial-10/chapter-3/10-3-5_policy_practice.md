@@ -197,7 +197,7 @@ class PostController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('auth:sanctum')->except(['index', 'show']);
+        $this->middleware('auth')->except(['index', 'show']);
     }
 
     public function index()
@@ -206,7 +206,7 @@ class PostController extends Controller
 
         $posts = Post::where('is_published', true)->get();
 
-        return response()->json(['posts' => $posts]);
+        return view('posts.index', compact('posts'));
     }
 
     public function show($id)
@@ -215,7 +215,7 @@ class PostController extends Controller
 
         $this->authorize('view', $post);
 
-        return response()->json(['post' => $post]);
+        return view('posts.show', compact('post'));
     }
 
     public function store(Request $request)
@@ -233,7 +233,8 @@ class PostController extends Controller
             'is_published' => false,
         ]);
 
-        return response()->json(['message' => 'Post created successfully', 'post' => $post], 201);
+        return redirect()->route('posts.show', $post->id)
+            ->with('success', '投稿を作成しました');
     }
 
     public function update(Request $request, $id)
@@ -249,7 +250,8 @@ class PostController extends Controller
 
         $post->update($validated);
 
-        return response()->json(['message' => 'Post updated successfully', 'post' => $post]);
+        return redirect()->route('posts.show', $post->id)
+            ->with('success', '投稿を更新しました');
     }
 
     public function destroy($id)
@@ -260,7 +262,8 @@ class PostController extends Controller
 
         $post->delete();
 
-        return response()->json(['message' => 'Post deleted successfully']);
+        return redirect()->route('posts.index')
+            ->with('success', '投稿を削除しました');
     }
 
     public function publish($id)
@@ -271,7 +274,8 @@ class PostController extends Controller
 
         $post->update(['is_published' => true]);
 
-        return response()->json(['message' => 'Post published successfully', 'post' => $post]);
+        return redirect()->route('posts.show', $post->id)
+            ->with('success', '投稿を公開しました');
     }
 }
 ```
@@ -280,19 +284,19 @@ class PostController extends Controller
 
 ### 🔧 ステップ6: ルートを定義
 
-**`routes/api.php`**
+**`routes/web.php`**
 
 ```php
 use App\Http\Controllers\PostController;
 
-Route::get('/posts', [PostController::class, 'index']);
-Route::get('/posts/{id}', [PostController::class, 'show']);
+Route::get('/posts', [PostController::class, 'index'])->name('posts.index');
+Route::get('/posts/{id}', [PostController::class, 'show'])->name('posts.show');
 
-Route::middleware('auth:sanctum')->group(function () {
-    Route::post('/posts', [PostController::class, 'store']);
-    Route::put('/posts/{id}', [PostController::class, 'update']);
-    Route::delete('/posts/{id}', [PostController::class, 'destroy']);
-    Route::post('/posts/{id}/publish', [PostController::class, 'publish']);
+Route::middleware('auth')->group(function () {
+    Route::post('/posts', [PostController::class, 'store'])->name('posts.store');
+    Route::put('/posts/{id}', [PostController::class, 'update'])->name('posts.update');
+    Route::delete('/posts/{id}', [PostController::class, 'destroy'])->name('posts.destroy');
+    Route::post('/posts/{id}/publish', [PostController::class, 'publish'])->name('posts.publish');
 });
 ```
 
@@ -322,49 +326,30 @@ Route::middleware('auth:sanctum')->group(function () {
 
 #### テスト1: 一般ユーザーが自分の投稿を更新
 
-```
-PUT http://localhost/api/posts/1
-Authorization: Bearer {user_token}
+1. 一般ユーザーとしてログイン
+2. 自分の投稿（ID: 1）の編集画面にアクセス
+3. タイトルと内容を変更して保存
 
-{
-    "title": "Updated Title",
-    "content": "Updated Content"
-}
-```
-
-**期待される結果**: 成功
+**期待される結果**: 成功（投稿が更新される）
 
 ---
 
 #### テスト2: 一般ユーザーが他人の投稿を更新
 
-```
-PUT http://localhost/api/posts/2
-Authorization: Bearer {user_token}
+1. 一般ユーザーとしてログイン
+2. 他のユーザーの投稿（ID: 2）の編集画面にアクセス
 
-{
-    "title": "Updated Title",
-    "content": "Updated Content"
-}
-```
-
-**期待される結果**: 403エラー
+**期待される結果**: 403エラー（アクセス拒否）
 
 ---
 
 #### テスト3: 編集者が他人の投稿を更新
 
-```
-PUT http://localhost/api/posts/2
-Authorization: Bearer {editor_token}
+1. 編集者としてログイン
+2. 他のユーザーの投稿（ID: 2）の編集画面にアクセス
+3. タイトルと内容を変更して保存
 
-{
-    "title": "Updated Title",
-    "content": "Updated Content"
-}
-```
-
-**期待される結果**: 成功
+**期待される結果**: 成功（投稿が更新される）
 
 ---
 

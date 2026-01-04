@@ -44,7 +44,7 @@ class PostTest extends TestCase
 {
     public function test_can_get_posts()
     {
-        $response = $this->get('/api/posts');
+        $response = $this->get('/posts');
 
         $response->assertStatus(200);
     }
@@ -66,14 +66,11 @@ sail artisan test
 ```php
 public function test_can_get_posts()
 {
-    $response = $this->get('/api/posts');
+    $response = $this->get('/posts');
 
     $response->assertStatus(200);
-    $response->assertJsonStructure([
-        'posts' => [
-            '*' => ['id', 'title', 'content', 'created_at', 'updated_at']
-        ]
-    ]);
+    $response->assertViewIs('posts.index');
+    $response->assertViewHas('posts');
 }
 ```
 
@@ -82,19 +79,28 @@ public function test_can_get_posts()
 ### 🚀 実践例2: POSTリクエスト
 
 ```php
-public function test_can_create_post()
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+
+class PostTest extends TestCase
 {
-    $data = [
-        'title' => 'Test Post',
-        'content' => 'Test Content',
-    ];
+    use RefreshDatabase;
 
-    $response = $this->post('/api/posts', $data);
+    public function test_can_create_post()
+    {
+        $user = User::factory()->create();
 
-    $response->assertStatus(201);
-    $response->assertJson([
-        'message' => 'Post created successfully',
-    ]);
+        $data = [
+            'title' => 'Test Post',
+            'content' => 'Test Content',
+        ];
+
+        $response = $this->actingAs($user)
+            ->post('/posts', $data);
+
+        $response->assertRedirect();
+        $this->assertDatabaseHas('posts', ['title' => 'Test Post']);
+    }
 }
 ```
 
@@ -103,19 +109,24 @@ public function test_can_create_post()
 ### 🚀 実践例3: PUTリクエスト
 
 ```php
+use App\Models\Post;
+use App\Models\User;
+
 public function test_can_update_post()
 {
+    $user = User::factory()->create();
+    $post = Post::factory()->create(['user_id' => $user->id]);
+
     $data = [
         'title' => 'Updated Title',
         'content' => 'Updated Content',
     ];
 
-    $response = $this->put('/api/posts/1', $data);
+    $response = $this->actingAs($user)
+        ->put("/posts/{$post->id}", $data);
 
-    $response->assertStatus(200);
-    $response->assertJson([
-        'message' => 'Post updated successfully',
-    ]);
+    $response->assertRedirect();
+    $this->assertDatabaseHas('posts', ['title' => 'Updated Title']);
 }
 ```
 
@@ -124,14 +135,19 @@ public function test_can_update_post()
 ### 🚀 実践例4: DELETEリクエスト
 
 ```php
+use App\Models\Post;
+use App\Models\User;
+
 public function test_can_delete_post()
 {
-    $response = $this->delete('/api/posts/1');
+    $user = User::factory()->create();
+    $post = Post::factory()->create(['user_id' => $user->id]);
 
-    $response->assertStatus(200);
-    $response->assertJson([
-        'message' => 'Post deleted successfully',
-    ]);
+    $response = $this->actingAs($user)
+        ->delete("/posts/{$post->id}");
+
+    $response->assertRedirect();
+    $this->assertDatabaseMissing('posts', ['id' => $post->id]);
 }
 ```
 
@@ -149,7 +165,7 @@ public function test_can_delete_post()
 
 ---
 
-### 🚀 実践例5: 認証が必要なエンドポイント
+### 🚀 実践例5: 認証が必要なページ
 
 ```php
 use App\Models\User;
@@ -163,10 +179,11 @@ public function test_authenticated_user_can_create_post()
         'content' => 'Test Content',
     ];
 
-    $response = $this->actingAs($user, 'sanctum')
-        ->post('/api/posts', $data);
+    $response = $this->actingAs($user)
+        ->post('/posts', $data);
 
-    $response->assertStatus(201);
+    $response->assertRedirect();
+    $this->assertDatabaseHas('posts', ['title' => 'Test Post']);
 }
 ```
 
@@ -184,11 +201,10 @@ public function test_create_post_requires_title()
         // titleが不足
     ];
 
-    $response = $this->actingAs($user, 'sanctum')
-        ->post('/api/posts', $data);
+    $response = $this->actingAs($user)
+        ->post('/posts', $data);
 
-    $response->assertStatus(422);
-    $response->assertJsonValidationErrors(['title']);
+    $response->assertSessionHasErrors(['title']);
 }
 ```
 
@@ -197,19 +213,21 @@ public function test_create_post_requires_title()
 ### 🚀 実践例7: JSONの詳細な検証
 
 ```php
+use App\Models\Post;
+
 public function test_can_get_post_details()
 {
-    $response = $this->get('/api/posts/1');
+    $post = Post::factory()->create([
+        'title' => 'Test Post',
+        'content' => 'Test Content',
+    ]);
+
+    $response = $this->get("/posts/{$post->id}");
 
     $response->assertStatus(200);
-    $response->assertJson([
-        'post' => [
-            'id' => 1,
-            'title' => 'Test Post',
-            'content' => 'Test Content',
-        ]
-    ]);
-    $response->assertJsonFragment(['title' => 'Test Post']);
+    $response->assertViewIs('posts.show');
+    $response->assertViewHas('post');
+    $response->assertSee('Test Post');
 }
 ```
 
@@ -218,12 +236,18 @@ public function test_can_get_post_details()
 ### 🚀 実践例8: JSON配列の要素数を検証
 
 ```php
+use App\Models\Post;
+
 public function test_posts_list_has_correct_count()
 {
-    $response = $this->get('/api/posts');
+    Post::factory()->count(10)->create();
+
+    $response = $this->get('/posts');
 
     $response->assertStatus(200);
-    $response->assertJsonCount(10, 'posts'); // 10件の投稿があることを検証
+    $response->assertViewHas('posts', function ($posts) {
+        return $posts->count() === 10;
+    });
 }
 ```
 
@@ -261,14 +285,13 @@ public function test_can_create_post_with_custom_header()
         'content' => 'Test Content',
     ];
 
-    $response = $this->actingAs($user, 'sanctum')
+    $response = $this->actingAs($user)
         ->withHeaders([
-            'Accept' => 'application/json',
             'X-Custom-Header' => 'value',
         ])
-        ->post('/api/posts', $data);
+        ->post('/posts', $data);
 
-    $response->assertStatus(201);
+    $response->assertRedirect();
 }
 ```
 
@@ -304,16 +327,16 @@ class PostTest extends TestCase
 
 ---
 
-#### 間違い2: 認証トークンを忘れる
+#### 間違い2: 認証を忘れる
 
 ```php
 // NG
-$response = $this->post('/api/posts', $data); // 認証が必要なのに、トークンがない
+$response = $this->post('/posts', $data); // 認証が必要なのに、ログインしていない
 
 // OK
 $user = User::factory()->create();
-$response = $this->actingAs($user, 'sanctum')
-    ->post('/api/posts', $data);
+$response = $this->actingAs($user)
+    ->post('/posts', $data);
 ```
 
 ---

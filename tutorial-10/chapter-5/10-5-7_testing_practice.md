@@ -59,18 +59,16 @@ class PostCrudTest extends TestCase
             'password_confirmation' => 'password',
         ];
 
-        $response = $this->post('/api/register', $data);
+        $response = $this->post('/register', $data);
 
-        $response->assertStatus(201);
-        $response->assertJsonStructure([
-            'user' => ['id', 'name', 'email'],
-            'token',
-        ]);
+        $response->assertRedirect('/dashboard');
 
         $this->assertDatabaseHas('users', [
             'name' => 'Test User',
             'email' => 'test@example.com',
         ]);
+
+        $this->assertAuthenticated();
     }
 }
 ```
@@ -92,13 +90,10 @@ public function test_user_can_login()
         'password' => 'password',
     ];
 
-    $response = $this->post('/api/login', $data);
+    $response = $this->post('/login', $data);
 
-    $response->assertStatus(200);
-    $response->assertJsonStructure([
-        'user' => ['id', 'name', 'email'],
-        'token',
-    ]);
+    $response->assertRedirect('/dashboard');
+    $this->assertAuthenticatedAs($user);
 }
 ```
 
@@ -116,13 +111,10 @@ public function test_authenticated_user_can_create_post()
         'content' => 'Test Content',
     ];
 
-    $response = $this->actingAs($user, 'sanctum')
-        ->post('/api/posts', $data);
+    $response = $this->actingAs($user)
+        ->post('/posts', $data);
 
-    $response->assertStatus(201);
-    $response->assertJson([
-        'message' => 'Post created successfully',
-    ]);
+    $response->assertRedirect();
 
     $this->assertDatabaseHas('posts', [
         'title' => 'Test Post',
@@ -138,9 +130,9 @@ public function test_unauthenticated_user_cannot_create_post()
         'content' => 'Test Content',
     ];
 
-    $response = $this->post('/api/posts', $data);
+    $response = $this->post('/posts', $data);
 
-    $response->assertStatus(401);
+    $response->assertRedirect('/login');
 }
 ```
 
@@ -153,26 +145,28 @@ public function test_can_get_posts_list()
 {
     Post::factory()->count(5)->create();
 
-    $response = $this->get('/api/posts');
+    $response = $this->get('/posts');
 
     $response->assertStatus(200);
-    $response->assertJsonCount(5, 'posts');
+    $response->assertViewIs('posts.index');
+    $response->assertViewHas('posts', function ($posts) {
+        return $posts->count() === 5;
+    });
 }
 
 public function test_can_get_single_post()
 {
-    $post = Post::factory()->create();
+    $post = Post::factory()->create([
+        'title' => 'Test Post',
+        'content' => 'Test Content',
+    ]);
 
-    $response = $this->get("/api/posts/{$post->id}");
+    $response = $this->get("/posts/{$post->id}");
 
     $response->assertStatus(200);
-    $response->assertJson([
-        'post' => [
-            'id' => $post->id,
-            'title' => $post->title,
-            'content' => $post->content,
-        ]
-    ]);
+    $response->assertViewIs('posts.show');
+    $response->assertSee('Test Post');
+    $response->assertSee('Test Content');
 }
 ```
 
@@ -191,13 +185,10 @@ public function test_authenticated_user_can_update_own_post()
         'content' => 'Updated Content',
     ];
 
-    $response = $this->actingAs($user, 'sanctum')
-        ->put("/api/posts/{$post->id}", $data);
+    $response = $this->actingAs($user)
+        ->put("/posts/{$post->id}", $data);
 
-    $response->assertStatus(200);
-    $response->assertJson([
-        'message' => 'Post updated successfully',
-    ]);
+    $response->assertRedirect();
 
     $this->assertDatabaseHas('posts', [
         'id' => $post->id,
@@ -217,8 +208,8 @@ public function test_user_cannot_update_other_users_post()
         'content' => 'Updated Content',
     ];
 
-    $response = $this->actingAs($user2, 'sanctum')
-        ->put("/api/posts/{$post->id}", $data);
+    $response = $this->actingAs($user2)
+        ->put("/posts/{$post->id}", $data);
 
     $response->assertStatus(403);
 }
@@ -234,13 +225,10 @@ public function test_authenticated_user_can_delete_own_post()
     $user = User::factory()->create();
     $post = Post::factory()->create(['user_id' => $user->id]);
 
-    $response = $this->actingAs($user, 'sanctum')
-        ->delete("/api/posts/{$post->id}");
+    $response = $this->actingAs($user)
+        ->delete("/posts/{$post->id}");
 
-    $response->assertStatus(200);
-    $response->assertJson([
-        'message' => 'Post deleted successfully',
-    ]);
+    $response->assertRedirect();
 
     $this->assertDatabaseMissing('posts', [
         'id' => $post->id,
@@ -253,8 +241,8 @@ public function test_user_cannot_delete_other_users_post()
     $user2 = User::factory()->create();
     $post = Post::factory()->create(['user_id' => $user1->id]);
 
-    $response = $this->actingAs($user2, 'sanctum')
-        ->delete("/api/posts/{$post->id}");
+    $response = $this->actingAs($user2)
+        ->delete("/posts/{$post->id}");
 
     $response->assertStatus(403);
 }
@@ -274,11 +262,10 @@ public function test_create_post_requires_title()
         // titleが不足
     ];
 
-    $response = $this->actingAs($user, 'sanctum')
-        ->post('/api/posts', $data);
+    $response = $this->actingAs($user)
+        ->post('/posts', $data);
 
-    $response->assertStatus(422);
-    $response->assertJsonValidationErrors(['title']);
+    $response->assertSessionHasErrors(['title']);
 }
 
 public function test_create_post_requires_content()
@@ -290,11 +277,10 @@ public function test_create_post_requires_content()
         // contentが不足
     ];
 
-    $response = $this->actingAs($user, 'sanctum')
-        ->post('/api/posts', $data);
+    $response = $this->actingAs($user)
+        ->post('/posts', $data);
 
-    $response->assertStatus(422);
-    $response->assertJsonValidationErrors(['content']);
+    $response->assertSessionHasErrors(['content']);
 }
 ```
 
@@ -359,10 +345,10 @@ public function test_authenticated_user_can_add_comment_to_post()
         'content' => 'Test Comment',
     ];
 
-    $response = $this->actingAs($user, 'sanctum')
-        ->post("/api/posts/{$post->id}/comments", $data);
+    $response = $this->actingAs($user)
+        ->post("/posts/{$post->id}/comments", $data);
 
-    $response->assertStatus(201);
+    $response->assertRedirect();
 
     $this->assertDatabaseHas('comments', [
         'content' => 'Test Comment',
@@ -383,6 +369,6 @@ public function test_authenticated_user_can_add_comment_to_post()
 *   データベースアサートを使って、データの整合性を検証した。
 *   バリデーションのテストを書いた。
 
-これで、Tutorial 9「Laravel基礎」の全62セクションが完了しました！
+次のセクションでは、ハンズオン形式でテストを実践します。
 
 ---

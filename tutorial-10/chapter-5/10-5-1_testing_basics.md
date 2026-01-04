@@ -31,7 +31,7 @@ Laravelでは、主に2種類のテストを書きます。
 | テストの種類 | 説明 | 例 |
 |:---|:---|:---|
 | **ユニットテスト** | 個別の関数やメソッドが正しく動作するかをテスト | 「`calculateTotal()`メソッドが正しい合計を返すか」 |
-| **フィーチャーテスト** | アプリケーション全体の機能が正しく動作するかをテスト | 「ユーザー登録APIが正しくトークンを返すか」 |
+| **フィーチャーテスト** | アプリケーション全体の機能が正しく動作するかをテスト | 「ユーザー登録画面が正しくユーザーを作成するか」 |
 
 このセクションでは、**フィーチャーテスト**に焦点を当てます。
 
@@ -91,21 +91,20 @@ class UserRegistrationTest extends TestCase
      */
     public function test_user_can_register(): void
     {
-        $response = $this->postJson('/api/register', [
+        $response = $this->post('/register', [
             'name' => '山田太郎',
             'email' => 'taro@example.com',
             'password' => 'password123',
+            'password_confirmation' => 'password123',
         ]);
 
-        $response->assertStatus(201)
-                 ->assertJsonStructure([
-                     'user' => ['id', 'name', 'email'],
-                     'token'
-                 ]);
+        $response->assertRedirect('/dashboard');
 
         $this->assertDatabaseHas('users', [
             'email' => 'taro@example.com'
         ]);
+
+        $this->assertAuthenticated();
     }
 }
 ```
@@ -114,10 +113,10 @@ class UserRegistrationTest extends TestCase
 
 *   `use RefreshDatabase;`: テストごとにデータベースをリセットします。これにより、テスト間でデータが干渉しません。
 *   `public function test_user_can_register()`: テストメソッドは、`test_`で始める必要があります。
-*   `$this->postJson('/api/register', [...])`: `/api/register`エンドポイントにPOSTリクエストを送信します。
-*   `$response->assertStatus(201)`: レスポンスのステータスコードが201であることを確認します。
-*   `$response->assertJsonStructure([...])`: レスポンスのJSON構造が期待通りであることを確認します。
+*   `$this->post('/register', [...])`: `/register`エンドポイントにPOSTリクエストを送信します。
+*   `$response->assertRedirect('/dashboard')`: ダッシュボードにリダイレクトされることを確認します。
 *   `$this->assertDatabaseHas('users', [...])`: データベースに指定したデータが存在することを確認します。
+*   `$this->assertAuthenticated()`: ユーザーが認証済みであることを確認します。
 
 ---
 
@@ -174,32 +173,28 @@ Laravelには、様々なアサーションメソッドが用意されていま�
 
 ---
 
-### 🔑 認証が必要なエンドポイントのテスト
+### 🔑 認証が必要なページのテスト
 
-認証が必要なエンドポイントをテストする場合は、`actingAs()`メソッドを使います。
+認証が必要なページをテストする場合は、`actingAs()`メソッドを使います。
 
 ```php
 use App\Models\User;
 
-public function test_authenticated_user_can_access_profile(): void
+public function test_authenticated_user_can_access_dashboard(): void
 {
     $user = User::factory()->create();
 
-    $response = $this->actingAs($user, 'sanctum')
-                     ->getJson('/api/user');
+    $response = $this->actingAs($user)
+                     ->get('/dashboard');
 
-    $response->assertOk()
-             ->assertJson([
-                 'id' => $user->id,
-                 'email' => $user->email,
-             ]);
+    $response->assertOk();
 }
 ```
 
 **コードリーディング**
 
 *   `User::factory()->create()`: ファクトリーを使って、テスト用のユーザーを作成します（次のセクションで詳しく学びます）。
-*   `$this->actingAs($user, 'sanctum')`: 指定したユーザーとして認証された状態でリクエストを送信します。
+*   `$this->actingAs($user)`: 指定したユーザーとして認証された状態でリクエストを送信します。
 
 ---
 
@@ -231,7 +226,7 @@ TDDを実践することで、バグの少ない、保守しやすいコード�
 *   Laravelには、PHPUnitというテストフレームワークが標準で組み込まれている。
 *   フィーチャーテストは、アプリケーション全体の機能をテストする。
 *   `assertStatus()`, `assertJson()`, `assertDatabaseHas()`などのアサーションメソッドを使って、期待通りの動作を確認できる。
-*   `actingAs()`を使って、認証が必要なエンドポイントをテストできる。
+*   `actingAs()`を使って、認証が必要なページをテストできる。
 
 次のセクションでは、ファクトリーとシーダーを使って、テストデータを効率的に生成する方法を学びます。
 
