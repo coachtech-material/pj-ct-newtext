@@ -47,7 +47,6 @@ DRY（Don't Repeat Yourself）は、**最も基本的なリファクタリング
 | Step 1 | DRY原則を理解 | 重複コードの問題を把握 |
 | Step 2 | Eloquentスコープで共通化 | クエリの重複を排除 |
 | Step 3 | Bladeコンポーネントで共通化 | ビューの重複を排除 |
-| Step 4 | サービスクラスで整理 | ビジネスロジックを分離 |
 
 > 💡 **ポイント**: リファクタリングは「動作を変えずにコードを改善する」ことです。
 
@@ -337,146 +336,6 @@ $tasks = Task::forCurrentUser()->pending()->get();
 
 ---
 
-## Step 4: サービスクラスで整理
-
-### 4-1. サービスクラスとは
-
-**サービスクラス（Service Class）**を使うと、コントローラーのコードを整理できます。
-
-サービスクラスは、**ビジネスロジックを切り出すためのクラス**です。
-
----
-
-### 4-2. 悪い例（コントローラーにビジネスロジックが混在）
-
-```php
-public function store(Request $request)
-{
-    $request->validate([
-        'title' => 'required|string|max:255',
-        'description' => 'nullable|string',
-        'due_date' => 'nullable|date',
-    ]);
-
-    $task = Task::create([
-        'user_id' => Auth::id(),
-        'title' => $request->title,
-        'description' => $request->description,
-        'status' => 'pending',
-        'due_date' => $request->due_date,
-    ]);
-
-    // メール送信
-    Mail::to(Auth::user())->send(new TaskCreated($task));
-
-    // ログ記録
-    Log::info('Task created', ['task_id' => $task->id]);
-
-    return redirect()->route('tasks.index')->with('success', 'タスクを作成しました。');
-}
-```
-
-このコントローラーは、バリデーション、データ作成、メール送信、ログ記録など、多くの処理を行っています。
-
----
-
-### 4-3. サービスクラスを作成する
-
-**ファイル**: `app/Services/TaskService.php`
-
-```php
-<?php
-
-namespace App\Services;
-
-use App\Models\Task;
-use App\Mail\TaskCreated;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
-
-class TaskService
-{
-    /**
-     * タスクを作成する
-     */
-    public function createTask(array $data): Task
-    {
-        $task = Task::create([
-            'user_id' => Auth::id(),
-            'title' => $data['title'],
-            'description' => $data['description'] ?? null,
-            'status' => 'pending',
-            'due_date' => $data['due_date'] ?? null,
-        ]);
-
-        // メール送信
-        Mail::to(Auth::user())->send(new TaskCreated($task));
-
-        // ログ記録
-        Log::info('Task created', ['task_id' => $task->id]);
-
-        return $task;
-    }
-}
-```
-
----
-
-### 4-4. サービスクラスを使ったコントローラー
-
-**ファイル**: `app/Http/Controllers/TaskController.php`
-
-```php
-<?php
-
-namespace App\Http\Controllers;
-
-use App\Models\Task;
-use App\Services\TaskService;
-use Illuminate\Http\Request;
-
-class TaskController extends Controller
-{
-    public function __construct(
-        protected TaskService $taskService
-    ) {}
-
-    public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'due_date' => 'nullable|date',
-        ]);
-
-        $this->taskService->createTask($validated);
-
-        return redirect()->route('tasks.index')->with('success', 'タスクを作成しました。');
-    }
-}
-```
-
-サービスクラスを使うことで、コントローラーがシンプルになり、ビジネスロジックが整理されました。
-
----
-
-### 4-5. コードリーディング
-
-#### 依存性注入（Dependency Injection）
-
-```php
-public function __construct(
-    protected TaskService $taskService
-) {}
-```
-
-これは、**依存性注入（Dependency Injection）**と呼ばれる手法です。
-
-Laravelは、自動的に`TaskService`のインスタンスを生成し、コントローラーに渡します。
-
----
-
 ## 🚨 よくある間違い
 
 ### 間違い1: コードの重複を放置する
@@ -487,15 +346,7 @@ Laravelは、自動的に`TaskService`のインスタンスを生成し、コン
 
 ---
 
-### 間違い2: コントローラーにビジネスロジックを書きすぎる
-
-**問題**: コントローラーが肥大化し、テストが難しくなる
-
-**対処法**: サービスクラスを作成し、ビジネスロジックを切り出します。
-
----
-
-### 間違い3: リファクタリングを後回しにする
+### 間違い2: リファクタリングを後回しにする
 
 **問題**: 技術的負債が蓄積し、後で修正が困難になる
 
@@ -512,7 +363,6 @@ Laravelは、自動的に`TaskService`のインスタンスを生成し、コン
 | Step 1 | DRY原則の理解と重複コードの問題 |
 | Step 2 | Eloquentスコープでクエリの重複を排除 |
 | Step 3 | Bladeコンポーネントでビューの重複を排除 |
-| Step 4 | サービスクラスでビジネスロジックを分離 |
 
 次のセクションでは、具体的な命名規則について学びます。
 

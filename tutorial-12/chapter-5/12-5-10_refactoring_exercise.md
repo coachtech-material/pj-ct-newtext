@@ -38,7 +38,7 @@
 
 | 順番 | 作業 | 理由 |
 |------|------|------|
-| Step 1 | コントローラーのリファクタリング | バリデーション分離、サービス導入 |
+| Step 1 | コントローラーのリファクタリング | バリデーション分離、メソッド分割 |
 | Step 2 | モデルのリファクタリング | スコープで再利用性向上 |
 | Step 3 | ビューのリファクタリング | パーシャルで重複排除 |
 | Step 4 | リファクタリングの手順を学ぶ | 安全な進め方 |
@@ -117,7 +117,7 @@ class TaskController extends Controller
 |------|------|
 | バリデーション重複 | 同じルールが2箇所にある |
 | 変数名が短い | `$t`では何か分からない |
-| ビジネスロジック混在 | コントローラーが肥大化 |
+| メソッドが長い | コントローラーが肥大化 |
 
 ---
 
@@ -162,48 +162,43 @@ class TaskRequest extends FormRequest
 
 ---
 
-### 1-4. サービスクラスを作成する
+### 1-4. リファクタリング後のコントローラー
 
-**ファイル**: `app/Services/TaskService.php`
+**ファイル**: `app/Http/Controllers/TaskController.php`
 
 ```php
 <?php
 
-namespace App\Services;
+namespace App\Http\Controllers;
 
+use App\Http\Requests\TaskRequest;
 use App\Models\Task;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
 use App\Mail\TaskCreated;
 
-class TaskService
+class TaskController extends Controller
 {
-    public function createTask(array $data, int $userId): Task
+    public function store(TaskRequest $request)
     {
         $task = Task::create([
-            'title' => $data['title'],
-            'description' => $data['description'],
-            'status' => $data['status'],
-            'priority' => $data['priority'],
-            'user_id' => $userId,
+            'title' => $request->title,
+            'description' => $request->description,
+            'status' => $request->status,
+            'priority' => $request->priority,
+            'user_id' => auth()->id(),
         ]);
         
         $this->sendNotification($task);
         $this->logTaskCreation($task);
         
-        return $task;
+        return redirect()->route('tasks.index');
     }
     
-    public function updateTask(Task $task, array $data): Task
+    public function update(TaskRequest $request, Task $task)
     {
-        $task->update([
-            'title' => $data['title'],
-            'description' => $data['description'],
-            'status' => $data['status'],
-            'priority' => $data['priority'],
-        ]);
-        
-        return $task;
+        $task->update($request->validated());
+        return redirect()->route('tasks.index');
     }
     
     private function sendNotification(Task $task): void
@@ -220,48 +215,13 @@ class TaskService
 
 ---
 
-### 1-5. リファクタリング後のコントローラー
-
-**ファイル**: `app/Http/Controllers/TaskController.php`
-
-```php
-<?php
-
-namespace App\Http\Controllers;
-
-use App\Http\Requests\TaskRequest;
-use App\Models\Task;
-use App\Services\TaskService;
-
-class TaskController extends Controller
-{
-    public function __construct(
-        private TaskService $taskService
-    ) {}
-    
-    public function store(TaskRequest $request)
-    {
-        $this->taskService->createTask($request->validated(), auth()->id());
-        return redirect()->route('tasks.index');
-    }
-    
-    public function update(TaskRequest $request, Task $task)
-    {
-        $this->taskService->updateTask($task, $request->validated());
-        return redirect()->route('tasks.index');
-    }
-}
-```
-
----
-
-### 1-6. 改善点
+### 1-5. 改善点
 
 | 改善 | 説明 |
 |------|------|
 | バリデーション分離 | フォームリクエストに移動 |
-| ビジネスロジック分離 | サービスクラスに移動 |
-| コントローラースリム化 | 各メソッドが2〜3行に |
+| メソッド分割 | 通知とログを別メソッドに |
+| 変数名改善 | `$t`から`$task`に変更 |
 
 ---
 
@@ -521,7 +481,7 @@ $tasks = Task::forUser(auth()->id())
 
 | Step | 学んだこと |
 |------|-----------|
-| Step 1 | コントローラーのリファクタリング（Form Request、Service） |
+| Step 1 | コントローラーのリファクタリング（Form Request、メソッド分割） |
 | Step 2 | モデルのリファクタリング（Eloquentスコープ） |
 | Step 3 | ビューのリファクタリング（パーシャル） |
 | Step 4 | リファクタリングの手順と注意点 |

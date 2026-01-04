@@ -371,8 +371,6 @@ public function processOrder(Request $request)
 - `createOrder()`: 注文作成
 - `updateStock()`: 在庫更新
 - `sendOrderConfirmation()`: メール送信
-
-または、サービスクラスに分離することもできます。
 ```
 
 **修正例**:
