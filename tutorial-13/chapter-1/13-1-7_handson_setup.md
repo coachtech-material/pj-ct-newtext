@@ -32,7 +32,7 @@
 ターミナルで以下のコマンドを実行します。
 
 ```bash
-git clone https://github.com/coachtech/laravel-api-starter.git api-practice
+git clone https://github.com/coachtech-material/laravel-api-starter-forTutorial13.git api-practice
 ```
 
 | 部分 | 説明 |
