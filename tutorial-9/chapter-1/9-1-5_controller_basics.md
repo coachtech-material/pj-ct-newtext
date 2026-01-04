@@ -223,11 +223,45 @@ class ProductController extends Controller
 
 リソースコントローラーを使う場合、ルーティングも一括で定義できます。
 
+**従来の書き方（ルートを1つずつ定義）**
+
 ```php
+// routes/web.php
+use App\Http\Controllers\ProductController;
+
+// 7つのルートを全て手書きする必要がある
+Route::get('/products', [ProductController::class, 'index'])->name('products.index');
+Route::get('/products/create', [ProductController::class, 'create'])->name('products.create');
+Route::post('/products', [ProductController::class, 'store'])->name('products.store');
+Route::get('/products/{product}', [ProductController::class, 'show'])->name('products.show');
+Route::get('/products/{product}/edit', [ProductController::class, 'edit'])->name('products.edit');
+Route::put('/products/{product}', [ProductController::class, 'update'])->name('products.update');
+Route::delete('/products/{product}', [ProductController::class, 'destroy'])->name('products.destroy');
+```
+
+この書き方でも動作しますが、**7行も書く必要があり、タイプミスのリスクも高まります**。
+
+**`Route::resource()`を使った書き方（推奨）**
+
+```php
+// routes/web.php
+use App\Http\Controllers\ProductController;
+
+// たった1行で同じルートが全て定義される！
 Route::resource('products', ProductController::class);
 ```
 
-この1行で、上記の7つのルートが全て定義されます。`sail artisan route:list`で確認すると、以下のようになります。
+この**たった1行**で、上記の7つのルートが全て定義されます。
+
+**実際に登録されるルートを確認する**
+
+`sail artisan route:list`コマンドを実行すると、登録されたルートの一覧を確認できます。
+
+```bash
+sail artisan route:list
+```
+
+**出力結果**
 
 | Method | URI | Name | Action |
 |:---|:---|:---|:---|
@@ -239,7 +273,83 @@ Route::resource('products', ProductController::class);
 | PUT/PATCH | products/{product} | products.update | ProductController@update |
 | DELETE | products/{product} | products.destroy | ProductController@destroy |
 
-ルート名も自動的に生成されるため、`route('products.show', ['product' => $product->id])`のように使うことができます。
+**各ルートの詳細解説**
+
+| ルート名 | URL | HTTPメソッド | 用途 | 例 |
+|:---|:---|:---|:---|:---|
+| `products.index` | `/products` | GET | 商品一覧を表示 | 「商品一覧」ページ |
+| `products.create` | `/products/create` | GET | 新規作成フォームを表示 | 「商品を追加」ページ |
+| `products.store` | `/products` | POST | フォームから送信されたデータを保存 | 「登録」ボタン押下時 |
+| `products.show` | `/products/{product}` | GET | 特定の商品の詳細を表示 | 「商品詳細」ページ |
+| `products.edit` | `/products/{product}/edit` | GET | 編集フォームを表示 | 「商品を編集」ページ |
+| `products.update` | `/products/{product}` | PUT/PATCH | フォームから送信されたデータで更新 | 「更新」ボタン押下時 |
+| `products.destroy` | `/products/{product}` | DELETE | 特定の商品を削除 | 「削除」ボタン押下時 |
+
+> **📌 {product}とは？**
+> 
+> `{product}`はルートパラメータです。実際には商品のIDが入ります。
+> 例：`/products/5`はIDが5の商品を指します。
+
+**Bladeテンプレートでの使用例**
+
+ルート名が自動的に生成されるため、`route()`ヘルパーで簡単にURLを生成できます。
+
+```blade
+{{-- 商品一覧へのリンク --}}
+<a href="{{ route('products.index') }}">商品一覧</a>
+
+{{-- 新規作成フォームへのリンク --}}
+<a href="{{ route('products.create') }}">商品を追加</a>
+
+{{-- 特定の商品の詳細へのリンク（IDを渡す） --}}
+<a href="{{ route('products.show', ['product' => $product->id]) }}">{{ $product->name }}</a>
+
+{{-- 編集フォームへのリンク --}}
+<a href="{{ route('products.edit', ['product' => $product->id]) }}">編集</a>
+
+{{-- 削除フォーム（DELETEメソッドを使用） --}}
+<form action="{{ route('products.destroy', ['product' => $product->id]) }}" method="POST">
+    @csrf
+    @method('DELETE')
+    <button type="submit">削除</button>
+</form>
+```
+
+> **💡 @method('DELETE')とは？**
+> 
+> HTMLのフォームはGETとPOSTしかサポートしていません。
+> PUTやDELETEを使うために、Laravelでは`@method('DELETE')`を使って「これはDELETEリクエストだよ」と伝えます。
+
+#### 一部のルートのみを使う場合
+
+7つ全てのルートが必要ない場合は、`only`や`except`で絞り込めます。
+
+```php
+// index, showのみを使う（読み取り専用）
+Route::resource('products', ProductController::class)->only(['index', 'show']);
+
+// destroy以外を使う（削除機能なし）
+Route::resource('products', ProductController::class)->except(['destroy']);
+```
+
+| メソッド | 説明 | 使いどころ |
+|:---|:---|:---|
+| `only()` | 指定したルートのみを登録 | 一部の機能だけ使う場合 |
+| `except()` | 指定したルート以外を登録 | 特定の機能を除外する場合 |
+
+#### まとめ：なぜ`Route::resource()`を使うのか？
+
+| 従来の書き方 | `Route::resource()` |
+|:---|:---|
+| 7行必要 | 1行でOK |
+| タイプミスのリスクが高い | 自動生成でミスなし |
+| ルート名を手動で設定 | ルート名も自動生成 |
+| チームでバラバラになりやすい | 統一された書き方 |
+
+> **📌 実務でのポイント**
+> 
+> CRUD操作を行うコントローラーには、`Route::resource()`を使うのが一般的です。
+> コードが簡潔になり、チーム開発でも統一された書き方ができます。
 
 ### 🔄 レスポンスの返し方
 
