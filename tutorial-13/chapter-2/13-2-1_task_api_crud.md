@@ -298,10 +298,12 @@ class TaskController extends Controller
 use App\Http\Controllers\Api\TaskController;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware('auth:sanctum')->group(function () {
-    Route::apiResource('tasks', TaskController::class);
-});
+Route::apiResource('tasks', TaskController::class);
 ```
+
+> **📌 認証について**
+> 
+> このカリキュラムではAPI認証の実装は扱いません。実際の開発では、認証が必要な場合はミドルウェアを適用します。
 
 ---
 
@@ -309,28 +311,23 @@ Route::middleware('auth:sanctum')->group(function () {
 
 ```bash
 # タスク一覧を取得
-curl -X GET http://localhost/api/tasks \
-  -H "Authorization: Bearer YOUR_TOKEN"
+curl -X GET http://localhost/api/tasks
 
 # タスクを作成
 curl -X POST http://localhost/api/tasks \
-  -H "Authorization: Bearer YOUR_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"title": "新しいタスク", "description": "これは新しいタスクです"}'
 
 # タスク詳細を取得
-curl -X GET http://localhost/api/tasks/1 \
-  -H "Authorization: Bearer YOUR_TOKEN"
+curl -X GET http://localhost/api/tasks/1
 
 # タスクを更新
 curl -X PUT http://localhost/api/tasks/1 \
-  -H "Authorization: Bearer YOUR_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"title": "更新されたタスク", "status": "completed"}'
 
 # タスクを削除
-curl -X DELETE http://localhost/api/tasks/1 \
-  -H "Authorization: Bearer YOUR_TOKEN"
+curl -X DELETE http://localhost/api/tasks/1
 ```
 
 ---

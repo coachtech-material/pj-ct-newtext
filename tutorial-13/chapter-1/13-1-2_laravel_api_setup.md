@@ -70,9 +70,8 @@ Laravelでは、`routes/api.php`にAPIのルーティングを定義します。
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/user', function (Request $request) {
-    return $request->user();
-})->middleware('auth:sanctum');
+// デフォルトでは空のファイルです
+// ここにAPIルートを定義します
 ```
 
 ---
@@ -335,7 +334,7 @@ Header: Accept: application/vnd.api+json; version=v1
 
 **問題**: APIはステートレスであるべき
 
-**対処法**: 認証にはトークン（Sanctum）を使います。
+**対処法**: APIではセッションを使わず、トークンベースの認証を使います。
 
 ---
 
@@ -357,7 +356,7 @@ Header: Accept: application/vnd.api+json; version=v1
 <?php
 
 return [
-    'paths' => ['api/*', 'sanctum/csrf-cookie'],
+    'paths' => ['api/*'],
     'allowed_methods' => ['*'],
     'allowed_origins' => ['*'],
     'allowed_origins_patterns' => [],

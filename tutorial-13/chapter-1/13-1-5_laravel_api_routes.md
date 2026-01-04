@@ -258,16 +258,6 @@ Route::prefix('v1')->group(function () {
 
 ---
 
-### 3-6. ミドルウェアを適用する
-
-```php
-Route::middleware('auth:sanctum')->group(function () {
-    Route::apiResource('tasks', TaskController::class);
-});
-```
-
----
-
 ## 🚨 よくある間違い
 
 ### 間違い1: routes/web.phpにAPIルートを書く

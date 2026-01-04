@@ -1,4 +1,4 @@
-# Tutorial 13-3-2: APIのセキュリティ対策
+# Tutorial 13-3-1: APIのセキュリティ対策
 
 ## 🎯 このセクションで学ぶこと
 
@@ -10,9 +10,9 @@
 
 ## 🧠 先輩エンジニアの思考プロセス
 
-### 「なぜSanctum導入の後に『APIセキュリティ』を学ぶのか？」
+### 「なぜAPIセキュリティを学ぶのか？」
 
-Sanctumを導入したら、次は「APIセキュリティ」です。
+API開発では、セキュリティ対策が重要です。
 
 ---
 
@@ -85,10 +85,6 @@ Laravelでは、デフォルトでAPIにレート制限が適用されていま�
 
 ```php
 ->withMiddleware(function (Middleware $middleware) {
-    $middleware->api(prepend: [
-        \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
-    ]);
-
     // レート制限の設定
     $middleware->throttleApi();
 })
@@ -341,9 +337,7 @@ Log::info('Task created', ['task_id' => $task->id, 'user_id' => Auth::id()]);
 
 APIでは、通常**CSRFトークンは使用しません**。
 
-代わりに、**トークンベース認証**を使います。
-
-Sanctumを使うことで、CSRF対策が自動的に行われます。
+APIは`routes/api.php`に定義することで、CSRF保護が自動的に無効になります。
 
 ---
 
@@ -357,6 +351,6 @@ Sanctumを使うことで、CSRF対策が自動的に行われます。
 | Step 2 | 入力値の検証とインジェクション対策 |
 | Step 3 | 認可の実装とAPIキーの管理 |
 
-次のセクションでは、ログインAPIとトークンについて学びます。
+これでTutorial 13のChapter 3「APIのセキュリティ」が完了しました。
 
 ---
