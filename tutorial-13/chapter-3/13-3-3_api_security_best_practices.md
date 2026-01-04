@@ -2,10 +2,9 @@
 
 ## 🎯 このセクションで学ぶこと
 
-- レート制限の設定方法を学ぶ
+- 本番環境に向けたセキュリティ対策を学ぶ
 - HTTPSの重要性を理解する
-- APIキー管理のベストプラクティスを学ぶ
-- その他のセキュリティ対策を理解する
+- セキュリティチェックリストを確認する
 
 ---
 
@@ -13,17 +12,11 @@
 
 ### 「なぜ最後に『セキュリティベストプラクティス』を学ぶのか？」
 
-API認証を実装したら、最後は「ベストプラクティス」です。
+API開発の基本を学んだら、最後は「ベストプラクティス」です。
 
 ---
 
-### 理由1: 実践的な知識の整理
-
-これまで学んだセキュリティの知識を、**実践的なベストプラクティス**として整理します。
-
----
-
-### 理由2: 本番環境への準備
+### 理由1: 本番環境への準備
 
 開発環境と本番環境では、**セキュリティの要件が異なります**。
 
@@ -35,7 +28,7 @@ API認証を実装したら、最後は「ベストプラクティス」です�
 
 ---
 
-### 理由3: 継続的なセキュリティ
+### 理由2: 継続的なセキュリティ
 
 セキュリティは**一度設定して終わり**ではありません。
 
@@ -51,80 +44,71 @@ API認証を実装したら、最後は「ベストプラクティス」です�
 
 | 順番 | 作業 | 理由 |
 |------|------|------|
-| Step 1 | レート制限の設定 | DoS攻撃対策 |
+| Step 1 | 本番環境の設定 | 安全な運用 |
 | Step 2 | HTTPSの強制 | 通信の暗号化 |
-| Step 3 | その他のセキュリティ対策 | 総合的な防御 |
+| Step 3 | セキュリティチェックリスト | 最終確認 |
 
 > 💡 **ポイント**: セキュリティは「完璧」を目指すのではなく、「継続的な改善」が重要です。
 
 ---
 
-## Step 1: レート制限の設定
+## Step 1: 本番環境の設定
 
-### 1-1. レート制限とは
+### 1-1. デバッグモードを無効にする
 
-**レート制限**は、**一定時間内のリクエスト数を制限する**仕組みです。
+本番環境では、デバッグモードを無効にします。
 
-| 目的 | 説明 |
-|------|------|
-| DoS攻撃を防ぐ | 過度なリクエストを防ぐ |
-| サーバーの負荷を軽減 | リソースを保護する |
-| 不正な利用を防ぐ | APIの悪用を防ぐ |
+**ファイル**: `.env`（本番環境）
 
----
-
-### 1-2. Laravelでのレート制限
-
-**ファイル**: `routes/api.php`
-
-```php
-Route::middleware(['auth:sanctum', 'throttle:60,1'])->group(function () {
-    Route::apiResource('tasks', TaskController::class);
-});
+```
+APP_DEBUG=false
 ```
 
-| 設定 | 説明 |
-|------|------|
-| `throttle:60,1` | 1分間に60リクエストまで |
-| 制限超過時 | 429 Too Many Requests |
+| 設定 | 開発環境 | 本番環境 |
+|------|----------|----------|
+| `APP_DEBUG` | `true` | `false` |
 
 ---
 
-### 1-3. レート制限のカスタマイズ
+### 1-2. エラーメッセージを適切に返す
 
-**ファイル**: `app/Providers/AppServiceProvider.php`
+本番環境では、詳細なエラーメッセージを隠します。
 
 ```php
-use Illuminate\Cache\RateLimiting\Limit;
-use Illuminate\Support\Facades\RateLimiter;
-
-public function boot(): void
+// ❌ 危険（本番環境）
 {
-    RateLimiter::for('api', function (Request $request) {
-        return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
-    });
+  "message": "SQLSTATE[42S02]: Base table or view not found"
+}
+
+// ✅ 安全（本番環境）
+{
+  "message": "サーバーエラーが発生しました"
 }
 ```
 
 ---
 
-### 1-4. 429 Too Many Requests
+### 1-3. 機密情報の管理
 
-レート制限を超えた場合のレスポンス:
+APIキーやシークレットキーは、**環境変数に保存**します。
 
-```json
-{
-  "message": "Too Many Requests"
-}
+| ルール | 説明 |
+|--------|------|
+| 環境変数に保存する | `.env`ファイルに保存 |
+| コードに書かない | ハードコーディングしない |
+| Gitにコミットしない | `.gitignore`に追加 |
+
+**ファイル**: `.env`
+
+```
+API_KEY=your_api_key_here
 ```
 
-**ヘッダー**:
+**使い方**:
 
-| ヘッダー | 説明 |
-|----------|------|
-| X-RateLimit-Limit | 制限数 |
-| X-RateLimit-Remaining | 残りのリクエスト数 |
-| Retry-After | 再試行までの秒数 |
+```php
+$apiKey = env('API_KEY');
+```
 
 ---
 
@@ -139,8 +123,6 @@ public function boot(): void
 | 盗聴を防ぐ | 通信内容を暗号化 |
 | 改ざんを防ぐ | 通信内容の改ざんを検知 |
 | なりすましを防ぐ | サーバーの正当性を確認 |
-
-**本番環境では、必ずHTTPSを使う**
 
 ---
 
@@ -161,132 +143,94 @@ public function boot(): void
 
 ---
 
-### 2-3. APIキー管理のベストプラクティス
+### 2-3. コードリーディング
 
-| ルール | 説明 |
-|--------|------|
-| 環境変数に保存する | `.env`ファイルに保存 |
-| コードに書かない | ハードコーディングしない |
-| Gitにコミットしない | `.gitignore`に追加 |
-| 環境ごとに分ける | 本番と開発で異なるキー |
-
-**ファイル**: `.env`
-
-```
-STRIPE_KEY=sk_test_abcdefghijklmnopqrstuvwxyz
-```
-
-**使い方**:
+#### `$this->app->environment('production')`
 
 ```php
-$stripeKey = config('services.stripe.key');
+if ($this->app->environment('production')) {
 ```
+
+| 部分 | 説明 |
+|------|------|
+| `$this->app->environment()` | 現在の環境を取得 |
+| `'production'` | 本番環境かどうかを判定 |
 
 ---
 
-## Step 3: その他のセキュリティ対策
+#### `URL::forceScheme('https')`
 
-### 3-1. CORS設定を適切に行う
+```php
+URL::forceScheme('https');
+```
+
+| 部分 | 説明 |
+|------|------|
+| `URL::forceScheme()` | URLのスキームを強制 |
+| `'https'` | HTTPSを使用 |
+
+---
+
+## Step 3: セキュリティチェックリスト
+
+### 3-1. 本番環境へのデプロイ前に確認
+
+| 項目 | 確認 |
+|------|------|
+| `APP_DEBUG=false`に設定している | [ ] |
+| HTTPSを使用している | [ ] |
+| レート制限を設定している | [ ] |
+| APIキーを環境変数に保存している | [ ] |
+| バリデーションを行っている | [ ] |
+| Eloquent ORMを使用している | [ ] |
+| ログを記録している | [ ] |
+| CORSを適切に設定している | [ ] |
+
+---
+
+### 3-2. CORS設定の確認
 
 本番環境では、特定のオリジンだけを許可します。
 
+**ファイル**: `config/cors.php`
+
 ```php
 'allowed_origins' => [
-    'https://example.com',
+    env('FRONTEND_URL', 'http://localhost:5173'),
 ],
 ```
 
 ---
 
-### 3-2. バリデーションを徹底する
-
-すべてのリクエストでバリデーションを行います。
-
-```php
-$validated = $request->validate([
-    'title' => 'required|max:255',
-    'status' => 'required|in:pending,in_progress,completed',
-]);
-```
-
----
-
-### 3-3. SQLインジェクションを防ぐ
-
-Eloquent ORMを使うと、SQLインジェクションを防げます。
-
-```php
-// ✅ 正しい（Eloquent ORM）
-$tasks = Task::where('user_id', $userId)->get();
-
-// ❌ 間違い（生のSQL）
-$tasks = DB::select("SELECT * FROM tasks WHERE user_id = $userId");
-```
-
----
-
-### 3-4. ログを記録する
+### 3-3. ログの記録
 
 重要な操作は、ログに記録します。
 
 ```php
 use Illuminate\Support\Facades\Log;
 
-Log::info('Task created', ['task_id' => $task->id, 'user_id' => $user->id]);
-```
-
----
-
-### 3-5. セキュリティヘッダーを追加する
-
-**ファイル**: `app/Http/Middleware/SecurityHeaders.php`
-
-```php
-<?php
-
-namespace App\Http\Middleware;
-
-use Closure;
-use Illuminate\Http\Request;
-
-class SecurityHeaders
-{
-    public function handle(Request $request, Closure $next)
-    {
-        $response = $next($request);
-        
-        $response->headers->set('X-Content-Type-Options', 'nosniff');
-        $response->headers->set('X-Frame-Options', 'DENY');
-        $response->headers->set('X-XSS-Protection', '1; mode=block');
-        
-        return $response;
-    }
-}
-```
-
----
-
-### 3-6. エラーメッセージを適切に返す
-
-本番環境では、詳細なエラーメッセージを隠します。
-
-```php
-// ❌ 危険（本番環境）
-{
-  "message": "SQLSTATE[42S02]: Base table or view not found"
-}
-
-// ✅ 安全（本番環境）
-{
-  "message": "An error occurred"
-}
+Log::info('Task created', ['task_id' => $task->id]);
 ```
 
 ---
 
 ## 🚨 よくある間違い
 
-### 間違い1: HTTPSを使わない
+### 間違い1: 本番環境でデバッグを有効にする
+
+**問題**: 詳細なエラーメッセージが漏洩する
+
+```
+// ❌ 間違い（本番環境）
+APP_DEBUG=true
+
+// ✅ 正しい（本番環境）
+APP_DEBUG=false
+```
+
+---
+
+### 間違い2: HTTPSを使わない
 
 **問題**: 通信内容が盗聴される
 
@@ -300,49 +244,30 @@ https://example.com/api/tasks
 
 ---
 
-### 間違い2: APIキーをコードに書く
+### 間違い3: APIキーをコードに書く
 
 **問題**: APIキーが漏洩する
 
 ```php
 // ❌ 間違い
-$stripeKey = 'sk_test_abcdefghijklmnopqrstuvwxyz';
+$apiKey = 'sk_test_abcdefghijklmnopqrstuvwxyz';
 
 // ✅ 正しい
-$stripeKey = config('services.stripe.key');
+$apiKey = env('API_KEY');
 ```
 
 ---
 
-### 間違い3: レート制限を設定しない
+## 💡 TIP: セキュリティは継続的な取り組み
 
-**問題**: DoS攻撃を受ける可能性
+セキュリティは一度設定して終わりではありません。
 
-```php
-// ❌ 間違い
-Route::middleware('auth:sanctum')->group(function () {
-    Route::apiResource('tasks', TaskController::class);
-});
-
-// ✅ 正しい
-Route::middleware(['auth:sanctum', 'throttle:60,1'])->group(function () {
-    Route::apiResource('tasks', TaskController::class);
-});
-```
-
----
-
-## 💡 TIP: セキュリティチェックリスト
-
-| 項目 | 確認 |
-|------|------|
-| HTTPSを使用している | [ ] |
-| レート制限を設定している | [ ] |
-| APIキーを環境変数に保存している | [ ] |
-| バリデーションを行っている | [ ] |
-| Eloquent ORMを使用している | [ ] |
-| ログを記録している | [ ] |
-| 本番環境でデバッグを無効にしている | [ ] |
+| 取り組み | 頻度 |
+|----------|------|
+| Laravelのアップデート | 定期的に |
+| 依存パッケージの更新 | 定期的に |
+| ログの確認 | 定期的に |
+| セキュリティ監査 | 必要に応じて |
 
 ---
 
@@ -352,23 +277,22 @@ Route::middleware(['auth:sanctum', 'throttle:60,1'])->group(function () {
 
 | Step | 学んだこと |
 |------|-----------|
-| Step 1 | レート制限の設定とカスタマイズ |
-| Step 2 | HTTPSの強制とAPIキー管理 |
-| Step 3 | その他のセキュリティ対策 |
-
-これで、Chapter 3（API認証とセキュリティ）は完了です。
+| Step 1 | 本番環境の設定（デバッグ無効、機密情報管理） |
+| Step 2 | HTTPSの強制 |
+| Step 3 | セキュリティチェックリスト |
 
 ---
+
 ## 🎉 Tutorial 13 Chapter 3の完了
 
-Chapter 3（API認証とセキュリティ）を完了しました！
+Chapter 3（APIのセキュリティ）を完了しました！
 
 このチャプターでは、以下のことを学びました。
 
 | セクション | 内容 |
 |:---|:---|
-| 13-3-1 | API認証の仕組み（概念理解） |
-| 13-3-2 | APIのセキュリティ対策 |
+| 13-3-1 | APIのセキュリティ対策（レート制限、入力値検証） |
+| 13-3-2 | API認証の概念（Sanctumの紹介） |
 | 13-3-3 | APIセキュリティのベストプラクティス |
 
 > **📌 重要なポイント**

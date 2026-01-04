@@ -4,7 +4,7 @@
 
 - APIのセキュリティリスクを理解する
 - レート制限（Rate Limiting）の実装方法を学ぶ
-- APIのセキュリティベストプラクティスを理解する
+- 入力値の検証の重要性を理解する
 
 ---
 
@@ -16,18 +16,17 @@ API開発では、セキュリティ対策が重要です。
 
 ---
 
-### 理由1: 認証だけでは不十分
+### 理由1: APIは外部に公開される
 
-認証は「誰がアクセスしているか」を確認するだけです。
+WebアプリケーションのAPIは、**外部からアクセス可能**です。
 
-APIのセキュリティには、**他にも考慮すべき点**があります。
+悪意のあるユーザーが攻撃を試みる可能性があります。
 
-| 対策 | 説明 |
-|------|------|
-| レート制限 | DoS攻撃対策 |
-| 入力値の検証 | インジェクション対策 |
-| HTTPSの使用 | 通信の暗号化 |
-| 機密情報の保護 | APIキーの管理 |
+| リスク | 説明 |
+|--------|------|
+| 大量リクエスト | サーバーがダウンする |
+| 不正なデータ | データベースが破壊される |
+| 情報漏洩 | 機密情報が盗まれる |
 
 ---
 
@@ -37,9 +36,9 @@ APIに対する**一般的な攻撃パターン**を知っておくことが重�
 
 | 攻撃 | 説明 |
 |------|------|
-| インジェクション攻撃 | SQLインジェクションなど |
-| 認証の突破 | ブルートフォース攻撃 |
-| 過剰なデータ露出 | 不要な情報を返す |
+| DoS攻撃 | 大量のリクエストでサーバーをダウンさせる |
+| SQLインジェクション | データベースを不正に操作する |
+| XSS | 悪意のあるスクリプトを実行する |
 
 ---
 
@@ -57,7 +56,7 @@ Laravelには、多くのセキュリティ機能が組み込まれています�
 |------|------|------|
 | Step 1 | レート制限の設定 | DoS攻撃対策 |
 | Step 2 | 入力値の検証 | インジェクション対策 |
-| Step 3 | 認可の実装 | 権限チェック |
+| Step 3 | セキュリティのベストプラクティス | 安全なAPI開発 |
 
 > 💡 **ポイント**: セキュリティは「後から追加」ではなく、最初から考慮すべきです。
 
@@ -71,7 +70,7 @@ Laravelには、多くのセキュリティ機能が組み込まれています�
 
 | メリット | 説明 |
 |----------|------|
-| DDoS攻撃を防ぐ | 大量のリクエストを防ぐ |
+| DoS攻撃を防ぐ | 大量のリクエストを防ぐ |
 | サーバーの負荷を軽減 | 過度なアクセスを防ぐ |
 | 公平性を保つ | 特定のユーザーがAPIを独占することを防ぐ |
 
@@ -113,7 +112,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         RateLimiter::for('api', function (Request $request) {
-            return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
+            return Limit::perMinute(60)->by($request->ip());
         });
     }
 }
@@ -123,10 +122,29 @@ class AppServiceProvider extends ServiceProvider
 
 ### 1-4. コードリーディング
 
-| コード | 説明 |
-|--------|------|
-| `Limit::perMinute(60)` | 1分間に60回までのリクエストを許可 |
-| `->by($request->user()?->id ?: $request->ip())` | ユーザーIDまたはIPアドレスで制限 |
+#### `Limit::perMinute(60)`
+
+```php
+Limit::perMinute(60)
+```
+
+| 部分 | 説明 |
+|------|------|
+| `Limit::perMinute()` | 1分間あたりの制限を設定 |
+| `60` | 60回までのリクエストを許可 |
+
+---
+
+#### `->by($request->ip())`
+
+```php
+->by($request->ip())
+```
+
+| 部分 | 説明 |
+|------|------|
+| `->by()` | 制限の基準を設定 |
+| `$request->ip()` | IPアドレスごとに制限 |
 
 ---
 
@@ -135,16 +153,18 @@ class AppServiceProvider extends ServiceProvider
 特定のエンドポイントに対して、異なるレート制限を適用することもできます。
 
 ```php
-// ログインエンドポイント: 1分間に5回
-RateLimiter::for('login', function (Request $request) {
-    return Limit::perMinute(5)->by($request->ip());
+// 厳しい制限: 1分間に10回
+RateLimiter::for('strict', function (Request $request) {
+    return Limit::perMinute(10)->by($request->ip());
 });
 ```
 
 **ルーティング**:
 
 ```php
-Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:login');
+Route::middleware('throttle:strict')->group(function () {
+    Route::post('/api/tasks', [TaskController::class, 'store']);
+});
 ```
 
 ---
@@ -173,9 +193,10 @@ APIでは、**必ず入力値のバリデーション**を行ってください�
 |--------|------|
 | SQLインジェクション | データベースが不正に操作される |
 | XSS | 悪意のあるスクリプトが実行される |
+| データ破壊 | 不正なデータが保存される |
 
 ```php
-$request->validate([
+$validated = $request->validate([
     'title' => 'required|string|max:255',
     'description' => 'nullable|string',
     'due_date' => 'nullable|date',
@@ -189,32 +210,47 @@ $request->validate([
 Laravelの**Eloquent ORM**を使うことで、SQLインジェクションを防ぐことができます。
 
 ```php
-// ❌ 危険
+// ❌ 危険（生のSQLを使用）
 $tasks = DB::select("SELECT * FROM tasks WHERE user_id = {$userId}");
 
-// ✅ 安全
+// ✅ 安全（Eloquentを使用）
 $tasks = Task::where('user_id', $userId)->get();
 ```
 
 ---
 
-### 2-3. XSS（Cross-Site Scripting）対策
+### 2-3. コードリーディング
 
-Laravelでは、**Bladeテンプレート**を使うことで、XSSを防ぐことができます。
+#### なぜEloquentが安全なのか
 
 ```php
-// ❌ 危険
-{!! $task->title !!}
-
-// ✅ 安全
-{{ $task->title }}
+Task::where('user_id', $userId)->get();
 ```
 
-`{{ }}`を使うことで、HTMLタグがエスケープされます。
+| 部分 | 説明 |
+|------|------|
+| `where('user_id', $userId)` | 値が自動的にエスケープされる |
+| プリペアドステートメント | SQLインジェクションを防ぐ |
 
 ---
 
-### 2-4. HTTPSの使用
+### 2-4. XSS（Cross-Site Scripting）対策
+
+APIでJSONを返す場合、XSSのリスクは低いですが、HTMLを返す場合は注意が必要です。
+
+```php
+// ❌ 危険（HTMLタグがそのまま出力される）
+{!! $task->title !!}
+
+// ✅ 安全（HTMLタグがエスケープされる）
+{{ $task->title }}
+```
+
+---
+
+## Step 3: セキュリティのベストプラクティス
+
+### 3-1. HTTPSの使用
 
 APIは、**必ずHTTPSを使用**してください。
 
@@ -225,48 +261,7 @@ APIは、**必ずHTTPSを使用**してください。
 
 ---
 
-## Step 3: 認可の実装
-
-### 3-1. 認証と認可の違い
-
-| 概念 | 説明 |
-|------|------|
-| 認証（Authentication） | ユーザーが誰であるかを確認する |
-| 認可（Authorization） | ユーザーが何をできるかを確認する |
-
----
-
-### 3-2. 認可の実装例
-
-**ファイル**: `app/Http/Controllers/Api/TaskController.php`
-
-```php
-public function update(Request $request, string $id): JsonResponse
-{
-    $task = Task::findOrFail($id);
-
-    // 認可チェック: 自分のタスクのみを更新できる
-    if ($task->user_id !== Auth::id()) {
-        return response()->json([
-            'message' => 'このタスクを更新する権限がありません'
-        ], 403);
-    }
-
-    $validated = $request->validate([
-        'title' => 'required|string|max:255',
-        'description' => 'nullable|string',
-        'status' => 'required|in:pending,in_progress,completed',
-    ]);
-
-    $task->update($validated);
-
-    return response()->json(['data' => $task], 200);
-}
-```
-
----
-
-### 3-3. APIキーの管理
+### 3-2. 機密情報の管理
 
 APIキーやシークレットキーは、**絶対にコードに直接書かない**でください。
 
@@ -275,25 +270,43 @@ APIキーやシークレットキーは、**絶対にコードに直接書かな
 $apiKey = 'sk_live_abcdefghijklmnopqrstuvwxyz';
 
 // ✅ 安全
-$apiKey = env('STRIPE_API_KEY');
+$apiKey = env('API_KEY');
 ```
 
 ---
 
-### 3-4. ログの記録
+### 3-3. ログの記録
 
 APIでは、**ログを記録する**ことが重要です。
 
 ```php
 use Illuminate\Support\Facades\Log;
 
-Log::info('Task created', ['task_id' => $task->id, 'user_id' => Auth::id()]);
+Log::info('Task created', ['task_id' => $task->id]);
 ```
 
 | メリット | 説明 |
 |----------|------|
 | 不正アクセスを検知できる | 異常なアクセスパターンを発見 |
 | デバッグがしやすい | エラーの原因を特定 |
+
+---
+
+### 3-4. エラーメッセージの制限
+
+本番環境では、詳細なエラーメッセージを返さないでください。
+
+```php
+// ❌ 危険（本番環境）
+{
+  "message": "SQLSTATE[42S02]: Base table or view not found"
+}
+
+// ✅ 安全（本番環境）
+{
+  "message": "サーバーエラーが発生しました"
+}
+```
 
 ---
 
@@ -313,22 +326,29 @@ Log::info('Task created', ['task_id' => $task->id, 'user_id' => Auth::id()]);
 
 **対処法**: 全ての入力値に対して、バリデーションを行います。
 
+```php
+// ❌ 間違い
+$task = Task::create($request->all());
+
+// ✅ 正しい
+$validated = $request->validate([...]);
+$task = Task::create($validated);
+```
+
 ---
 
-### 間違い3: エラーメッセージに詳細な情報を含める
+### 間違い3: 生のSQLを使う
 
-**問題**: システムの内部情報が漏洩する
+**問題**: SQLインジェクションの危険性
+
+**対処法**: Eloquent ORMを使用します。
 
 ```php
-// ❌ 危険
-{
-  "message": "SQLSTATE[42S02]: Base table or view not found"
-}
+// ❌ 間違い
+DB::select("SELECT * FROM tasks WHERE id = {$id}");
 
-// ✅ 安全
-{
-  "message": "サーバーエラーが発生しました"
-}
+// ✅ 正しい
+Task::find($id);
 ```
 
 ---
@@ -338,6 +358,8 @@ Log::info('Task created', ['task_id' => $task->id, 'user_id' => Auth::id()]);
 APIでは、通常**CSRFトークンは使用しません**。
 
 APIは`routes/api.php`に定義することで、CSRF保護が自動的に無効になります。
+
+これは、APIがステートレス（セッションを使わない）であるためです。
 
 ---
 
@@ -349,8 +371,13 @@ APIは`routes/api.php`に定義することで、CSRF保護が自動的に無効
 |------|-----------|
 | Step 1 | レート制限の設定とカスタマイズ |
 | Step 2 | 入力値の検証とインジェクション対策 |
-| Step 3 | 認可の実装とAPIキーの管理 |
+| Step 3 | セキュリティのベストプラクティス |
 
-これでTutorial 13のChapter 3「APIのセキュリティ」が完了しました。
+**セキュリティのポイント**:
+
+1. **レート制限**でDoS攻撃を防ぐ
+2. **バリデーション**で不正なデータを防ぐ
+3. **Eloquent ORM**でSQLインジェクションを防ぐ
+4. **HTTPS**で通信を暗号化する
 
 ---

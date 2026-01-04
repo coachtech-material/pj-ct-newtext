@@ -20,15 +20,15 @@ API基礎を学んだら、次は「CRUD API」の実装です。
 
 概念を学んだら、**実際に手を動かして**理解を深めます。
 
-Tutorial 11で作ったタスク管理アプリを、APIで操作できるようにします。
+スターターキットに含まれるTaskモデルを使って、APIで操作できるようにします。
 
 ---
 
 ### 理由2: 既存のモデルを活用
 
-新しいモデルを作るのではなく、**既存のTaskモデルを活用**します。
+新しいモデルを作るのではなく、**スターターキットのTaskモデルを活用**します。
 
-これにより、WebアプリとAPIで**同じデータを共有**できます。
+これにより、すでにデータがある状態でAPIを試せます。
 
 ---
 
@@ -50,7 +50,7 @@ Tutorial 11で作ったタスク管理アプリを、APIで操作できるよう
 
 | 順番 | 作業 | 理由 |
 |------|------|------|
-| Step 1 | モデルとマイグレーション | データベースの準備 |
+| Step 1 | モデルとマイグレーションの確認 | データベースの構造を理解 |
 | Step 2 | APIコントローラーの作成 | CRUD処理の実装 |
 | Step 3 | ルーティングとテスト | 動作確認 |
 
@@ -58,23 +58,23 @@ Tutorial 11で作ったタスク管理アプリを、APIで操作できるよう
 
 ---
 
-## Step 1: モデルとマイグレーション
+## Step 1: モデルとマイグレーションの確認
 
-### 1-1. 既存のモデルとマイグレーションを確認
+### 1-1. スターターキットに含まれるファイル
 
-Tutorial 11で既に`Task`モデルとマイグレーションを作成済みです。
+スターターキットには、以下のファイルが含まれています。
 
-**新たに作成する必要はありません。**
-
-ここでは、既存のファイルの内容を確認しましょう。
+| ファイル | 説明 |
+|----------|------|
+| `database/migrations/xxxx_create_tasks_table.php` | tasksテーブルを作成 |
+| `app/Models/Task.php` | Taskモデル |
+| `database/seeders/TaskSeeder.php` | テストデータを投入 |
 
 ---
 
 ### 1-2. マイグレーションファイル（確認）
 
 **ファイル**: `database/migrations/xxxx_xx_xx_xxxxxx_create_tasks_table.php`
-
-Tutorial 11で作成したマイグレーションファイルは以下のようになっています。
 
 ```php
 <?php
@@ -90,7 +90,6 @@ return new class extends Migration
         Schema::create('tasks', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('category_id')->nullable()->constrained()->onDelete('set null');
             $table->string('title');
             $table->text('description')->nullable();
             $table->enum('status', ['pending', 'in_progress', 'completed'])->default('pending');
@@ -108,12 +107,13 @@ return new class extends Migration
 
 | カラム | 説明 |
 |--------|------|
-| `user_id` | タスクの所有者（ユーザー削除時にタスクも削除） |
-| `category_id` | カテゴリー（任意、カテゴリー削除時はnullに） |
+| `id` | 主キー（自動採番） |
+| `user_id` | タスクの所有者 |
 | `title` | タスクのタイトル |
 | `description` | タスクの説明（任意） |
 | `status` | ステータス（pending/in_progress/completed） |
 | `due_date` | 期限日（任意） |
+| `timestamps` | created_at, updated_at |
 
 ---
 
@@ -121,116 +121,103 @@ return new class extends Migration
 
 **ファイル**: `app/Models/Task.php`
 
-Tutorial 11・12で作成したモデルファイルは以下のようになっています。
-
 ```php
 <?php
 
 namespace App\Models;
 
-use App\Models\Scopes\UserScope;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Auth;
 
 class Task extends Model
 {
     use HasFactory;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
     protected $fillable = [
         'user_id',
-        'category_id',
         'title',
         'description',
         'status',
         'due_date',
     ];
 
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
     protected $casts = [
         'due_date' => 'date',
     ];
 
-    /**
-     * The "booted" method of the model.
-     */
-    protected static function booted(): void
-    {
-        static::addGlobalScope(new UserScope);
-    }
-
-    /**
-     * タスクが属するユーザー（多対1）
-     */
     public function user()
     {
         return $this->belongsTo(User::class);
-    }
-
-    /**
-     * このタスクが属するカテゴリー
-     */
-    public function category()
-    {
-        return $this->belongsTo(Category::class);
-    }
-
-    /**
-     * このタスクに付いているタグ
-     */
-    public function tags()
-    {
-        return $this->belongsToMany(Tag::class);
-    }
-
-    /**
-     * ログインユーザーのタスクのみを取得するスコープ
-     */
-    public function scopeForCurrentUser($query)
-    {
-        return $query->where('user_id', Auth::id());
-    }
-
-    /**
-     * 完了したタスクのみを取得するスコープ
-     */
-    public function scopeCompleted($query)
-    {
-        return $query->where('status', 'completed');
-    }
-
-    /**
-     * 未完了のタスクのみを取得するスコープ
-     */
-    public function scopePending($query)
-    {
-        return $query->where('status', 'pending');
     }
 }
 ```
 
 ---
 
-### 1-4. モデルのポイント
+### 1-4. コードリーディング
 
-| ポイント | 説明 |
-|----------|------|
-| `$fillable` | 一括代入を許可するカラム（`category_id`も含む） |
-| `$casts` | 日付型への自動変換 |
-| `booted()` | グローバルスコープでユーザーフィルタリング |
-| リレーション | `user()`, `category()`, `tags()`で関連データを取得 |
-| ローカルスコープ | `scopeCompleted()`, `scopePending()`でクエリを簡潔に |
+#### `protected $fillable = [...]`
 
-> 💡 **ポイント**: 既存のモデルにはグローバルスコープ（`UserScope`）が設定されているため、自動的にログインユーザーのタスクのみが取得されます。APIコントローラーでもこの機能が活用されます。
+```php
+protected $fillable = [
+    'user_id',
+    'title',
+    'description',
+    'status',
+    'due_date',
+];
+```
+
+| 部分 | 説明 |
+|------|------|
+| `protected` | このクラス内とサブクラスからアクセス可能 |
+| `$fillable` | 一括代入を許可するカラムの配列 |
+
+`$fillable`に指定したカラムだけが、`Task::create([...])`で一括代入できます。
+
+---
+
+#### `protected $casts = [...]`
+
+```php
+protected $casts = [
+    'due_date' => 'date',
+];
+```
+
+| 部分 | 説明 |
+|------|------|
+| `$casts` | カラムの型変換を定義 |
+| `'due_date' => 'date'` | `due_date`をCarbonの日付オブジェクトに変換 |
+
+---
+
+#### `public function user()`
+
+```php
+public function user()
+{
+    return $this->belongsTo(User::class);
+}
+```
+
+| 部分 | 説明 |
+|------|------|
+| `public function user()` | リレーションを定義するメソッド |
+| `$this->belongsTo(User::class)` | 「このタスクは1人のユーザーに属する」 |
+
+---
+
+### 1-5. シーダーで投入されるデータ
+
+`sail artisan migrate:fresh --seed`を実行すると、テストデータが投入されます。
+
+| データ | 内容 |
+|--------|------|
+| ユーザー | 1名（ID: 1） |
+| タスク | 10件程度 |
+
+> 💡 **ポイント**: シーダーでデータが投入されているので、すぐにAPIをテストできます。
 
 ---
 
@@ -256,35 +243,41 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Task;
 use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Auth;
 
 class TaskController extends Controller
 {
-    public function index(): JsonResponse
+    /**
+     * タスク一覧を取得
+     */
+    public function index()
     {
-        $tasks = Task::where('user_id', Auth::id())->get();
+        // user_id = 1 のタスクを取得
+        $tasks = Task::where('user_id', 1)->get();
 
         return response()->json([
             'data' => $tasks
         ], 200);
     }
 
-    public function store(Request $request): JsonResponse
+    /**
+     * タスクを作成
+     */
+    public function store(Request $request)
     {
-        $request->validate([
+        // バリデーション
+        $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'due_date' => 'nullable|date',
         ]);
 
-        $task = Task::create([
-            'user_id' => Auth::id(),
-            'title' => $request->title,
-            'description' => $request->description,
+        // タスクを作成
+        $data = array_merge($validated, [
+            'user_id' => 1,  // 本来は認証ユーザーのIDが入る
             'status' => 'pending',
-            'due_date' => $request->due_date,
         ]);
+        
+        $task = Task::create($data);
 
         return response()->json([
             'message' => 'タスクを作成しました',
@@ -292,10 +285,15 @@ class TaskController extends Controller
         ], 201);
     }
 
-    public function show(string $id): JsonResponse
+    /**
+     * タスク詳細を取得
+     */
+    public function show(string $id)
     {
-        $task = Task::where('user_id', Auth::id())->find($id);
+        // タスクを取得
+        $task = Task::where('user_id', 1)->find($id);
 
+        // タスクが見つからない場合
         if (!$task) {
             return response()->json([
                 'message' => 'タスクが見つかりません'
@@ -307,24 +305,31 @@ class TaskController extends Controller
         ], 200);
     }
 
-    public function update(Request $request, string $id): JsonResponse
+    /**
+     * タスクを更新
+     */
+    public function update(Request $request, string $id)
     {
-        $task = Task::where('user_id', Auth::id())->find($id);
+        // タスクを取得
+        $task = Task::where('user_id', 1)->find($id);
 
+        // タスクが見つからない場合
         if (!$task) {
             return response()->json([
                 'message' => 'タスクが見つかりません'
             ], 404);
         }
 
-        $request->validate([
+        // バリデーション
+        $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'status' => 'required|in:pending,in_progress,completed',
             'due_date' => 'nullable|date',
         ]);
 
-        $task->update($request->only(['title', 'description', 'status', 'due_date']));
+        // タスクを更新
+        $task->update($validated);
 
         return response()->json([
             'message' => 'タスクを更新しました',
@@ -332,16 +337,22 @@ class TaskController extends Controller
         ], 200);
     }
 
-    public function destroy(string $id): JsonResponse
+    /**
+     * タスクを削除
+     */
+    public function destroy(string $id)
     {
-        $task = Task::where('user_id', Auth::id())->find($id);
+        // タスクを取得
+        $task = Task::where('user_id', 1)->find($id);
 
+        // タスクが見つからない場合
         if (!$task) {
             return response()->json([
                 'message' => 'タスクが見つかりません'
             ], 404);
         }
 
+        // タスクを削除
         $task->delete();
 
         return response()->json(null, 204);
@@ -351,19 +362,198 @@ class TaskController extends Controller
 
 ---
 
-### 2-3. コードリーディング
+### 2-3. コードリーディング（index メソッド）
 
-| コード | 説明 |
-|--------|------|
-| `Task::where('user_id', Auth::id())->get()` | ログインユーザーのタスクのみを取得 |
-| `response()->json(['data' => $tasks], 200)` | 200（OK）でタスク一覧を返す |
-| `response()->json([...], 201)` | 201（Created）で作成したタスクを返す |
-| `response()->json([...], 404)` | 404（Not Found）でエラーを返す |
-| `response()->json(null, 204)` | 204（No Content）でレスポンスボディなし |
+```php
+public function index()
+{
+    $tasks = Task::where('user_id', 1)->get();
+
+    return response()->json([
+        'data' => $tasks
+    ], 200);
+}
+```
 
 ---
 
-### 2-4. HTTPステータスコードの選択
+#### `Task::where('user_id', 1)`
+
+```php
+$tasks = Task::where('user_id', 1)->get();
+```
+
+| 部分 | 説明 |
+|------|------|
+| `Task` | Taskモデルクラス |
+| `::where(...)` | 条件を指定するメソッド（静的メソッド） |
+| `'user_id', 1` | `user_id`が`1`のレコードを対象にする |
+| `->get()` | 条件に合うレコードをすべて取得 |
+
+> 📌 **注意**: 本来は`Auth::id()`で認証ユーザーのIDを取得しますが、このチュートリアルでは簡略化のため`1`を固定で使用しています。
+
+---
+
+#### `response()->json([...], 200)`
+
+```php
+return response()->json([
+    'data' => $tasks
+], 200);
+```
+
+| 部分 | 説明 |
+|------|------|
+| `response()` | レスポンスを作成するヘルパー関数 |
+| `->json([...])` | 配列をJSON形式に変換 |
+| `'data' => $tasks` | `data`キーにタスク一覧を格納 |
+| `, 200` | HTTPステータスコード（200 OK） |
+
+---
+
+### 2-4. コードリーディング（store メソッド）
+
+```php
+public function store(Request $request)
+{
+    $validated = $request->validate([
+        'title' => 'required|string|max:255',
+        'description' => 'nullable|string',
+        'due_date' => 'nullable|date',
+    ]);
+
+    $data = array_merge($validated, [
+        'user_id' => 1,
+        'status' => 'pending',
+    ]);
+    
+    $task = Task::create($data);
+
+    return response()->json([
+        'message' => 'タスクを作成しました',
+        'data' => $task
+    ], 201);
+}
+```
+
+---
+
+#### `$request->validate([...])`
+
+```php
+$validated = $request->validate([
+    'title' => 'required|string|max:255',
+    'description' => 'nullable|string',
+    'due_date' => 'nullable|date',
+]);
+```
+
+| 部分 | 説明 |
+|------|------|
+| `$request` | リクエストオブジェクト |
+| `->validate([...])` | バリデーションを実行 |
+| `'title' => 'required|string|max:255'` | titleは必須、文字列、最大255文字 |
+| `'nullable'` | nullを許可（任意項目） |
+
+バリデーションに失敗すると、自動的に422エラーが返されます。
+
+---
+
+#### `array_merge($validated, [...])`
+
+```php
+$data = array_merge($validated, [
+    'user_id' => 1,
+    'status' => 'pending',
+]);
+```
+
+| 部分 | 説明 |
+|------|------|
+| `array_merge()` | 2つの配列を結合するPHP関数 |
+| `$validated` | バリデーション済みのデータ |
+| `['user_id' => 1, ...]` | 追加するデータ |
+
+**結合後の`$data`の例**:
+
+```php
+[
+    'title' => '新しいタスク',
+    'description' => 'テスト説明',
+    'due_date' => null,
+    'user_id' => 1,
+    'status' => 'pending',
+]
+```
+
+---
+
+#### `Task::create($data)`
+
+```php
+$task = Task::create($data);
+```
+
+| 部分 | 説明 |
+|------|------|
+| `Task::create(...)` | 新しいタスクを作成してデータベースに保存 |
+| `$data` | 保存するデータの配列 |
+| `$task` | 作成されたタスクのインスタンス |
+
+---
+
+### 2-5. コードリーディング（show メソッド）
+
+```php
+public function show(string $id)
+{
+    $task = Task::where('user_id', 1)->find($id);
+
+    if (!$task) {
+        return response()->json([
+            'message' => 'タスクが見つかりません'
+        ], 404);
+    }
+
+    return response()->json([
+        'data' => $task
+    ], 200);
+}
+```
+
+---
+
+#### `->find($id)`
+
+```php
+$task = Task::where('user_id', 1)->find($id);
+```
+
+| 部分 | 説明 |
+|------|------|
+| `->find($id)` | 指定したIDのレコードを取得 |
+| 見つからない場合 | `null`を返す |
+
+---
+
+#### `if (!$task)`
+
+```php
+if (!$task) {
+    return response()->json([
+        'message' => 'タスクが見つかりません'
+    ], 404);
+}
+```
+
+| 部分 | 説明 |
+|------|------|
+| `!$task` | `$task`がnull（falsy）の場合 |
+| `404` | HTTPステータスコード（Not Found） |
+
+---
+
+### 2-6. HTTPステータスコードの選択
 
 | ステータスコード | 意味 | 使用場面 |
 |---|---|---|
@@ -371,8 +561,6 @@ class TaskController extends Controller
 | 201 | Created | リソースが作成された |
 | 204 | No Content | リクエスト成功（データなし） |
 | 400 | Bad Request | リクエストが不正 |
-| 401 | Unauthorized | 認証が必要 |
-| 403 | Forbidden | 権限がない |
 | 404 | Not Found | リソースが見つからない |
 | 422 | Unprocessable Entity | バリデーションエラー |
 | 500 | Internal Server Error | サーバーエラー |
@@ -394,119 +582,97 @@ use Illuminate\Support\Facades\Route;
 Route::apiResource('tasks', TaskController::class);
 ```
 
-> **📌 認証について**
-> 
-> このカリキュラムではAPI認証の実装は扱いません。実際の開発では、認証が必要な場合はミドルウェアを適用します。
-
 ---
 
-### 3-2. トークンの発行（認証が必要な場合）
-
-APIに認証をかけている場合、リクエストには**トークン**が必要です。
-
-Laravel Sanctumを使ってトークンを発行するには、`tinker`を使います。
+### 3-2. ルーティングの確認
 
 ```bash
-sail artisan tinker
+sail artisan route:list --path=api
 ```
-
-`tinker`内で以下を実行します。
-
-```php
-$user = App\Models\User::first();
-$token = $user->createToken('test-token')->plainTextToken;
-echo $token;
-```
-
-表示されたトークンをコピーしておきます。
 
 ---
 
-### 3-3. curlでのテスト
-
-APIリクエストでは、以下のヘッダーが重要です。
-
-| ヘッダー | 説明 |
-|----------|------|
-| `Authorization: Bearer トークン` | 認証用のトークン（認証が必要な場合） |
-| `Content-Type: application/json` | リクエストボディのJSON形式を指定 |
-| `Accept: application/json` | レスポンスをJSON形式で受け取る |
-
-> 💡 **ポイント**: `Accept: application/json`がないと、認証失敗時にHTMLのリダイレクトが返されることがあります。APIリクエストでは必ず指定しましょう。
-
----
+### 3-3. Thunder Clientでテスト
 
 #### タスク一覧を取得
 
-```bash
-curl -X GET http://localhost/api/tasks \
-  -H "Authorization: Bearer 発行したトークン" \
-  -H "Accept: application/json"
-```
+- メソッド: `GET`
+- URL: `http://localhost/api/tasks`
+- 期待: ステータスコード `200 OK`
 
 ---
 
 #### タスクを作成
 
-```bash
-curl -X POST http://localhost/api/tasks \
-  -H "Authorization: Bearer 発行したトークン" \
-  -H "Content-Type: application/json" \
-  -H "Accept: application/json" \
-  -d '{"title": "新しいタスク", "description": "これは新しいタスクです"}'
+- メソッド: `POST`
+- URL: `http://localhost/api/tasks`
+- Headers: `Content-Type: application/json`
+- Body（JSON）:
+
+```json
+{
+  "title": "新しいタスク",
+  "description": "これは新しいタスクです"
+}
 ```
+
+- 期待: ステータスコード `201 Created`
 
 ---
 
 #### タスク詳細を取得
 
-```bash
-curl -X GET http://localhost/api/tasks/1 \
-  -H "Authorization: Bearer 発行したトークン" \
-  -H "Accept: application/json"
-```
+- メソッド: `GET`
+- URL: `http://localhost/api/tasks/1`
+- 期待: ステータスコード `200 OK`
 
 ---
 
 #### タスクを更新
 
-```bash
-curl -X PUT http://localhost/api/tasks/1 \
-  -H "Authorization: Bearer 発行したトークン" \
-  -H "Content-Type: application/json" \
-  -H "Accept: application/json" \
-  -d '{"title": "更新されたタスク", "status": "completed"}'
+- メソッド: `PUT`
+- URL: `http://localhost/api/tasks/1`
+- Headers: `Content-Type: application/json`
+- Body（JSON）:
+
+```json
+{
+  "title": "更新されたタスク",
+  "description": "更新された説明",
+  "status": "completed"
+}
 ```
+
+- 期待: ステータスコード `200 OK`
 
 ---
 
 #### タスクを削除
 
-```bash
-curl -X DELETE http://localhost/api/tasks/1 \
-  -H "Authorization: Bearer 発行したトークン" \
-  -H "Accept: application/json"
-```
+- メソッド: `DELETE`
+- URL: `http://localhost/api/tasks/1`
+- 期待: ステータスコード `204 No Content`
 
 ---
 
-### 3-4. 認証失敗時のレスポンス
-
-トークンが無効または未指定の場合、以下のJSONが返されます。
-
-```json
-{"message": "Unauthenticated."}
-```
-
-| ステータスコード | 意味 |
-|------------------|------|
-| 401 Unauthorized | 認証が必要または失敗 |
-
----
-
-### 3-5. バリデーションエラーのレスポンス
+### 3-4. バリデーションエラーのレスポンス
 
 バリデーションエラーが発生した場合、Laravelは自動的に422ステータスコードを返します。
+
+**テスト方法**:
+
+- メソッド: `POST`
+- URL: `http://localhost/api/tasks`
+- Headers: `Content-Type: application/json`
+- Body（JSON）:
+
+```json
+{
+  "title": ""
+}
+```
+
+**レスポンス例**:
 
 ```json
 {
@@ -539,32 +705,16 @@ curl -X DELETE http://localhost/api/tasks/1 \
 
 ---
 
-### 間違い3: 他のユーザーのタスクにアクセスできる
+### 間違い3: ステータスコードを省略する
 
-**問題**: セキュリティリスク
-
-**対処法**: `where('user_id', Auth::id())`で、ログインユーザーのタスクのみを取得します。
-
----
-
-## 💡 TIP: エラーハンドリングの改善
-
-より詳細なエラーメッセージを返すために、カスタムエラーハンドリングを実装できます。
+**問題**: デフォルトで200が返される
 
 ```php
-// app/Exceptions/Handler.php
-public function render($request, Throwable $exception)
-{
-    if ($request->is('api/*')) {
-        if ($exception instanceof ModelNotFoundException) {
-            return response()->json([
-                'message' => 'リソースが見つかりません'
-            ], 404);
-        }
-    }
+// ❌ 間違い
+return response()->json($task);
 
-    return parent::render($request, $exception);
-}
+// ✅ 正しい
+return response()->json($task, 200);
 ```
 
 ---
@@ -575,7 +725,7 @@ public function render($request, Throwable $exception)
 
 | Step | 学んだこと |
 |------|-----------|
-| Step 1 | モデルとマイグレーションの作成 |
+| Step 1 | モデルとマイグレーションの確認 |
 | Step 2 | APIコントローラーの実装とHTTPステータスコード |
 | Step 3 | ルーティングとAPIのテスト |
 

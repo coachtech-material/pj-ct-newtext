@@ -29,24 +29,11 @@ API Resourcesを学んだら、次は「詳細取得API」です。
 
 ---
 
-### 理由2: ルートモデルバインディング
-
-LaravelのRoute Model Bindingを使うと、**IDからモデルを自動取得**できます。
-
-```php
-public function show(Task $task)
-{
-    return new TaskResource($task);
-}
-```
-
----
-
-### 理由3: エラーハンドリングの基礎
+### 理由2: エラーハンドリングの基礎
 
 存在しないIDを指定された場合、**404エラー**を返す必要があります。
 
-Route Model Bindingを使うと、自動的に404を返してくれます。
+この「存在チェック → エラーレスポンス」のパターンは、他のAPIでも使います。
 
 ---
 
@@ -91,16 +78,19 @@ Route Model Bindingを使うと、自動的に404を返してくれます。
 **ファイル**: `app/Http/Controllers/Api/TaskController.php`
 
 ```php
-public function show(string $id): JsonResponse
+public function show(string $id)
 {
-    $task = Task::find($id);
-    
+    // タスクを取得
+    $task = Task::where('user_id', 1)->find($id);
+
+    // タスクが見つからない場合
     if (!$task) {
         return response()->json([
-            'message' => 'Task not found'
+            'message' => 'タスクが見つかりません'
         ], 404);
     }
-    
+
+    // タスクを返す
     return response()->json([
         'data' => $task
     ], 200);
@@ -111,11 +101,64 @@ public function show(string $id): JsonResponse
 
 ### 1-3. コードリーディング
 
-| コード | 説明 |
-|--------|------|
-| `Task::find($id)` | タスクを取得（見つからない場合はnull） |
-| `response()->json([...], 404)` | 404 Not Foundを返す |
-| `response()->json([...], 200)` | 200 OKを返す |
+#### `public function show(string $id)`
+
+```php
+public function show(string $id)
+```
+
+| 部分 | 説明 |
+|------|------|
+| `public function` | 公開メソッド |
+| `show` | メソッド名（詳細取得を表す慣例的な名前） |
+| `string $id` | URLパラメータ（`/api/tasks/{id}`の`{id}`部分） |
+
+---
+
+#### `Task::where('user_id', 1)->find($id)`
+
+```php
+$task = Task::where('user_id', 1)->find($id);
+```
+
+| 部分 | 説明 |
+|------|------|
+| `Task::where('user_id', 1)` | user_idが1のレコードに絞り込む |
+| `->find($id)` | 指定したIDのレコードを取得 |
+| 見つからない場合 | `null`を返す |
+
+---
+
+#### `if (!$task)`
+
+```php
+if (!$task) {
+    return response()->json([
+        'message' => 'タスクが見つかりません'
+    ], 404);
+}
+```
+
+| 部分 | 説明 |
+|------|------|
+| `!$task` | `$task`がnull（falsy）の場合 |
+| `404` | HTTPステータスコード（Not Found） |
+
+---
+
+#### `response()->json([...], 200)`
+
+```php
+return response()->json([
+    'data' => $task
+], 200);
+```
+
+| 部分 | 説明 |
+|------|------|
+| `response()->json([...])` | 配列をJSON形式に変換 |
+| `'data' => $task` | `data`キーにタスクを格納 |
+| `, 200` | HTTPステータスコード（200 OK） |
 
 ---
 
@@ -147,7 +190,7 @@ return response()->json(['data' => $task], 200);
 
 ```php
 return response()->json([
-    'message' => 'Task not found'
+    'message' => 'タスクが見つかりません'
 ], 404);
 ```
 
@@ -169,50 +212,53 @@ return response()->json([
 **1. タスクが見つかる場合**
 
 - メソッド: `GET`
-- URL: `http://localhost:8000/api/tasks/1`
+- URL: `http://localhost/api/tasks/1`
 - 期待: ステータスコード `200 OK`
 
 **2. タスクが見つからない場合**
 
 - メソッド: `GET`
-- URL: `http://localhost:8000/api/tasks/9999`
+- URL: `http://localhost/api/tasks/9999`
 - 期待: ステータスコード `404 Not Found`
 
 ---
 
 ### 3-2. findOrFailを使った実装
 
-`findOrFail()`を使うと、タスクが見つからない場合に自動的に404エラーを返します。
+`findOrFail()`を使うと、タスクが見つからない場合に自動的に例外を投げます。
 
 ```php
-public function show(string $id): JsonResponse
+public function show(string $id)
 {
-    $task = Task::findOrFail($id);
+    $task = Task::where('user_id', 1)->findOrFail($id);
+
     return response()->json(['data' => $task], 200);
 }
 ```
 
 | メリット | デメリット |
 |----------|------------|
-| コードが簡潔になる | エラーメッセージをカスタマイズできない |
+| コードが簡潔になる | エラーメッセージをカスタマイズしにくい |
 | エラーハンドリングを書く必要がない | |
+
+> 📌 **注意**: `findOrFail()`を使う場合、404エラーのレスポンス形式はLaravelのデフォルト形式になります。カスタムメッセージを返したい場合は、`find()`を使って自分でエラーハンドリングを書きます。
 
 ---
 
 ### 3-3. カスタムエラーメッセージを返す
 
 ```php
-public function show(string $id): JsonResponse
+public function show(string $id)
 {
-    $task = Task::find($id);
-    
+    $task = Task::where('user_id', 1)->find($id);
+
     if (!$task) {
         return response()->json([
             'message' => 'タスクが見つかりませんでした',
             'error' => 'TASK_NOT_FOUND'
         ], 404);
     }
-    
+
     return response()->json(['data' => $task], 200);
 }
 ```
@@ -222,7 +268,11 @@ public function show(string $id): JsonResponse
 ### 3-4. クライアント側での処理例（JavaScript）
 
 ```javascript
-fetch('http://localhost:8000/api/tasks/1')
+fetch('http://localhost/api/tasks/1', {
+  headers: {
+    'Accept': 'application/json',
+  },
+})
   .then(response => {
     if (response.status === 200) {
       return response.json();

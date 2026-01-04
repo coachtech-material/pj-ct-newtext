@@ -1,48 +1,66 @@
-# Tutorial 13-2-2: APIリソースによるレスポンスの整形
+# Tutorial 13-2-2: API Resourcesの活用
 
 ## 🎯 このセクションで学ぶこと
 
-- APIリソース（API Resource）の概念と使い方を学ぶ
-- レスポンスの整形方法を理解する
-- リソースコレクションの使い方を学ぶ
+- API Resourcesとは何かを理解する
+- API Resourcesを使ってレスポンスを整形する方法を学ぶ
+- レスポンスから不要なデータを除外する方法を学ぶ
 
 ---
 
 ## 🧠 先輩エンジニアの思考プロセス
 
-### 「なぜCRUD全体像の後に『API Resources』を学ぶのか？」
+### 「なぜCRUD実装の後に『API Resources』を学ぶのか？」
 
-CRUD APIの全体像を把握したら、次は「API Resources」です。
-
----
-
-### 理由1: レスポンス形式の統一
-
-APIのレスポンスは、**一貫した形式**であるべきです。
-
-API Resourcesを使うと、モデルのデータを**決まった形式のJSONに変換**できます。
+CRUD APIが完成したら、次は「レスポンスの整形」です。
 
 ---
 
-### 理由2: 不要なデータを隠す
+### 理由1: レスポンスの一貫性
 
-モデルには、APIで公開したくないデータ（パスワードなど）が含まれることがあります。
+現在のAPIは、モデルのデータをそのまま返しています。
 
-API Resourcesを使うと、**公開するフィールドを制御**できます。
-
-```php
-return [
-    'id' => $this->id,
-    'title' => $this->title,
-    // passwordは含めない
-];
+```json
+{
+  "data": {
+    "id": 1,
+    "user_id": 1,
+    "title": "タスク1",
+    "description": "説明",
+    "status": "pending",
+    "due_date": "2024-12-31",
+    "created_at": "2024-01-01T00:00:00.000000Z",
+    "updated_at": "2024-01-01T00:00:00.000000Z"
+  }
+}
 ```
 
+しかし、以下の問題があります。
+
+| 問題 | 説明 |
+|------|------|
+| 不要なデータが含まれる | `user_id`はクライアントに不要かもしれない |
+| 日付フォーマットが統一されていない | `2024-01-01T00:00:00.000000Z`は読みにくい |
+| 構造が固定されている | 将来の変更に対応しにくい |
+
 ---
 
-### 理由3: データの加工
+### 理由2: API Resourcesで解決
 
-日付のフォーマットや、リレーションデータの整形など、**データを加工**してから返せます。
+**API Resources**を使うと、レスポンスの形式を自由にカスタマイズできます。
+
+```json
+{
+  "data": {
+    "id": 1,
+    "title": "タスク1",
+    "description": "説明",
+    "status": "pending",
+    "due_date": "2024-12-31",
+    "created_at": "2024-01-01 00:00:00"
+  }
+}
+```
 
 ---
 
@@ -50,39 +68,69 @@ return [
 
 | 順番 | 作業 | 理由 |
 |------|------|------|
-| Step 1 | API Resourceの作成 | `sail artisan make:resource` |
-| Step 2 | コントローラーで使用 | `return new TaskResource($task)` |
-| Step 3 | 高度な機能 | リレーションや条件付き属性 |
+| Step 1 | API Resourcesの基本 | 概念を理解する |
+| Step 2 | TaskResourceの作成 | 実際に作成する |
+| Step 3 | コントローラーでの使用 | APIに適用する |
 
-> 💡 **ポイント**: API Resourcesは、モデルとJSONレスポンスの間の「変換層」です。
-
----
-
-## Step 1: APIリソースの作成
-
-### 1-1. APIリソースとは
-
-**APIリソース**とは、**モデルをJSON形式に変換するためのクラス**です。
-
-| メリット | 説明 |
-|----------|------|
-| レスポンスの形式が統一される | 全てのAPIで同じ形式 |
-| コードの重複が減る | 変換ロジックを一箇所に |
-| 変更に強い | リソースクラスのみを修正 |
+> 💡 **ポイント**: API Resourcesは「レスポンスの変換層」です。
 
 ---
 
-### 1-2. リソースクラスを生成する
+## Step 1: API Resourcesの基本
+
+### 1-1. API Resourcesとは
+
+**API Resources**は、Eloquentモデルを**JSONレスポンスに変換**するクラスです。
+
+| 役割 | 説明 |
+|------|------|
+| データの整形 | 必要なフィールドだけを選択 |
+| フォーマットの統一 | 日付形式などを統一 |
+| 構造の定義 | レスポンスの構造を明確化 |
+
+---
+
+### 1-2. なぜ必要なのか
+
+モデルをそのまま返すと、以下の問題があります。
+
+| 問題 | 説明 |
+|------|------|
+| 内部構造の露出 | データベースの構造がそのまま見える |
+| 不要なデータ | クライアントに不要なフィールドも含まれる |
+| 変更に弱い | データベースを変更するとAPIも変わる |
+
+API Resourcesを使うと、**モデルとAPIレスポンスを分離**できます。
+
+---
+
+### 1-3. 処理の流れ
+
+```
+データベース
+    ↓
+Eloquentモデル
+    ↓
+API Resource（変換）
+    ↓
+JSONレスポンス
+```
+
+---
+
+## Step 2: TaskResourceの作成
+
+### 2-1. Resourceを生成する
 
 ```bash
 sail artisan make:resource TaskResource
 ```
 
-これにより、`app/Http/Resources/TaskResource.php`が作成されます。
+**生成されるファイル**: `app/Http/Resources/TaskResource.php`
 
 ---
 
-### 1-3. リソースクラスの実装
+### 2-2. TaskResourceの実装
 
 **ファイル**: `app/Http/Resources/TaskResource.php`
 
@@ -96,54 +144,213 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class TaskResource extends JsonResource
 {
-    public function toArray(Request $request): array
+    public function toArray(Request $request)
     {
         return [
             'id' => $this->id,
             'title' => $this->title,
             'description' => $this->description,
             'status' => $this->status,
-            'due_date' => $this->due_date?->format('Y-m-d'),
-            'category_id' => $this->category_id,
+            'status_label' => $this->getStatusLabel(),
+            'due_date' => $this->formatDueDate(),
             'created_at' => $this->created_at->format('Y-m-d H:i:s'),
             'updated_at' => $this->updated_at->format('Y-m-d H:i:s'),
         ];
+    }
+
+    /**
+     * ステータスの日本語ラベルを取得
+     */
+    private function getStatusLabel()
+    {
+        $labels = [
+            'pending' => '未着手',
+            'in_progress' => '進行中',
+            'completed' => '完了',
+        ];
+
+        if (isset($labels[$this->status])) {
+            return $labels[$this->status];
+        }
+
+        return $this->status;
+    }
+
+    /**
+     * 期限日をフォーマット
+     */
+    private function formatDueDate()
+    {
+        if ($this->due_date) {
+            return $this->due_date->format('Y-m-d');
+        }
+
+        return null;
     }
 }
 ```
 
 ---
 
-### 1-4. 各フィールドの説明
+### 2-3. コードリーディング
 
-| フィールド | 説明 |
-|--------|------|
-| `id` | タスクの一意の識別子 |
-| `title` | タスクのタイトル |
-| `description` | タスクの詳細説明（nullの場合あり） |
-| `status` | タスクの状態（pending, in_progress, completed） |
-| `due_date` | 締切日（Y-m-d形式でフォーマット） |
-| `category_id` | カテゴリーID（タスクの分類に使用） |
-| `created_at` | 作成日時（Y-m-d H:i:s形式） |
-| `updated_at` | 更新日時（Y-m-d H:i:s形式） |
+#### `class TaskResource extends JsonResource`
 
----
+```php
+class TaskResource extends JsonResource
+```
 
-### 1-5. コードリーディング
-
-| コード | 説明 |
-|--------|------|
-| `$this->id` | Taskモデルのインスタンスからidを取得 |
-| `$this->due_date?->format('Y-m-d')` | Null Safe Operator（nullの場合はnullを返す） |
-| `$this->category_id` | カテゴリーIDをそのまま取得 |
-
-> 💡 **ポイント**: `$this`はリソースに渡されたTaskモデルのインスタンスを指します。モデルのプロパティに直接アクセスできます。
+| 部分 | 説明 |
+|------|------|
+| `class TaskResource` | クラス名 |
+| `extends JsonResource` | LaravelのJsonResourceクラスを継承 |
 
 ---
 
-## Step 2: コントローラーでの使用
+#### `public function toArray(Request $request)`
 
-### 2-1. コントローラーの修正
+```php
+public function toArray(Request $request)
+{
+    return [
+        'id' => $this->id,
+        // ...
+    ];
+}
+```
+
+| 部分 | 説明 |
+|------|------|
+| `toArray()` | JSONに変換するメソッド |
+| `$request` | 現在のリクエスト（条件分岐に使える） |
+| `$this->id` | モデルのidプロパティにアクセス |
+
+---
+
+#### `$this->id`
+
+```php
+'id' => $this->id,
+```
+
+| 部分 | 説明 |
+|------|------|
+| `$this` | TaskResourceに渡されたTaskモデル |
+| `->id` | モデルのidカラムの値 |
+
+TaskResourceは、渡されたモデルを`$this`として扱えます。
+
+---
+
+#### `$this->created_at->format('Y-m-d H:i:s')`
+
+```php
+'created_at' => $this->created_at->format('Y-m-d H:i:s'),
+```
+
+| 部分 | 説明 |
+|------|------|
+| `$this->created_at` | Carbonオブジェクト（日付） |
+| `->format('Y-m-d H:i:s')` | 日付を文字列に変換 |
+
+---
+
+#### `private function getStatusLabel()`
+
+```php
+private function getStatusLabel()
+{
+    $labels = [
+        'pending' => '未着手',
+        'in_progress' => '進行中',
+        'completed' => '完了',
+    ];
+
+    if (isset($labels[$this->status])) {
+        return $labels[$this->status];
+    }
+
+    return $this->status;
+}
+```
+
+| 部分 | 説明 |
+|------|------|
+| `private function` | このクラス内でのみ使えるメソッド |
+| `$labels = [...]` | ステータスと日本語ラベルの対応表 |
+| `isset($labels[$this->status])` | キーが存在するか確認 |
+| `$labels[$this->status]` | 対応する日本語ラベルを取得 |
+
+---
+
+#### `private function formatDueDate()`
+
+```php
+private function formatDueDate()
+{
+    if ($this->due_date) {
+        return $this->due_date->format('Y-m-d');
+    }
+
+    return null;
+}
+```
+
+| 部分 | 説明 |
+|------|------|
+| `if ($this->due_date)` | due_dateがnullでない場合 |
+| `->format('Y-m-d')` | 日付を文字列に変換 |
+| `return null` | nullの場合はnullを返す |
+
+---
+
+### 2-4. レスポンスの比較
+
+**Before（API Resourceなし）**:
+
+```json
+{
+  "data": {
+    "id": 1,
+    "user_id": 1,
+    "title": "タスク1",
+    "description": "説明",
+    "status": "pending",
+    "due_date": "2024-12-31",
+    "created_at": "2024-01-01T00:00:00.000000Z",
+    "updated_at": "2024-01-01T00:00:00.000000Z"
+  }
+}
+```
+
+**After（API Resourceあり）**:
+
+```json
+{
+  "data": {
+    "id": 1,
+    "title": "タスク1",
+    "description": "説明",
+    "status": "pending",
+    "status_label": "未着手",
+    "due_date": "2024-12-31",
+    "created_at": "2024-01-01 00:00:00",
+    "updated_at": "2024-01-01 00:00:00"
+  }
+}
+```
+
+| 変更点 | 説明 |
+|--------|------|
+| `user_id`が削除された | クライアントに不要なデータを除外 |
+| `status_label`が追加された | 日本語ラベルを追加 |
+| 日付フォーマットが統一された | 読みやすい形式に変換 |
+
+---
+
+## Step 3: コントローラーでの使用
+
+### 3-1. コントローラーの修正
 
 **ファイル**: `app/Http/Controllers/Api/TaskController.php`
 
@@ -156,40 +363,49 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\TaskResource;
 use App\Models\Task;
 use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Auth;
 
 class TaskController extends Controller
 {
+    /**
+     * タスク一覧を取得
+     */
     public function index()
     {
-        $tasks = Task::where('user_id', Auth::id())->get();
+        $tasks = Task::where('user_id', 1)->get();
 
         return TaskResource::collection($tasks);
     }
 
+    /**
+     * タスクを作成
+     */
     public function store(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'due_date' => 'nullable|date',
         ]);
 
-        $task = Task::create([
-            'user_id' => Auth::id(),
-            'title' => $request->title,
-            'description' => $request->description,
+        $data = array_merge($validated, [
+            'user_id' => 1,
             'status' => 'pending',
-            'due_date' => $request->due_date,
         ]);
+        
+        $task = Task::create($data);
 
-        return new TaskResource($task);
+        return (new TaskResource($task))
+            ->additional(['message' => 'タスクを作成しました'])
+            ->response()
+            ->setStatusCode(201);
     }
 
+    /**
+     * タスク詳細を取得
+     */
     public function show(string $id)
     {
-        $task = Task::where('user_id', Auth::id())->find($id);
+        $task = Task::where('user_id', 1)->find($id);
 
         if (!$task) {
             return response()->json([
@@ -200,9 +416,12 @@ class TaskController extends Controller
         return new TaskResource($task);
     }
 
+    /**
+     * タスクを更新
+     */
     public function update(Request $request, string $id)
     {
-        $task = Task::where('user_id', Auth::id())->find($id);
+        $task = Task::where('user_id', 1)->find($id);
 
         if (!$task) {
             return response()->json([
@@ -210,21 +429,25 @@ class TaskController extends Controller
             ], 404);
         }
 
-        $request->validate([
+        $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'status' => 'required|in:pending,in_progress,completed',
             'due_date' => 'nullable|date',
         ]);
 
-        $task->update($request->only(['title', 'description', 'status', 'due_date']));
+        $task->update($validated);
 
-        return new TaskResource($task);
+        return (new TaskResource($task))
+            ->additional(['message' => 'タスクを更新しました']);
     }
 
-    public function destroy(string $id): JsonResponse
+    /**
+     * タスクを削除
+     */
+    public function destroy(string $id)
     {
-        $task = Task::where('user_id', Auth::id())->find($id);
+        $task = Task::where('user_id', 1)->find($id);
 
         if (!$task) {
             return response()->json([
@@ -241,270 +464,191 @@ class TaskController extends Controller
 
 ---
 
-### 2-2. 使い分け
+### 3-2. コードリーディング
 
-| 用途 | コード | 説明 |
-|------|--------|------|
-| 単一のタスク | `return new TaskResource($task);` | 1件のタスクを返す |
-| 複数のタスク | `return TaskResource::collection($tasks);` | シンプルなコレクション |
-| 複数のタスク（カスタム） | `return new TaskCollection($tasks);` | メタ情報を含むコレクション |
-
-> 💡 **ポイント**: `TaskCollection`を使う場合は、先に`sail artisan make:resource TaskCollection`でコレクションクラスを作成しておく必要があります。
-
----
-
-### 2-3. レスポンスの形式
-
-**単一のタスク**:
-
-```json
-{
-  "data": {
-    "id": 1,
-    "title": "タスク1",
-    "description": "これはタスク1です",
-    "status": "pending",
-    "due_date": "2024-12-31",
-    "created_at": "2024-01-01 00:00:00",
-    "updated_at": "2024-01-01 00:00:00"
-  }
-}
-```
-
-**複数のタスク**:
-
-```json
-{
-  "data": [
-    {
-      "id": 1,
-      "title": "タスク1",
-      "status": "pending"
-    },
-    {
-      "id": 2,
-      "title": "タスク2",
-      "status": "completed"
-    }
-  ]
-}
-```
-
----
-
-## Step 3: 高度な機能
-
-### 3-1. 追加情報を含める
-
-**ファイル**: `app/Http/Resources/TaskResource.php`
+#### `use App\Http\Resources\TaskResource`
 
 ```php
-<?php
-
-namespace App\Http\Resources;
-
-use Illuminate\Http\Request;
-use Illuminate\Http\Resources\Json\JsonResource;
-
-class TaskResource extends JsonResource
-{
-    public function toArray(Request $request): array
-    {
-        return [
-            'id' => $this->id,
-            'title' => $this->title,
-            'description' => $this->description,
-            'status' => $this->status,
-            'status_label' => $this->getStatusLabel(),
-            'due_date' => $this->due_date?->format('Y-m-d'),
-            'is_overdue' => $this->isOverdue(),
-            'created_at' => $this->created_at->format('Y-m-d H:i:s'),
-            'updated_at' => $this->updated_at->format('Y-m-d H:i:s'),
-        ];
-    }
-
-    private function getStatusLabel(): string
-    {
-        return match ($this->status) {
-            'pending' => '未着手',
-            'in_progress' => '進行中',
-            'completed' => '完了',
-            default => '不明',
-        };
-    }
-
-    private function isOverdue(): bool
-    {
-        if (!$this->due_date) {
-            return false;
-        }
-
-        return $this->due_date->isPast() && $this->status !== 'completed';
-    }
-}
+use App\Http\Resources\TaskResource;
 ```
+
+| 部分 | 説明 |
+|------|------|
+| `use` | クラスをインポート |
+| `App\Http\Resources\TaskResource` | 作成したTaskResourceクラス |
 
 ---
 
-### 3-2. リレーションシップを含める
+#### `TaskResource::collection($tasks)`
 
 ```php
-public function toArray(Request $request): array
-{
-    return [
-        'id' => $this->id,
-        'title' => $this->title,
-        'status' => $this->status,
-        'user' => [
-            'id' => $this->user->id,
-            'name' => $this->user->name,
-        ],
-        'created_at' => $this->created_at->format('Y-m-d H:i:s'),
-    ];
-}
+return TaskResource::collection($tasks);
 ```
 
----
-
-### 3-3. 条件付きで属性を含める
-
-```php
-public function toArray(Request $request): array
-{
-    return [
-        'id' => $this->id,
-        'title' => $this->title,
-        'status' => $this->status,
-        'user' => $this->when($request->user()->isAdmin(), [
-            'id' => $this->user->id,
-            'name' => $this->user->name,
-        ]),
-    ];
-}
-```
-
----
-
-### 3-4. リソースコレクションのカスタマイズ
-
-複数のタスクを返す際に、メタ情報（合計件数など）を含めたい場合は、リソースコレクションを使います。
-
-```bash
-sail artisan make:resource TaskCollection
-```
-
-**ファイル**: `app/Http/Resources/TaskCollection.php`
-
-```php
-<?php
-
-namespace App\Http\Resources;
-
-use Illuminate\Http\Request;
-use Illuminate\Http\Resources\Json\ResourceCollection;
-
-class TaskCollection extends ResourceCollection
-{
-    public function toArray(Request $request): array
-    {
-        return [
-            'data' => $this->collection,
-            'meta' => [
-                'total' => $this->collection->count(),
-                'pending_count' => $this->collection->where('status', 'pending')->count(),
-                'completed_count' => $this->collection->where('status', 'completed')->count(),
-            ],
-        ];
-    }
-}
-```
-
----
-
-### 3-5. コントローラーでのTaskCollectionの使い方
-
-**ファイル**: `app/Http/Controllers/Api/TaskController.php`
-
-```php
-use App\Http\Resources\TaskCollection;
-
-public function index()
-{
-    $tasks = Task::where('user_id', Auth::id())->get();
-
-    // TaskCollectionを使ってメタ情報を含めて返す
-    return new TaskCollection($tasks);
-}
-```
+| 部分 | 説明 |
+|------|------|
+| `TaskResource::collection()` | 複数のモデルをResourceに変換 |
+| `$tasks` | Taskモデルのコレクション |
 
 **レスポンス例**:
 
 ```json
 {
   "data": [
-    {
-      "id": 1,
-      "title": "タスク1",
-      "status": "pending"
-    },
-    {
-      "id": 2,
-      "title": "タスク2",
-      "status": "completed"
-    }
-  ],
-  "meta": {
-    "total": 2,
-    "pending_count": 1,
-    "completed_count": 1
+    { "id": 1, "title": "タスク1", ... },
+    { "id": 2, "title": "タスク2", ... }
+  ]
+}
+```
+
+---
+
+#### `new TaskResource($task)`
+
+```php
+return new TaskResource($task);
+```
+
+| 部分 | 説明 |
+|------|------|
+| `new TaskResource(...)` | 単一のモデルをResourceに変換 |
+| `$task` | Taskモデルのインスタンス |
+
+**レスポンス例**:
+
+```json
+{
+  "data": {
+    "id": 1,
+    "title": "タスク1",
+    ...
   }
 }
 ```
 
-> 💡 **ポイント**: `TaskResource::collection($tasks)`と`new TaskCollection($tasks)`の違いは、後者はカスタムの`toArray()`メソッドでメタ情報を追加できる点です。
+---
+
+#### `->additional(['message' => '...'])`
+
+```php
+return (new TaskResource($task))
+    ->additional(['message' => 'タスクを作成しました'])
+    ->response()
+    ->setStatusCode(201);
+```
+
+| 部分 | 説明 |
+|------|------|
+| `->additional([...])` | レスポンスに追加データを含める |
+| `->response()` | レスポンスオブジェクトを取得 |
+| `->setStatusCode(201)` | ステータスコードを設定 |
+
+**レスポンス例**:
+
+```json
+{
+  "data": {
+    "id": 1,
+    "title": "新しいタスク",
+    ...
+  },
+  "message": "タスクを作成しました"
+}
+```
+
+---
+
+### 3-3. Thunder Clientでテスト
+
+#### タスク一覧を取得
+
+- メソッド: `GET`
+- URL: `http://localhost/api/tasks`
+- 期待: `status_label`が含まれたレスポンス
+
+---
+
+#### タスクを作成
+
+- メソッド: `POST`
+- URL: `http://localhost/api/tasks`
+- Headers: `Content-Type: application/json`
+- Body（JSON）:
+
+```json
+{
+  "title": "新しいタスク",
+  "description": "テスト"
+}
+```
+
+- 期待: `message`と`data`が含まれたレスポンス
 
 ---
 
 ## 🚨 よくある間違い
 
-### 間違い1: リソースを使わずに、直接モデルを返す
+### 間違い1: collectionとnewを間違える
 
-**問題**: レスポンス形式が統一されない
-
-**対処法**: APIリソースを使って、レスポンスの形式を統一します。
-
----
-
-### 間違い2: リソースに複雑なロジックを書く
-
-**問題**: リソースクラスが肥大化する
-
-**対処法**: 複雑なロジックは、モデルのメソッドに移動します。
-
----
-
-### 間違い3: リレーションシップをEager Loadingしない
-
-**問題**: N+1問題が発生する
-
-**対処法**: `with()`を使って、Eager Loadingを行います。
+**問題**: 複数のモデルに`new`を使う
 
 ```php
-$tasks = Task::with('user')->where('user_id', Auth::id())->get();
+// ❌ 間違い
+return new TaskResource($tasks);
+
+// ✅ 正しい
+return TaskResource::collection($tasks);
+```
+
+---
+
+### 間違い2: useを忘れる
+
+**問題**: クラスが見つからないエラー
+
+```php
+// ❌ 間違い（useなし）
+return new TaskResource($task);
+
+// ✅ 正しい（useあり）
+use App\Http\Resources\TaskResource;
+return new TaskResource($task);
+```
+
+---
+
+### 間違い3: toArrayの戻り値が配列でない
+
+**問題**: JSONに変換できない
+
+```php
+// ❌ 間違い
+public function toArray(Request $request)
+{
+    return $this->title;  // 文字列を返している
+}
+
+// ✅ 正しい
+public function toArray(Request $request)
+{
+    return [
+        'title' => $this->title,
+    ];
+}
 ```
 
 ---
 
 ## ✨ まとめ
 
-このセクションでは、APIリソースによるレスポンスの整形について学びました。
+このセクションでは、API Resourcesを使ったレスポンスの整形を学びました。
 
 | Step | 学んだこと |
 |------|-----------|
-| Step 1 | APIリソースの作成とtoArray()メソッド |
-| Step 2 | コントローラーでの使用方法 |
-| Step 3 | リレーションや条件付き属性などの高度な機能 |
+| Step 1 | API Resourcesの概念と役割 |
+| Step 2 | TaskResourceの作成と実装 |
+| Step 3 | コントローラーでの使用方法 |
 
-次のセクションでは、GET APIの詳細実装について学びます。
+次のセクションでは、GET APIの詳細取得について学びます。
 
 ---

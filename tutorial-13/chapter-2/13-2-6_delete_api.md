@@ -5,7 +5,7 @@
 - タスクを削除するDELETE APIを実装する方法を学ぶ
 - HTTPステータスコード（204 No Content、404 Not Found）を理解する
 - なぜそのステータスコードを使うのかを学ぶ
-- 200 OKと204 No Contentの違いを理解する
+- 削除APIの設計パターンを学ぶ
 
 ---
 
@@ -13,38 +13,36 @@
 
 ### 「なぜ更新APIの後に『削除API』を実装するのか？」
 
-更新APIができたら、次は「削除API」です。
+更新APIができたら、最後は「削除API」です。
 
 ---
 
-### 理由1: CRUDの最後
+### 理由1: CRUDの完成
 
-CRUD（Create, Read, Update, Delete）の最後は「削除」です。
+CRUD（Create, Read, Update, Delete）の最後の操作です。
 
-これでCRUD APIが完成します。
-
----
-
-### 理由2: 削除は慎重に
-
-削除は**取り消しができない**操作です。
-
-| 考慮事項 | 説明 |
-|----------|------|
-| 本当に削除していいか確認 | フロントエンドで確認ダイアログ |
-| 論理削除（soft delete）の検討 | データを残す場合 |
-| 関連データの処理 | 外部キー制約 |
+| 順序 | 操作 | 完了 |
+|------|------|------|
+| 1 | Read（一覧・詳細） | ✅ |
+| 2 | Create | ✅ |
+| 3 | Update | ✅ |
+| 4 | Delete | 今回 |
 
 ---
 
-### 理由3: 適切なレスポンス
+### 理由2: 204 No Contentの使い方
 
 削除成功時は、**204 No Content**を返すのが一般的です。
 
 ```php
-$task->delete();
 return response()->json(null, 204);
 ```
+
+---
+
+### 理由3: 最もシンプルなAPI
+
+削除APIは、**バリデーションが不要**で最もシンプルです。
 
 ---
 
@@ -54,7 +52,7 @@ return response()->json(null, 204);
 |------|------|------|
 | Step 1 | destroyメソッドの実装 | 削除のロジック |
 | Step 2 | HTTPステータスコード | 204と404の使い分け |
-| Step 3 | 応用テクニック | ソフトデリートなど |
+| Step 3 | テスト | Thunder Clientで動作確認 |
 
 > 💡 **ポイント**: DELETEリクエストは「削除」に使います。
 
@@ -68,8 +66,9 @@ return response()->json(null, 204);
 
 **レスポンス例（成功時）**:
 
-- ステータスコード: `204 No Content`
-- ボディ: なし
+ステータスコード: `204 No Content`
+
+レスポンスボディ: なし
 
 ---
 
@@ -78,18 +77,22 @@ return response()->json(null, 204);
 **ファイル**: `app/Http/Controllers/Api/TaskController.php`
 
 ```php
-public function destroy(string $id): JsonResponse
+public function destroy(string $id)
 {
-    $task = Task::where('user_id', Auth::id())->find($id);
-    
+    // タスクを取得
+    $task = Task::where('user_id', 1)->find($id);
+
+    // タスクが見つからない場合
     if (!$task) {
         return response()->json([
-            'message' => 'Task not found'
+            'message' => 'タスクが見つかりません'
         ], 404);
     }
-    
+
+    // タスクを削除
     $task->delete();
-    
+
+    // レスポンスを返す（204 No Content）
     return response()->json(null, 204);
 }
 ```
@@ -98,11 +101,73 @@ public function destroy(string $id): JsonResponse
 
 ### 1-3. コードリーディング
 
-| コード | 説明 |
-|--------|------|
-| `Task::where('user_id', Auth::id())->find($id)` | ログインユーザーのタスクを取得 |
-| `$task->delete()` | タスクを削除する |
-| `response()->json(null, 204)` | 204 No Contentを返す |
+#### `public function destroy(string $id)`
+
+```php
+public function destroy(string $id)
+```
+
+| 部分 | 説明 |
+|------|------|
+| `public function` | 公開メソッド |
+| `destroy` | メソッド名（削除を表す慣例的な名前） |
+| `string $id` | URLパラメータ（`/api/tasks/{id}`の`{id}`部分） |
+
+---
+
+#### `Task::where('user_id', 1)->find($id)`
+
+```php
+$task = Task::where('user_id', 1)->find($id);
+```
+
+| 部分 | 説明 |
+|------|------|
+| `Task::where('user_id', 1)` | user_idが1のレコードに絞り込む |
+| `->find($id)` | 指定したIDのレコードを取得 |
+| 見つからない場合 | `null`を返す |
+
+---
+
+#### `if (!$task)`
+
+```php
+if (!$task) {
+    return response()->json([
+        'message' => 'タスクが見つかりません'
+    ], 404);
+}
+```
+
+| 部分 | 説明 |
+|------|------|
+| `!$task` | `$task`がnull（falsy）の場合 |
+| `404` | HTTPステータスコード（Not Found） |
+
+---
+
+#### `$task->delete()`
+
+```php
+$task->delete();
+```
+
+| 部分 | 説明 |
+|------|------|
+| `$task->delete()` | タスクをデータベースから削除 |
+
+---
+
+#### `response()->json(null, 204)`
+
+```php
+return response()->json(null, 204);
+```
+
+| 部分 | 説明 |
+|------|------|
+| `null` | レスポンスボディなし |
+| `204` | HTTPステータスコード（No Content） |
 
 ---
 
@@ -110,17 +175,15 @@ public function destroy(string $id): JsonResponse
 
 ### 2-1. 204 No Content
 
-**204 No Content**は、**リクエストが成功したが、レスポンスボディがない**ことを示します。
+**204 No Content**は、**リクエストが成功し、レスポンスボディがない**ことを示します。
 
 | 使用場面 | 説明 |
 |----------|------|
 | リソースが正常に削除された | タスクが削除された |
-| 処理が正常に完了したが、返すデータがない | レスポンスボディ不要 |
+| レスポンスボディが不要 | 削除後に返すデータがない |
 
 ```php
 return response()->json(null, 204);
-// または
-return response()->noContent();
 ```
 
 ---
@@ -131,129 +194,83 @@ return response()->noContent();
 
 ```php
 return response()->json([
-    'message' => 'Task not found'
+    'message' => 'タスクが見つかりません'
 ], 404);
 ```
 
 ---
 
-### 2-3. 200 OKと204 No Contentの違い
+### 2-3. 204と200の違い
 
-| ステータスコード | レスポンスボディ | 用途 |
-|----------------|----------------|------|
-| 200 OK | あり | 削除されたリソースのデータを返す |
-| 204 No Content | なし | 削除が成功したことだけを伝える |
-
-**推奨**: DELETEリクエストでは、**204 No Content**を使う
+| ステータスコード | レスポンスボディ | 使用場面 |
+|----------------|----------------|----------|
+| 204 No Content | なし | 削除成功、返すデータがない |
+| 200 OK | あり | 削除成功、削除したデータを返す |
 
 ---
 
-### 2-4. Thunder Clientでテスト
+### 2-4. 200 OKで削除結果を返すパターン
 
-**1. 成功する場合**
-
-- メソッド: `DELETE`
-- URL: `http://localhost:8000/api/tasks/1`
-- 期待: ステータスコード `204 No Content`
-
-**2. タスクが見つからない場合**
-
-- メソッド: `DELETE`
-- URL: `http://localhost:8000/api/tasks/9999`
-- 期待: ステータスコード `404 Not Found`
-
----
-
-## Step 3: 応用テクニック
-
-### 3-1. response()->noContent()を使う
-
-Laravelでは、`response()->noContent()`を使うと、204 No Contentを返せます。
+削除したデータを返す場合は、200 OKを使います。
 
 ```php
-public function destroy(string $id): Response
+public function destroy(string $id)
 {
-    $task = Task::where('user_id', Auth::id())->findOrFail($id);
+    $task = Task::where('user_id', 1)->find($id);
+
+    if (!$task) {
+        return response()->json([
+            'message' => 'タスクが見つかりません'
+        ], 404);
+    }
+
     $task->delete();
-    
-    return response()->noContent();
-}
-```
 
----
-
-### 3-2. 削除されたリソースのデータを返す場合
-
-削除されたリソースのデータを返す場合は、**200 OK**を使います。
-
-```php
-public function destroy(string $id): JsonResponse
-{
-    $task = Task::where('user_id', Auth::id())->findOrFail($id);
-    $deletedTask = $task->toArray();
-    $task->delete();
-    
     return response()->json([
-        'message' => '削除しました',
-        'data' => $deletedTask
+        'message' => 'タスクを削除しました',
+        'data' => $task
     ], 200);
 }
 ```
 
 ---
 
-### 3-3. ソフトデリート
+## Step 3: テスト
 
-**ソフトデリート**を使うと、データを物理的に削除せず、論理的に削除できます。
+### 3-1. Thunder Clientでテスト
 
-**マイグレーション**:
+**1. 成功する場合**
 
-```php
-$table->softDeletes();
-```
+- メソッド: `DELETE`
+- URL: `http://localhost/api/tasks/1`
+- 期待: ステータスコード `204 No Content`
 
-**モデル**:
+**2. タスクが見つからない場合**
 
-```php
-use Illuminate\Database\Eloquent\SoftDeletes;
-
-class Task extends Model
-{
-    use SoftDeletes;
-}
-```
-
-**削除**:
-
-```php
-$task->delete(); // deleted_atに日時が設定される
-```
-
-**完全削除**:
-
-```php
-$task->forceDelete(); // データベースから完全に削除される
-```
+- メソッド: `DELETE`
+- URL: `http://localhost/api/tasks/9999`
+- 期待: ステータスコード `404 Not Found`
 
 ---
 
-### 3-4. クライアント側での処理例（JavaScript）
+### 3-2. クライアント側での処理例（JavaScript）
 
 ```javascript
-fetch('http://localhost:8000/api/tasks/1', {
+fetch('http://localhost/api/tasks/1', {
   method: 'DELETE',
+  headers: {
+    'Accept': 'application/json',
+  },
 })
   .then(response => {
     if (response.status === 204) {
-      console.log('削除されました');
+      console.log('タスクを削除しました');
     } else if (response.status === 404) {
-      return response.json().then(data => {
-        throw new Error(data.message);
-      });
+      throw new Error('タスクが見つかりません');
     }
   })
   .catch(error => {
-    console.error('エラー:', error);
+    console.error('エラー:', error.message);
   });
 ```
 
@@ -261,27 +278,13 @@ fetch('http://localhost:8000/api/tasks/1', {
 
 ## 🚨 よくある間違い
 
-### 間違い1: 200 OKを返す
+### 間違い1: 常に200を返す
 
-**問題**: 削除が成功した場合は204を返すのが推奨
+**問題**: 削除成功時は204を返すのが一般的
 
 ```php
 // ❌ 間違い
 return response()->json(['message' => 'Deleted'], 200);
-
-// ✅ 正しい
-return response()->noContent();
-```
-
----
-
-### 間違い2: 204でレスポンスボディを返す
-
-**問題**: 204 No Contentの場合はレスポンスボディなし
-
-```php
-// ❌ 間違い
-return response()->json(['message' => 'Deleted'], 204);
 
 // ✅ 正しい
 return response()->json(null, 204);
@@ -289,9 +292,9 @@ return response()->json(null, 204);
 
 ---
 
-### 間違い3: 存在しないタスクを削除しようとした場合に200を返す
+### 間違い2: タスクが見つからない場合に200を返す
 
-**問題**: タスクが見つからない場合は404を返すべき
+**問題**: 存在しないリソースの削除は404を返すべき
 
 ```php
 // ❌ 間違い
@@ -307,15 +310,46 @@ if (!$task) {
 
 ---
 
-## 💡 TIP: ステータスコードの重要性
+### 間違い3: 204でレスポンスボディを返す
 
-適切なステータスコードを返すことで、クライアント側で以下のことができます。
+**問題**: 204はレスポンスボディがないことを示す
 
-| 判断 | 説明 |
-|------|------|
-| 成功・失敗を判断する | 204なら削除成功、404ならリソースが存在しない |
-| エラー処理を行う | 404の場合は「タスクが見つかりません」と表示 |
-| リトライを判断する | 404の場合はリトライしない |
+```php
+// ❌ 間違い
+return response()->json(['message' => 'Deleted'], 204);
+
+// ✅ 正しい
+return response()->json(null, 204);
+```
+
+---
+
+## 💡 TIP: 論理削除（ソフトデリート）
+
+物理的に削除するのではなく、削除フラグを立てる方法もあります。
+
+**モデル**:
+
+```php
+use Illuminate\Database\Eloquent\SoftDeletes;
+
+class Task extends Model
+{
+    use SoftDeletes;
+}
+```
+
+**マイグレーション**:
+
+```php
+$table->softDeletes();
+```
+
+**コントローラー**:
+
+```php
+$task->delete();  // deleted_atに日時が設定される
+```
 
 ---
 
@@ -327,8 +361,18 @@ if (!$task) {
 |------|-----------|
 | Step 1 | destroyメソッドの実装 |
 | Step 2 | 204 No Contentと404 Not Foundの使い分け |
-| Step 3 | ソフトデリートなどの応用テクニック |
+| Step 3 | Thunder Clientでのテスト方法 |
 
-次のセクションでは、親切なエラーレスポンスの作成について学びます。
+これでCRUD APIが完成しました！
+
+| HTTPメソッド | エンドポイント | 操作 | ステータスコード |
+|-------------|---------------|------|----------------|
+| GET | /api/tasks | 一覧取得 | 200 |
+| GET | /api/tasks/{id} | 詳細取得 | 200 / 404 |
+| POST | /api/tasks | 作成 | 201 / 422 |
+| PUT | /api/tasks/{id} | 更新 | 200 / 404 / 422 |
+| DELETE | /api/tasks/{id} | 削除 | 204 / 404 |
+
+次のセクションでは、エラーレスポンスの設計について学びます。
 
 ---

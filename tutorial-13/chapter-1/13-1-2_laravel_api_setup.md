@@ -2,9 +2,10 @@
 
 ## 🎯 このセクションで学ぶこと
 
-- LaravelでAPI開発を行うための準備を学ぶ
+- API開発用のスターターキットをセットアップする方法を学ぶ
 - APIルーティングの設定方法を理解する
 - APIレスポンスの基本的な返し方を学ぶ
+- APIのデバッグ方法を学ぶ
 
 ---
 
@@ -36,11 +37,15 @@ Laravelには**API開発用の機能**が用意されています。
 
 ---
 
-### 理由3: 開発環境の統一
+### 理由3: すぐに動く環境から始める
 
-チームで開発する場合、**環境が統一されている**ことが重要です。
+このチュートリアルでは、**スターターキット**を使います。
 
-このセクションで、API開発の標準的な環境を構築します。
+| メリット | 説明 |
+|----------|------|
+| すぐに動作確認できる | 環境構築の手間を省く |
+| サンプルデータがある | APIの動作を確認しやすい |
+| API学習に集中できる | 認証などの複雑な設定が不要 |
 
 ---
 
@@ -48,17 +53,99 @@ Laravelには**API開発用の機能**が用意されています。
 
 | 順番 | 作業 | 理由 |
 |------|------|------|
-| Step 1 | APIルーティングの設定 | `api.php`の使い方を学ぶ |
-| Step 2 | APIコントローラーの作成 | RESTfulなコントローラー |
+| Step 1 | スターターキットのセットアップ | 環境構築 |
+| Step 2 | APIルーティングの確認 | `api.php`の使い方を学ぶ |
 | Step 3 | APIレスポンスの返し方 | JSON形式のレスポンス |
+| Step 4 | デバッグ方法 | ログを使ったデバッグ |
 
-> 💡 **ポイント**: LaravelはAPI開発に必要な機能が最初から揃っています。
+> 💡 **ポイント**: スターターキットを使うことで、API開発の本質に集中できます。
 
 ---
 
-## Step 1: APIルーティングの設定
+## Step 1: スターターキットのセットアップ
 
-### 1-1. APIルートファイル
+### 1-1. スターターキットとは
+
+**スターターキット**は、API開発に必要な最低限の設定が済んだプロジェクトです。
+
+| 含まれるもの | 説明 |
+|--------------|------|
+| マイグレーション | `users`テーブルと`tasks`テーブル |
+| モデル | `User`モデルと`Task`モデル |
+| シーダー | テスト用のユーザーとタスクデータ |
+
+---
+
+### 1-2. プロジェクトのクローン
+
+```bash
+git clone https://github.com/coachtech/laravel-api-starter.git
+cd laravel-api-starter
+```
+
+---
+
+### 1-3. 依存パッケージのインストール
+
+```bash
+docker run --rm \
+    -u "$(id -u):$(id -g)" \
+    -v "$(pwd):/var/www/html" \
+    -w /var/www/html \
+    laravelsail/php83-composer:latest \
+    composer install --ignore-platform-reqs
+```
+
+---
+
+### 1-4. 環境設定ファイルの作成
+
+```bash
+cp .env.example .env
+```
+
+---
+
+### 1-5. Sailの起動
+
+```bash
+./vendor/bin/sail up -d
+```
+
+---
+
+### 1-6. アプリケーションキーの生成
+
+```bash
+sail artisan key:generate
+```
+
+---
+
+### 1-7. データベースのセットアップ
+
+```bash
+sail artisan migrate:fresh --seed
+```
+
+このコマンドで以下が実行されます。
+
+| 処理 | 説明 |
+|------|------|
+| `migrate:fresh` | テーブルを作成 |
+| `--seed` | テストデータを投入 |
+
+---
+
+### 1-8. 動作確認
+
+ブラウザで `http://localhost` にアクセスして、Laravelの画面が表示されることを確認します。
+
+---
+
+## Step 2: APIルーティングの確認
+
+### 2-1. APIルートファイル
 
 Laravelでは、`routes/api.php`にAPIのルーティングを定義します。
 
@@ -67,26 +154,24 @@ Laravelでは、`routes/api.php`にAPIのルーティングを定義します。
 ```php
 <?php
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-// デフォルトでは空のファイルです
 // ここにAPIルートを定義します
 ```
 
 ---
 
-### 1-2. APIルーティングの特徴
+### 2-2. APIルーティングの特徴
 
 | 特徴 | 説明 |
 |------|------|
-| `/api`プレフィックス | `/user`は`/api/user`になる |
+| `/api`プレフィックス | `/tasks`は`/api/tasks`になる |
 | `api`ミドルウェア | レート制限などが適用される |
 | ステートレス | セッションは使用しない |
 
 ---
 
-### 1-3. 簡単なAPIの作成
+### 2-3. 簡単なAPIの作成
 
 **ファイル**: `routes/api.php`
 
@@ -113,54 +198,133 @@ Route::get('/hello/{name}', function (string $name) {
 // POSTリクエストを受け取るAPI
 Route::post('/echo', function (Request $request) {
     return response()->json([
-        'message' => $request->input('message')
+        'received' => $request->input('message')
     ]);
 });
 ```
 
 ---
 
-### 1-4. curlでのテスト
+### 2-4. コードリーディング
 
-**curl（カール）とは？**
+上記のコードを1行ずつ見ていきましょう。
 
-`curl`は、**コマンドラインからHTTPリクエストを送信できるツール**です。ブラウザを使わずに、ターミナルから直接APIをテストできます。
+---
 
-| 特徴 | 説明 |
+#### `Route::get('/hello', function () { ... })`
+
+```php
+Route::get('/hello', function () {
+```
+
+| 部分 | 説明 |
 |------|------|
-| ブラウザ不要 | ターミナルから直接リクエストを送信 |
-| HTTPメソッド指定 | GET, POST, PUT, DELETEなどを指定可能 |
-| ヘッダー設定 | Content-Typeなどのヘッダーを設定可能 |
-| データ送信 | JSONデータをリクエストボディとして送信可能 |
+| `Route` | Laravelのルーティングクラス |
+| `::get` | GETリクエストを受け付ける |
+| `'/hello'` | URLのパス（`/api/hello`になる） |
+| `function () { ... }` | リクエストを処理する関数 |
 
-> 💡 **ポイント**: API開発では、curlを使って素早く動作確認を行うのが一般的です。
+---
 
-**基本的なオプション**:
+#### `return response()->json([...])`
 
-| オプション | 説明 | 例 |
-|------|------|------|
-| `-X` | HTTPメソッドを指定 | `-X POST` |
-| `-H` | ヘッダーを設定 | `-H "Content-Type: application/json"` |
-| `-d` | リクエストボディのデータ | `-d '{"title":"test"}'` |
+```php
+return response()->json([
+    'message' => 'Hello, World!'
+]);
+```
 
-```bash
-# GETリクエスト
-curl http://localhost/api/hello
+| 部分 | 説明 |
+|------|------|
+| `return` | レスポンスを返す |
+| `response()` | レスポンスを作成するヘルパー関数 |
+| `->json([...])` | 配列をJSON形式に変換 |
+| `'message' => 'Hello, World!'` | JSONのキーと値 |
 
-# パラメータ付きGETリクエスト
-curl http://localhost/api/hello/Taro
+---
 
-# POSTリクエスト
-curl -X POST http://localhost/api/echo \
-  -H "Content-Type: application/json" \
-  -d '{"message":"Hello from curl"}'
+#### `Route::get('/hello/{name}', function (string $name) { ... })`
+
+```php
+Route::get('/hello/{name}', function (string $name) {
+```
+
+| 部分 | 説明 |
+|------|------|
+| `'/hello/{name}'` | `{name}`はURLパラメータ |
+| `string $name` | パラメータを受け取る引数 |
+
+例: `/api/hello/Taro`にアクセスすると、`$name`に`Taro`が入る
+
+---
+
+#### `$request->input('message')`
+
+```php
+$request->input('message')
+```
+
+| 部分 | 説明 |
+|------|------|
+| `$request` | リクエストオブジェクト |
+| `->input('message')` | リクエストボディから`message`の値を取得 |
+
+---
+
+### 2-5. Thunder Clientでテスト
+
+Thunder Clientを使って、作成したAPIをテストします。
+
+**1. Hello World API**
+
+- メソッド: `GET`
+- URL: `http://localhost/api/hello`
+- 期待するレスポンス:
+
+```json
+{
+  "message": "Hello, World!"
+}
+```
+
+**2. パラメータ付きAPI**
+
+- メソッド: `GET`
+- URL: `http://localhost/api/hello/Taro`
+- 期待するレスポンス:
+
+```json
+{
+  "message": "Hello, Taro!"
+}
+```
+
+**3. POSTリクエスト**
+
+- メソッド: `POST`
+- URL: `http://localhost/api/echo`
+- Headers: `Content-Type: application/json`
+- Body（JSON）:
+
+```json
+{
+  "message": "Hello from Thunder Client"
+}
+```
+
+- 期待するレスポンス:
+
+```json
+{
+  "received": "Hello from Thunder Client"
+}
 ```
 
 ---
 
-## Step 2: APIコントローラーの作成
+## Step 3: APIコントローラーの作成
 
-### 2-1. APIコントローラーを生成する
+### 3-1. APIコントローラーを生成する
 
 ```bash
 sail artisan make:controller Api/TaskController --api
@@ -170,7 +334,7 @@ sail artisan make:controller Api/TaskController --api
 
 ---
 
-### 2-2. コントローラーの実装
+### 3-2. コントローラーの実装
 
 **ファイル**: `app/Http/Controllers/Api/TaskController.php`
 
@@ -181,11 +345,10 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
 
 class TaskController extends Controller
 {
-    public function index(): JsonResponse
+    public function index()
     {
         return response()->json([
             'data' => [
@@ -195,7 +358,7 @@ class TaskController extends Controller
         ]);
     }
 
-    public function store(Request $request): JsonResponse
+    public function store(Request $request)
     {
         return response()->json([
             'message' => 'タスクを作成しました',
@@ -206,7 +369,7 @@ class TaskController extends Controller
         ], 201);
     }
 
-    public function show(string $id): JsonResponse
+    public function show(string $id)
     {
         return response()->json([
             'data' => [
@@ -216,7 +379,7 @@ class TaskController extends Controller
         ]);
     }
 
-    public function update(Request $request, string $id): JsonResponse
+    public function update(Request $request, string $id)
     {
         return response()->json([
             'message' => 'タスクを更新しました',
@@ -227,7 +390,7 @@ class TaskController extends Controller
         ]);
     }
 
-    public function destroy(string $id): JsonResponse
+    public function destroy(string $id)
     {
         return response()->json(null, 204);
     }
@@ -236,19 +399,51 @@ class TaskController extends Controller
 
 ---
 
-### 2-3. コードリーディング
+### 3-3. コードリーディング
 
-| コード | 説明 |
-|--------|------|
-| `namespace App\Http\Controllers\Api` | API用コントローラーの名前空間（`Api`ディレクトリ内） |
-| `JsonResponse` | JSONレスポンスの型ヒント（戻り値の型を明示） |
-| `response()->json([...])` | 配列をJSON形式に変換してレスポンスを返す |
-| `response()->json([...], 201)` | 第2引数でHTTPステータスコードを指定 |
-| `response()->json(null, 204)` | ボディなしのレスポンス（削除成功時など） |
-| `$request->input('title')` | リクエストボディから`title`の値を取得 |
-| `string $id` | ルートパラメータ`{id}`の値を受け取る |
+#### `namespace App\Http\Controllers\Api`
 
-**各メソッドの役割**:
+```php
+namespace App\Http\Controllers\Api;
+```
+
+| 部分 | 説明 |
+|------|------|
+| `namespace` | このクラスが属する名前空間 |
+| `App\Http\Controllers\Api` | `Api`ディレクトリ内のコントローラー |
+
+---
+
+#### `response()->json([...], 201)`
+
+```php
+return response()->json([
+    'message' => 'タスクを作成しました',
+    'data' => [...]
+], 201);
+```
+
+| 部分 | 説明 |
+|------|------|
+| `response()->json([...])` | 配列をJSON形式に変換 |
+| `, 201` | HTTPステータスコード（201 Created） |
+
+---
+
+#### `response()->json(null, 204)`
+
+```php
+return response()->json(null, 204);
+```
+
+| 部分 | 説明 |
+|------|------|
+| `null` | レスポンスボディなし |
+| `204` | HTTPステータスコード（204 No Content） |
+
+---
+
+### 3-4. 各メソッドの役割
 
 | メソッド | HTTPメソッド | 役割 | ステータスコード |
 |--------|------|------|------|
@@ -262,7 +457,7 @@ class TaskController extends Controller
 
 ---
 
-### 2-4. APIルーティングの設定
+### 3-5. APIルーティングの設定
 
 **ファイル**: `routes/api.php`
 
@@ -277,7 +472,7 @@ Route::apiResource('tasks', TaskController::class);
 
 ---
 
-### 2-5. apiResourceで作成されるルーティング
+### 3-6. apiResourceで作成されるルーティング
 
 | HTTPメソッド | URL | アクション |
 |---|---|---|
@@ -290,7 +485,7 @@ Route::apiResource('tasks', TaskController::class);
 
 ---
 
-### 2-6. ルーティングの確認
+### 3-7. ルーティングの確認
 
 ```bash
 sail artisan route:list --path=api
@@ -298,71 +493,93 @@ sail artisan route:list --path=api
 
 ---
 
-## Step 3: APIレスポンスの返し方
+## Step 4: デバッグ方法
 
-### 3-1. 基本的な使い方
+### 4-1. APIでのデバッグの注意点
+
+Web開発では`dd()`を使ってデバッグしますが、APIでは注意が必要です。
+
+| 問題 | 説明 |
+|------|------|
+| `dd()`の出力が崩れる | Thunder Clientの「Preview」タブを見ないと読めない |
+| JSONレスポンスが壊れる | `dd()`がHTMLを出力するため |
+
+---
+
+### 4-2. ログを使ったデバッグ（推奨）
+
+APIでは、**ログを使ったデバッグ**が安全です。
 
 ```php
-// 基本的な使い方
-return response()->json([
-    'message' => 'Success'
-]);
+use Illuminate\Support\Facades\Log;
 
-// ステータスコードを指定
-return response()->json([
-    'message' => 'Created'
-], 201);
-
-// ヘッダーを指定
-return response()->json([
-    'message' => 'Success'
-], 200, [
-    'X-Custom-Header' => 'Value'
-]);
+public function store(Request $request)
+{
+    // リクエストの内容をログに出力
+    Log::info('タスク作成リクエスト', [
+        'title' => $request->input('title'),
+        'description' => $request->input('description'),
+    ]);
+    
+    // 処理を続ける...
+}
 ```
 
 ---
 
-### 3-2. エラーレスポンスの返し方
+### 4-3. ログの確認方法
 
-```php
-// 404 Not Found
-return response()->json([
-    'message' => 'Task not found'
-], 404);
+ログは`storage/logs/laravel.log`に出力されます。
 
-// 422 Unprocessable Entity（バリデーションエラー）
-return response()->json([
-    'message' => 'The given data was invalid.',
-    'errors' => [
-        'title' => ['The title field is required.']
-    ]
-], 422);
+**方法1: ファイルを直接確認**
 
-// 500 Internal Server Error
-return response()->json([
-    'message' => 'Server error'
-], 500);
+```bash
+sail exec laravel.test cat storage/logs/laravel.log
+```
+
+**方法2: リアルタイムで確認**
+
+```bash
+sail exec laravel.test tail -f storage/logs/laravel.log
+```
+
+**方法3: Sailのログコマンド**
+
+```bash
+sail logs
 ```
 
 ---
 
-### 3-3. APIのバージョニング
+### 4-4. ログのレベル
 
-**方法1: URLにバージョンを含める**
+| レベル | メソッド | 用途 |
+|--------|----------|------|
+| debug | `Log::debug()` | 開発時の詳細情報 |
+| info | `Log::info()` | 一般的な情報 |
+| warning | `Log::warning()` | 警告 |
+| error | `Log::error()` | エラー |
+
+---
+
+### 4-5. デバッグの例
 
 ```php
-Route::prefix('v1')->group(function () {
-    Route::apiResource('tasks', TaskController::class);
-});
-
-// /api/v1/tasks
-```
-
-**方法2: ヘッダーでバージョンを指定する**
-
-```
-Header: Accept: application/vnd.api+json; version=v1
+public function show(string $id)
+{
+    Log::info('タスク詳細取得', ['id' => $id]);
+    
+    $task = Task::find($id);
+    
+    if (!$task) {
+        Log::warning('タスクが見つかりません', ['id' => $id]);
+        return response()->json(['message' => 'Task not found'], 404);
+    }
+    
+    Log::info('タスク取得成功', ['task' => $task->toArray()]);
+    
+    return response()->json(['data' => $task]);
+}
 ```
 
 ---
@@ -377,41 +594,24 @@ Header: Accept: application/vnd.api+json; version=v1
 
 ---
 
-### 間違い2: セッションを使おうとする
+### 間違い2: dd()でデバッグしようとする
 
-**問題**: APIはステートレスであるべき
+**問題**: JSONレスポンスが壊れる
 
-**対処法**: APIではセッションを使わず、トークンベースの認証を使います。
-
----
-
-### 間違い3: CORSの設定を忘れる
-
-**問題**: フロントエンドからAPIにアクセスできない
-
-**対処法**: `config/cors.php`でCORSを設定します。
+**対処法**: `Log::info()`を使ってログに出力します。
 
 ---
 
-## 💡 TIP: CORS（Cross-Origin Resource Sharing）の設定
+### 間違い3: ステータスコードを省略する
 
-フロントエンドとバックエンドが異なるドメインで動作する場合、**CORS**の設定が必要です。
-
-**ファイル**: `config/cors.php`
+**問題**: デフォルトで200が返される
 
 ```php
-<?php
+// ❌ 間違い
+return response()->json($task);
 
-return [
-    'paths' => ['api/*'],
-    'allowed_methods' => ['*'],
-    'allowed_origins' => ['*'],
-    'allowed_origins_patterns' => [],
-    'allowed_headers' => ['*'],
-    'exposed_headers' => [],
-    'max_age' => 0,
-    'supports_credentials' => false,
-];
+// ✅ 正しい
+return response()->json($task, 200);
 ```
 
 ---
@@ -422,9 +622,10 @@ return [
 
 | Step | 学んだこと |
 |------|-----------|
-| Step 1 | APIルーティングの設定と特徴 |
-| Step 2 | APIコントローラーの作成とapiResource |
-| Step 3 | JSON形式のレスポンスとエラーハンドリング |
+| Step 1 | スターターキットのセットアップ |
+| Step 2 | APIルーティングの設定と特徴 |
+| Step 3 | APIコントローラーの作成とapiResource |
+| Step 4 | ログを使ったデバッグ方法 |
 
 次のセクションでは、JSON形式について詳しく学びます。
 

@@ -40,8 +40,6 @@ Laravelでは、どちらも`update`メソッドで処理することが多い�
 
 更新対象が存在しない場合、**404エラー**を返す必要があります。
 
-Route Model Bindingを使えば、自動的に処理されます。
-
 ---
 
 ### このセクションでやること
@@ -76,6 +74,7 @@ Route Model Bindingを使えば、自動的に処理されます。
 
 ```json
 {
+  "message": "タスクを更新しました",
   "data": {
     "id": 1,
     "title": "更新されたタスク",
@@ -94,25 +93,30 @@ Route Model Bindingを使えば、自動的に処理されます。
 **ファイル**: `app/Http/Controllers/Api/TaskController.php`
 
 ```php
-public function update(Request $request, string $id): JsonResponse
+public function update(Request $request, string $id)
 {
-    $task = Task::where('user_id', Auth::id())->find($id);
-    
+    // タスクを取得
+    $task = Task::where('user_id', 1)->find($id);
+
+    // タスクが見つからない場合
     if (!$task) {
         return response()->json([
-            'message' => 'Task not found'
+            'message' => 'タスクが見つかりません'
         ], 404);
     }
-    
+
+    // バリデーション
     $validated = $request->validate([
-        'title' => 'required|max:255',
-        'description' => 'nullable',
+        'title' => 'required|string|max:255',
+        'description' => 'nullable|string',
         'status' => 'required|in:pending,in_progress,completed',
         'due_date' => 'nullable|date',
     ]);
-    
+
+    // タスクを更新
     $task->update($validated);
-    
+
+    // レスポンスを返す
     return response()->json([
         'message' => 'タスクを更新しました',
         'data' => $task
@@ -124,70 +128,60 @@ public function update(Request $request, string $id): JsonResponse
 
 ### 1-3. コードリーディング
 
-| コード | 説明 |
-|--------|------|
-| `Task::where('user_id', Auth::id())->find($id)` | ログインユーザーのタスクを取得 |
-| `$request->validate([...])` | バリデーションを行う |
-| `$task->update($validated)` | タスクを更新する |
-| `response()->json([...], 200)` | 200 OKを返す |
-
----
-
-### 1-4. 認証の前提条件
-
-`Auth::id()`を使うためには、**ユーザーが認証されている必要**があります。
-
-Tutorial 13-2-4で設定した以下の2つが必要です。
-
----
-
-#### 前提⚠️①: APIルートに認証ミドルウェアを適用
-
-**ファイル**: `routes/api.php`
+#### `public function update(Request $request, string $id)`
 
 ```php
-Route::middleware('auth:sanctum')->group(function () {
-    Route::apiResource('tasks', TaskController::class);
-});
+public function update(Request $request, string $id)
 ```
+
+| 部分 | 説明 |
+|------|------|
+| `Request $request` | リクエストオブジェクト（リクエストボディを含む） |
+| `string $id` | URLパラメータ（`/api/tasks/{id}`の`{id}`部分） |
 
 ---
 
-#### 前提⚠️②: Bearerトークンを発行する
-
-APIリクエストには、**Bearerトークン**をヘッダーに添える必要があります。
-
-**トークンの発行手順**:
-
-```bash
-sail artisan tinker
-```
-
-`tinker`内で以下を実行します。
+#### `Task::where('user_id', 1)->find($id)`
 
 ```php
-$user = App\Models\User::first();
-$token = $user->createToken('test-token')->plainTextToken;
-echo $token;
+$task = Task::where('user_id', 1)->find($id);
 ```
 
-表示されたトークンをコピーしておきます。
+| 部分 | 説明 |
+|------|------|
+| `Task::where('user_id', 1)` | user_idが1のレコードに絞り込む |
+| `->find($id)` | 指定したIDのレコードを取得 |
+| 見つからない場合 | `null`を返す |
 
 ---
 
-#### Thunder Clientでトークンを設定する
+#### `if (!$task)`
 
-1. Thunder Clientで新しいリクエストを作成
-2. **Auth**タブをクリック
-3. **Type**で`Bearer`を選択
-4. **Token**欄に発行したトークンを貼り付け
+```php
+if (!$task) {
+    return response()->json([
+        'message' => 'タスクが見つかりません'
+    ], 404);
+}
+```
 
-| 設定項目 | 値 |
-|----------|------|
-| Type | Bearer |
-| Token | 発行したトークン |
+| 部分 | 説明 |
+|------|------|
+| `!$task` | `$task`がnull（falsy）の場合 |
+| `404` | HTTPステータスコード（Not Found） |
 
-> 💡 **ポイント**: Tutorial 13-2-4で発行したトークンをそのまま使えます。
+---
+
+#### `$task->update($validated)`
+
+```php
+$task->update($validated);
+```
+
+| 部分 | 説明 |
+|------|------|
+| `$task->update(...)` | タスクを更新してデータベースに保存 |
+| `$validated` | バリデーション済みのデータ |
 
 ---
 
@@ -214,7 +208,7 @@ return response()->json(['data' => $task], 200);
 
 ```php
 return response()->json([
-    'message' => 'Task not found'
+    'message' => 'タスクが見つかりません'
 ], 404);
 ```
 
@@ -285,20 +279,29 @@ return response()->json([
 **コントローラー**:
 
 ```php
-public function update(Request $request, string $id): JsonResponse
+public function update(Request $request, string $id)
 {
-    $task = Task::where('user_id', Auth::id())->findOrFail($id);
-    
+    $task = Task::where('user_id', 1)->find($id);
+
+    if (!$task) {
+        return response()->json([
+            'message' => 'タスクが見つかりません'
+        ], 404);
+    }
+
     $validated = $request->validate([
-        'title' => 'sometimes|required|max:255',
-        'description' => 'nullable',
+        'title' => 'sometimes|required|string|max:255',
+        'description' => 'nullable|string',
         'status' => 'sometimes|required|in:pending,in_progress,completed',
         'due_date' => 'nullable|date',
     ]);
-    
+
     $task->update($validated);
-    
-    return response()->json(['data' => $task], 200);
+
+    return response()->json([
+        'message' => 'タスクを更新しました',
+        'data' => $task
+    ], 200);
 }
 ```
 
@@ -308,13 +311,11 @@ public function update(Request $request, string $id): JsonResponse
 
 ### 3-4. Thunder Clientでテスト
 
-> 📌 **前提**: 1-4で設定した認証ミドルウェアとトークンが必要です。AuthタブでBearerトークンを設定してください。
-
 **1. 成功する場合**
 
 - メソッド: `PUT`
 - URL: `http://localhost/api/tasks/1`
-- Auth: Bearerトークンを設定
+- Headers: `Content-Type: application/json`
 - Body（JSON）:
 
 ```json
@@ -331,14 +332,23 @@ public function update(Request $request, string $id): JsonResponse
 
 - メソッド: `PUT`
 - URL: `http://localhost/api/tasks/9999`
-- Auth: Bearerトークンを設定
+- Headers: `Content-Type: application/json`
+- Body（JSON）:
+
+```json
+{
+  "title": "更新されたタスク",
+  "status": "completed"
+}
+```
+
 - 期待: ステータスコード `404 Not Found`
 
 **3. バリデーションエラーが発生する場合**
 
 - メソッド: `PUT`
 - URL: `http://localhost/api/tasks/1`
-- Auth: Bearerトークンを設定
+- Headers: `Content-Type: application/json`
 - Body（JSON）:
 
 ```json
@@ -406,16 +416,18 @@ return response()->json($task, 200);
 `findOrFail()`を使うと、コードが簡潔になります。
 
 ```php
-public function update(Request $request, string $id): JsonResponse
+public function update(Request $request, string $id)
 {
-    $task = Task::where('user_id', Auth::id())->findOrFail($id);
-    
+    $task = Task::where('user_id', 1)->findOrFail($id);
+
     $validated = $request->validate([...]);
     $task->update($validated);
-    
+
     return response()->json(['data' => $task], 200);
 }
 ```
+
+> 📌 **注意**: `findOrFail()`を使う場合、404エラーのレスポンス形式はLaravelのデフォルト形式になります。
 
 ---
 
