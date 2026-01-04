@@ -82,17 +82,26 @@ CRUD APIが完成したら、次は「エラーレスポンス」です。
 
 ```json
 {
-  "message": "Task not found",
-  "error": "TASK_NOT_FOUND",
+  "message": "Resource not found",
+  "error": "RESOURCE_NOT_FOUND",
   "status": 404
 }
 ```
 
 ---
 
-### 1-2. 404 Not Foundのエラーレスポンス
+### 1-2. find() と findOrFail() の違い
 
-**ファイル**: `app/Http/Controllers/Api/TaskController.php`
+404エラーの処理方法には2つのアプローチがあります。
+
+| メソッド | 見つからない場合 | エラー処理の場所 |
+|----------|------------------|------------------|
+| `find()` | `null`を返す | Controller内で判定 |
+| `findOrFail()` | 例外を投げる | Handlerで一元処理 |
+
+---
+
+#### find() を使う場合（Controllerで処理）
 
 ```php
 public function show(string $id): JsonResponse
@@ -110,6 +119,67 @@ public function show(string $id): JsonResponse
     return response()->json(['data' => $task], 200);
 }
 ```
+
+**特徴**: 各Controllerで404の処理を書く必要がある
+
+---
+
+#### findOrFail() を使う場合（Handlerで一元処理）
+
+```php
+public function show(string $id): JsonResponse
+{
+    $task = Task::findOrFail($id);
+    
+    return response()->json(['data' => $task], 200);
+}
+```
+
+**特徴**: Controllerは正常系のみ、404はHandlerで一括処理
+
+---
+
+### 1-3. 推奨: findOrFail() + Handlerで一元処理
+
+このカリキュラムでは、**findOrFail() を使い、Handlerで404を一元処理**する方法を推奨します。
+
+| メリット | 説明 |
+|----------|------|
+| コードが簡潔 | Controllerは正常系のみに集中 |
+| 一貫性 | すべての404が同じ形式で返る |
+| 保守性 | エラー形式の変更が1箇所で済む |
+
+**コントローラーの例**:
+
+```php
+public function show(string $id): JsonResponse
+{
+    // findOrFail()は見つからない場合にModelNotFoundExceptionを投げる
+    $task = Task::findOrFail($id);
+    
+    return response()->json(['data' => $task], 200);
+}
+
+public function update(Request $request, string $id): JsonResponse
+{
+    $task = Task::findOrFail($id);
+    
+    $validated = $request->validate([...]);
+    $task->update($validated);
+    
+    return response()->json(['data' => $task], 200);
+}
+
+public function destroy(string $id): JsonResponse
+{
+    $task = Task::findOrFail($id);
+    $task->delete();
+    
+    return response()->json(null, 204);
+}
+```
+
+> 💡 **ポイント**: `findOrFail()`はデータが見つからない場合に`ModelNotFoundException`を投げます。この例外はStep 2でHandlerによってキャッチされ、JSONエラーレスポンスに変換されます。
 
 ---
 
@@ -197,18 +267,40 @@ class Handler extends ExceptionHandler
 
 | コード | 説明 |
 |--------|------|
-| `ModelNotFoundException` | モデルが見つからない場合 |
+| `ModelNotFoundException` | `findOrFail()`でモデルが見つからない場合に投げられる |
 | `NotFoundHttpException` | エンドポイントが見つからない場合 |
 | `$request->is('api/*')` | APIリクエストの場合だけ適用 |
+| `renderable()` | 例外をキャッチしてカスタムレスポンスを返す |
 
 ---
 
-### 2-3. Thunder Clientでテスト
+### 2-3. 処理の流れ
+
+```
+Controller
+    ↓
+findOrFail(9999)  ← データが見つからない
+    ↓
+ModelNotFoundExceptionが投げられる
+    ↓
+Handlerがキャッチ
+    ↓
+JSONエラーレスポンスを返す
+```
+
+> 💡 **ポイント**: Controllerで`findOrFail()`を使うことで、この流れが機能します。`find()`を使うと例外が投げられないため、Handlerではキャッチされません。
+
+---
+
+### 2-4. Thunder Clientでテスト
+
+> 📌 **前提**: Controllerで`findOrFail()`を使用していることを確認してください。認証が必要な場合は、AuthタブでBearerトークンを設定してください。
 
 **1. リソースが見つからない場合**
 
 - メソッド: `GET`
-- URL: `http://localhost:8000/api/tasks/9999`
+- URL: `http://localhost/api/tasks/9999`
+- Auth: Bearerトークンを設定（認証が必要な場合）
 - 期待:
 
 ```json
@@ -222,7 +314,7 @@ class Handler extends ExceptionHandler
 **2. エンドポイントが見つからない場合**
 
 - メソッド: `GET`
-- URL: `http://localhost:8000/api/invalid-endpoint`
+- URL: `http://localhost/api/invalid-endpoint`
 - 期待:
 
 ```json
@@ -291,7 +383,12 @@ APP_DEBUG=false # 本番環境
 ### 3-4. クライアント側での処理例（JavaScript）
 
 ```javascript
-fetch('http://localhost:8000/api/tasks/9999')
+fetch('http://localhost/api/tasks/9999', {
+  headers: {
+    'Accept': 'application/json',
+    'Authorization': 'Bearer 発行したトークン',
+  },
+})
   .then(response => {
     if (!response.ok) {
       return response.json().then(data => {
@@ -312,7 +409,23 @@ fetch('http://localhost:8000/api/tasks/9999')
 
 ## 🚨 よくある間違い
 
-### 間違い1: エラーメッセージを返さない
+### 間違い1: find()とfindOrFail()を混同する
+
+**問題**: Handlerでの一元処理が機能しない
+
+```php
+// ❌ 間違い（Handlerでキャッチされない）
+$task = Task::find($id);
+// find()はnullを返すだけで例外を投げない
+
+// ✅ 正しい（Handlerでキャッチされる）
+$task = Task::findOrFail($id);
+// findOrFail()はModelNotFoundExceptionを投げる
+```
+
+---
+
+### 間違い2: エラーメッセージを返さない
 
 **問題**: クライアントがエラーの内容を判断できない
 
@@ -322,15 +435,15 @@ return response()->json([], 404);
 
 // ✅ 正しい
 return response()->json([
-    'message' => 'Task not found',
-    'error' => 'TASK_NOT_FOUND',
+    'message' => 'Resource not found',
+    'error' => 'RESOURCE_NOT_FOUND',
     'status' => 404
 ], 404);
 ```
 
 ---
 
-### 間違い2: 500エラーをそのまま返す
+### 間違い3: 500エラーをそのまま返す
 
 **問題**: ユーザーに不親切
 
@@ -348,7 +461,7 @@ return response()->json([
 
 ---
 
-### 間違い3: 本番環境で詳細なエラーを返す
+### 間違い4: 本番環境で詳細なエラーを返す
 
 **問題**: セキュリティリスク
 
