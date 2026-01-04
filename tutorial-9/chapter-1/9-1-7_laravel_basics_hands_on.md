@@ -96,15 +96,52 @@ Laravel開発のポイントは「ルーティング → コントローラー �
 - 「Laravelを動かすための環境を起動しよう」
 - 「Laravel Sailを使ってDockerコンテナを起動しよう」
 
-まず、プロジェクトのディレクトリに移動して、Laravel Sailでコンテナを起動します：
+> **📌 プロジェクトのディレクトリ構造**
+> 
+> 本教材では、ホームディレクトリ直下の`laravel-practice`フォルダ内に、ハンズオンごとにプロジェクトを作成します。
+> 
+> ```
+> ~/laravel-practice/
+> ├── laravel-docker/      ← Tutorial 9-1-2で作成したプロジェクト
+> ├── profile-app/         ← このハンズオンで使用
+> ├── todo-app/            ← 今後のハンズオンで使用
+> └── ...
+> ```
+
+**方法A: Tutorial 9-1-2で作成したプロジェクトを使う場合**
+
+Tutorial 9-1-2で作成した`laravel-docker`プロジェクトをそのまま使うことができます。
 
 ```bash
-# プロジェクトディレクトリに移動
-cd your-project-name
+# 既存のプロジェクトディレクトリに移動
+cd ~/laravel-practice/laravel-docker
 
 # Sailでコンテナを起動（バックグラウンドで実行）
 ./vendor/bin/sail up -d
 ```
+
+**方法B: 新しいプロジェクトを作成する場合**
+
+ハンズオン専用の新しいプロジェクトを作成することもできます。
+
+```bash
+# laravel-practiceディレクトリに移動
+cd ~/laravel-practice
+
+# 新しいプロジェクトを作成
+curl -s "https://laravel.build/profile-app" | bash
+
+# 作成したプロジェクトに移動
+cd profile-app
+
+# Sailでコンテナを起動
+./vendor/bin/sail up -d
+```
+
+> 💡 **どちらを選ぶべき？**
+> 
+> - **方法A（既存プロジェクトを使う）**: 手軽に始めたい場合におすすめ。Tutorial 9-1-2で作成したプロジェクトにコードを追加していきます。
+> - **方法B（新規作成）**: ハンズオンごとにプロジェクトを分けたい場合におすすめ。クリーンな状態から始められます。
 
 **コマンド解説**：
 
