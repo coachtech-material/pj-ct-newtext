@@ -2,9 +2,9 @@
 
 ## 📝 このセクションの目的
 
-Chapter 1で学んだLaravelの基礎を実際に手を動かして確認します。ルーティング、コントローラー、ビューの連携を実践しましょう。
+Chapter 1で学んだLaravelの基礎を実際に手を動かして確認します。**ルーティング → コントローラー → ビュー**の連携を実践しましょう。
 
-> 分からない文法や実装があっても、すぐに答えを見るのではなく、過去の教材を見たり、AIにヒントをもらいながら進めるなど、自身で創意工夫しながら進めてみましょう🔥
+> 💡 **このハンズオンのポイント**: データベースは使用しません。コントローラー内で準備した固定データをビューに渡して表示する、**Controller → View の連携を理解すること**が目的です。
 
 ---
 
@@ -15,19 +15,53 @@ Chapter 1で学んだLaravelの基礎を実際に手を動かして確認しま�
 1. `/profile`にアクセスすると、自己紹介ページが表示される
 2. `ProfileController`を作成する
 3. `profile.blade.php`ビューを作成する
-4. 名前、年齢、趣味を表示する
+4. 以下のデータを表示する（コントローラー内で固定値として準備）
+
+| 項目 | 値 |
+|------|-----|
+| 名前 | 山田太郎 |
+| 年齢 | 25 |
+| 趣味 | プログラミング、読書、旅行 |
+
+---
+
+### 🖼️ 完成イメージ
+
+以下のような画面が表示されれば成功です。
+
+<!-- 完成画面のスクリーンショットをここに配置 -->
+![完成イメージ](images/9-1-7_profile_complete.png)
+
+---
+
+### 📌 ルーティング方式について
+
+前のセクションで「ルートとメソッドを1つずつ書く方法」と「`Route::resource()`で省略する方法」の2つを学びました。
+
+**このハンズオンでは「ルートとメソッドを1つずつ書く方法」を使います。**
+
+```php
+// このハンズオンで使う方法（ルートを1つずつ定義）
+Route::get('/profile', [ProfileController::class, 'index']);
+```
+
+> 💡 **なぜこの方法を使うのか？**: `Route::resource()`は、CRUD操作（一覧・詳細・作成・更新・削除）を一括で定義する便利な方法ですが、今回は「1つのページを表示するだけ」なので、シンプルに1つずつ定義する方法が適切です。
 
 ---
 
 ## 💡 ヒント
 
-\`\`\`bash
-php artisan make:controller ProfileController
-\`\`\`
+まずは自分で考えて実装してみましょう。分からない場合は、以下のヒントを参考にしてください。
 
-\`\`\`php
+```bash
+# コントローラーの作成
+sail artisan make:controller ProfileController
+```
+
+```php
+// ルーティングの定義
 Route::get('/profile', [ProfileController::class, 'index']);
-\`\`\`
+```
 
 ---
 
@@ -35,23 +69,58 @@ Route::get('/profile', [ProfileController::class, 'index']);
 
 ちゃんとできましたか？Laravelの基本はルーティング、コントローラー、ビューの連携です。一緒に手を動かしながら、自己紹介ページを作成していきましょう。
 
+---
+
 ### 💭 実装の思考プロセス
 
 Laravelでページを作成する際、以下の順番で考えると効率的です：
 
-1. **コントローラーを作成**：Artisanコマンドでコントローラーを生成
-2. **ルーティングを定義**：URLとコントローラーを結びつける
-3. **コントローラーにロジックを追加**：データを準備してビューに渡す
-4. **ビューを作成**：BladeテンプレートでHTMLを記述
-5. **ブラウザで確認**：実際にアクセスして表示を確認
+| 順番 | 作業 | 説明 |
+|------|------|------|
+| Step 0 | 環境を準備 | Laravel Sailでコンテナを起動 |
+| Step 1 | コントローラーを作成 | Artisanコマンドでコントローラーを生成 |
+| Step 2 | ルーティングを定義 | URLとコントローラーを結びつける |
+| Step 3 | コントローラーにロジックを追加 | データを準備してビューに渡す |
+| Step 4 | ビューを作成 | BladeテンプレートでHTMLを記述 |
+| Step 5 | ブラウザで確認 | 実際にアクセスして表示を確認 |
 
-Laravel開発のポイントは「ルーティング→コントローラー→ビューの流れを理解する」ことです。
+Laravel開発のポイントは「ルーティング → コントローラー → ビューの流れを理解する」ことです。
 
 ---
 
 ### 📝 ステップバイステップで実装
 
-#### ステップ1: コントローラーを作成する
+#### Step 0: 環境を準備する（Laravel Sail）
+
+**何を考えているか**：
+- 「Laravelを動かすための環境を起動しよう」
+- 「Laravel Sailを使ってDockerコンテナを起動しよう」
+
+まず、プロジェクトのディレクトリに移動して、Laravel Sailでコンテナを起動します：
+
+```bash
+# プロジェクトディレクトリに移動
+cd your-project-name
+
+# Sailでコンテナを起動（バックグラウンドで実行）
+./vendor/bin/sail up -d
+```
+
+**コマンド解説**：
+
+| コマンド | 説明 |
+|----------|------|
+| `./vendor/bin/sail up -d` | Dockerコンテナをバックグラウンドで起動します。`-d`オプションでターミナルを占有せずに実行できます。 |
+
+> 💡 **TIP**: `sail`コマンドを短く使うために、エイリアスを設定しておくと便利です。
+> ```bash
+> alias sail='./vendor/bin/sail'
+> ```
+> これで`sail up -d`のように短く書けます。
+
+---
+
+#### Step 1: コントローラーを作成する
 
 **何を考えているか**：
 - 「プロフィールページを表示するコントローラーが必要だ」
@@ -61,19 +130,20 @@ Laravel開発のポイントは「ルーティング→コントローラー→�
 ターミナルで以下のコマンドを実行します：
 
 ```bash
-php artisan make:controller ProfileController
+sail artisan make:controller ProfileController
 ```
 
 **コマンド解説**：
 
-```bash
-php artisan make:controller ProfileController
-```
-→ Artisanコマンドで`ProfileController`を生成します。`app/Http/Controllers/ProfileController.php`が作成されます。
+| コマンド | 説明 |
+|----------|------|
+| `sail artisan make:controller ProfileController` | Artisanコマンドで`ProfileController`を生成します。`app/Http/Controllers/ProfileController.php`が作成されます。 |
+
+> 💡 **ポイント**: `sail`を付けることで、Dockerコンテナ内でコマンドが実行されます。
 
 ---
 
-#### ステップ2: ルーティングを定義する
+#### Step 2: ルーティングを定義する
 
 **何を考えているか**：
 - 「`/profile`にアクセスしたらProfileControllerの処理を実行したい」
@@ -83,26 +153,30 @@ php artisan make:controller ProfileController
 `routes/web.php`を開いて、以下を追加します：
 
 ```php
+<?php
+
+use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileController;
 
+Route::get('/', function () {
+    return view('welcome');
+});
+
+// 追加：プロフィールページのルート
 Route::get('/profile', [ProfileController::class, 'index']);
 ```
 
 **コードリーディング**：
 
-```php
-use App\Http\Controllers\ProfileController;
-```
-→ ProfileControllerクラスをインポートします。名前空間を使用するために必要です。
-
-```php
-Route::get('/profile', [ProfileController::class, 'index']);
-```
-→ `/profile`へのGETリクエストを`ProfileController`の`index`メソッドにルーティングします。`[ProfileController::class, 'index']`は配列形式のルート定義です。
+| コード | 説明 |
+|--------|------|
+| `use App\Http\Controllers\ProfileController;` | ProfileControllerクラスをインポートします。名前空間を使用するために必要です。 |
+| `Route::get('/profile', ...)` | `/profile`へのGETリクエストを処理するルートを定義します。 |
+| `[ProfileController::class, 'index']` | 配列形式のルート定義。ProfileControllerの`index`メソッドを呼び出します。 |
 
 ---
 
-#### ステップ3: コントローラーにロジックを追加する
+#### Step 3: コントローラーにロジックを追加する
 
 **何を考えているか**：
 - 「プロフィール情報（名前、年齢、趣味）を準備しよう」
@@ -118,14 +192,22 @@ namespace App\Http\Controllers;
 
 class ProfileController extends Controller
 {
+    /**
+     * プロフィールページを表示する
+     * 
+     * 高級レストランの比喩で言えば、厨房リーダー（コントローラー）が
+     * 料理の材料（データ）を準備して、盛り付け担当（ビュー）に渡す役割です。
+     */
     public function index()
     {
+        // 表示するデータを準備（今回はDBを使わず固定値）
         $data = [
             'name' => '山田太郎',
             'age' => 25,
             'hobbies' => ['プログラミング', '読書', '旅行'],
         ];
         
+        // ビューにデータを渡して表示
         return view('profile', $data);
     }
 }
@@ -133,114 +215,145 @@ class ProfileController extends Controller
 
 **コードリーディング**：
 
-```php
-namespace App\Http\Controllers;
-```
-→ コントローラーの名前空間を定義します。Laravelのコントローラーはこの名前空間に配置されます。
-
-```php
-class ProfileController extends Controller
-```
-→ `Controller`クラスを継承します。Laravelのコントローラーの基本機能を利用できます。
-
-```php
-public function index()
-```
-→ `index`メソッドを定義します。ルートから呼び出されるメソッドです。
-
-```php
-$data = [
-    'name' => '山田太郎',
-    'age' => 25,
-    'hobbies' => ['プログラミング', '読書', '旅行'],
-];
-```
-→ プロフィール情報を配列で準備します。名前、年齢、趣味のデータを含んでいます。
-
-```php
-return view('profile', $data);
-```
-→ `view()`ヘルパーで`profile`ビューを返します。第2引数に`$data`を渡すことで、ビュー側でデータを利用できます。
+| コード | 説明 |
+|--------|------|
+| `namespace App\Http\Controllers;` | コントローラーの名前空間を定義します。Laravelのコントローラーはこの名前空間に配置されます。 |
+| `class ProfileController extends Controller` | `Controller`クラスを継承します。Laravelのコントローラーの基本機能を利用できます。 |
+| `public function index()` | `index`メソッドを定義します。ルートから呼び出されるメソッドです。 |
+| `$data = [...]` | プロフィール情報を配列で準備します。今回はDBを使わず、固定値として定義しています。 |
+| `return view('profile', $data);` | `view()`ヘルパーで`profile`ビューを返します。第2引数に`$data`を渡すことで、ビュー側でデータを利用できます。 |
 
 ---
 
-#### ステップ4: ビューを作成する
+#### Step 4: ビューを作成する
 
 **何を考えているか**：
 - 「`resources/views/profile.blade.php`を作成しよう」
 - 「BladeテンプレートでHTMLを記述しよう」
 - 「コントローラーから渡されたデータを表示しよう」
 
-`resources/views/profile.blade.php`を作成して、以下のように記述します：
+`resources/views/profile.blade.php`を新規作成して、以下のように記述します：
 
 ```blade
 <!DOCTYPE html>
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>プロフィール</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        h1 {
+            color: #333;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+        }
+        .profile-item {
+            margin: 15px 0;
+        }
+        .label {
+            font-weight: bold;
+            color: #555;
+        }
+        ul {
+            margin-top: 5px;
+        }
+    </style>
 </head>
 <body>
     <h1>プロフィール</h1>
-    <p>名前: {{ $name }}</p>
-    <p>年齢: {{ $age }}歳</p>
-    <p>趣味:</p>
-    <ul>
-        @foreach ($hobbies as $hobby)
-            <li>{{ $hobby }}</li>
-        @endforeach
-    </ul>
+    
+    <div class="profile-item">
+        <span class="label">名前:</span> {{ $name }}
+    </div>
+    
+    <div class="profile-item">
+        <span class="label">年齢:</span> {{ $age }}歳
+    </div>
+    
+    <div class="profile-item">
+        <span class="label">趣味:</span>
+        <ul>
+            @foreach ($hobbies as $hobby)
+                <li>{{ $hobby }}</li>
+            @endforeach
+        </ul>
+    </div>
 </body>
 </html>
 ```
 
 **コードリーディング**：
 
-```blade
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <title>プロフィール</title>
-</head>
-```
-→ 基本的なHTML構造を定義します。
-
-```blade
-<p>名前: {{ $name }}</p>
-<p>年齢: {{ $age }}歳</p>
-```
-→ `{{ }}`で変数を出力します。Bladeテンプレートの基本構文で、自動的にHTMLエスケープされます。
-
-```blade
-@foreach ($hobbies as $hobby)
-    <li>{{ $hobby }}</li>
-@endforeach
-```
-→ `@foreach`ディレクティブで配列をループ処理します。`$hobbies`配列の各要素を`$hobby`として取り出し、リスト表示します。
+| コード | 説明 |
+|--------|------|
+| `{{ $name }}` | Bladeの変数出力構文。コントローラーから渡された`$name`を表示します。自動的にHTMLエスケープされるので安全です。 |
+| `{{ $age }}` | 同様に、年齢を表示します。 |
+| `@foreach ($hobbies as $hobby)` | Bladeの`@foreach`ディレクティブ。配列をループ処理します。 |
+| `{{ $hobby }}` | ループ内で各趣味を表示します。 |
+| `@endforeach` | foreachループの終了を示します。 |
 
 ---
 
-#### ステップ5: ブラウザで確認する
+#### Step 5: ブラウザで確認する
 
 **何を考えているか**：
-- 「開発サーバーを起動しよう」
+- 「Sailでコンテナは起動済みだから、ブラウザでアクセスしよう」
 - 「`/profile`にアクセスして表示を確認しよう」
 - 「データが正しく表示されているかチェックしよう」
 
-ターミナルで以下のコマンドを実行します：
+ブラウザで以下のURLにアクセスします：
 
-```bash
-php artisan serve
+```
+http://localhost/profile
 ```
 
-ブラウザで`http://localhost:8000/profile`にアクセスして、プロフィールページが表示されることを確認します。
+> 💡 **ポイント**: Laravel Sailを使用している場合、デフォルトでポート80が使用されるため、`http://localhost/profile`でアクセスできます。
 
 ---
 
 ### ✨ 完成！
 
-これでLaravelの基本的なページ作成が完成しました！ルーティング、コントローラー、ビューの連携を実践できましたね。
+これでLaravelの基本的なページ作成が完成しました！
+
+**今回学んだ流れ**：
+
+```
+ブラウザ → ルーティング → コントローラー → ビュー → ブラウザに表示
+         (web.php)    (ProfileController)  (profile.blade.php)
+```
+
+高級レストランの比喩で言えば：
+- **ルーティング（ホールスタッフ）**: お客様（リクエスト）を適切な担当に案内
+- **コントローラー（厨房リーダー）**: データを準備してビューに渡す
+- **ビュー（盛り付け担当）**: データを美しく表示する
+
+---
+
+## 📖 補足：Route::resource()で書いた場合
+
+今回は`Route::get()`で1つずつルートを定義しましたが、`Route::resource()`を使うと複数のルートを一括で定義できます。
+
+参考として、同じ画面を`Route::resource()`で書いた場合のコード例を紹介します：
+
+```php
+// Route::resource()を使う場合
+Route::resource('profiles', ProfileController::class)->only(['index']);
+```
+
+この場合、URLは`/profiles`になります（複数形）。
+
+| 方法 | URL | 用途 |
+|------|-----|------|
+| `Route::get('/profile', ...)` | `/profile` | 単一のルートを定義したい場合 |
+| `Route::resource('profiles', ...)->only(['index'])` | `/profiles` | CRUD操作の一部を使いたい場合 |
+
+> 💡 **どちらを使うべき？**: 今回のように「1つのページを表示するだけ」なら`Route::get()`がシンプルです。CRUD操作（一覧・作成・編集・削除など）を実装する場合は`Route::resource()`が便利です。
 
 ---
 
@@ -248,7 +361,7 @@ php artisan serve
 
 ### ProfileController.php
 
-\`\`\`php
+```php
 <?php
 
 namespace App\Http\Controllers;
@@ -266,38 +379,79 @@ class ProfileController extends Controller
         return view('profile', $data);
     }
 }
-\`\`\`
+```
 
 ### routes/web.php
 
-\`\`\`php
+```php
+<?php
+
+use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileController;
 
+Route::get('/', function () {
+    return view('welcome');
+});
+
 Route::get('/profile', [ProfileController::class, 'index']);
-\`\`\`
+```
 
 ### profile.blade.php
 
-\`\`\`blade
+```blade
 <!DOCTYPE html>
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>プロフィール</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        h1 {
+            color: #333;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+        }
+        .profile-item {
+            margin: 15px 0;
+        }
+        .label {
+            font-weight: bold;
+            color: #555;
+        }
+        ul {
+            margin-top: 5px;
+        }
+    </style>
 </head>
 <body>
     <h1>プロフィール</h1>
-    <p>名前: {{ \$name }}</p>
-    <p>年齢: {{ \$age }}歳</p>
-    <p>趣味:</p>
-    <ul>
-        @foreach (\$hobbies as \$hobby)
-            <li>{{ \$hobby }}</li>
-        @endforeach
-    </ul>
+    
+    <div class="profile-item">
+        <span class="label">名前:</span> {{ $name }}
+    </div>
+    
+    <div class="profile-item">
+        <span class="label">年齢:</span> {{ $age }}歳
+    </div>
+    
+    <div class="profile-item">
+        <span class="label">趣味:</span>
+        <ul>
+            @foreach ($hobbies as $hobby)
+                <li>{{ $hobby }}</li>
+            @endforeach
+        </ul>
+    </div>
 </body>
 </html>
-\`\`\`
+```
+
 ---
 
 ## 🚀 まとめ
@@ -306,8 +460,14 @@ Route::get('/profile', [ProfileController::class, 'index']);
 
 このハンズオンで、以下のことができるようになりました：
 
-- ✅ Chapter 1で学んだLaravelの基礎を実際に手を動かして確認します。ルーティング、コントローラー、ビューの連携を実践しましょう。
+| 学んだこと | 説明 |
+|------------|------|
+| Laravel Sailの起動 | `sail up -d`でDockerコンテナを起動 |
+| コントローラーの作成 | `sail artisan make:controller`でコントローラーを生成 |
+| ルーティングの定義 | `Route::get()`でURLとコントローラーを結びつける |
+| ビューへのデータ渡し | `view('profile', $data)`でデータを渡す |
+| Bladeでのデータ表示 | `{{ $変数 }}`や`@foreach`でデータを表示 |
 
-引き続き、次のセクションも頑張りましょう！
+引き続き、次のChapterも頑張りましょう！
 
 ---
