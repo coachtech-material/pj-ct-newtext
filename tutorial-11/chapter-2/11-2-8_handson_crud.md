@@ -83,7 +83,7 @@ cd 11-2-8_hands-on
 
 ```bash
 # 自分で作成する用のプロジェクトをクローン
-git clone https://github.com/coachtech-material/laravel-api-starter-forTutorial13.git task-crud-practice
+git clone https://github.com/coachtech-material/laravel-api-starter.git task-crud-practice
 cd task-crud-practice
 ```
 
@@ -182,7 +182,7 @@ sail down
 cd ~/api-practice/11-2-8_hands-on
 
 # 実践用のプロジェクトをクローン
-git clone https://github.com/coachtech-material/laravel-api-starter-forTutorial13.git task-crud-sample
+git clone https://github.com/coachtech-material/laravel-api-starter.git task-crud-sample
 cd task-crud-sample
 ```
 
