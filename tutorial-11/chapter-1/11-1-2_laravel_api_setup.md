@@ -79,8 +79,8 @@ Laravelには**API開発用の機能**が用意されています。
 ### 1-2. プロジェクトのクローン
 
 ```bash
-git clone https://github.com/coachtech-material/laravel-api-starter-forTutorial13.git
-cd laravel-api-starter-forTutorial13
+git clone https://github.com/coachtech-material/laravel-api-starter.git
+cd laravel-api-starter
 ```
 
 ---

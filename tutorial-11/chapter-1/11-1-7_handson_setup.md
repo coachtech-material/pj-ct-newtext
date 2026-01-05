@@ -78,7 +78,7 @@ cd 11-1-7_hands-on
 
 ```bash
 # 自分で作成する用のプロジェクトをクローン
-git clone https://github.com/coachtech-material/laravel-api-starter-forTutorial13.git api-setup-practice
+git clone https://github.com/coachtech-material/laravel-api-starter.git api-setup-practice
 cd api-setup-practice
 ```
 
@@ -181,7 +181,7 @@ sail down
 cd ~/api-practice/11-1-7_hands-on
 
 # 実践用のプロジェクトをクローン
-git clone https://github.com/coachtech-material/laravel-api-starter-forTutorial13.git api-setup-sample
+git clone https://github.com/coachtech-material/laravel-api-starter.git api-setup-sample
 cd api-setup-sample
 ```
 
