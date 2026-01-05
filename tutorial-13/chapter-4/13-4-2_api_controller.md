@@ -1,10 +1,44 @@
-# Tutorial 13-3-2: APIコントローラーの実装
+# Tutorial 13-4-2: APIコントローラーの実装
 
 ## 🎯 このセクションで学ぶこと
 
 - API専用のコントローラーを作成する
 - JSONレスポンスを返す方法を学ぶ
 - APIリソースで出力形式を整える
+
+---
+
+## 🧠 先輩エンジニアの思考プロセス
+
+### 「なぜWeb用とAPI用でコントローラーを分けるのか？」
+
+### 理由1: 返すものが違う
+
+```
+Web用コントローラー
+→ return view('books.index', ...);  // HTMLを返す
+
+API用コントローラー
+→ return response()->json([...]);   // JSONを返す
+```
+
+### 理由2: 認証の扱いが違う
+
+| 種類 | 認証 | 用途 |
+|:---|:---|:---|
+| Web用 | 必要（authミドルウェア） | ブラウザからのアクセス |
+| API用 | 不要（公開） | プログラムからのアクセス |
+
+---
+
+### このセクションの実装順序
+
+| 順番 | 作業 | 理由 |
+|:---:|:---|:---|
+| 1 | APIコントローラー作成 | JSONを返す処理を作る |
+| 2 | APIルーティング設定 | /api/booksでアクセスできるように |
+| 3 | Thunder Clientでテスト | APIが動くか確認 |
+| 4 | APIリソースで整形 | 出力形式を統一 |
 
 ---
 
@@ -60,11 +94,21 @@ class BookController extends Controller
 
 ### 1-3. コードリーディング
 
-| コード | 説明 |
+#### `namespace App\Http\Controllers\Api`の分解
+
+| 部分 | 説明 |
 |:---|:---|
-| `namespace App\Http\Controllers\Api` | Apiディレクトリ内のコントローラー |
-| `response()->json([...])` | JSON形式でレスポンスを返す |
-| `'data' => $books` | レスポンスのキーを`data`に統一 |
+| `namespace` | 名前空間の宣言 |
+| `App\Http\Controllers\Api` | Apiディレクトリ内のコントローラー |
+
+#### `response()->json([...])`の分解
+
+| 部分 | 説明 | 戻り値 |
+|:---|:---|:---|
+| `response()` | レスポンスヘルパーを取得 | ResponseFactory |
+| `->json([...])` | JSON形式でレスポンスを作成 | JsonResponse |
+
+> 💡 **メソッドチェーンの流れ**: `response()` → `json()` と順番に処理が連鎖します。
 
 ---
 

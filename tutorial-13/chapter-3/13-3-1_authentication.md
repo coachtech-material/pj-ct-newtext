@@ -24,6 +24,42 @@ git switch -c feature/issue-7-authentication
 
 ---
 
+## 🧠 先輩エンジニアの思考プロセス
+
+### 「なぜCRUDの次に認証機能なのか？」
+
+CRUDが完成したら、次は**認証機能**を追加します。
+
+### 理由1: 「誰のデータか」を管理するため
+
+```
+❌ 認証なし
+→ 誰でも全てのデータを見れる
+→ 誰でも全てのデータを編集・削除できる
+
+✅ 認証あり
+→ ログインユーザーのデータのみ表示
+→ 自分のデータのみ編集・削除可能
+```
+
+### 理由2: 実務ではほぼ必須
+
+実務のアプリで認証がないものはほぼありません。「誰が使っているか」を特定するのは基本です。
+
+---
+
+### このセクションの実装順序
+
+| 順番 | 作業 | 理由 |
+|:---:|:---|:---|
+| 1 | Fortifyインストール | 認証の土台を用意 |
+| 2 | ServiceProvider設定 | ビューを登録 |
+| 3 | Bladeファイル配置 | ログイン・登録画面を作成 |
+| 4 | ルート保護 | authミドルウェアを適用 |
+| 5 | 動作確認 | 認証が正しく動くかテスト |
+
+---
+
 ## Step 1: Laravel Fortifyのインストール
 
 ### 1-1. Fortifyをインストール
@@ -95,6 +131,18 @@ class FortifyServiceProvider extends ServiceProvider
     }
 }
 ```
+
+### コードリーディング
+
+#### `Fortify::loginView(function () {...})`の分解
+
+| 部分 | 説明 |
+|:---|:---|
+| `Fortify` | Fortifyファサードクラス |
+| `::loginView(...)` | ログイン画面を登録する静的メソッド |
+| `function () { return view('auth.login'); }` | ログイン画面を返すクロージャ |
+
+> 💡 **クロージャとは**: `function () { ... }`のような無名関数のことです。必要なときに実行されます。
 
 ---
 
@@ -236,6 +284,14 @@ Route::middleware('auth')->group(function () {
     Route::resource('books', BookController::class);
 });
 ```
+
+### ルート保護のコードリーディング
+
+| コード | 説明 |
+|:---|:---|
+| `Route::middleware('auth')` | authミドルウェアを適用 |
+| `->group(function () {...})` | グループ内のルート全てに適用 |
+| `Route::resource('books', ...)` | booksのCRUDルートを登録 |
 
 > 💡 **ポイント**: `middleware('auth')`を適用すると、ログインしていないユーザーはログイン画面にリダイレクトされます。
 

@@ -8,6 +8,45 @@
 
 ---
 
+## 🧠 先輩エンジニアの思考プロセス
+
+### 「なぜGit/GitHub準備の次にアセット配置なのか？」
+
+Git/GitHubの準備が終わったら、**開発を始める前に**フロントエンドのアセット（Bladeテンプレート）を配置します。
+
+### 理由1: 「何を作るか」が視覚的にわかる
+
+```
+❌ 白紙からBladeを作る
+→ 「どんな画面にすればいいんだろう？」と迷う
+→ デザインを考えながらコードを書くので効率が悪い
+
+✅ 先にBladeを配置する
+→ 「この画面を動かせばいいんだ」と明確
+→ バックエンド実装に集中できる
+```
+
+### 理由2: 実務の流れを再現
+
+実務では、フロントエンドエンジニアが先にHTML/CSSを作り、バックエンドエンジニアがそれを動かします。この流れを練習します。
+
+### 理由3: Bladeを読む力が身につく
+
+「このBladeには`$books`という変数が必要だな」と読み取る力は、実務で必須です。
+
+---
+
+### このセクションの実装順序
+
+| 順番 | 作業 | 理由 |
+|:---:|:---|:---|
+| 1 | ディレクトリ作成 | ファイルを置く場所を用意 |
+| 2 | レイアウト配置 | 共通部分を先に配置 |
+| 3 | コンポーネント配置 | 再利用部品を配置 |
+| 4 | 各画面のBlade配置 | 個別画面を配置 |
+
+---
+
 ## 導入：実務での開発フロー
 
 実務では、**フロントエンドエンジニアとバックエンドエンジニアが分業**することが一般的です。
@@ -114,7 +153,17 @@ mkdir -p resources/views/auth
 </html>
 ```
 
-> 💡 **Tailwind CSSの解説**: `bg-gray-100`は背景色、`container mx-auto`は中央寄せ、`px-4 py-8`はパディングを設定しています。
+### レイアウトのコードリーディング
+
+| コード | 説明 |
+|:---|:---|
+| `@vite([...])` | ViteでCSS/JSを読み込み |
+| `<x-navigation />` | navigationコンポーネントを呼び出し |
+| `{{ $slot }}` | 子コンポーネントの内容を表示 |
+| `session('success')` | フラッシュメッセージを取得 |
+| `bg-gray-100` | Tailwind: 背景色をグレーに |
+| `container mx-auto` | Tailwind: 中央寄せのコンテナ |
+| `px-4 py-8` | Tailwind: パディング（左右1rem、上下2rem） |
 
 ---
 
@@ -156,6 +205,17 @@ mkdir -p resources/views/auth
     </div>
 </nav>
 ```
+
+### ナビゲーションのコードリーディング
+
+| コード | 説明 |
+|:---|:---|
+| `@auth ... @else ... @endauth` | ログイン状態で表示を切り替え |
+| `auth()->user()->name` | ログインユーザーの名前を取得 |
+| `route('logout')` | ログアウトルートのURLを生成 |
+| `@csrf` | CSRFトークンを埋め込み |
+| `flex justify-between` | Tailwind: 左右に配置 |
+| `space-x-4` | Tailwind: 子要素間に余白 |
 
 ---
 
@@ -218,6 +278,19 @@ mkdir -p resources/views/auth
     </div>
 </x-app-layout>
 ```
+
+### 書籍一覧のコードリーディング
+
+| コード | 説明 |
+|:---|:---|
+| `<x-app-layout>` | appレイアウトを使用 |
+| `<x-slot name="title">` | レイアウトの$title変数に値を渡す |
+| `@forelse($books as $book)` | $booksが空なら@empty以下を表示 |
+| `route('books.show', $book)` | 書籍詳細ページのURLを生成 |
+| `$book->title` | 書籍モデルのtitleプロパティにアクセス |
+| `@for($i = 1; $i <= 5; $i++)` | 評価の星をループで表示 |
+
+> 💡 **ポイント**: このBladeを動かすには、コントローラーから`$books`変数（Bookモデルのコレクション）を渡す必要があります。
 
 ---
 
@@ -288,6 +361,19 @@ mkdir -p resources/views/auth
     </div>
 </x-app-layout>
 ```
+
+### 書籍詳細のコードリーディング
+
+| コード | 説明 |
+|:---|:---|
+| `$book->title` | 書籍モデルのタイトル |
+| `$book->created_at->format('Y年m月d日')` | Carbonのフォーマットメソッドで日付整形 |
+| `@method('DELETE')` | フォームでDELETEメソッドを使用 |
+| `route('books.destroy', $book)` | 削除ルートのURLを生成 |
+| `onsubmit="return confirm(...)"` | 削除前に確認ダイアログを表示 |
+| `whitespace-pre-wrap` | Tailwind: 改行を保持して表示 |
+
+> 💡 **ポイント**: このBladeを動かすには、コントローラーから`$book`変数（Bookモデルのインスタンス）を渡す必要があります。
 
 ---
 
@@ -365,6 +451,19 @@ mkdir -p resources/views/auth
 </x-app-layout>
 ```
 
+### 書籍登録のコードリーディング
+
+| コード | 説明 |
+|:---|:---|
+| `route('books.store')` | 書籍保存ルートのURLを生成 |
+| `old('title')` | バリデーションエラー時に入力値を復元 |
+| `@error('title') ... @enderror` | titleフィールドのエラーメッセージを表示 |
+| `{{ $message }}` | エラーメッセージの内容 |
+| `str_repeat('★', $i)` | 星を$i回繰り返して表示 |
+| `focus:border-blue-500` | Tailwind: フォーカス時に枠線を青に |
+
+> 💡 **ポイント**: このBladeはコントローラーから変数を渡す必要はありません。フォーム送信先の`store`メソッドを実装すれば動きます。
+
 ---
 
 ### 2-7. 書籍編集画面を配置する
@@ -441,6 +540,17 @@ mkdir -p resources/views/auth
     </div>
 </x-app-layout>
 ```
+
+### 書籍編集のコードリーディング
+
+| コード | 説明 |
+|:---|:---|
+| `route('books.update', $book)` | 書籍更新ルートのURLを生成 |
+| `@method('PUT')` | フォームでPUTメソッドを使用 |
+| `old('title', $book->title)` | エラー時はold値、なければ$bookの値を表示 |
+| `old('rating', $book->rating) == $i` | 現在の評価値を選択状態に |
+
+> 💡 **ポイント**: このBladeを動かすには、コントローラーから`$book`変数（Bookモデルのインスタンス）を渡す必要があります。
 
 ---
 

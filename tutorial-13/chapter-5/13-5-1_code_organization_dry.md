@@ -195,6 +195,24 @@ public function update(StoreBookRequest $request, Book $book)
 }
 ```
 
+### コードリーディング
+
+#### `StoreBookRequest $request`の分解
+
+| 部分 | 説明 |
+|:---|:---|
+| `StoreBookRequest` | カスタムFormRequestクラス |
+| `$request` | バリデーション済みのリクエスト |
+
+> 💡 **ポイント**: 引数の型を`Request`から`StoreBookRequest`に変えるだけで、自動的にバリデーションが実行されます。
+
+#### `$request->validated()`の分解
+
+| 部分 | 説明 |
+|:---|:---|
+| `$request` | FormRequestインスタンス |
+| `->validated()` | バリデーション済みデータを配列で取得 |
+
 ---
 
 ## Step 3: Bladeコンポーネントで共通化

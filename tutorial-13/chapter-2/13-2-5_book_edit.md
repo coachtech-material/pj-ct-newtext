@@ -24,6 +24,63 @@ git switch -c feature/issue-4-book-edit
 
 ---
 
+## 🧠 先輩エンジニアの思考プロセス
+
+### 「なぜ詳細の次に編集機能なのか？」
+
+詳細画面ができたら、次は**編集機能**を作ります。
+
+### 理由1: 詳細から編集への流れが自然
+
+```
+❌ 削除から作る
+→ 「このデータを削除したい」より「修正したい」が先
+
+✅ 編集を先に作る
+→ 詳細画面で「ここを直したい」と思う
+→ 編集ボタンを押す流れが自然
+```
+
+### 理由2: CRUDの「U」（更新）を実装
+
+作成（C）、読み取り（R）が終わったので、次は更新（U）です。
+
+---
+
+### このセクションの実装順序
+
+| 順番 | 作業 | 理由 |
+|:---:|:---|:---|
+| 1 | editメソッド実装 | 編集画面を表示するため |
+| 2 | updateメソッド実装 | フォーム送信を受け取るため |
+| 3 | 動作確認 | 更新が正しく動くかテスト |
+
+---
+
+### コードの実装順序（updateメソッド）
+
+```php
+public function update(Request $request, Book $book)
+{
+    // ① まずバリデーション
+    $validated = $request->validate([...]);
+    
+    // ② 既存データを更新
+    $book->update($validated);
+    
+    // ③ 詳細にリダイレクト
+    return redirect()->route('books.show', $book)->with('success', '...');
+}
+```
+
+| 順番 | コード | 考え方 |
+|:---:|:---|:---|
+| ① | `$request->validate([...])` | 「入力は正しいか？」を確認 |
+| ② | `$book->update($validated)` | 「既存データを更新」 |
+| ③ | `return redirect()...` | 「結果を見せる」 |
+
+---
+
 ## Step 1: editメソッドの実装
 
 ### 1-1. BookControllerを編集
@@ -73,10 +130,28 @@ public function update(Request $request, Book $book)
 
 ### 2-2. コードリーディング
 
-| コード | 説明 |
+#### `$book->update($validated)`の分解
+
+| 部分 | 説明 |
 |:---|:---|
-| `$book->update($validated)` | 既存のモデルを更新 |
-| `route('books.show', $book)` | 詳細画面にリダイレクト |
+| `$book` | ルートモデルバインディングで取得したBookインスタンス |
+| `->` | インスタンスメソッド呼び出し |
+| `update($validated)` | 検証済みデータで更新 |
+
+> 💡 **createとupdateの違い**: `Book::create()`は新規作成（静的メソッド）、`$book->update()`は既存更新（インスタンスメソッド）です。
+
+#### `route('books.show', $book)`の分解
+
+| 部分 | 説明 |
+|:---|:---|
+| `route('books.show', ...)` | books.showルートのURLを生成 |
+| `$book` | ルートパラメータとしてBookインスタンスを渡す |
+
+```php
+// この2つは同じ意味
+route('books.show', $book)      // ← モデルを渡す（推奨）
+route('books.show', $book->id)  // ← IDを渡す
+```
 
 ---
 

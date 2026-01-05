@@ -8,6 +8,33 @@
 
 ---
 
+## 🧠 先輩エンジニアの思考プロセス
+
+### 「なぜ命名の次にコレクションメソッドなのか？」
+
+命名規則を学んだら、次は**コレクションメソッド**でコードを簡潔にします。
+
+### 理由1: foreachは長くなりがち
+
+```php
+// ✖ foreachで書くと長い
+$highRatedTitles = [];
+foreach ($books as $book) {
+    if ($book->rating >= 4) {
+        $highRatedTitles[] = $book->title;
+    }
+}
+
+// ✅ コレクションメソッドで1行
+$highRatedTitles = $books->filter(fn($b) => $b->rating >= 4)->pluck('title');
+```
+
+### 理由2: メソッドチェーンの練習
+
+コレクションメソッドはメソッドチェーンの宝庫です。`->`の理解が深まります。
+
+---
+
 ## Step 1: コレクションとは
 
 ### 1-1. コレクションの取得
@@ -105,6 +132,19 @@ $titles = $books
     ->sortByDesc('rating')
     ->pluck('title');
 ```
+
+### コードリーディング
+
+#### メソッドチェーンの流れ
+
+| 部分 | 説明 | 戻り値 |
+|:---|:---|:---|
+| `$books` | 書籍のCollection | Collection |
+| `->filter(...)` | 評価4以上に絞り込み | Collection |
+| `->sortByDesc('rating')` | 評価の高い順にソート | Collection |
+| `->pluck('title')` | タイトルのみ取得 | Collection |
+
+> 💡 **ポイント**: 各メソッドがCollectionを返すので、連続してメソッドを呼び出せます。
 
 ### 3-2. foreachとの比較
 

@@ -8,6 +8,46 @@
 
 ---
 
+## 🧠 先輩エンジニアの思考プロセス
+
+### 「なぜ開発環境構築の次にGit/GitHub準備なのか？」
+
+開発環境が整ったら、**コードを書き始める前に**バージョン管理を始めます。
+
+### 理由1: 最初の状態を記録する
+
+```
+❌ 開発を進めてからGit初期化
+→ 「あれ、最初どうなってたっけ？」
+→ 戻りたくても戻れない
+
+✅ 環境構築直後にGit初期化
+→ 「Initial commit」として最初の状態を記録
+→ いつでも最初の状態に戻れる
+```
+
+### 理由2: Issue登録 → 開発の順序を守る
+
+イシュー駆動開発では、**Issueを登録してから開発を始めます**。開発環境ができたら、すぐにIssueを登録して「何を作るか」を明確にします。
+
+### 理由3: チーム開発の練習
+
+1人で開発していても、「Issue → ブランチ → PR → マージ」の流れを練習することで、チーム開発に参加したときにスムーズに動けます。
+
+---
+
+### このセクションの実装順序
+
+| 順番 | 作業 | 理由 |
+|:---:|:---|:---|
+| 1 | Gitリポジトリ初期化 | バージョン管理を開始 |
+| 2 | 最初のコミット | 環境構築の状態を記録 |
+| 3 | GitHubリポジトリ作成 | リモートリポジトリを用意 |
+| 4 | リモートと連携 | ローカルとリモートを接続 |
+| 5 | Issue登録 | 開発タスクを明確化 |
+
+---
+
 ## 導入：イシュー駆動開発とは
 
 このチュートリアルでは、**イシュー駆動開発（Issue-Driven Development）**を実践します。
@@ -26,8 +66,6 @@
 
 ---
 
-## 詳細解説
-
 ## Step 1: Gitリポジトリの初期化
 
 プロジェクトディレクトリで、Gitリポジトリを初期化します。
@@ -43,6 +81,15 @@ git init
 Initialized empty Git repository in /path/to/book-review-app/.git/
 ```
 
+### コードリーディング
+
+| コマンド | 説明 |
+|:---|:---|
+| `cd book-review-app` | プロジェクトディレクトリに移動 |
+| `git init` | 現在のディレクトリをGitリポジトリとして初期化 |
+
+> 💡 **ポイント**: `git init`を実行すると、`.git`という隠しディレクトリが作成されます。ここにGitの管理情報が保存されます。
+
 ---
 
 ## Step 2: 最初のコミット
@@ -53,6 +100,14 @@ Initialized empty Git repository in /path/to/book-review-app/.git/
 git add .
 git commit -m "Initial commit: Laravel 10 + Tailwind CSS setup"
 ```
+
+### コードリーディング
+
+| コマンド | 説明 |
+|:---|:---|
+| `git add .` | 現在のディレクトリ以下のすべてのファイルをステージング |
+| `git commit -m "..."` | ステージングされたファイルをコミット |
+| `-m "..."` | コミットメッセージを指定 |
 
 ---
 
@@ -79,6 +134,15 @@ git push -u origin main
 ```
 
 `your-username`は、GitHubのユーザー名に置き換えます。
+
+### コードリーディング
+
+| コマンド | 説明 |
+|:---|:---|
+| `git remote add origin <URL>` | リモートリポジトリを「origin」という名前で登録 |
+| `git branch -M main` | 現在のブランチ名を「main」に変更 |
+| `git push -u origin main` | ローカルの「main」をリモートの「origin/main」にプッシュ |
+| `-u` | 上流ブランチを設定（次回から`git push`だけでOK） |
 
 ---
 
@@ -150,6 +214,18 @@ GitHubでリポジトリを開き、「Issues」タブをクリックします�
    $ git pull origin main
    $ git branch -d feature/issue-1-book-list
 ```
+
+### 開発フローのコードリーディング
+
+| コマンド | 説明 |
+|:---|:---|
+| `git checkout main` | mainブランチに切り替え |
+| `git pull origin main` | リモートの最新をローカルに取り込む |
+| `git switch -c feature/issue-1-book-list` | 新しいブランチを作成して切り替え |
+| `git add .` | 変更をステージング |
+| `git commit -m "..."` | コミットを作成 |
+| `git push origin feature/issue-1-book-list` | ブランチをリモートにプッシュ |
+| `git branch -d feature/issue-1-book-list` | ローカルブランチを削除 |
 
 > 💡 **ポイント**: コミットメッセージに`Closes #1`を含めると、PRがマージされたときにIssue #1が自動的にクローズされます。
 

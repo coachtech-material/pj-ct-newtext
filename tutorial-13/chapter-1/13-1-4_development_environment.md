@@ -8,6 +8,44 @@
 
 ---
 
+## 🧠 先輩エンジニアの思考プロセス
+
+### 「なぜ画面設計の次に開発環境構築なのか？」
+
+要件定義、データベース設計、画面設計が終わったら、いよいよ**開発できる状態**を作ります。
+
+### 理由1: 設計が終わってから環境を作る
+
+```
+❌ 先に環境を作る
+→ 「何を作るかわからないけど、とりあえずLaravel入れた」
+→ 後から「あ、この機能も必要だった」と追加インストールが発生
+
+✅ 設計後に環境を作る
+→ 必要な機能が明確
+→ 必要なパッケージを最初から入れられる
+```
+
+### 理由2: 環境構築は「1回だけ」の作業
+
+環境構築は最初に1回やれば終わりです。設計フェーズで時間をかけて、環境構築は一気に終わらせます。
+
+---
+
+### このセクションの実装順序
+
+| 順番 | 作業 | 理由 |
+|:---:|:---|:---|
+| 1 | Laravelプロジェクト作成 | ベースとなるアプリケーションを作成 |
+| 2 | Laravel Sailインストール | Docker環境を構築 |
+| 3 | Tailwind CSS導入 | フロントエンドのスタイリング準備 |
+| 4 | phpMyAdmin追加 | データベース管理ツールを追加 |
+| 5 | 動作確認 | 環境が正しく動くか確認 |
+
+> 💡 **ポイント**: 「バックエンド → フロントエンド → ツール」の順序で環境を構築します。
+
+---
+
 ## 導入：なぜDocker環境が必要なのか
 
 **Docker**とは、**アプリケーションをコンテナという単位で実行する技術**です。
@@ -19,8 +57,6 @@ Docker環境を使うことで、以下のようなメリットがあります�
 - **チーム開発がスムーズ**: 全員が同じ環境で開発できる
 
 ---
-
-## 詳細解説
 
 ## Step 1: 必要なツール
 
@@ -46,7 +82,19 @@ docker run --rm \
     composer create-project laravel/laravel:^10.0 book-review-app
 ```
 
-> 💡 **ポイント**: `laravel/laravel:^10.0`を指定することで、Laravel 10系の最新バージョンがインストールされます。
+### コードリーディング
+
+| オプション | 説明 |
+|:---|:---|
+| `docker run` | Dockerコンテナを実行 |
+| `--rm` | コンテナ終了後に自動削除 |
+| `-u "$(id -u):$(id -g)"` | 現在のユーザーIDでコンテナを実行（権限問題を回避） |
+| `-v "$(pwd):/var/www/html"` | 現在のディレクトリをコンテナ内にマウント |
+| `-w /var/www/html` | コンテナ内の作業ディレクトリを指定 |
+| `laravelsail/php82-composer:latest` | PHP 8.2 + Composerが入ったイメージ |
+| `composer create-project` | Composerでプロジェクトを作成 |
+| `laravel/laravel:^10.0` | Laravel 10系の最新バージョンを指定 |
+| `book-review-app` | プロジェクト名（ディレクトリ名） |
 
 ---
 
@@ -77,6 +125,14 @@ docker run --rm \
     php artisan sail:install --with=mysql
 ```
 
+### コードリーディング
+
+| コマンド | 説明 |
+|:---|:---|
+| `composer require laravel/sail --dev` | Sailを開発依存としてインストール |
+| `php artisan sail:install` | Sailの設定ファイルを生成 |
+| `--with=mysql` | MySQLを使用するように設定 |
+
 ---
 
 ## Step 4: フロントエンドのセットアップ（Vite & Tailwind CSS）
@@ -88,6 +144,14 @@ docker run --rm \
 ```bash
 ./vendor/bin/sail up -d
 ```
+
+### コードリーディング
+
+| オプション | 説明 |
+|:---|:---|
+| `./vendor/bin/sail` | Sailコマンドのパス |
+| `up` | Dockerコンテナを起動 |
+| `-d` | デタッチモード（バックグラウンドで実行） |
 
 ### 4-2. NPM依存パッケージのインストール
 
@@ -101,11 +165,28 @@ sail npm install
 sail npm install -D tailwindcss@^3.4.0 postcss autoprefixer
 ```
 
+### コードリーディング
+
+| パッケージ | 説明 |
+|:---|:---|
+| `tailwindcss@^3.4.0` | Tailwind CSS本体（バージョン3.4系） |
+| `postcss` | CSSを変換するツール |
+| `autoprefixer` | ベンダープレフィックスを自動追加 |
+| `-D` | 開発依存としてインストール |
+
 ### 4-4. 設定ファイルの生成
 
 ```bash
 sail npx tailwindcss init -p
 ```
+
+### コードリーディング
+
+| オプション | 説明 |
+|:---|:---|
+| `npx` | npmパッケージを実行 |
+| `tailwindcss init` | Tailwindの設定ファイルを生成 |
+| `-p` | `postcss.config.js`も同時に生成 |
 
 ### 4-5. Tailwind CSSのテンプレートパス設定
 
@@ -128,6 +209,15 @@ export default {
 }
 ```
 
+### コードリーディング
+
+| プロパティ | 説明 |
+|:---|:---|
+| `content` | Tailwindがスキャンするファイルのパス |
+| `./resources/**/*.blade.php` | Bladeテンプレート内のクラスを検出 |
+| `theme.extend` | デフォルトテーマを拡張する設定 |
+| `plugins` | Tailwindプラグインの設定 |
+
 ### 4-6. CSSファイルにTailwindディレクティブを追加
 
 `resources/css/app.css`の中身を以下の3行に置き換えます。
@@ -139,6 +229,14 @@ export default {
 @tailwind components;
 @tailwind utilities;
 ```
+
+### コードリーディング
+
+| ディレクティブ | 説明 |
+|:---|:---|
+| `@tailwind base` | リセットCSSや基本スタイルを読み込み |
+| `@tailwind components` | コンポーネントクラスを読み込み |
+| `@tailwind utilities` | ユーティリティクラス（`bg-blue-500`など）を読み込み |
 
 ### 4-7. Vite開発サーバーの起動
 
@@ -169,6 +267,17 @@ DB_USERNAME=sail
 DB_PASSWORD=password
 ```
 
+### コードリーディング
+
+| 設定 | 説明 |
+|:---|:---|
+| `DB_CONNECTION=mysql` | MySQLを使用 |
+| `DB_HOST=mysql` | Dockerコンテナ名（Sail内部で解決） |
+| `DB_PORT=3306` | MySQLのデフォルトポート |
+| `DB_DATABASE=laravel` | データベース名 |
+| `DB_USERNAME=sail` | データベースユーザー名 |
+| `DB_PASSWORD=password` | データベースパスワード |
+
 ### 5-2. phpMyAdminの追加
 
 `compose.yaml`（または`docker-compose.yml`）を開き、`mysql`サービスの後に以下の設定を追加します。
@@ -187,6 +296,15 @@ DB_PASSWORD=password
         depends_on:
             - mysql
 ```
+
+### コードリーディング
+
+| 設定 | 説明 |
+|:---|:---|
+| `image: 'phpmyadmin:latest'` | phpMyAdminの最新イメージを使用 |
+| `ports: '8080:80'` | ホストの8080番ポートをコンテナの80番に転送 |
+| `PMA_HOST: mysql` | 接続先のMySQLホスト名 |
+| `depends_on: mysql` | MySQLコンテナが起動してから起動 |
 
 ---
 

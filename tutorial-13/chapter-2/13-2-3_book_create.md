@@ -29,6 +29,64 @@ git switch -c feature/issue-2-book-create
 
 ---
 
+## 🧠 先輩エンジニアの思考プロセス
+
+### 「なぜ一覧の次に登録機能なのか？」
+
+一覧画面ができたら、次は**登録機能**を作ります。
+
+### 理由1: データを増やせるようになる
+
+```
+❌ 詳細・編集・削除から作る
+→ テストデータがTinkerで作った1件だけ
+→ テストのバリエーションが少ない
+
+✅ 登録機能を先に作る
+→ 画面からデータを作成できる
+→ 色々なデータでテストできる
+```
+
+### 理由2: CRUDの「C」から始める
+
+CRUDの順番は「作成→読み取り→更新→削除」ですが、一覧（R）の次は登録（C）が自然です。
+
+---
+
+### このセクションの実装順序
+
+| 順番 | 作業 | 理由 |
+|:---:|:---|:---|
+| 1 | createメソッド実装 | 登録画面を表示するため |
+| 2 | storeメソッド実装 | フォーム送信を受け取るため |
+| 3 | 動作確認 | 登録が正しく動くかテスト |
+
+---
+
+### コードの実装順序（storeメソッド）
+
+```php
+public function store(Request $request)
+{
+    // ① まずバリデーション
+    $validated = $request->validate([...]);
+    
+    // ② 検証済みデータで作成
+    Book::create($validated);
+    
+    // ③ 一覧にリダイレクト
+    return redirect()->route('books.index')->with('success', '...');
+}
+```
+
+| 順番 | コード | 考え方 |
+|:---:|:---|:---|
+| ① | `$request->validate([...])` | 「入力は正しいか？」を確認 |
+| ② | `Book::create($validated)` | 「データを保存」 |
+| ③ | `return redirect()...` | 「結果を見せる」 |
+
+---
+
 ## Step 1: createメソッドの実装
 
 ### 1-1. BookControllerを編集
@@ -78,15 +136,33 @@ public function store(Request $request)
 
 ### 2-2. コードリーディング
 
-| コード | 説明 |
+#### `$request->validate([...])`の分解
+
+| 部分 | 説明 |
 |:---|:---|
-| `$request->validate([...])` | バリデーションを実行し、成功したら検証済みデータを返す |
-| `'required'` | 必須項目 |
+| `$request` | HTTPリクエストオブジェクト |
+| `->validate([...])` | バリデーションを実行 |
+| 戻り値 | 検証済みデータの配列 |
+
+#### バリデーションルールの読み方
+
+| ルール | 説明 |
+|:---|:---|
+| `'required'` | 必須項目（空はエラー） |
 | `'max:255'` | 最大255文字 |
-| `'integer\|min:1\|max:5'` | 1〜5の整数 |
+| `'integer'` | 整数のみ許可 |
+| `'min:1\|max:5'` | 1以上5以下 |
 | `'nullable'` | NULL許可（任意項目） |
-| `Book::create($validated)` | 検証済みデータで書籍を作成 |
-| `->with('success', ...)` | フラッシュメッセージをセッションに保存 |
+
+#### `redirect()->route('books.index')->with('success', '...')`の分解
+
+| 部分 | 説明 | 戻り値 |
+|:---|:---|:---|
+| `redirect()` | リダイレクトレスポンスを作成 | RedirectResponse |
+| `->route('books.index')` | books.indexルートにリダイレクト | RedirectResponse |
+| `->with('success', '...')` | フラッシュメッセージをセッションに保存 | RedirectResponse |
+
+> 💡 **メソッドチェーンの流れ**: `redirect()` → `route()` → `with()` と順番に処理が連鎖します。
 
 ---
 
