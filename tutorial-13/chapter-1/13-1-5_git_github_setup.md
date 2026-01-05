@@ -1,334 +1,210 @@
-# Tutorial 13-1-5: Git/GitHubの準備
+# Tutorial 13-1-5: Git/GitHubの準備とIssue登録
 
 ## 🎯 このセクションで学ぶこと
 
-*   Gitリポジトリを初期化し、最初のコミットを作成する方法を学ぶ。
-*   GitHubリポジトリを作成し、ローカルリポジトリと連携する方法を学ぶ。
-*   .gitignoreファイルを設定し、不要なファイルをコミットしないようにする。
+- Gitリポジトリを初期化し、最初のコミットを作成する方法を学ぶ
+- GitHubリポジトリを作成し、ローカルリポジトリと連携する方法を学ぶ
+- **機能一覧をGitHub Issuesに登録し、イシュー駆動開発の準備をする**
 
 ---
 
-## 導入：なぜGit/GitHubが必要なのか
+## 導入：イシュー駆動開発とは
 
-**Git**とは、**バージョン管理システム**です。**GitHub**とは、**Gitリポジトリをホスティングするサービス**です。
+このチュートリアルでは、**イシュー駆動開発（Issue-Driven Development）**を実践します。
 
-Git/GitHubを使うことで、以下のようなメリットがあります。
+イシュー駆動開発とは、**GitHub Issuesに機能やタスクを登録し、Issue単位で開発を進める手法**です。実務では、チーム開発でこの手法がよく使われます。
 
-*   **変更履歴の管理**: コードの変更履歴を記録し、いつでも過去の状態に戻せる
-*   **チーム開発**: 複数人で同じプロジェクトを開発できる
-*   **バックアップ**: コードをクラウドに保存し、ローカルのデータが失われても復元できる
+**イシュー駆動開発の流れ**:
+
+1. **Issue登録**: 機能一覧をGitHub Issuesに登録
+2. **ブランチ作成**: Issue番号付きブランチを作成（例: `feature/issue-1-book-list`）
+3. **実装**: 機能を実装してコミット
+4. **プルリクエスト**: PRを作成し、セルフレビュー
+5. **マージ**: PRをマージし、Issueを自動クローズ
+
+> 💡 **ポイント**: このチュートリアルでは、**1人チーム開発ごっこ**として、この流れを繰り返し練習します。手癖になるまで繰り返すことが目的です。
 
 ---
 
 ## 詳細解説
 
-## Step 1: Gitのインストール確認
-
-Gitがインストールされているか確認します。
-
-```bash
-git --version
-```
-
-**出力例**:
-
-```
-git version 2.39.0
-```
-
-Gitがインストールされていない場合は、[Git公式サイト](https://git-scm.com/)からダウンロードしてインストールします。
-
----
-
-## Step 2: Gitの初期設定
-
-Gitの初期設定を行います。
-
-```bash
-git config --global user.name "Your Name"
-git config --global user.email "your.email@example.com"
-```
-
-設定を確認します。
-
-```bash
-git config --global user.name
-git config --global user.email
-```
-
----
-
-## Step 3: Gitリポジトリの初期化
+## Step 1: Gitリポジトリの初期化
 
 プロジェクトディレクトリで、Gitリポジトリを初期化します。
 
 ```bash
-cd task-manager
+cd book-review-app
 git init
 ```
 
 **出力例**:
 
 ```
-Initialized empty Git repository in /path/to/task-manager/.git/
+Initialized empty Git repository in /path/to/book-review-app/.git/
 ```
 
 ---
 
-## Step 4: .gitignoreファイルの確認
+## Step 2: 最初のコミット
 
-Laravelプロジェクトには、デフォルトで`.gitignore`ファイルが含まれています。
-
-**ファイル**: `.gitignore`
-
-```gitignore
-/.phpunit.cache
-/node_modules
-/public/build
-/public/hot
-/public/storage
-/storage/*.key
-/vendor
-.env
-.env.backup
-.env.production
-.phpunit.result.cache
-Homestead.json
-Homestead.yaml
-auth.json
-npm-debug.log
-yarn-error.log
-/.fleet
-/.idea
-/.vscode
-```
-
-`.gitignore`ファイルは、**Gitで管理しないファイルを指定するファイル**です。
-
-重要なファイル（`.env`、`vendor`、`node_modules`など）は、Gitで管理しないようにします。
-
----
-
-## Step 5: 最初のコミット
-
-ファイルをステージングエリアに追加します。
+ファイルをステージングエリアに追加し、コミットを作成します。
 
 ```bash
 git add .
-```
-
-コミットを作成します。
-
-```bash
-git commit -m "Initial commit"
-```
-
-**出力例**:
-
-```
-[main (root-commit) abc1234] Initial commit
- 100 files changed, 10000 insertions(+)
- create mode 100644 .gitignore
- create mode 100644 README.md
- ...
+git commit -m "Initial commit: Laravel 10 + Tailwind CSS setup"
 ```
 
 ---
 
-## Step 6: GitHubリポジトリの作成
+## Step 3: GitHubリポジトリの作成
 
 GitHubにログインし、新しいリポジトリを作成します。
 
 1. GitHubの右上の「+」ボタンをクリック
 2. 「New repository」を選択
-3. リポジトリ名を入力（例: `task-manager`）
+3. リポジトリ名を入力: `book-review-app`
 4. 「Public」または「Private」を選択
 5. 「Create repository」をクリック
 
 ---
 
-## Step 7: リモートリポジトリの追加
+## Step 4: リモートリポジトリの追加とプッシュ
 
 ローカルリポジトリとGitHubリポジトリを連携します。
 
 ```bash
-git remote add origin https://github.com/your-username/task-manager.git
+git remote add origin https://github.com/your-username/book-review-app.git
+git branch -M main
+git push -u origin main
 ```
 
 `your-username`は、GitHubのユーザー名に置き換えます。
 
 ---
 
-## Step 8: リモートリポジトリへのプッシュ
+## Step 5: GitHub Issuesに機能を登録
 
-ローカルリポジトリの変更を、GitHubリポジトリにプッシュします。
+ここからが**イシュー駆動開発の準備**です。13-1-1で作成した機能一覧をGitHub Issuesに登録します。
 
-```bash
-git branch -M main
-git push -u origin main
-```
+### 5-1. Issuesタブを開く
 
-**出力例**:
+GitHubでリポジトリを開き、「Issues」タブをクリックします。
 
-```
-Enumerating objects: 100, done.
-Counting objects: 100% (100/100), done.
-Delta compression using up to 8 threads
-Compressing objects: 100% (80/80), done.
-Writing objects: 100% (100/100), 50.00 KiB | 5.00 MiB/s, done.
-Total 100 (delta 10), reused 0 (delta 0), pack-reused 0
-To https://github.com/your-username/task-manager.git
- * [new branch]      main -> main
-Branch 'main' set up to track remote branch 'main' from 'origin'.
-```
+### 5-2. 機能をIssueとして登録
 
----
+以下の機能を1つずつIssueとして登録します。
 
-## Step 9: GitHubでリポジトリを確認
+| Issue # | タイトル | 説明 |
+|:---:|:---|:---|
+| #1 | 書籍一覧機能 | 登録された書籍の一覧を表示する |
+| #2 | 書籍登録機能 | 新しい書籍を登録する |
+| #3 | 書籍詳細機能 | 書籍の詳細情報を表示する |
+| #4 | 書籍編集機能 | 書籍情報を編集する |
+| #5 | 書籍削除機能 | 書籍を削除する |
+| #6 | 公開API実装 | 認証なしで書籍データをJSONで取得できるAPIを実装 |
+| #7 | ユーザー認証機能 | ユーザー登録・ログイン・ログアウト |
+| #8 | ユーザー別レビュー管理 | ログインユーザーのレビューのみ表示・編集可能にする |
 
-GitHubでリポジトリを開き、ファイルがプッシュされていることを確認します。
+### 5-3. Issue登録の手順
 
----
+1. 「New issue」をクリック
+2. 「Title」に機能名を入力（例: `書籍一覧機能`）
+3. 「Description」に説明を入力（例: `登録された書籍の一覧を表示する`）
+4. 「Submit new issue」をクリック
 
-## Step 10: ブランチの作成
-
-新しい機能を開発するときは、ブランチを作成します。
-
-```bash
-git checkout -b feature/task-crud
-```
-
-**出力例**:
-
-```
-Switched to a new branch 'feature/task-crud'
-```
+これを8回繰り返し、すべての機能をIssueとして登録します。
 
 ---
 
-## Step 11: 変更のコミット
+## Step 6: これからの開発フロー
 
-ファイルを編集したら、変更をコミットします。
+これ以降の学習は、**Issueを消化していく作業**になります。
 
-```bash
-git add .
-git commit -m "Add task CRUD functionality"
+各セクションで以下のフローを繰り返します。
+
+```
+1. GitHubで対応するIssueを確認
+   ↓
+2. mainブランチをpullして最新化
+   $ git checkout main
+   $ git pull origin main
+   ↓
+3. Issue番号付きブランチを作成
+   $ git switch -c feature/issue-1-book-list
+   ↓
+4. 機能を実装
+   ↓
+5. コミットしてプッシュ
+   $ git add .
+   $ git commit -m "feat: 書籍一覧画面の実装 (Closes #1)"
+   $ git push origin feature/issue-1-book-list
+   ↓
+6. GitHubでプルリクエストを作成
+   ↓
+7. セルフレビュー（Diff確認）
+   ↓
+8. マージしてIssueをクローズ
+   ↓
+9. ローカルのブランチ削除とmainの更新
+   $ git checkout main
+   $ git pull origin main
+   $ git branch -d feature/issue-1-book-list
 ```
 
+> 💡 **ポイント**: コミットメッセージに`Closes #1`を含めると、PRがマージされたときにIssue #1が自動的にクローズされます。
+
 ---
 
-## Step 12: ブランチのプッシュ
+### 💡 TIP: コミットメッセージの書き方
 
-ブランチをGitHubにプッシュします。
+コミットメッセージには、以下のプレフィックスを使うと分かりやすくなります。
 
-```bash
-git push origin feature/task-crud
+| プレフィックス | 用途 |
+|:---|:---|
+| `feat:` | 新機能の追加 |
+| `fix:` | バグ修正 |
+| `docs:` | ドキュメントの変更 |
+| `style:` | コードスタイルの変更（機能に影響なし） |
+| `refactor:` | リファクタリング |
+| `test:` | テストの追加・修正 |
+
+**例**:
+
 ```
-
----
-
-## Step 13: プルリクエストの作成
-
-GitHubでプルリクエストを作成します。
-
-1. GitHubでリポジトリを開く
-2. 「Pull requests」タブをクリック
-3. 「New pull request」をクリック
-4. `feature/task-crud`ブランチを選択
-5. 「Create pull request」をクリック
-
----
-
-## Step 14: プルリクエストのマージ
-
-プルリクエストをレビューし、問題がなければマージします。
-
-1. プルリクエストを開く
-2. 「Merge pull request」をクリック
-3. 「Confirm merge」をクリック
-
----
-
-## Step 15: mainブランチの更新
-
-ローカルの`main`ブランチを更新します。
-
-```bash
-git checkout main
-git pull origin main
+feat: 書籍一覧画面の実装 (Closes #1)
+fix: 書籍削除時のエラーを修正 (Closes #5)
 ```
-
----
-
-### 💡 TIP: Gitコマンド一覧
-
-よく使うGitコマンドをまとめます。
-
-| コマンド | 説明 |
-|---|---|
-| `git status` | 変更されたファイルを確認 |
-| `git add .` | すべてのファイルをステージング |
-| `git commit -m "message"` | コミットを作成 |
-| `git push origin branch` | ブランチをプッシュ |
-| `git pull origin branch` | ブランチをプル |
-| `git checkout -b branch` | 新しいブランチを作成して切り替え |
-| `git branch` | ブランチ一覧を表示 |
-| `git log` | コミット履歴を表示 |
 
 ---
 
 ### 🚨 よくある間違い
 
-#### 間違い1: .envファイルをコミットしてしまう
+#### 間違い1: mainブランチで直接開発してしまう
 
-**対処法**: `.gitignore`に`.env`が含まれていることを確認します。
-
-もし誤ってコミットしてしまった場合は、以下のコマンドで削除します。
-
-```bash
-git rm --cached .env
-git commit -m "Remove .env from repository"
-git push origin main
-```
+**対処法**: 必ずfeatureブランチを作成してから開発します。mainブランチは常にクリーンな状態を保ちます。
 
 ---
 
-#### 間違い2: vendorディレクトリをコミットしてしまう
+#### 間違い2: Issueを作らずに開発を始める
 
-**対処法**: `.gitignore`に`/vendor`が含まれていることを確認します。
+**対処法**: 開発を始める前に、必ずIssueを作成します。これにより、何を開発するかが明確になります。
 
 ---
 
-#### 間違い3: コミットメッセージが不明確
+#### 間違い3: コミットメッセージにIssue番号を書き忘れる
 
-**対処法**: コミットメッセージは、何を変更したかが分かるように書きます。
-
-**良い例**:
-
-```
-Add task CRUD functionality
-Fix bug in task deletion
-Update README with installation instructions
-```
-
-**悪い例**:
-
-```
-update
-fix
-test
-```
+**対処法**: コミットメッセージに`Closes #番号`を含めることで、PRマージ時にIssueが自動クローズされます。
 
 ---
 
 ## ✨ まとめ
 
-このセクションでは、Git/GitHubの準備について学びました。
+このセクションでは、Git/GitHubの準備とイシュー駆動開発の準備について学びました。
 
-*   Gitリポジトリを初期化し、最初のコミットを作成した。
-*   GitHubリポジトリを作成し、ローカルリポジトリと連携した。
-*   ブランチを作成し、プルリクエストを作成した。
+- Gitリポジトリを初期化し、GitHubにプッシュした
+- 機能一覧をGitHub Issuesに登録した
+- イシュー駆動開発の流れを理解した
 
-次のChapterでは、CRUD機能の実装について学びます。
+次のセクションでは、提供アセットの配置について学びます。
 
 ---

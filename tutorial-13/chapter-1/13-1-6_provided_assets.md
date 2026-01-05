@@ -2,9 +2,9 @@
 
 ## 🎯 このセクションで学ぶこと
 
-*   フロントエンドエンジニアから納品されたBladeファイルを配置する方法を学ぶ。
-*   提供されたアセット（CSS、JavaScript）をプロジェクトに組み込む方法を理解する。
-*   「提供コードありき」の開発フローを理解する。
+- フロントエンドエンジニアから納品されたBladeファイルを配置する方法を学ぶ
+- Tailwind CSSを使用したBladeテンプレートの構造を理解する
+- 「提供コードありき」の開発フローを理解する
 
 ---
 
@@ -32,13 +32,11 @@
 | 3 | Tinker検証 | データ構造を確認する |
 | 4 | バックエンド実装 | モデル・コントローラーを実装する |
 
-このフローにより、**「データが取れていないのに画面を作っても動かない」** という問題を防げます。
-
 ---
 
 ## Step 1: 提供されるBladeファイル一覧
 
-このTutorialでは、以下のBladeファイルが提供されます。
+このTutorialでは、以下のBladeファイルが提供されます。すべて**Tailwind CSS**でスタイリングされています。
 
 ### レイアウト
 
@@ -47,14 +45,14 @@
 | `layouts/app.blade.php` | 共通レイアウト |
 | `components/navigation.blade.php` | ナビゲーションコンポーネント |
 
-### タスク関連
+### 書籍関連
 
 | ファイル | 説明 |
 |:---|:---|
-| `tasks/index.blade.php` | タスク一覧画面 |
-| `tasks/show.blade.php` | タスク詳細画面 |
-| `tasks/create.blade.php` | タスク作成画面 |
-| `tasks/edit.blade.php` | タスク編集画面 |
+| `books/index.blade.php` | 書籍一覧画面 |
+| `books/show.blade.php` | 書籍詳細画面 |
+| `books/create.blade.php` | 書籍登録画面 |
+| `books/edit.blade.php` | 書籍編集画面 |
 
 ### 認証関連
 
@@ -72,7 +70,7 @@
 ```bash
 mkdir -p resources/views/layouts
 mkdir -p resources/views/components
-mkdir -p resources/views/tasks
+mkdir -p resources/views/books
 mkdir -p resources/views/auth
 ```
 
@@ -89,127 +87,23 @@ mkdir -p resources/views/auth
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ $title ?? 'タスク管理システム' }}</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            font-family: 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif;
-            background-color: #f5f5f5;
-            color: #333;
-            line-height: 1.6;
-        }
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        .card {
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            padding: 20px;
-            margin-bottom: 20px;
-        }
-        .btn {
-            display: inline-block;
-            padding: 10px 20px;
-            border-radius: 4px;
-            text-decoration: none;
-            cursor: pointer;
-            border: none;
-            font-size: 14px;
-        }
-        .btn-primary {
-            background-color: #3490dc;
-            color: white;
-        }
-        .btn-primary:hover {
-            background-color: #2779bd;
-        }
-        .btn-danger {
-            background-color: #e3342f;
-            color: white;
-        }
-        .btn-danger:hover {
-            background-color: #cc1f1a;
-        }
-        .btn-secondary {
-            background-color: #6c757d;
-            color: white;
-        }
-        .form-group {
-            margin-bottom: 15px;
-        }
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
-        .form-control {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 14px;
-        }
-        .form-control:focus {
-            outline: none;
-            border-color: #3490dc;
-        }
-        .error {
-            color: #e3342f;
-            font-size: 12px;
-            margin-top: 5px;
-        }
-        .alert {
-            padding: 15px;
-            border-radius: 4px;
-            margin-bottom: 20px;
-        }
-        .alert-success {
-            background-color: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-        .alert-danger {
-            background-color: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        th, td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-        }
-        th {
-            background-color: #f8f9fa;
-            font-weight: bold;
-        }
-        .status-pending { color: #ffc107; }
-        .status-in_progress { color: #17a2b8; }
-        .status-completed { color: #28a745; }
-    </style>
+    <title>{{ $title ?? '書籍レビューアプリ' }}</title>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body>
+<body class="bg-gray-100 min-h-screen">
     <x-navigation />
     
-    <main class="container">
+    <main class="container mx-auto px-4 py-8 max-w-4xl">
+        {{-- 成功メッセージ --}}
         @if(session('success'))
-            <div class="alert alert-success">
+            <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-6">
                 {{ session('success') }}
             </div>
         @endif
         
+        {{-- エラーメッセージ --}}
         @if(session('error'))
-            <div class="alert alert-danger">
+            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
                 {{ session('error') }}
             </div>
         @endif
@@ -220,6 +114,8 @@ mkdir -p resources/views/auth
 </html>
 ```
 
+> 💡 **Tailwind CSSの解説**: `bg-gray-100`は背景色、`container mx-auto`は中央寄せ、`px-4 py-8`はパディングを設定しています。
+
 ---
 
 ### 2-3. ナビゲーションコンポーネントを配置する
@@ -227,31 +123,35 @@ mkdir -p resources/views/auth
 **ファイル**: `resources/views/components/navigation.blade.php`
 
 ```blade
-<nav style="background-color: #343a40; padding: 15px 0;">
-    <div class="container" style="display: flex; justify-content: space-between; align-items: center;">
-        <a href="{{ route('tasks.index') }}" style="color: white; text-decoration: none; font-size: 20px; font-weight: bold;">
-            タスク管理システム
-        </a>
-        
-        <div>
-            @auth
-                <span style="color: #adb5bd; margin-right: 15px;">
-                    {{ auth()->user()->name }}さん
-                </span>
-                <form action="{{ route('logout') }}" method="POST" style="display: inline;">
-                    @csrf
-                    <button type="submit" style="background: none; border: none; color: #adb5bd; cursor: pointer;">
-                        ログアウト
-                    </button>
-                </form>
-            @else
-                <a href="{{ route('login') }}" style="color: #adb5bd; margin-right: 15px; text-decoration: none;">
-                    ログイン
-                </a>
-                <a href="{{ route('register') }}" style="color: #adb5bd; text-decoration: none;">
-                    新規登録
-                </a>
-            @endauth
+<nav class="bg-gray-800 shadow-lg">
+    <div class="container mx-auto px-4 max-w-4xl">
+        <div class="flex justify-between items-center py-4">
+            {{-- ロゴ --}}
+            <a href="{{ route('books.index') }}" class="text-white text-xl font-bold hover:text-gray-300">
+                📚 書籍レビューアプリ
+            </a>
+            
+            {{-- ナビゲーションリンク --}}
+            <div class="flex items-center space-x-4">
+                @auth
+                    <span class="text-gray-300">
+                        {{ auth()->user()->name }}さん
+                    </span>
+                    <form action="{{ route('logout') }}" method="POST" class="inline">
+                        @csrf
+                        <button type="submit" class="text-gray-300 hover:text-white">
+                            ログアウト
+                        </button>
+                    </form>
+                @else
+                    <a href="{{ route('login') }}" class="text-gray-300 hover:text-white">
+                        ログイン
+                    </a>
+                    <a href="{{ route('register') }}" class="text-gray-300 hover:text-white">
+                        新規登録
+                    </a>
+                @endauth
+            </div>
         </div>
     </div>
 </nav>
@@ -259,142 +159,131 @@ mkdir -p resources/views/auth
 
 ---
 
-### 2-4. タスク一覧画面を配置する
+### 2-4. 書籍一覧画面を配置する
 
-**ファイル**: `resources/views/tasks/index.blade.php`
+**ファイル**: `resources/views/books/index.blade.php`
 
 ```blade
 <x-app-layout>
-    <x-slot name="title">タスク一覧</x-slot>
+    <x-slot name="title">書籍一覧</x-slot>
     
-    <div class="card">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-            <h1>タスク一覧</h1>
-            <a href="{{ route('tasks.create') }}" class="btn btn-primary">新規作成</a>
+    <div class="bg-white rounded-lg shadow-md p-6">
+        {{-- ヘッダー --}}
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-2xl font-bold text-gray-800">書籍一覧</h1>
+            <a href="{{ route('books.create') }}" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">
+                新規登録
+            </a>
         </div>
         
-        {{-- 検索フォーム --}}
-        <form action="{{ route('tasks.index') }}" method="GET" style="margin-bottom: 20px;">
-            <div style="display: flex; gap: 10px;">
-                <input type="text" name="keyword" class="form-control" placeholder="キーワード検索" value="{{ request('keyword') }}" style="flex: 1;">
-                <select name="status" class="form-control" style="width: 150px;">
-                    <option value="">全てのステータス</option>
-                    <option value="pending" {{ request('status') === 'pending' ? 'selected' : '' }}>未着手</option>
-                    <option value="in_progress" {{ request('status') === 'in_progress' ? 'selected' : '' }}>進行中</option>
-                    <option value="completed" {{ request('status') === 'completed' ? 'selected' : '' }}>完了</option>
-                </select>
-                <select name="category_id" class="form-control" style="width: 150px;">
-                    <option value="">全てのカテゴリー</option>
-                    @foreach($categories as $category)
-                        <option value="{{ $category->id }}" {{ request('category_id') == $category->id ? 'selected' : '' }}>
-                            {{ $category->name }}
-                        </option>
-                    @endforeach
-                </select>
-                <button type="submit" class="btn btn-primary">検索</button>
-            </div>
-        </form>
-        
-        @forelse($tasks as $task)
-            <div class="card" style="display: flex; justify-content: space-between; align-items: center;">
-                <div>
-                    <h3>
-                        <a href="{{ route('tasks.show', $task) }}" style="text-decoration: none; color: #333;">
-                            {{ $task->title }}
-                        </a>
-                    </h3>
-                    <p style="color: #6c757d; font-size: 14px;">
-                        <span class="status-{{ $task->status }}">
-                            @if($task->status === 'pending') 未着手
-                            @elseif($task->status === 'in_progress') 進行中
-                            @else 完了
-                            @endif
-                        </span>
-                        @if($task->category)
-                            | カテゴリー: {{ $task->category->name }}
-                        @endif
-                        @if($task->due_date)
-                            | 期限: {{ $task->due_date->format('Y/m/d') }}
-                        @endif
-                    </p>
-                </div>
-                <div>
-                    <a href="{{ route('tasks.edit', $task) }}" class="btn btn-secondary">編集</a>
+        {{-- 書籍リスト --}}
+        @forelse($books as $book)
+            <div class="border-b border-gray-200 py-4 last:border-b-0">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h2 class="text-lg font-semibold">
+                            <a href="{{ route('books.show', $book) }}" class="text-gray-800 hover:text-blue-500">
+                                {{ $book->title }}
+                            </a>
+                        </h2>
+                        <p class="text-gray-600 text-sm mt-1">
+                            著者: {{ $book->author }}
+                        </p>
+                        <div class="flex items-center mt-2">
+                            {{-- 評価（星表示） --}}
+                            <div class="text-yellow-400">
+                                @for($i = 1; $i <= 5; $i++)
+                                    @if($i <= $book->rating)
+                                        ★
+                                    @else
+                                        ☆
+                                    @endif
+                                @endfor
+                            </div>
+                            <span class="text-gray-500 text-sm ml-2">
+                                ({{ $book->rating }}/5)
+                            </span>
+                        </div>
+                    </div>
+                    <a href="{{ route('books.edit', $book) }}" class="bg-gray-500 hover:bg-gray-600 text-white px-3 py-1 rounded text-sm">
+                        編集
+                    </a>
                 </div>
             </div>
         @empty
-            <p style="text-align: center; color: #6c757d; padding: 40px;">
-                タスクがありません。「新規作成」ボタンからタスクを追加してください。
+            <p class="text-center text-gray-500 py-8">
+                書籍がありません。「新規登録」ボタンから書籍を追加してください。
             </p>
         @endforelse
-        
-        {{-- ページネーション --}}
-        <div style="margin-top: 20px;">
-            {{ $tasks->links() }}
-        </div>
     </div>
 </x-app-layout>
 ```
 
 ---
 
-### 2-5. タスク詳細画面を配置する
+### 2-5. 書籍詳細画面を配置する
 
-**ファイル**: `resources/views/tasks/show.blade.php`
+**ファイル**: `resources/views/books/show.blade.php`
 
 ```blade
 <x-app-layout>
-    <x-slot name="title">{{ $task->title }}</x-slot>
+    <x-slot name="title">{{ $book->title }}</x-slot>
     
-    <div class="card">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-            <h1>{{ $task->title }}</h1>
+    <div class="bg-white rounded-lg shadow-md p-6">
+        {{-- ヘッダー --}}
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-2xl font-bold text-gray-800">{{ $book->title }}</h1>
+            <a href="{{ route('books.index') }}" class="text-blue-500 hover:text-blue-600">
+                ← 一覧に戻る
+            </a>
+        </div>
+        
+        {{-- 書籍情報 --}}
+        <div class="space-y-4">
             <div>
-                <a href="{{ route('tasks.edit', $task) }}" class="btn btn-secondary">編集</a>
-                <form action="{{ route('tasks.destroy', $task) }}" method="POST" style="display: inline;" onsubmit="return confirm('本当に削除しますか？');">
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit" class="btn btn-danger">削除</button>
-                </form>
+                <span class="text-gray-500 text-sm">著者</span>
+                <p class="text-gray-800">{{ $book->author }}</p>
+            </div>
+            
+            <div>
+                <span class="text-gray-500 text-sm">評価</span>
+                <div class="flex items-center">
+                    <div class="text-yellow-400 text-xl">
+                        @for($i = 1; $i <= 5; $i++)
+                            @if($i <= $book->rating)
+                                ★
+                            @else
+                                ☆
+                            @endif
+                        @endfor
+                    </div>
+                    <span class="text-gray-500 ml-2">({{ $book->rating }}/5)</span>
+                </div>
+            </div>
+            
+            <div>
+                <span class="text-gray-500 text-sm">レビュー</span>
+                <p class="text-gray-800 whitespace-pre-wrap">{{ $book->review ?? 'レビューはありません' }}</p>
+            </div>
+            
+            <div>
+                <span class="text-gray-500 text-sm">登録日</span>
+                <p class="text-gray-800">{{ $book->created_at->format('Y年m月d日') }}</p>
             </div>
         </div>
         
-        <table>
-            <tr>
-                <th style="width: 150px;">ステータス</th>
-                <td>
-                    <span class="status-{{ $task->status }}">
-                        @if($task->status === 'pending') 未着手
-                        @elseif($task->status === 'in_progress') 進行中
-                        @else 完了
-                        @endif
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <th>カテゴリー</th>
-                <td>{{ $task->category->name ?? '未設定' }}</td>
-            </tr>
-            <tr>
-                <th>期限</th>
-                <td>{{ $task->due_date ? $task->due_date->format('Y年m月d日') : '未設定' }}</td>
-            </tr>
-            <tr>
-                <th>説明</th>
-                <td>{!! nl2br(e($task->description)) ?: '説明なし' !!}</td>
-            </tr>
-            <tr>
-                <th>作成日時</th>
-                <td>{{ $task->created_at->format('Y年m月d日 H:i') }}</td>
-            </tr>
-            <tr>
-                <th>更新日時</th>
-                <td>{{ $task->updated_at->format('Y年m月d日 H:i') }}</td>
-            </tr>
-        </table>
-        
-        <div style="margin-top: 20px;">
-            <a href="{{ route('tasks.index') }}" class="btn btn-secondary">一覧に戻る</a>
+        {{-- アクションボタン --}}
+        <div class="flex space-x-4 mt-8 pt-6 border-t border-gray-200">
+            <a href="{{ route('books.edit', $book) }}" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">
+                編集
+            </a>
+            <form action="{{ route('books.destroy', $book) }}" method="POST" onsubmit="return confirm('本当に削除しますか？');">
+                @csrf
+                @method('DELETE')
+                <button type="submit" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded">
+                    削除
+                </button>
+            </form>
         </div>
     </div>
 </x-app-layout>
@@ -402,74 +291,74 @@ mkdir -p resources/views/auth
 
 ---
 
-### 2-6. タスク作成画面を配置する
+### 2-6. 書籍登録画面を配置する
 
-**ファイル**: `resources/views/tasks/create.blade.php`
+**ファイル**: `resources/views/books/create.blade.php`
 
 ```blade
 <x-app-layout>
-    <x-slot name="title">タスク作成</x-slot>
+    <x-slot name="title">書籍登録</x-slot>
     
-    <div class="card">
-        <h1 style="margin-bottom: 20px;">タスク作成</h1>
+    <div class="bg-white rounded-lg shadow-md p-6">
+        <h1 class="text-2xl font-bold text-gray-800 mb-6">書籍登録</h1>
         
-        <form action="{{ route('tasks.store') }}" method="POST">
+        <form action="{{ route('books.store') }}" method="POST">
             @csrf
             
-            <div class="form-group">
-                <label for="title">タイトル <span style="color: red;">*</span></label>
-                <input type="text" id="title" name="title" class="form-control" value="{{ old('title') }}" required>
+            {{-- タイトル --}}
+            <div class="mb-4">
+                <label for="title" class="block text-gray-700 font-medium mb-2">タイトル</label>
+                <input type="text" name="title" id="title" value="{{ old('title') }}"
+                    class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:border-blue-500">
                 @error('title')
-                    <p class="error">{{ $message }}</p>
+                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                 @enderror
             </div>
             
-            <div class="form-group">
-                <label for="description">説明</label>
-                <textarea id="description" name="description" class="form-control" rows="5">{{ old('description') }}</textarea>
-                @error('description')
-                    <p class="error">{{ $message }}</p>
+            {{-- 著者 --}}
+            <div class="mb-4">
+                <label for="author" class="block text-gray-700 font-medium mb-2">著者</label>
+                <input type="text" name="author" id="author" value="{{ old('author') }}"
+                    class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:border-blue-500">
+                @error('author')
+                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                 @enderror
             </div>
             
-            <div class="form-group">
-                <label for="category_id">カテゴリー</label>
-                <select id="category_id" name="category_id" class="form-control">
-                    <option value="">選択してください</option>
-                    @foreach($categories as $category)
-                        <option value="{{ $category->id }}" {{ old('category_id') == $category->id ? 'selected' : '' }}>
-                            {{ $category->name }}
+            {{-- 評価 --}}
+            <div class="mb-4">
+                <label for="rating" class="block text-gray-700 font-medium mb-2">評価</label>
+                <select name="rating" id="rating"
+                    class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:border-blue-500">
+                    @for($i = 1; $i <= 5; $i++)
+                        <option value="{{ $i }}" {{ old('rating') == $i ? 'selected' : '' }}>
+                            {{ $i }} - {{ str_repeat('★', $i) }}{{ str_repeat('☆', 5 - $i) }}
                         </option>
-                    @endforeach
+                    @endfor
                 </select>
-                @error('category_id')
-                    <p class="error">{{ $message }}</p>
+                @error('rating')
+                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                 @enderror
             </div>
             
-            <div class="form-group">
-                <label for="status">ステータス</label>
-                <select id="status" name="status" class="form-control">
-                    <option value="pending" {{ old('status') === 'pending' ? 'selected' : '' }}>未着手</option>
-                    <option value="in_progress" {{ old('status') === 'in_progress' ? 'selected' : '' }}>進行中</option>
-                    <option value="completed" {{ old('status') === 'completed' ? 'selected' : '' }}>完了</option>
-                </select>
-                @error('status')
-                    <p class="error">{{ $message }}</p>
+            {{-- レビュー --}}
+            <div class="mb-6">
+                <label for="review" class="block text-gray-700 font-medium mb-2">レビュー</label>
+                <textarea name="review" id="review" rows="5"
+                    class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:border-blue-500">{{ old('review') }}</textarea>
+                @error('review')
+                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                 @enderror
             </div>
             
-            <div class="form-group">
-                <label for="due_date">期限</label>
-                <input type="date" id="due_date" name="due_date" class="form-control" value="{{ old('due_date') }}">
-                @error('due_date')
-                    <p class="error">{{ $message }}</p>
-                @enderror
-            </div>
-            
-            <div style="display: flex; gap: 10px;">
-                <button type="submit" class="btn btn-primary">作成</button>
-                <a href="{{ route('tasks.index') }}" class="btn btn-secondary">キャンセル</a>
+            {{-- ボタン --}}
+            <div class="flex space-x-4">
+                <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">
+                    登録
+                </button>
+                <a href="{{ route('books.index') }}" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded">
+                    キャンセル
+                </a>
             </div>
         </form>
     </div>
@@ -478,75 +367,75 @@ mkdir -p resources/views/auth
 
 ---
 
-### 2-7. タスク編集画面を配置する
+### 2-7. 書籍編集画面を配置する
 
-**ファイル**: `resources/views/tasks/edit.blade.php`
+**ファイル**: `resources/views/books/edit.blade.php`
 
 ```blade
 <x-app-layout>
-    <x-slot name="title">タスク編集</x-slot>
+    <x-slot name="title">書籍編集</x-slot>
     
-    <div class="card">
-        <h1 style="margin-bottom: 20px;">タスク編集</h1>
+    <div class="bg-white rounded-lg shadow-md p-6">
+        <h1 class="text-2xl font-bold text-gray-800 mb-6">書籍編集</h1>
         
-        <form action="{{ route('tasks.update', $task) }}" method="POST">
+        <form action="{{ route('books.update', $book) }}" method="POST">
             @csrf
             @method('PUT')
             
-            <div class="form-group">
-                <label for="title">タイトル <span style="color: red;">*</span></label>
-                <input type="text" id="title" name="title" class="form-control" value="{{ old('title', $task->title) }}" required>
+            {{-- タイトル --}}
+            <div class="mb-4">
+                <label for="title" class="block text-gray-700 font-medium mb-2">タイトル</label>
+                <input type="text" name="title" id="title" value="{{ old('title', $book->title) }}"
+                    class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:border-blue-500">
                 @error('title')
-                    <p class="error">{{ $message }}</p>
+                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                 @enderror
             </div>
             
-            <div class="form-group">
-                <label for="description">説明</label>
-                <textarea id="description" name="description" class="form-control" rows="5">{{ old('description', $task->description) }}</textarea>
-                @error('description')
-                    <p class="error">{{ $message }}</p>
+            {{-- 著者 --}}
+            <div class="mb-4">
+                <label for="author" class="block text-gray-700 font-medium mb-2">著者</label>
+                <input type="text" name="author" id="author" value="{{ old('author', $book->author) }}"
+                    class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:border-blue-500">
+                @error('author')
+                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                 @enderror
             </div>
             
-            <div class="form-group">
-                <label for="category_id">カテゴリー</label>
-                <select id="category_id" name="category_id" class="form-control">
-                    <option value="">選択してください</option>
-                    @foreach($categories as $category)
-                        <option value="{{ $category->id }}" {{ old('category_id', $task->category_id) == $category->id ? 'selected' : '' }}>
-                            {{ $category->name }}
+            {{-- 評価 --}}
+            <div class="mb-4">
+                <label for="rating" class="block text-gray-700 font-medium mb-2">評価</label>
+                <select name="rating" id="rating"
+                    class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:border-blue-500">
+                    @for($i = 1; $i <= 5; $i++)
+                        <option value="{{ $i }}" {{ old('rating', $book->rating) == $i ? 'selected' : '' }}>
+                            {{ $i }} - {{ str_repeat('★', $i) }}{{ str_repeat('☆', 5 - $i) }}
                         </option>
-                    @endforeach
+                    @endfor
                 </select>
-                @error('category_id')
-                    <p class="error">{{ $message }}</p>
+                @error('rating')
+                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                 @enderror
             </div>
             
-            <div class="form-group">
-                <label for="status">ステータス</label>
-                <select id="status" name="status" class="form-control">
-                    <option value="pending" {{ old('status', $task->status) === 'pending' ? 'selected' : '' }}>未着手</option>
-                    <option value="in_progress" {{ old('status', $task->status) === 'in_progress' ? 'selected' : '' }}>進行中</option>
-                    <option value="completed" {{ old('status', $task->status) === 'completed' ? 'selected' : '' }}>完了</option>
-                </select>
-                @error('status')
-                    <p class="error">{{ $message }}</p>
+            {{-- レビュー --}}
+            <div class="mb-6">
+                <label for="review" class="block text-gray-700 font-medium mb-2">レビュー</label>
+                <textarea name="review" id="review" rows="5"
+                    class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:border-blue-500">{{ old('review', $book->review) }}</textarea>
+                @error('review')
+                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                 @enderror
             </div>
             
-            <div class="form-group">
-                <label for="due_date">期限</label>
-                <input type="date" id="due_date" name="due_date" class="form-control" value="{{ old('due_date', $task->due_date?->format('Y-m-d')) }}">
-                @error('due_date')
-                    <p class="error">{{ $message }}</p>
-                @enderror
-            </div>
-            
-            <div style="display: flex; gap: 10px;">
-                <button type="submit" class="btn btn-primary">更新</button>
-                <a href="{{ route('tasks.show', $task) }}" class="btn btn-secondary">キャンセル</a>
+            {{-- ボタン --}}
+            <div class="flex space-x-4">
+                <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">
+                    更新
+                </button>
+                <a href="{{ route('books.show', $book) }}" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded">
+                    キャンセル
+                </a>
             </div>
         </form>
     </div>
@@ -555,212 +444,33 @@ mkdir -p resources/views/auth
 
 ---
 
-### 2-8. 認証画面を配置する
+## Step 3: 認証関連のBladeファイル
 
-**ファイル**: `resources/views/auth/login.blade.php`
-
-```blade
-<x-app-layout>
-    <x-slot name="title">ログイン</x-slot>
-    
-    <div class="card" style="max-width: 400px; margin: 50px auto;">
-        <h1 style="text-align: center; margin-bottom: 20px;">ログイン</h1>
-        
-        <form method="POST" action="{{ route('login') }}">
-            @csrf
-            
-            <div class="form-group">
-                <label for="email">メールアドレス</label>
-                <input type="email" id="email" name="email" class="form-control" value="{{ old('email') }}" required autofocus>
-                @error('email')
-                    <p class="error">{{ $message }}</p>
-                @enderror
-            </div>
-            
-            <div class="form-group">
-                <label for="password">パスワード</label>
-                <input type="password" id="password" name="password" class="form-control" required>
-                @error('password')
-                    <p class="error">{{ $message }}</p>
-                @enderror
-            </div>
-            
-            <button type="submit" class="btn btn-primary" style="width: 100%;">ログイン</button>
-        </form>
-        
-        <p style="text-align: center; margin-top: 15px;">
-            <a href="{{ route('register') }}">アカウントをお持ちでない方はこちら</a>
-        </p>
-    </div>
-</x-app-layout>
-```
-
-**ファイル**: `resources/views/auth/register.blade.php`
-
-```blade
-<x-app-layout>
-    <x-slot name="title">ユーザー登録</x-slot>
-    
-    <div class="card" style="max-width: 400px; margin: 50px auto;">
-        <h1 style="text-align: center; margin-bottom: 20px;">ユーザー登録</h1>
-        
-        <form method="POST" action="{{ route('register') }}">
-            @csrf
-            
-            <div class="form-group">
-                <label for="name">名前</label>
-                <input type="text" id="name" name="name" class="form-control" value="{{ old('name') }}" required>
-                @error('name')
-                    <p class="error">{{ $message }}</p>
-                @enderror
-            </div>
-            
-            <div class="form-group">
-                <label for="email">メールアドレス</label>
-                <input type="email" id="email" name="email" class="form-control" value="{{ old('email') }}" required>
-                @error('email')
-                    <p class="error">{{ $message }}</p>
-                @enderror
-            </div>
-            
-            <div class="form-group">
-                <label for="password">パスワード</label>
-                <input type="password" id="password" name="password" class="form-control" required>
-                @error('password')
-                    <p class="error">{{ $message }}</p>
-                @enderror
-            </div>
-            
-            <div class="form-group">
-                <label for="password_confirmation">パスワード（確認）</label>
-                <input type="password" id="password_confirmation" name="password_confirmation" class="form-control" required>
-            </div>
-            
-            <button type="submit" class="btn btn-primary" style="width: 100%;">登録</button>
-        </form>
-        
-        <p style="text-align: center; margin-top: 15px;">
-            <a href="{{ route('login') }}">すでにアカウントをお持ちの方はこちら</a>
-        </p>
-    </div>
-</x-app-layout>
-```
+認証関連のBladeファイルは、Chapter 4（認証とパーソナライズ）で配置します。
 
 ---
 
-## Step 3: 提供コードの読み解き方
+## 🚨 よくある間違い
 
-Bladeファイルを配置したら、**中身を読み解く**ことが重要です。
+### 間違い1: Tailwindのスタイルが適用されない
 
-### 3-1. 必要な変数を特定する
-
-`tasks/index.blade.php`を見てみましょう：
-
-```blade
-@foreach($categories as $category)
-    <option value="{{ $category->id }}">{{ $category->name }}</option>
-@endforeach
-
-@forelse($tasks as $task)
-    <h3>{{ $task->title }}</h3>
-    <span>{{ $task->category->name }}</span>
-@empty
-```
-
-**読み解きポイント**：
-
-| 変数 | 必要なデータ |
-|:---|:---|
-| `$categories` | カテゴリーの一覧（Categoryモデルのコレクション） |
-| `$tasks` | タスクの一覧（Taskモデルのコレクション） |
-| `$task->category` | タスクとカテゴリーのリレーション |
-
----
-
-### 3-2. 必要なリレーションを特定する
-
-`$task->category->name`という記述から、**TaskモデルにCategoryへのリレーションが必要**だとわかります。
-
-```php
-// Taskモデルに必要なリレーション
-public function category()
-{
-    return $this->belongsTo(Category::class);
-}
-```
-
----
-
-### 3-3. 必要なルートを特定する
-
-```blade
-<a href="{{ route('tasks.index') }}">
-<a href="{{ route('tasks.create') }}">
-<a href="{{ route('tasks.show', $task) }}">
-<a href="{{ route('tasks.edit', $task) }}">
-<form action="{{ route('tasks.destroy', $task) }}" method="POST">
-```
-
-**読み解きポイント**：
-
-| ルート名 | HTTPメソッド | 必要なアクション |
-|:---|:---|:---|
-| `tasks.index` | GET | 一覧表示 |
-| `tasks.create` | GET | 作成フォーム表示 |
-| `tasks.store` | POST | 作成処理 |
-| `tasks.show` | GET | 詳細表示 |
-| `tasks.edit` | GET | 編集フォーム表示 |
-| `tasks.update` | PUT | 更新処理 |
-| `tasks.destroy` | DELETE | 削除処理 |
-
-→ **リソースコントローラー**を使えば、これらのルートを一括で定義できます。
-
----
-
-## Step 4: 動作確認（エラーを確認する）
-
-Bladeファイルを配置したら、**あえてエラーを出して**何が足りないかを確認します。
-
-### 4-1. ブラウザでアクセスする
-
-```
-http://localhost/tasks
-```
-
-### 4-2. エラーを確認する
-
-```
-Target class [App\Http\Controllers\TaskController] does not exist.
-```
-
-→ **TaskControllerが存在しない**ことがわかります。
-
-### 4-3. コントローラーを作成する
+**対処法**: `sail npm run dev`が実行されているか確認します。
 
 ```bash
-sail artisan make:controller TaskController --resource
+# 別のターミナルで実行
+sail npm run dev
 ```
-
-### 4-4. 再度アクセスする
-
-```
-Undefined variable $tasks
-```
-
-→ **$tasks変数がビューに渡されていない**ことがわかります。
 
 ---
 
-## 💡 TIP: エラーから学ぶ
+### 間違い2: コンポーネントが見つからないエラー
 
-エラーは「何が足りないか」を教えてくれる**最高の先生**です。
+**エラー例**:
+```
+Unable to locate a class or view for component [navigation]
+```
 
-| エラーメッセージ | 意味 | 対処法 |
-|:---|:---|:---|
-| `Target class does not exist` | コントローラーがない | コントローラーを作成する |
-| `Undefined variable` | 変数が渡されていない | コントローラーで変数を渡す |
-| `Route not defined` | ルートがない | ルートを定義する |
-| `Call to undefined relationship` | リレーションがない | モデルにリレーションを定義する |
+**対処法**: `resources/views/components/navigation.blade.php`が正しい場所に配置されているか確認します。
 
 ---
 
@@ -768,10 +478,10 @@ Undefined variable $tasks
 
 このセクションでは、提供アセットの配置について学びました。
 
-*   フロントエンドエンジニアから納品されたBladeファイルを配置する方法を学んだ
-*   Bladeファイルを読み解いて、必要な変数・リレーション・ルートを特定する方法を学んだ
-*   「エラーを確認する」ことで、何が足りないかを把握する方法を学んだ
+- Tailwind CSSを使用したBladeテンプレートを配置した
+- レイアウト、コンポーネント、各画面のBladeファイルを理解した
+- 実務での「提供コードありき」の開発フローを理解した
 
-次のChapterでは、このBladeファイルを動かすために必要なバックエンド実装を行います。
+次のChapterでは、書籍レビュー機能（CRUD）の実装に進みます。
 
 ---

@@ -2,9 +2,9 @@
 
 ## 🎯 このセクションで学ぶこと
 
-*   Docker環境を構築し、Laravelプロジェクトをセットアップする方法を学ぶ。
-*   phpMyAdminでデータベースに接続する方法を学ぶ。
-*   開発環境の動作確認を行う。
+- Docker環境を構築し、Laravelプロジェクトをセットアップする方法を学ぶ
+- Tailwind CSS（Vite）を導入し、モダンなフロントエンド環境を構築する
+- phpMyAdminでデータベースに接続する方法を学ぶ
 
 ---
 
@@ -14,9 +14,9 @@
 
 Docker環境を使うことで、以下のようなメリットがあります。
 
-*   **環境の統一**: 開発環境、本番環境を同じ構成にできる
-*   **セットアップが簡単**: 複雑な環境構築を自動化できる
-*   **チーム開発がスムーズ**: 全員が同じ環境で開発できる
+- **環境の統一**: 開発環境、本番環境を同じ構成にできる
+- **セットアップが簡単**: 複雑な環境構築を自動化できる
+- **チーム開発がスムーズ**: 全員が同じ環境で開発できる
 
 ---
 
@@ -26,157 +26,158 @@ Docker環境を使うことで、以下のようなメリットがあります�
 
 開発環境を構築するために、以下のツールが必要です。
 
-*   **Docker Desktop**: Dockerを実行するためのツール
-*   **Git**: バージョン管理システム
-*   **テキストエディタ**: VS Code、PhpStormなど
+- **Docker Desktop**: Dockerを実行するためのツール
+- **Git**: バージョン管理システム
+- **テキストエディタ**: VS Code推奨
 
 ---
 
-## Step 2: Docker Desktopのインストール
+## Step 2: Laravelプロジェクトの作成（Laravel 10.x）
 
-Docker Desktopをインストールします。
-
-**Windows / Mac**:
-
-1. [Docker Desktop](https://www.docker.com/products/docker-desktop)の公式サイトからダウンロード
-2. インストーラーを実行
-3. Docker Desktopを起動
-
-**Linux**:
+以下のDockerコマンドを実行して、Laravel 10.xを明示的に指定してプロジェクトを作成します。
 
 ```bash
-# Docker Engineをインストール
-sudo apt-get update
-sudo apt-get install docker-ce docker-ce-cli containerd.io
+docker run --rm \
+    -u "$(id -u):$(id -g)" \
+    -v "$(pwd):/var/www/html" \
+    -w /var/www/html \
+    -e COMPOSER_CACHE_DIR=/tmp/composer_cache \
+    laravelsail/php82-composer:latest \
+    composer create-project laravel/laravel:^10.0 book-review-app
+```
+
+> 💡 **ポイント**: `laravel/laravel:^10.0`を指定することで、Laravel 10系の最新バージョンがインストールされます。
+
+---
+
+## Step 3: Laravel Sailのインストール
+
+プロジェクト作成後、`book-review-app`ディレクトリに移動し、Laravel Sailをインストールします。
+
+```bash
+# プロジェクトディレクトリに移動
+cd book-review-app
+
+# Laravel Sailをインストール
+docker run --rm \
+    -u "$(id -u):$(id -g)" \
+    -v "$(pwd):/var/www/html" \
+    -w /var/www/html \
+    -e COMPOSER_CACHE_DIR=/tmp/composer_cache \
+    laravelsail/php82-composer:latest \
+    composer require laravel/sail --dev
+
+# Sailの設定ファイルをパブリッシュ（MySQLを選択）
+docker run --rm \
+    -u "$(id -u):$(id -g)" \
+    -v "$(pwd):/var/www/html" \
+    -w /var/www/html \
+    -e COMPOSER_CACHE_DIR=/tmp/composer_cache \
+    laravelsail/php82-composer:latest \
+    php artisan sail:install --with=mysql
 ```
 
 ---
 
-## Step 3: Laravelプロジェクトの作成
+## Step 4: フロントエンドのセットアップ（Vite & Tailwind CSS）
 
-Laravelプロジェクトを作成します。
+### 4-1. Sailの起動
+
+まず、Sailを起動します。
 
 ```bash
-composer create-project laravel/laravel task-manager
-cd task-manager
+./vendor/bin/sail up -d
 ```
+
+### 4-2. NPM依存パッケージのインストール
+
+```bash
+sail npm install
+```
+
+### 4-3. Tailwind CSSのインストール
+
+```bash
+sail npm install -D tailwindcss@^3.4.0 postcss autoprefixer
+```
+
+### 4-4. 設定ファイルの生成
+
+```bash
+sail npx tailwindcss init -p
+```
+
+### 4-5. Tailwind CSSのテンプレートパス設定
+
+`tailwind.config.js`を開き、`content`プロパティを以下のように設定します。
+
+**ファイル**: `tailwind.config.js`
+
+```javascript
+/** @type {import('tailwindcss').Config} */
+export default {
+  content: [
+    "./resources/**/*.blade.php",
+    "./resources/**/*.js",
+    "./resources/**/*.vue",
+  ],
+  theme: {
+    extend: {},
+  },
+  plugins: [],
+}
+```
+
+### 4-6. CSSファイルにTailwindディレクティブを追加
+
+`resources/css/app.css`の中身を以下の3行に置き換えます。
+
+**ファイル**: `resources/css/app.css`
+
+```css
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+```
+
+### 4-7. Vite開発サーバーの起動
+
+新しいターミナルを開いて実行します。**このコマンドは開発中、常に実行したままにしてください。**
+
+```bash
+sail npm run dev
+```
+
+> 🚨 **注意**: Tailwindのスタイルが適用されない場合は、`sail npm run dev`が実行されているか確認してください。
 
 ---
 
-## Step 4: Laravel Sailのインストール
+## Step 5: .envファイルとphpMyAdminの設定
 
-**Laravel Sail**は、**Laravelの公式Docker環境**です。
+### 5-1. .envファイルの確認
 
-Sailを使うことで、簡単にDocker環境を構築できます。
+`.env`ファイルを開き、データベース接続情報が以下と一致していることを確認します。
 
-```bash
-composer require laravel/sail --dev
+**ファイル**: `.env`
+
+```env
+DB_CONNECTION=mysql
+DB_HOST=mysql
+DB_PORT=3306
+DB_DATABASE=laravel
+DB_USERNAME=sail
+DB_PASSWORD=password
 ```
 
----
+### 5-2. phpMyAdminの追加
 
-## Step 5: Sailの初期化
-
-Sailを初期化します。
-
-```bash
-sail artisan sail:install
-```
-
-以下のサービスを選択します（スペースキーで選択、Enterで決定）。
-
-*   `mysql`: データベース
-*   `redis`: キャッシュ（オプション）
-*   `meilisearch`: 検索エンジン（オプション）
-*   `mailpit`: メールテスト（オプション）
-
-このセクションでは、`mysql`のみを選択します。
-
----
-
-## Step 6: docker-compose.ymlの確認
-
-`docker-compose.yml`ファイルが作成されます。
-
-**ファイル**: `docker-compose.yml`
+`compose.yaml`（または`docker-compose.yml`）を開き、`mysql`サービスの後に以下の設定を追加します。
 
 ```yaml
-services:
-    laravel.test:
-        build:
-            context: ./vendor/laravel/sail/runtimes/8.3
-            dockerfile: Dockerfile
-            args:
-                WWWGROUP: '${WWWGROUP}'
-        image: sail-8.3/app
-        extra_hosts:
-            - 'host.docker.internal:host-gateway'
-        ports:
-            - '${APP_PORT:-80}:80'
-            - '${VITE_PORT:-5173}:${VITE_PORT:-5173}'
-        environment:
-            WWWUSER: '${WWWUSER}'
-            LARAVEL_SAIL: 1
-            XDEBUG_MODE: '${SAIL_XDEBUG_MODE:-off}'
-            XDEBUG_CONFIG: '${SAIL_XDEBUG_CONFIG:-client_host=host.docker.internal}'
-            IGNITION_LOCAL_SITES_PATH: '${PWD}'
-        volumes:
-            - '.:/var/www/html'
-        networks:
-            - sail
-        depends_on:
-            - mysql
-    mysql:
-        image: 'mysql/mysql-server:8.0'
-        ports:
-            - '${FORWARD_DB_PORT:-3306}:3306'
-        environment:
-            MYSQL_ROOT_PASSWORD: '${DB_PASSWORD}'
-            MYSQL_ROOT_HOST: '%'
-            MYSQL_DATABASE: '${DB_DATABASE}'
-            MYSQL_USER: '${DB_USERNAME}'
-            MYSQL_PASSWORD: '${DB_PASSWORD}'
-            MYSQL_ALLOW_EMPTY_PASSWORD: 1
-        volumes:
-            - 'sail-mysql:/var/lib/mysql'
-        networks:
-            - sail
-        healthcheck:
-            test:
-                - CMD
-                - mysqladmin
-                - ping
-                - '-p${DB_PASSWORD}'
-            retries: 3
-            timeout: 5s
-networks:
-    sail:
-        driver: bridge
-volumes:
-    sail-mysql:
-        driver: local
-```
-
----
-
-## Step 7: phpMyAdminの追加
-
-**phpMyAdmin**は、**データベースを視覚的に管理するツール**です。
-
-`docker-compose.yml`にphpMyAdminを追加します。
-
-**ファイル**: `docker-compose.yml`
-
-```yaml
-services:
-    laravel.test:
-        # ...（既存の設定）
-    mysql:
-        # ...（既存の設定）
     phpmyadmin:
-        image: phpmyadmin/phpmyadmin
+        image: 'phpmyadmin:latest'
         ports:
-            - '8080:80'
+            - '${FORWARD_PHPMYADMIN_PORT:-8080}:80'
         environment:
             PMA_HOST: mysql
             PMA_USER: '${DB_USERNAME}'
@@ -185,89 +186,62 @@ services:
             - sail
         depends_on:
             - mysql
-networks:
-    sail:
-        driver: bridge
-volumes:
-    sail-mysql:
-        driver: local
 ```
 
 ---
 
-## Step 8: .envファイルの設定
+## Step 6: Sailの起動とエイリアス設定
 
-`.env`ファイルで、データベースの設定を確認します。
+### 6-1. Sailの再起動
 
-**ファイル**: `.env`
-
-```env
-DB_CONNECTION=mysql
-DB_HOST=mysql
-DB_PORT=3306
-DB_DATABASE=task_manager
-DB_USERNAME=sail
-DB_PASSWORD=password
-```
-
----
-
-## Step 9: Docker環境の起動
-
-Docker環境を起動します。
+phpMyAdminを追加したので、Sailを再起動します。
 
 ```bash
-./vendor/bin/sail up -d
+sail down
+sail up -d
 ```
 
-`-d`オプションは、バックグラウンドで実行するオプションです。
-
----
-
-## Step 10: エイリアスの設定（オプション）
+### 6-2. エイリアス設定
 
 毎回`./vendor/bin/sail`と入力するのは面倒なので、エイリアスを設定します。
 
-**Bash（Linux / Mac）**:
+**Zsh（Mac）の場合**:
 
 ```bash
-echo "alias sail='./vendor/bin/sail'" >> ~/.bashrc
-source ~/.bashrc
+echo "alias sail='[ -f sail ] && bash sail || bash vendor/bin/sail'" >> ~/.zshrc
+exec $SHELL
 ```
 
-**Zsh（Mac）**:
+**Bash（Linux）の場合**:
 
 ```bash
-echo "alias sail='./vendor/bin/sail'" >> ~/.zshrc
-source ~/.zshrc
+echo "alias sail='[ -f sail ] && bash sail || bash vendor/bin/sail'" >> ~/.bashrc
+exec $SHELL
 ```
 
-これで、`sail up -d`と入力するだけで起動できます。
+### 6-3. アプリケーションキーの生成
+
+```bash
+sail artisan key:generate
+```
 
 ---
 
-## Step 11: Laravelの動作確認
+## Step 7: 動作確認
+
+### 7-1. Laravelの動作確認
 
 ブラウザで `http://localhost` にアクセスし、Laravelのウェルカムページが表示されることを確認します。
 
----
-
-## Step 12: phpMyAdminの動作確認
+### 7-2. phpMyAdminの動作確認
 
 ブラウザで `http://localhost:8080` にアクセスし、phpMyAdminが表示されることを確認します。
 
 **ログイン情報**:
+- **ユーザー名**: `sail`
+- **パスワード**: `password`
 
-*   **ユーザー名**: `sail`
-*   **パスワード**: `password`
-
-ログイン後、`task_manager`データベースが表示されることを確認します。
-
----
-
-## Step 13: マイグレーションの実行
-
-データベースにテーブルを作成します。
+### 7-3. マイグレーションの実行
 
 ```bash
 sail artisan migrate
@@ -277,41 +251,42 @@ phpMyAdminで、`users`テーブルなどが作成されていることを確認
 
 ---
 
-## Step 14: Docker環境の停止
-
-Docker環境を停止します。
-
-```bash
-sail down
-```
-
----
-
 ### 💡 TIP: Sailコマンド一覧
 
 よく使うSailコマンドをまとめます。
 
 | コマンド | 説明 |
-|---|---|
+|:---|:---|
 | `sail up -d` | Docker環境を起動（バックグラウンド） |
 | `sail down` | Docker環境を停止 |
 | `sail artisan` | Artisanコマンドを実行 |
 | `sail composer` | Composerコマンドを実行 |
 | `sail npm` | npmコマンドを実行 |
+| `sail npm run dev` | Vite開発サーバーを起動 |
 | `sail mysql` | MySQLに接続 |
-| `sail shell` | コンテナ内のシェルに接続 |
 
 ---
 
 ### 🚨 よくある間違い
 
-#### 間違い1: Docker Desktopが起動していない
+#### 間違い1: Tailwindのスタイルが適用されない
+
+**対処法**: `sail npm run dev`が実行されているか確認します。Vite開発サーバーが起動していないと、Tailwindのスタイルは適用されません。
+
+```bash
+# 別のターミナルで実行
+sail npm run dev
+```
+
+---
+
+#### 間違い2: Docker Desktopが起動していない
 
 **対処法**: Docker Desktopを起動します。
 
 ---
 
-#### 間違い2: ポートが既に使用されている
+#### 間違い3: ポートが既に使用されている
 
 **エラーメッセージ**:
 
@@ -327,19 +302,13 @@ APP_PORT=8000
 
 ---
 
-#### 間違い3: データベースに接続できない
-
-**対処法**: `.env`ファイルの`DB_HOST`が`mysql`になっていることを確認します。
-
----
-
 ## ✨ まとめ
 
 このセクションでは、開発環境の準備について学びました。
 
-*   Docker Desktopをインストールし、Laravel Sailを使ってDocker環境を構築した。
-*   phpMyAdminを追加し、データベースを視覚的に管理できるようにした。
-*   マイグレーションを実行し、データベースにテーブルを作成した。
+- Docker環境を構築し、Laravel 10.xプロジェクトを作成した
+- Tailwind CSS（Vite）を導入し、モダンなフロントエンド環境を構築した
+- phpMyAdminを追加し、データベースを視覚的に管理できるようにした
 
 次のセクションでは、Git/GitHubの準備について学びます。
 
