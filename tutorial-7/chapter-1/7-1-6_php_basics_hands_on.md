@@ -1,4 +1,4 @@
-# Tutorial 7-1-5: PHPの基礎 - ハンズオン演習
+# Tutorial 7-1-6: PHPの基礎 - ハンズオン演習
 
 ## 📝 このセクションの目的
 
@@ -27,7 +27,7 @@ Tutorial 6で作成した`php-practice`ディレクトリ内の`src/`フォル�
 │       └── default.conf
 ├── src/
 │   ├── index.php                         ← Tutorial 6で作成済み
-│   └── 7-1-5_hands-on/                   ← このハンズオン用のディレクトリ
+│   └── 7-1-6_hands-on/                   ← このハンズオン用のディレクトリ
 │       ├── practice/                     ← 要件を見て自分で作成するディレクトリ
 │       │   └── price_calculator.php
 │       └── sample/                       ← 実践で一緒に作成するディレクトリ
@@ -37,8 +37,8 @@ Tutorial 6で作成した`php-practice`ディレクトリ内の`src/`フォル�
 
 | ディレクトリ | 用途 | アクセスURL |
 |:---|:---|:---|
-| `practice/` | 📋 要件を見て、自分の力で作成する | `http://localhost:8000/7-1-5_hands-on/practice/price_calculator.php` |
-| `sample/` | 🏃 実践セクションで、一緒に手を動かしながら作成する | `http://localhost:8000/7-1-5_hands-on/sample/price_calculator.php` |
+| `practice/` | 📋 要件を見て、自分の力で作成する | `http://localhost:8000/7-1-6_hands-on/practice/price_calculator.php` |
+| `sample/` | 🏃 実践セクションで、一緒に手を動かしながら作成する | `http://localhost:8000/7-1-6_hands-on/sample/price_calculator.php` |
 
 > 💡 **なぜ2つに分けるのか？**: 自分で考えて作成したコードと、解答を見ながら作成したコードを比較することで、理解が深まります。
 
@@ -61,11 +61,11 @@ Tutorial 6で作成した`php-practice`ディレクトリ内の`src/`フォル�
 cd ~/php-practice
 
 # ハンズオン用ディレクトリを作成
-mkdir -p src/7-1-5_hands-on/practice
-mkdir -p src/7-1-5_hands-on/sample
+mkdir -p src/7-1-6_hands-on/practice
+mkdir -p src/7-1-6_hands-on/sample
 
 # 自分で作成する用のディレクトリに移動
-cd src/7-1-5_hands-on/practice
+cd src/7-1-6_hands-on/practice
 
 # VSCodeでphp-practiceプロジェクト全体を開く
 code ~/php-practice
@@ -140,7 +140,7 @@ $total = ...;
 - HTMLの`<br>`タグを使って改行
 - 変数を文字列に埋め込んで表示
 
-**動作確認URL**: `http://localhost:8000/7-1-5_hands-on/practice/price_calculator.php`
+**動作確認URL**: `http://localhost:8000/7-1-6_hands-on/practice/price_calculator.php`
 
 ---
 
@@ -221,13 +221,13 @@ PHPのプログラムは「データを入力→処理→出力」という流�
 
 ```bash
 # 実践用ディレクトリに移動
-cd ~/php-practice/src/7-1-5_hands-on/sample
+cd ~/php-practice/src/7-1-6_hands-on/sample
 
 # PHPファイルを作成
 touch price_calculator.php
 ```
 
-VSCodeのエクスプローラーで`src/7-1-5_hands-on/sample/price_calculator.php`を開いてください。
+VSCodeのエクスプローラーで`src/7-1-6_hands-on/sample/price_calculator.php`を開いてください。
 
 **✅ ディレクトリ構造の確認**
 
@@ -240,7 +240,7 @@ VSCodeのエクスプローラーで`src/7-1-5_hands-on/sample/price_calculator.
 │       └── default.conf
 ├── src/
 │   ├── index.php
-│   └── 7-1-5_hands-on/
+│   └── 7-1-6_hands-on/
 │       ├── practice/
 │       │   └── price_calculator.php    ← 自分で作成したファイル
 │       └── sample/
@@ -395,7 +395,7 @@ echo "<strong>合計金額: " . number_format($total) . "円</strong><br>";
 
 1. ファイルを保存します
 2. Docker環境が起動していることを確認します（`docker-compose up -d`）
-3. ブラウザで`http://localhost:8000/7-1-5_hands-on/sample/price_calculator.php`を開きます
+3. ブラウザで`http://localhost:8000/7-1-6_hands-on/sample/price_calculator.php`を開きます
 4. 以下のように表示されることを確認します：
    - 商品名: ノートパソコン
    - 単価: 80,000円
@@ -570,14 +570,107 @@ Tutorial 6で構築したDocker環境を使用します。
 
 1. Docker環境を起動（`cd ~/php-practice && docker-compose up -d`）
 2. ブラウザで以下のURLにアクセス：
-   - 自分で作成したコード: `http://localhost:8000/7-1-5_hands-on/practice/price_calculator.php`
-   - 一緒に作成したコード: `http://localhost:8000/7-1-5_hands-on/sample/price_calculator.php`
+   - 自分で作成したコード: `http://localhost:8000/7-1-6_hands-on/practice/price_calculator.php`
+   - 一緒に作成したコード: `http://localhost:8000/7-1-6_hands-on/sample/price_calculator.php`
 
 > 💡 **ヒント**: ファイルを保存すると、ブラウザをリロードするだけで変更が反映されます。
 
 ---
 
-## 🚀 まとめ
+## 📝 追加演習: 演算子を使ったプログラム
+
+7-1-5で学んだ演算子の知識を使って、追加の演習に挑戦しましょう。
+
+### 課題1: 割引計算プログラム
+
+以下の要件を満たす`discount_calculator.php`を作成してください。
+
+**要件**：
+- 元の価格: 5000円
+- 割引率: 20%
+- 割引後の価格を計算して表示
+
+**ヒント**：
+```php
+$original_price = 5000;
+$discount_rate = 0.20;
+$discount_amount = $original_price * $discount_rate;
+$final_price = $original_price - $discount_amount;
+```
+
+### 課題2: 偶数・奇数判定プログラム
+
+剰余演算子（`%`）を使って、数値が偶数か奇数かを判定するプログラムを作成してください。
+
+**要件**：
+- 変数`$number`に任意の整数を代入
+- 偶数なら「○○は偶数です」、奇数なら「○○は奇数です」と表示
+
+**ヒント**：
+```php
+$number = 7;
+
+if ($number % 2 == 0) {
+    echo "{$number}は偶数です";
+} else {
+    echo "{$number}は奇数です";
+}
+```
+
+### 課題3: 複数条件の判定
+
+論理演算子（`&&`、`||`）を使って、以下の条件を判定するプログラムを作成してください。
+
+**要件**：
+- 年齢が18歳以上 **かつ** 会員である場合: 「割引が適用されます」
+- 年齢が65歳以上 **または** 学生である場合: 「シニア・学生割引が適用されます」
+
+**ヒント**：
+```php
+$age = 25;
+$is_member = true;
+$is_student = false;
+
+// 条件1: 18歳以上かつ会員
+if ($age >= 18 && $is_member) {
+    echo "割引が適用されます<br>";
+}
+
+// 条件2: 65歳以上または学生
+if ($age >= 65 || $is_student) {
+    echo "シニア・学生割引が適用されます<br>";
+}
+```
+
+### 課題4: 複合代入演算子の練習
+
+複合代入演算子（`+=`、`-=`、`*=`）を使って、ゲームのスコア計算をシミュレートするプログラムを作成してください。
+
+**要件**：
+- 初期スコア: 100点
+- ボーナスステージクリア: +50点
+- ダメージを受ける: -30点
+- スコア　2倍アイテム使用: ×2
+- 最終スコアを表示
+
+**ヒント**：
+```php
+$score = 100;
+echo "初期スコア: {$score}点<br>";
+
+$score += 50;  // ボーナスステージクリア
+echo "ボーナス後: {$score}点<br>";
+
+$score -= 30;  // ダメージ
+echo "ダメージ後: {$score}点<br>";
+
+$score *= 2;   // 2倍アイテム
+echo "最終スコア: {$score}点<br>";
+```
+
+---
+
+## ✨ まとめ
 
 **ハンズオンお疲れ様でした！**
 
