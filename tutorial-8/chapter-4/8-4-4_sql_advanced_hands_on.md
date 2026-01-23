@@ -300,35 +300,215 @@ LIMIT 1;
 
 ---
 
-#### ステップ5: 平均以上の売上を持つ商品を取得する
+#### ステップ5: 売上が10万円以上の取引を取得する
 
 **何を考えているか**：
-- 「平均売上を計算して、それ以上の商品を抽出したい」
-- 「サブクエリで平均値を計算しよう」
-- 「HAVING句で集計結果に条件を付けよう」
+- 「高額の取引だけを抽出したい」
+- 「WHERE句で金額の条件を指定しよう」
+- 「計算式を条件に使える」
 
-平均以上の売上を持つ商品を取得します：
+売上が10万円以上の取引を取得します：
 
 ```sql
 SELECT 
     product_name,
-    SUM(price * quantity) AS total
+    (price * quantity) AS total,
+    sale_date
 FROM sales
-GROUP BY product_name
-HAVING total >= (SELECT AVG(price * quantity) FROM sales);
+WHERE (price * quantity) >= 100000
+ORDER BY total DESC;
 ```
 
 **コードリーディング**：
 
 ```sql
-HAVING total >= (SELECT AVG(price * quantity) FROM sales);
+SELECT 
+    product_name,
+    (price * quantity) AS total,
+    sale_date
 ```
-→ `HAVING`句で集計結果に条件を付けます。`WHERE`句は集計前のデータに条件を付けますが、`HAVING`句は集計後の結果に条件を付けます。
+→ 商品名、売上金額（価格×数量）、売上日を取得します。`AS total`で計算結果に別名を付けます。
 
 ```sql
-(SELECT AVG(price * quantity) FROM sales)
+FROM sales
+WHERE (price * quantity) >= 100000
 ```
-→ サブクエリで平均売上を計算します。`AVG`関数で平均値を取得し、それをHAVING句の条件として使用します。
+→ `WHERE`句で条件を指定します。`(price * quantity)`の計算結果が10万円以上のレコードだけを抽出します。計算式は括弧で囲むと明確になります。
+
+```sql
+ORDER BY total DESC;
+```
+→ 売上金額の降順（高い順）に並べ替えます。
+
+---
+
+#### ステップ6: 12月3日以降の売上を日付順に取得する
+
+**何を考えているか**：
+- 「特定の日付以降のデータを抽出したい」
+- 「WHERE句で日付の比較をしよう」
+- 「日付順に並べ替えよう」
+
+12月3日以降の売上を日付順に取得します：
+
+```sql
+SELECT 
+    product_name,
+    category,
+    (price * quantity) AS total,
+    sale_date
+FROM sales
+WHERE sale_date >= '2024-12-03'
+ORDER BY sale_date;
+```
+
+**コードリーディング**：
+
+```sql
+SELECT 
+    product_name,
+    category,
+    (price * quantity) AS total,
+    sale_date
+```
+→ 商品名、カテゴリ、売上金額、売上日を取得します。
+
+```sql
+FROM sales
+WHERE sale_date >= '2024-12-03'
+```
+→ `WHERE`句で日付の条件を指定します。`>=`は「以上」を意味し、2024年12月3日以降のデータを抽出します。日付は`'YYYY-MM-DD'`形式の文字列で指定します。
+
+```sql
+ORDER BY sale_date;
+```
+→ 日付の昇順（古い順）に並べ替えます。`ASC`は省略可能で、デフォルトで昇順になります。
+
+---
+
+#### ステップ7: 平均売上金額を計算する
+
+**何を考えているか**：
+- 「全取引の平均売上を知りたい」
+- 「AVG関数で平均を計算しよう」
+- 「この値は後でサブクエリでも使える」
+
+平均売上金額を計算します：
+
+```sql
+SELECT AVG(price * quantity) AS average_sales
+FROM sales;
+```
+
+**コードリーディング**：
+
+```sql
+SELECT AVG(price * quantity) AS average_sales
+```
+→ `AVG`関数で平均値を計算します。`price * quantity`で各取引の売上金額を計算し、その平均を取得します。
+
+```sql
+FROM sales;
+```
+→ salesテーブルの全データを対象にします。
+
+> 💡 **ポイント**：`AVG`関数の結果は小数になることがあります。必要に応じて`ROUND`関数で丸めることもできます。
+
+---
+
+#### ステップ8: 平均以上の売上がある取引を取得する（サブクエリ）
+
+**何を考えているか**：
+- 「平均売上を計算して、それ以上の取引を抽出したい」
+- 「サブクエリで平均値を計算しよう」
+- 「WHERE句の条件にサブクエリを使おう」
+
+平均以上の売上がある取引を取得します：
+
+```sql
+SELECT 
+    product_name,
+    (price * quantity) AS total,
+    sale_date
+FROM sales
+WHERE (price * quantity) > (
+    SELECT AVG(price * quantity)
+    FROM sales
+)
+ORDER BY total DESC;
+```
+
+**コードリーディング**：
+
+```sql
+SELECT 
+    product_name,
+    (price * quantity) AS total,
+    sale_date
+FROM sales
+```
+→ 商品名、売上金額、売上日を取得します。
+
+```sql
+WHERE (price * quantity) > (
+    SELECT AVG(price * quantity)
+    FROM sales
+)
+```
+→ `WHERE`句の条件にサブクエリを使用します。サブクエリ`(SELECT AVG(price * quantity) FROM sales)`が先に実行され、平均値が計算されます。その平均値より大きい売上の取引だけが抽出されます。
+
+```sql
+ORDER BY total DESC;
+```
+→ 売上金額の降順（高い順）に並べ替えます。
+
+> 💡 **サブクエリのポイント**：サブクエリは括弧`()`で囲む必要があります。サブクエリが先に実行され、その結果が外側のクエリの条件として使われます。
+
+---
+
+#### ステップ9: 各カテゴリの商品数を集計する
+
+**何を考えているか**：
+- 「カテゴリごとの商品種類数を知りたい」
+- 「COUNT関数で件数を数えよう」
+- 「DISTINCTで重複を除いてユニークな商品名を数えよう」
+
+各カテゴリの商品数を集計します：
+
+```sql
+SELECT 
+    category,
+    COUNT(DISTINCT product_name) AS product_count,
+    SUM(quantity) AS total_quantity
+FROM sales
+GROUP BY category;
+```
+
+**コードリーディング**：
+
+```sql
+SELECT 
+    category,
+    COUNT(DISTINCT product_name) AS product_count,
+    SUM(quantity) AS total_quantity
+```
+→ カテゴリ、商品種類数、総数量を取得します。
+
+```sql
+COUNT(DISTINCT product_name) AS product_count
+```
+→ `COUNT`関数で件数を数えます。`DISTINCT`を付けることで、重複を除いたユニークな商品名の数をカウントします。例えば、「ノートPC」が2回登場しても、1としてカウントされます。
+
+```sql
+SUM(quantity) AS total_quantity
+```
+→ `SUM`関数で数量の合計を計算します。
+
+```sql
+FROM sales
+GROUP BY category;
+```
+→ `GROUP BY category`でカテゴリごとにグループ化します。集計関数は各グループに対して実行されます。
 
 ---
 
@@ -357,7 +537,46 @@ HAVING total >= (SELECT AVG(price * quantity) FROM sales);
 
 | product_name | total |
 |--------------|-------|
-| ノートPC | 240000 |
+| ノートPC | 360000 |
+
+### クエリ4: 売上が10万円以上の取引
+
+| product_name | total | sale_date |
+|--------------|-------|------------|
+| ノートPC | 240000 | 2024-12-01 |
+| ノートPC | 120000 | 2024-12-05 |
+
+### クエリ5: 12月3日以降の売上
+
+| product_name | category | total | sale_date |
+|--------------|----------|-------|------------|
+| デスク | 家具 | 50000 | 2024-12-03 |
+| チェア | 家具 | 60000 | 2024-12-03 |
+| 本棚 | 家具 | 30000 | 2024-12-04 |
+| ノートPC | 電子機器 | 120000 | 2024-12-05 |
+| マウス | 電子機器 | 30000 | 2024-12-05 |
+| デスク | 家具 | 25000 | 2024-12-06 |
+
+### クエリ6: 平均売上金額
+
+| average_sales |
+|---------------|
+| 72500.0000 |
+
+### クエリ7: 平均以上の売上がある取引
+
+| product_name | total | sale_date |
+|--------------|-------|------------|
+| ノートPC | 240000 | 2024-12-01 |
+| ノートPC | 120000 | 2024-12-05 |
+| モニター | 90000 | 2024-12-02 |
+
+### クエリ8: 各カテゴリの商品数
+
+| category | product_count | total_quantity |
+|----------|---------------|----------------|
+| 電子機器 | 4 | 36 |
+| 家具 | 3 | 12 |
 
 ---
 
