@@ -74,15 +74,17 @@ Laravelでは、どちらも`update`メソッドで処理することが多い�
 
 ```json
 {
-  "message": "タスクを更新しました",
   "data": {
     "id": 1,
     "title": "更新されたタスク",
     "description": "更新された説明",
     "status": "completed",
+    "status_label": "完了",
+    "due_date": "2024-12-31",
     "created_at": "2024-01-01 00:00:00",
     "updated_at": "2024-01-02 00:00:00"
-  }
+  },
+  "message": "タスクを更新しました"
 }
 ```
 
@@ -93,6 +95,8 @@ Laravelでは、どちらも`update`メソッドで処理することが多い�
 **ファイル**: `app/Http/Controllers/Api/TaskController.php`
 
 ```php
+use App\Http\Resources\TaskResource;
+
 public function update(Request $request, string $id)
 {
     // タスクを取得
@@ -116,11 +120,9 @@ public function update(Request $request, string $id)
     // タスクを更新
     $task->update($validated);
 
-    // レスポンスを返す
-    return response()->json([
-        'message' => 'タスクを更新しました',
-        'data' => $task
-    ], 200);
+    // レスポンスを返す（TaskResourceで整形）
+    return (new TaskResource($task))
+        ->additional(['message' => 'タスクを更新しました']);
 }
 ```
 
@@ -185,6 +187,39 @@ $task->update($validated);
 
 ---
 
+#### `(new TaskResource($task))->additional([...])`
+
+```php
+return (new TaskResource($task))
+    ->additional(['message' => 'タスクを更新しました']);
+```
+
+**コードリーディング（メソッドチェーンの分解）**
+
+| ステップ | コード | 戻り値 | 意味 |
+|:---:|:---|:---|:---|
+| 1 | `new TaskResource($task)` | TaskResourceインスタンス | タスクをResourceに変換 |
+| 2 | `->additional(['message' => '...'])` | TaskResourceインスタンス | レスポンスに追加データを含める |
+
+> **💡 ポイント**: 更新の場合は`->response()->setStatusCode()`を省略できます。TaskResourceはデフォルトで200 OKを返します。
+
+**レスポンス例**:
+
+```json
+{
+  "data": {
+    "id": 1,
+    "title": "更新されたタスク",
+    "status": "completed",
+    "status_label": "完了",
+    ...
+  },
+  "message": "タスクを更新しました"
+}
+```
+
+---
+
 ## Step 2: HTTPステータスコード
 
 ### 2-1. 200 OK
@@ -197,7 +232,8 @@ $task->update($validated);
 | 処理が正常に完了した | 更新されたリソースのデータを返す |
 
 ```php
-return response()->json(['data' => $task], 200);
+return (new TaskResource($task))
+    ->additional(['message' => 'タスクを更新しました']);
 ```
 
 ---
@@ -235,7 +271,7 @@ return response()->json([
 
 | ステータスコード | 状況 | レスポンスボディ |
 |----------------|------|----------------|
-| 200 OK | タスクが更新された | 更新されたタスクのデータ |
+| 200 OK | タスクが更新された | 更新されたタスクのデータ（TaskResource） |
 | 404 Not Found | タスクが見つからなかった | エラーメッセージ |
 | 422 Unprocessable Entity | バリデーションエラー | エラーメッセージ |
 
@@ -298,10 +334,8 @@ public function update(Request $request, string $id)
 
     $task->update($validated);
 
-    return response()->json([
-        'message' => 'タスクを更新しました',
-        'data' => $task
-    ], 200);
+    return (new TaskResource($task))
+        ->additional(['message' => 'タスクを更新しました']);
 }
 ```
 
@@ -397,16 +431,20 @@ $task->update($validated);
 
 ---
 
-### 間違い3: ステータスコードを省略する
+### 間違い3: TaskResourceを使わない
 
-**問題**: 明示的でないコード
+**問題**: レスポンス形式が統一されない
 
 ```php
-// ❌ 間違い
-return response()->json($task);
+// ❌ 間違い（response()->json()を直接使用）
+return response()->json([
+    'message' => 'タスクを更新しました',
+    'data' => $task
+], 200);
 
-// ✅ 正しい
-return response()->json($task, 200);
+// ✅ 正しい（TaskResourceを使用）
+return (new TaskResource($task))
+    ->additional(['message' => 'タスクを更新しました']);
 ```
 
 ---
@@ -423,7 +461,8 @@ public function update(Request $request, string $id)
     $validated = $request->validate([...]);
     $task->update($validated);
 
-    return response()->json(['data' => $task], 200);
+    return (new TaskResource($task))
+        ->additional(['message' => 'タスクを更新しました']);
 }
 ```
 
@@ -437,7 +476,7 @@ public function update(Request $request, string $id)
 
 | Step | 学んだこと |
 |------|-----------|
-| Step 1 | updateメソッドの実装とバリデーション |
+| Step 1 | updateメソッドの実装とTaskResourceの使い方 |
 | Step 2 | 200 OK、404 Not Found、422 Unprocessable Entityの使い分け |
 | Step 3 | PUTとPATCHの違いとsometimesルール |
 

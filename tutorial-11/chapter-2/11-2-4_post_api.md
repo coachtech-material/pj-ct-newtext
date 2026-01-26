@@ -47,7 +47,10 @@ CRUD（Create, Read, Update, Delete）の順序で学ぶと理解しやすいで
 リソースを作成した場合は、**201 Created**を返します。
 
 ```php
-return response()->json(['data' => $task], 201);
+return (new TaskResource($task))
+    ->additional(['message' => 'タスクを作成しました'])
+    ->response()
+    ->setStatusCode(201);
 ```
 
 ---
@@ -84,16 +87,17 @@ return response()->json(['data' => $task], 201);
 
 ```json
 {
-  "message": "タスクを作成しました",
   "data": {
     "id": 1,
     "title": "新しいタスク",
     "description": "これは新しいタスクです",
     "status": "pending",
+    "status_label": "未着手",
     "due_date": "2024-12-31",
     "created_at": "2024-01-01 00:00:00",
     "updated_at": "2024-01-01 00:00:00"
-  }
+  },
+  "message": "タスクを作成しました"
 }
 ```
 
@@ -104,6 +108,8 @@ return response()->json(['data' => $task], 201);
 **ファイル**: `app/Http/Controllers/Api/TaskController.php`
 
 ```php
+use App\Http\Resources\TaskResource;
+
 public function store(Request $request)
 {
     // バリデーション
@@ -121,11 +127,11 @@ public function store(Request $request)
     
     $task = Task::create($data);
 
-    // レスポンスを返す
-    return response()->json([
-        'message' => 'タスクを作成しました',
-        'data' => $task
-    ], 201);
+    // レスポンスを返す（TaskResourceで整形）
+    return (new TaskResource($task))
+        ->additional(['message' => 'タスクを作成しました'])
+        ->response()
+        ->setStatusCode(201);
 }
 ```
 
@@ -224,20 +230,40 @@ $task = Task::create($data);
 
 ---
 
-#### `response()->json([...], 201)`
+#### `(new TaskResource($task))->additional([...])->response()->setStatusCode(201)`
 
 ```php
-return response()->json([
-    'message' => 'タスクを作成しました',
-    'data' => $task
-], 201);
+return (new TaskResource($task))
+    ->additional(['message' => 'タスクを作成しました'])
+    ->response()
+    ->setStatusCode(201);
 ```
 
-| 部分 | 説明 |
-|------|------|
-| `'message' => '...'` | 成功メッセージ |
-| `'data' => $task` | 作成されたタスクのデータ |
-| `201` | HTTPステータスコード（Created） |
+**コードリーディング（メソッドチェーンの分解）**
+
+| ステップ | コード | 戻り値 | 意味 |
+|:---:|:---|:---|:---|
+| 1 | `new TaskResource($task)` | TaskResourceインスタンス | タスクをResourceに変換 |
+| 2 | `->additional(['message' => '...'])` | TaskResourceインスタンス | レスポンスに追加データを含める |
+| 3 | `->response()` | JsonResponseインスタンス | レスポンスオブジェクトを取得 |
+| 4 | `->setStatusCode(201)` | JsonResponseインスタンス | ステータスコードを201に設定 |
+
+> **💡 Tutorial 11-2-2の復習**: `additional()`メソッドを使うと、`data`キー以外に追加のデータ（`message`など）を含めることができます。
+
+**レスポンス例**:
+
+```json
+{
+  "data": {
+    "id": 1,
+    "title": "新しいタスク",
+    "status": "pending",
+    "status_label": "未着手",
+    ...
+  },
+  "message": "タスクを作成しました"
+}
+```
 
 ---
 
@@ -253,7 +279,10 @@ return response()->json([
 | 処理が正常に完了した | 作成されたリソースのデータを返す |
 
 ```php
-return response()->json(['data' => $task], 201);
+return (new TaskResource($task))
+    ->additional(['message' => 'タスクを作成しました'])
+    ->response()
+    ->setStatusCode(201);
 ```
 
 ---
@@ -286,7 +315,7 @@ return response()->json(['data' => $task], 201);
 
 | ステータスコード | 状況 | レスポンスボディ |
 |----------------|------|----------------|
-| 201 Created | タスクが作成された | 作成されたタスクのデータ |
+| 201 Created | タスクが作成された | 作成されたタスクのデータ（TaskResource） |
 | 422 Unprocessable Entity | バリデーションエラー | エラーメッセージ |
 
 ---
@@ -371,10 +400,13 @@ fetch('http://localhost/api/tasks', {
 
 ```php
 // ❌ 間違い
-return response()->json(['data' => $task], 200);
+return (new TaskResource($task))->response()->setStatusCode(200);
 
 // ✅ 正しい
-return response()->json(['data' => $task], 201);
+return (new TaskResource($task))
+    ->additional(['message' => 'タスクを作成しました'])
+    ->response()
+    ->setStatusCode(201);
 ```
 
 ---
@@ -394,16 +426,22 @@ $task = Task::create($validated);
 
 ---
 
-### 間違い3: ステータスコードを省略する
+### 間違い3: TaskResourceを使わない
 
-**問題**: デフォルトで200が返される
+**問題**: レスポンス形式が統一されない
 
 ```php
-// ❌ 間違い
-return response()->json($task);
+// ❌ 間違い（response()->json()を直接使用）
+return response()->json([
+    'message' => 'タスクを作成しました',
+    'data' => $task
+], 201);
 
-// ✅ 正しい
-return response()->json($task, 201);
+// ✅ 正しい（TaskResourceを使用）
+return (new TaskResource($task))
+    ->additional(['message' => 'タスクを作成しました'])
+    ->response()
+    ->setStatusCode(201);
 ```
 
 ---
@@ -434,7 +472,7 @@ return [
 
 | Step | 学んだこと |
 |------|-----------|
-| Step 1 | storeメソッドの実装とバリデーション |
+| Step 1 | storeメソッドの実装とTaskResourceの使い方 |
 | Step 2 | 201 Createdと422 Unprocessable Entityの使い分け |
 | Step 3 | Thunder Clientでのテスト方法 |
 

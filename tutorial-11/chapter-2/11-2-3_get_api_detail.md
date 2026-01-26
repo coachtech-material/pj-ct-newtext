@@ -64,6 +64,7 @@ API Resourcesを学んだら、次は「詳細取得API」です。
     "title": "Laravelを学ぶ",
     "description": "Tutorial 11を完了する",
     "status": "pending",
+    "status_label": "未着手",
     "due_date": "2024-12-31",
     "created_at": "2024-01-01 00:00:00",
     "updated_at": "2024-01-01 00:00:00"
@@ -78,6 +79,8 @@ API Resourcesを学んだら、次は「詳細取得API」です。
 **ファイル**: `app/Http/Controllers/Api/TaskController.php`
 
 ```php
+use App\Http\Resources\TaskResource;
+
 public function show(string $id)
 {
     // タスクを取得
@@ -90,10 +93,8 @@ public function show(string $id)
         ], 404);
     }
 
-    // タスクを返す
-    return response()->json([
-        'data' => $task
-    ], 200);
+    // タスクを返す（TaskResourceで整形）
+    return new TaskResource($task);
 }
 ```
 
@@ -146,19 +147,32 @@ if (!$task) {
 
 ---
 
-#### `response()->json([...], 200)`
+#### `new TaskResource($task)`
 
 ```php
-return response()->json([
-    'data' => $task
-], 200);
+return new TaskResource($task);
 ```
 
 | 部分 | 説明 |
 |------|------|
-| `response()->json([...])` | 配列をJSON形式に変換 |
-| `'data' => $task` | `data`キーにタスクを格納 |
-| `, 200` | HTTPステータスコード（200 OK） |
+| `new TaskResource(...)` | 単一のモデルをResourceに変換 |
+| `$task` | Taskモデルのインスタンス |
+
+> **💡 Tutorial 11-2-2の復習**: `TaskResource`を使うことで、レスポンスの形式を統一できます。`status_label`や日付のフォーマットが自動的に適用されます。
+
+**レスポンス例**:
+
+```json
+{
+  "data": {
+    "id": 1,
+    "title": "Laravelを学ぶ",
+    "status": "pending",
+    "status_label": "未着手",
+    ...
+  }
+}
+```
 
 ---
 
@@ -174,7 +188,7 @@ return response()->json([
 | 処理が正常に完了した | レスポンスボディにデータが含まれる |
 
 ```php
-return response()->json(['data' => $task], 200);
+return new TaskResource($task);  // 自動的に200 OKが返される
 ```
 
 ---
@@ -200,7 +214,7 @@ return response()->json([
 
 | ステータスコード | 状況 | レスポンスボディ |
 |----------------|------|----------------|
-| 200 OK | タスクが見つかった | タスクのデータ |
+| 200 OK | タスクが見つかった | タスクのデータ（TaskResource） |
 | 404 Not Found | タスクが見つからなかった | エラーメッセージ |
 
 ---
@@ -232,7 +246,7 @@ public function show(string $id)
 {
     $task = Task::where('user_id', 1)->findOrFail($id);
 
-    return response()->json(['data' => $task], 200);
+    return new TaskResource($task);
 }
 ```
 
@@ -259,7 +273,7 @@ public function show(string $id)
         ], 404);
     }
 
-    return response()->json(['data' => $task], 200);
+    return new TaskResource($task);
 }
 ```
 
@@ -310,16 +324,16 @@ if (!$task) {
 
 ---
 
-### 間違い2: ステータスコードを省略する
+### 間違い2: TaskResourceを使わない
 
-**問題**: デフォルトで200が返される
+**問題**: レスポンス形式が統一されない
 
 ```php
-// ❌ 間違い
-return response()->json($task);
+// ❌ 間違い（response()->json()を直接使用）
+return response()->json(['data' => $task], 200);
 
-// ✅ 正しい
-return response()->json($task, 200);
+// ✅ 正しい（TaskResourceを使用）
+return new TaskResource($task);
 ```
 
 ---
@@ -343,7 +357,7 @@ return response()->json(['message' => 'Task not found'], 404);
 ```php
 use Symfony\Component\HttpFoundation\Response;
 
-return response()->json($task, Response::HTTP_OK);
+return new TaskResource($task);  // 200 OK
 return response()->json(['message' => 'Task not found'], Response::HTTP_NOT_FOUND);
 ```
 
@@ -355,7 +369,7 @@ return response()->json(['message' => 'Task not found'], Response::HTTP_NOT_FOUN
 
 | Step | 学んだこと |
 |------|-----------|
-| Step 1 | showメソッドの実装とfind()の使い方 |
+| Step 1 | showメソッドの実装とTaskResourceの使い方 |
 | Step 2 | 200 OKと404 Not Foundの使い分け |
 | Step 3 | findOrFail()とカスタムエラーメッセージ |
 

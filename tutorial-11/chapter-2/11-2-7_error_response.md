@@ -110,6 +110,8 @@ if (data.error_code === 'TASK_NOT_FOUND') {
 **ファイル**: `app/Http/Controllers/Api/TaskController.php`
 
 ```php
+use App\Http\Resources\TaskResource;
+
 public function show(string $id)
 {
     $task = Task::where('user_id', 1)->find($id);
@@ -121,7 +123,7 @@ public function show(string $id)
         ], 404);
     }
 
-    return response()->json(['data' => $task], 200);
+    return new TaskResource($task);
 }
 ```
 
@@ -149,6 +151,21 @@ if (!$task) {
 
 ---
 
+#### `new TaskResource($task)`
+
+```php
+return new TaskResource($task);
+```
+
+| 部分 | 説明 |
+|------|------|
+| `new TaskResource(...)` | 単一のモデルをResourceに変換 |
+| 自動的に200 OKが返される | ステータスコードの指定は不要 |
+
+> **💡 ポイント**: 正常系のレスポンスは`TaskResource`を使い、エラー系のレスポンスは`response()->json()`を使います。これにより、正常系とエラー系のレスポンス形式を明確に区別できます。
+
+---
+
 ### 2-3. 全メソッドでの統一
 
 ```php
@@ -157,6 +174,7 @@ if (!$task) {
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\TaskResource;
 use App\Models\Task;
 use Illuminate\Http\Request;
 
@@ -166,7 +184,7 @@ class TaskController extends Controller
     {
         $tasks = Task::where('user_id', 1)->get();
 
-        return response()->json(['data' => $tasks], 200);
+        return TaskResource::collection($tasks);
     }
 
     public function store(Request $request)
@@ -184,10 +202,10 @@ class TaskController extends Controller
         
         $task = Task::create($data);
 
-        return response()->json([
-            'message' => 'タスクを作成しました',
-            'data' => $task
-        ], 201);
+        return (new TaskResource($task))
+            ->additional(['message' => 'タスクを作成しました'])
+            ->response()
+            ->setStatusCode(201);
     }
 
     public function show(string $id)
@@ -201,7 +219,7 @@ class TaskController extends Controller
             ], 404);
         }
 
-        return response()->json(['data' => $task], 200);
+        return new TaskResource($task);
     }
 
     public function update(Request $request, string $id)
@@ -224,10 +242,8 @@ class TaskController extends Controller
 
         $task->update($validated);
 
-        return response()->json([
-            'message' => 'タスクを更新しました',
-            'data' => $task
-        ], 200);
+        return (new TaskResource($task))
+            ->additional(['message' => 'タスクを更新しました']);
     }
 
     public function destroy(string $id)
@@ -250,7 +266,21 @@ class TaskController extends Controller
 
 ---
 
-### 2-4. バリデーションエラーのレスポンス
+### 2-4. コードリーディング（各メソッドのレスポンス）
+
+| メソッド | 正常系のレスポンス | 使用するクラス |
+|---------|------------------|---------------|
+| `index()` | タスク一覧 | `TaskResource::collection($tasks)` |
+| `store()` | 作成されたタスク + メッセージ | `(new TaskResource($task))->additional([...])->response()->setStatusCode(201)` |
+| `show()` | タスク詳細 | `new TaskResource($task)` |
+| `update()` | 更新されたタスク + メッセージ | `(new TaskResource($task))->additional([...])` |
+| `destroy()` | なし（204 No Content） | `response()->json(null, 204)` |
+
+> **💡 ポイント**: `TaskResource`を使うことで、すべての正常系レスポンスで`status_label`や日付フォーマットが統一されます。
+
+---
+
+### 2-5. バリデーションエラーのレスポンス
 
 Laravelの`$request->validate()`は、バリデーションエラー時に自動的に422レスポンスを返します。
 
@@ -392,6 +422,20 @@ return response()->json([
 
 ---
 
+### 間違い4: 正常系でTaskResourceを使わない
+
+**問題**: レスポンス形式が統一されない
+
+```php
+// ❌ 間違い（response()->json()を直接使用）
+return response()->json(['data' => $task], 200);
+
+// ✅ 正しい（TaskResourceを使用）
+return new TaskResource($task);
+```
+
+---
+
 ## 💡 TIP: HTTPステータスコードの一覧
 
 | コード | 名前 | 説明 |
@@ -415,13 +459,14 @@ return response()->json([
 | Step | 学んだこと |
 |------|-----------|
 | Step 1 | エラーレスポンスの形式とエラーコード |
-| Step 2 | コントローラーでの統一的な実装 |
+| Step 2 | コントローラーでの統一的な実装（TaskResource + エラーレスポンス） |
 | Step 3 | Thunder Clientでのテスト方法 |
 
-**エラーレスポンスのポイント**:
+**レスポンス設計のポイント**:
 
-1. **一貫性のある形式**を使う
-2. **適切なHTTPステータスコード**を返す
-3. **エラーコード**でプログラムが判定できるようにする
+1. **正常系は`TaskResource`を使う** - レスポンス形式を統一
+2. **エラー系は`response()->json()`を使う** - エラーコードを含める
+3. **適切なHTTPステータスコード**を返す
+4. **エラーコード**でプログラムが判定できるようにする
 
 ---
