@@ -1,4 +1,4 @@
-# Tutorial 12-2-5: GitHub連携 - ハンズオン演習
+# Tutorial 12-2-4: GitHub連携 - ハンズオン演習
 
 ## 📝 このセクションの目的
 
