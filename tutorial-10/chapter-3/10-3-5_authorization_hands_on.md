@@ -14,7 +14,7 @@ Chapter 3で学んだ認可機能を実際に手を動かして確認します�
 
 ```
 ~/laravel-practice/
-├── 10-3-6_hands-on/                      ← このハンズオン用のディレクトリ
+├── 10-3-5_hands-on/                      ← このハンズオン用のディレクトリ
 │   ├── authorization-app-practice/       ← 要件を見て自分で作成するプロジェクト
 │   │   ├── app/
 │   │   │   ├── Http/Controllers/
@@ -70,8 +70,8 @@ Chapter 3で学んだ認可機能を実際に手を動かして確認します�
 cd ~/laravel-practice
 
 # ハンズオン用ディレクトリを作成
-mkdir -p 10-3-6_hands-on
-cd 10-3-6_hands-on
+mkdir -p 10-3-5_hands-on
+cd 10-3-5_hands-on
 
 # Laravel 10.xプロジェクトを作成（自分で作成する用）
 docker run --rm \
@@ -119,7 +119,7 @@ docker run --rm \
 
 ```
 ~/laravel-practice/
-└── 10-3-6_hands-on/
+└── 10-3-5_hands-on/
     └── authorization-app-practice/     ← 自分で作成する用（今ここ）
         ├── app/
         │   ├── Http/Controllers/
@@ -169,7 +169,7 @@ $this->authorize('update', $post);
 
 ```bash
 # authorization-app-practiceディレクトリに移動
-cd ~/laravel-practice/10-3-6_hands-on/authorization-app-practice
+cd ~/laravel-practice/10-3-5_hands-on/authorization-app-practice
 
 # Sailを停止
 ./vendor/bin/sail down
@@ -179,7 +179,7 @@ cd ~/laravel-practice/10-3-6_hands-on/authorization-app-practice
 
 ```bash
 # ハンズオンディレクトリに移動
-cd ~/laravel-practice/10-3-6_hands-on
+cd ~/laravel-practice/10-3-5_hands-on
 
 # Laravel 10.xプロジェクトを作成（実践用）
 docker run --rm \
@@ -227,7 +227,7 @@ docker run --rm \
 
 ```
 ~/laravel-practice/
-└── 10-3-6_hands-on/
+└── 10-3-5_hands-on/
     ├── authorization-app-practice/     ← 自分で作成した用（停止中）
     └── authorization-app-sample/       ← 実践用（今ここ、起動中）
         ├── app/
@@ -588,17 +588,17 @@ public function destroy($id)
 
 ```bash
 # authorization-app-practiceで確認したい場合
-cd ~/laravel-practice/10-3-6_hands-on/authorization-app-sample
+cd ~/laravel-practice/10-3-5_hands-on/authorization-app-sample
 ./vendor/bin/sail down
 
-cd ~/laravel-practice/10-3-6_hands-on/authorization-app-practice
+cd ~/laravel-practice/10-3-5_hands-on/authorization-app-practice
 ./vendor/bin/sail up -d
 
 # authorization-app-sampleで確認したい場合
-cd ~/laravel-practice/10-3-6_hands-on/authorization-app-practice
+cd ~/laravel-practice/10-3-5_hands-on/authorization-app-practice
 ./vendor/bin/sail down
 
-cd ~/laravel-practice/10-3-6_hands-on/authorization-app-sample
+cd ~/laravel-practice/10-3-5_hands-on/authorization-app-sample
 ./vendor/bin/sail up -d
 ```
 

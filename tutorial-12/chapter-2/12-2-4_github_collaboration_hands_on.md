@@ -14,7 +14,7 @@ Chapter 2で学んだGitHub連携を実際に手を動かして確認します�
 
 ```
 ~/git-practice/
-├── 12-2-5_hands-on/                         ← このハンズオン用のディレクトリ
+├── 12-2-4_hands-on/                         ← このハンズオン用のディレクトリ
 │   ├── github-collab-practice/              ← 要件を見て自分で作成するリポジトリ
 │   │   └── contact.html
 │   └── github-collab-sample/                ← 実践で一緒に作成するリポジトリ
@@ -57,8 +57,8 @@ mkdir -p ~/git-practice
 cd ~/git-practice
 
 # ハンズオン用ディレクトリを作成
-mkdir -p 12-2-5_hands-on
-cd 12-2-5_hands-on
+mkdir -p 12-2-4_hands-on
+cd 12-2-4_hands-on
 
 # 自分で作成する用のリポジトリを作成
 mkdir github-collab-practice
@@ -97,7 +97,7 @@ git push -u origin main
 
 ```
 ~/git-practice/
-└── 12-2-5_hands-on/
+└── 12-2-4_hands-on/
     └── github-collab-practice/     ← 自分で作成する用（今ここ）
         ├── .git/
         └── README.md
@@ -139,7 +139,7 @@ git push origin feature/issue-1-add-contact-form
 
 ```bash
 # ハンズオンディレクトリに移動
-cd ~/git-practice/12-2-5_hands-on
+cd ~/git-practice/12-2-4_hands-on
 
 # 実践用のリポジトリを作成
 mkdir github-collab-sample
@@ -178,7 +178,7 @@ git push -u origin main
 
 ```
 ~/git-practice/
-└── 12-2-5_hands-on/
+└── 12-2-4_hands-on/
     ├── github-collab-practice/     ← 自分で作成した用
     └── github-collab-sample/       ← 実践用（今ここ）
         ├── .git/
