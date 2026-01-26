@@ -696,4 +696,14 @@ cd ~/laravel-practice/9-1-7_hands-on/profile-app-sample
 
 これで、Tutorial 9のChapter 1「Laravelの基礎」が完了しました。次のChapter 2では、ビューとテンプレートエンジンであるBladeについて学んでいきます。引き続き頑張りましょう！
 
+### 🛑 Sailの停止
+
+次のセクションに進む前に、Sailを停止しておきましょう。
+
+```bash
+./vendor/bin/sail down
+```
+
+> 💡 **なぜ停止するの？**: Sailを起動したままだと、次のセクションで別のプロジェクトを起動する際にポートが競合してエラーになることがあります。セクションの終わりには必ずSailを停止する習慣をつけましょう。
+
 ---
