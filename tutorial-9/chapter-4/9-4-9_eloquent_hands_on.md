@@ -46,6 +46,16 @@ Chapter 4で学んだEloquent ORMを実際に手を動かして確認します�
 
 ## 🎯 演習課題：ブログシステムのモデル作成
 
+### 🖼️ 完成イメージ
+
+<!-- Tinkerでのデータ操作のスクリーンショットをここに配置 -->
+![9-4-9 完成イメージ](images/9-4-9_eloquent_complete.png)
+
+**この演習で作るもの**：
+Eloquentモデルを作成し、CRUD操作とリレーションシップを実装した「ブログシステム」のバックエンドを構築します。
+
+---
+
 ### 📋 要件
 
 #### 1. Postモデルの作成
@@ -67,6 +77,80 @@ Chapter 4で学んだEloquent ORMを実際に手を動かして確認します�
 #### 3. リレーションシップの定義
 
 `Post`モデルに`user()`メソッドを追加し、`User`モデルとのリレーションシップを定義してください。
+
+---
+
+### ✅ 完成品の確認方法
+
+**🔧 Tinkerでの確認（推奨）**
+
+Eloquentの操作はTinkerで確認するのが最も効果的です。
+
+```bash
+./vendor/bin/sail artisan tinker
+```
+
+**確認コマンド**:
+```php
+// モデルが存在するか確認
+use App\Models\Post;
+
+// 新規作成
+Post::create(['title' => 'テスト', 'content' => '内容', 'user_id' => 1]);
+
+// 全件取得
+Post::all();
+
+// リレーション確認
+Post::first()->user;
+```
+
+**正しく実装できていれば**:
+- [ ] `Post`モデルが存在する
+- [ ] `Post::create()`で新規作成できる
+- [ ] `Post::all()`で全件取得できる
+- [ ] `$post->user`でリレーションが取得できる
+
+**🌐 ブラウザでの確認（代替方法）**
+
+- **動作確認URL**: `http://localhost/posts`
+- **確認手順**:
+  1. Sailを起動する（`./vendor/bin/sail up -d`）
+  2. ブラウザで `http://localhost/posts` にアクセス
+  3. 投稿一覧が表示されることを確認
+
+> 📌 **Bladeファイルについて**: バックエンド実装に集中するため、動作確認用のシンプルなBladeファイルを以下に用意しています。
+
+<details>
+<summary>📄 確認用Bladeファイル（クリックで展開）</summary>
+
+`resources/views/posts/index.blade.php`:
+
+```blade
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>投稿一覧</title>
+</head>
+<body>
+    <h1>投稿一覧</h1>
+    <table border="1">
+        <tr><th>ID</th><th>タイトル</th><th>内容</th><th>投稿者</th></tr>
+        @foreach ($posts as $post)
+            <tr>
+                <td>{{ $post->id }}</td>
+                <td>{{ $post->title }}</td>
+                <td>{{ Str::limit($post->content, 50) }}</td>
+                <td>{{ $post->user->name ?? '不明' }}</td>
+            </tr>
+        @endforeach
+    </table>
+</body>
+</html>
+```
+
+</details>
 
 ---
 
@@ -585,6 +669,8 @@ Post::findOrFail($id)->delete();
 ---
 
 ## 📖 模範解答
+
+> 💡 模範解答ではCSSでスタイリングしていますが、この演習ではCSSの実装は不要です。機能の実装に集中してください。
 
 ### マイグレーションファイル
 

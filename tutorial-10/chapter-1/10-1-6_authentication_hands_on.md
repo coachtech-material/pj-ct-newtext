@@ -45,6 +45,16 @@ Chapter 1で学んだFortifyを使った認証機能を実際に手を動かし�
 
 ## 🎯 演習課題：Fortifyを使った認証機能の実装
 
+### 🖼️ 完成イメージ
+
+<!-- ログイン画面とダッシュボードのスクリーンショットをここに配置 -->
+![10-1-6 完成イメージ](images/10-1-6_authentication_complete.png)
+
+**この演習で作るもの**：
+Laravel Fortifyを使ったログイン・ログアウト・ユーザー登録機能と、認証が必要なダッシュボードを作成します。
+
+---
+
 ### 📋 要件
 
 1. Laravel Fortifyをインストールし、設定する
@@ -52,6 +62,118 @@ Chapter 1で学んだFortifyを使った認証機能を実際に手を動かし�
 3. `/dashboard`にダッシュボードを作成（認証必須）
 4. 未ログイン時はログインページにリダイレクト
 5. ダッシュボードにユーザー情報を表示
+
+---
+
+### ✅ 完成品の確認方法
+
+**🌐 ブラウザでの確認（推奨）**
+
+- **動作確認URL**: `http://localhost/login`
+- **確認手順**:
+  1. Sailを起動する（`./vendor/bin/sail up -d`）
+  2. マイグレーションを実行（`./vendor/bin/sail artisan migrate`）
+  3. ブラウザで `http://localhost/register` にアクセスしてユーザーを登録
+  4. `http://localhost/dashboard` にアクセス
+
+**正しく実装できていれば**:
+- [ ] ログイン画面が表示される
+- [ ] ユーザー登録画面が表示される
+- [ ] ユーザー登録後、ダッシュボードにリダイレクトされる
+- [ ] 未ログインで `/dashboard` にアクセスするとログインページにリダイレクトされる
+- [ ] ダッシュボードにユーザー名が表示される
+- [ ] ログアウトできる
+
+> 📌 **Bladeファイルについて**: バックエンド実装に集中するため、動作確認用のシンプルなBladeファイルを以下に用意しています。
+
+<details>
+<summary>📄 確認用Bladeファイル（クリックで展開）</summary>
+
+`resources/views/auth/login.blade.php`:
+
+```blade
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>ログイン</title>
+</head>
+<body>
+    <h1>ログイン</h1>
+
+    @if ($errors->any())
+        <div style="color: red;">
+            @foreach ($errors->all() as $error)
+                <p>{{ $error }}</p>
+            @endforeach
+        </div>
+    @endif
+
+    <form action="{{ route('login') }}" method="POST">
+        @csrf
+        <p><label>メール: <input type="email" name="email" value="{{ old('email') }}"></label></p>
+        <p><label>パスワード: <input type="password" name="password"></label></p>
+        <button type="submit">ログイン</button>
+    </form>
+    <p><a href="{{ route('register') }}">ユーザー登録はこちら</a></p>
+</body>
+</html>
+```
+
+`resources/views/auth/register.blade.php`:
+
+```blade
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>ユーザー登録</title>
+</head>
+<body>
+    <h1>ユーザー登録</h1>
+
+    @if ($errors->any())
+        <div style="color: red;">
+            @foreach ($errors->all() as $error)
+                <p>{{ $error }}</p>
+            @endforeach
+        </div>
+    @endif
+
+    <form action="{{ route('register') }}" method="POST">
+        @csrf
+        <p><label>名前: <input type="text" name="name" value="{{ old('name') }}"></label></p>
+        <p><label>メール: <input type="email" name="email" value="{{ old('email') }}"></label></p>
+        <p><label>パスワード: <input type="password" name="password"></label></p>
+        <p><label>パスワード（確認）: <input type="password" name="password_confirmation"></label></p>
+        <button type="submit">登録</button>
+    </form>
+    <p><a href="{{ route('login') }}">ログインはこちら</a></p>
+</body>
+</html>
+```
+
+`resources/views/dashboard.blade.php`:
+
+```blade
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>ダッシュボード</title>
+</head>
+<body>
+    <h1>ダッシュボード</h1>
+    <p>こんにちは、{{ auth()->user()->name }} さん！</p>
+    <form action="{{ route('logout') }}" method="POST">
+        @csrf
+        <button type="submit">ログアウト</button>
+    </form>
+</body>
+</html>
+```
+
+</details>
 
 ---
 

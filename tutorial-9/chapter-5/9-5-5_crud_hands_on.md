@@ -48,6 +48,16 @@ Chapter 5で学んだCRUD機能を実際に手を動かして確認します。�
 
 ## 🎯 演習課題：タスク管理アプリを作成しよう
 
+### 🖼️ 完成イメージ
+
+<!-- タスク一覧画面のスクリーンショットをここに配置 -->
+![9-5-5 完成イメージ](images/9-5-5_crud_complete.png)
+
+**この演習で作るもの**：
+CRUD機能（作成・読み取り・更新・削除）を備えた「タスク管理アプリ」を作成します。
+
+---
+
 ### 📋 要件
 
 #### 1. Taskモデルとマイグレーションの作成
@@ -70,6 +80,121 @@ Chapter 5で学んだCRUD機能を実際に手を動かして確認します。�
 #### 4. ルートの定義
 
 リソースルートを定義してください。
+
+---
+
+### ✅ 完成品の確認方法
+
+**🌐 ブラウザでの確認（推奨）**
+
+- **動作確認URL**: `http://localhost/tasks`
+- **確認手順**:
+  1. Sailを起動する（`./vendor/bin/sail up -d`）
+  2. マイグレーションを実行（`./vendor/bin/sail artisan migrate`）
+  3. ブラウザで `http://localhost/tasks` にアクセス
+
+**正しく実装できていれば**:
+- [ ] タスク一覧が表示される
+- [ ] 「新規作成」ボタンをクリックすると作成フォームが表示される
+- [ ] タスクを作成すると一覧に追加される
+- [ ] 「編集」ボタンをクリックすると編集フォームが表示される
+- [ ] タスクを更新すると内容が変更される
+- [ ] 「削除」ボタンをクリックするとタスクが削除される
+
+> 📌 **Bladeファイルについて**: バックエンド実装に集中するため、動作確認用のシンプルなBladeファイルを以下に用意しています。
+
+<details>
+<summary>📄 確認用Bladeファイル（クリックで展開）</summary>
+
+`resources/views/tasks/index.blade.php`:
+
+```blade
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>タスク一覧</title>
+</head>
+<body>
+    <h1>タスク一覧</h1>
+    <a href="{{ route('tasks.create') }}">新規作成</a>
+    <table border="1">
+        <tr><th>ID</th><th>タイトル</th><th>ステータス</th><th>操作</th></tr>
+        @foreach ($tasks as $task)
+            <tr>
+                <td>{{ $task->id }}</td>
+                <td>{{ $task->title }}</td>
+                <td>{{ $task->status }}</td>
+                <td>
+                    <a href="{{ route('tasks.edit', $task) }}">編集</a>
+                    <form action="{{ route('tasks.destroy', $task) }}" method="POST" style="display:inline;">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit">削除</button>
+                    </form>
+                </td>
+            </tr>
+        @endforeach
+    </table>
+</body>
+</html>
+```
+
+`resources/views/tasks/create.blade.php`:
+
+```blade
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>タスク作成</title>
+</head>
+<body>
+    <h1>タスク作成</h1>
+    <form action="{{ route('tasks.store') }}" method="POST">
+        @csrf
+        <p><label>タイトル: <input type="text" name="title" required></label></p>
+        <p><label>説明: <textarea name="description"></textarea></label></p>
+        <p><label>期限: <input type="date" name="due_date"></label></p>
+        <button type="submit">作成</button>
+    </form>
+    <a href="{{ route('tasks.index') }}">戻る</a>
+</body>
+</html>
+```
+
+`resources/views/tasks/edit.blade.php`:
+
+```blade
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>タスク編集</title>
+</head>
+<body>
+    <h1>タスク編集</h1>
+    <form action="{{ route('tasks.update', $task) }}" method="POST">
+        @csrf
+        @method('PUT')
+        <p><label>タイトル: <input type="text" name="title" value="{{ $task->title }}" required></label></p>
+        <p><label>説明: <textarea name="description">{{ $task->description }}</textarea></label></p>
+        <p><label>ステータス:
+            <select name="status">
+                <option value="pending" {{ $task->status === 'pending' ? 'selected' : '' }}>未着手</option>
+                <option value="in_progress" {{ $task->status === 'in_progress' ? 'selected' : '' }}>進行中</option>
+                <option value="completed" {{ $task->status === 'completed' ? 'selected' : '' }}>完了</option>
+            </select>
+        </label></p>
+        <p><label>期限: <input type="date" name="due_date" value="{{ $task->due_date }}"></label></p>
+        <button type="submit">更新</button>
+    </form>
+    <a href="{{ route('tasks.index') }}">戻る</a>
+</body>
+</html>
+```
+
+</details>
 
 ---
 
@@ -655,6 +780,8 @@ public function destroy($id)
 ---
 
 ## 📖 模範解答
+
+> 💡 模範解答ではCSSでスタイリングしていますが、この演習ではCSSの実装は不要です。機能の実装に集中してください。
 
 ### マイグレーションファイル
 

@@ -45,6 +45,16 @@ Chapter 6で学んだセキュリティ対策を実際に手を動かして確�
 
 このハンズオンでは、**セキュリティを意識したお問い合わせフォーム**を作成します。
 
+### 🖼️ 完成イメージ
+
+<!-- お問い合わせフォームと送信完了画面のスクリーンショットをここに配置 -->
+![10-6-6 完成イメージ](images/10-6-6_security_complete.png)
+
+**この演習で作るもの**：
+CSRF保護とXSS対策を実装した「お問い合わせフォーム」を作成します。
+
+---
+
 ### 📋 要件
 
 1. **お問い合わせフォームを作成**
@@ -60,6 +70,81 @@ Chapter 6で学んだセキュリティ対策を実際に手を動かして確�
    - `POST /contact` → 送信処理
 
 > 💡 **ポイント**: このハンズオンでは、データベースへの保存は行いません。フォームの送信とセキュリティ対策に集中しましょう。
+
+---
+
+### ✅ 完成品の確認方法
+
+**🌐 ブラウザでの確認（推奨）**
+
+- **動作確認URL**: `http://localhost/contact`
+- **確認手順**:
+  1. Sailを起動する（`./vendor/bin/sail up -d`）
+  2. ブラウザで `http://localhost/contact` にアクセス
+  3. フォームに入力して送信
+  4. 送信完了画面で入力内容が表示されることを確認
+
+**正しく実装できていれば**:
+- [ ] お問い合わせフォームが表示される
+- [ ] フォーム送信時にCSRFエラーが発生しない
+- [ ] 送信完了画面で入力内容が正しく表示される
+- [ ] XSS攻撃コード（`<script>alert('XSS')</script>`）を入力しても実行されない
+
+**🔧 CSRF保護の確認方法**:
+
+`@csrf`を削除してフォームを送信すると、`419 Page Expired`エラーが表示されます。これはCSRF保護が機能している証拠です。
+
+**🔧 XSS対策の確認方法**:
+
+メッセージ欄に `<script>alert('XSS')</script>` を入力して送信します。送信完了画面でアラートが表示されず、文字列として表示されればOKです。
+
+> 📌 **Bladeファイルについて**: バックエンド実装に集中するため、動作確認用のシンプルなBladeファイルを以下に用意しています。
+
+<details>
+<summary>📄 確認用Bladeファイル（クリックで展開）</summary>
+
+`resources/views/contact/form.blade.php`:
+
+```blade
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>お問い合わせ</title>
+</head>
+<body>
+    <h1>お問い合わせフォーム</h1>
+    <form action="/contact" method="POST">
+        @csrf
+        <p><label>名前: <input type="text" name="name"></label></p>
+        <p><label>メール: <input type="email" name="email"></label></p>
+        <p><label>メッセージ: <textarea name="message"></textarea></label></p>
+        <button type="submit">送信</button>
+    </form>
+</body>
+</html>
+```
+
+`resources/views/contact/thanks.blade.php`:
+
+```blade
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>送信完了</title>
+</head>
+<body>
+    <h1>お問い合わせありがとうございます</h1>
+    <p>名前: {{ $name }}</p>
+    <p>メール: {{ $email }}</p>
+    <p>メッセージ: {{ $message }}</p>
+    <p><a href="/contact">戻る</a></p>
+</body>
+</html>
+```
+
+</details>
 
 ---
 

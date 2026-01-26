@@ -46,6 +46,16 @@ Chapter 3で学んだLaravelのデータベース操作を実際に手を動か�
 
 ## 🎯 演習課題：商品管理システムのデータベース構築
 
+### 🖼️ 完成イメージ
+
+<!-- Tinkerでのデータ確認のスクリーンショットをここに配置 -->
+![9-3-8 完成イメージ](images/9-3-8_database_complete.png)
+
+**この演習で作るもの**：
+マイグレーションでテーブルを作成し、シーダーでテストデータを投入し、クエリビルダでデータを操作する「商品管理システム」のデータベースを構築します。
+
+---
+
 ### 📋 要件
 
 #### 1. マイグレーションの作成
@@ -62,6 +72,77 @@ Chapter 3で学んだLaravelのデータベース操作を実際に手を動か�
 #### 3. クエリビルダの実装
 
 `ProductController`に全件取得、1件取得、挿入、更新、削除のメソッドを実装してください。
+
+---
+
+### ✅ 完成品の確認方法
+
+**🔧 Tinkerでの確認（推奨）**
+
+この演習ではデータベース操作が主なため、Tinkerで確認します。
+
+```bash
+./vendor/bin/sail artisan tinker
+```
+
+**確認コマンド**:
+```php
+// テーブルが存在するか確認
+Schema::hasTable('products');
+
+// シーダーのデータが入っているか確認
+DB::table('products')->count();
+
+// 全件取得
+DB::table('products')->get();
+```
+
+**正しく実装できていれば**:
+- [ ] `products`テーブルが存在する（`true`が返る）
+- [ ] 5件の商品データが存在する（`5`が返る）
+- [ ] 商品データが正しく取得できる
+
+**🌐 ブラウザでの確認（代替方法）**
+
+- **動作確認URL**: `http://localhost/products`
+- **確認手順**:
+  1. Sailを起動する（`./vendor/bin/sail up -d`）
+  2. ブラウザで `http://localhost/products` にアクセス
+  3. 商品一覧が表示されることを確認
+
+> 📌 **Bladeファイルについて**: バックエンド実装に集中するため、動作確認用のシンプルなBladeファイルを以下に用意しています。
+
+<details>
+<summary>📄 確認用Bladeファイル（クリックで展開）</summary>
+
+`resources/views/products/index.blade.php`:
+
+```blade
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>商品一覧</title>
+</head>
+<body>
+    <h1>商品一覧</h1>
+    <table border="1">
+        <tr><th>ID</th><th>商品名</th><th>価格</th><th>在庫</th><th>カテゴリ</th></tr>
+        @foreach ($products as $product)
+            <tr>
+                <td>{{ $product->id }}</td>
+                <td>{{ $product->name }}</td>
+                <td>¥{{ number_format($product->price) }}</td>
+                <td>{{ $product->stock }}</td>
+                <td>{{ $product->category }}</td>
+            </tr>
+        @endforeach
+    </table>
+</body>
+</html>
+```
+
+</details>
 
 ---
 
@@ -529,6 +610,8 @@ return redirect('/products');
 ---
 
 ## 📖 模範解答
+
+> 💡 模範解答ではCSSでスタイリングしていますが、この演習ではCSSの実装は不要です。機能の実装に集中してください。
 
 ### マイグレーションファイル
 

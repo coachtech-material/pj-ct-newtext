@@ -41,11 +41,116 @@ Chapter 3で学んだ認可機能を実際に手を動かして確認します�
 
 ## 🎯 演習課題：投稿の編集権限制御
 
+### 🖼️ 完成イメージ
+
+<!-- 投稿編集画面と403エラーのスクリーンショットをここに配置 -->
+![10-3-5 完成イメージ](images/10-3-5_authorization_complete.png)
+
+**この演習で作るもの**：
+ポリシーを使って、投稿の作成者のみが編集・削除できる「ブログ投稿機能」を作成します。
+
+---
+
 ### 📋 要件
 
 1. `PostPolicy`を作成
 2. 投稿の作成者のみが編集・削除できるようにする
 3. コントローラーで`authorize()`を使用
+
+---
+
+### ✅ 完成品の確認方法
+
+**🌐 ブラウザでの確認（推奨）**
+
+- **動作確認URL**: `http://localhost/posts`
+- **確認手順**:
+  1. Sailを起動する（`./vendor/bin/sail up -d`）
+  2. マイグレーションを実行（`./vendor/bin/sail artisan migrate`）
+  3. Tinkerで2人のユーザーと投稿を作成
+  4. ユーザーAでログインし、自分の投稿を編集
+  5. ユーザーBでログインし、ユーザーAの投稿を編集しようとする
+
+**正しく実装できていれば**:
+- [ ] 投稿一覧が表示される
+- [ ] 自分の投稿は編集・削除できる
+- [ ] 他人の投稿を編集しようとすると403エラーが表示される
+- [ ] 他人の投稿を削除しようとすると403エラーが表示される
+
+**🔧 Tinkerでテストデータを作成**:
+
+```bash
+./vendor/bin/sail artisan tinker
+```
+
+```php
+use App\Models\User;
+use App\Models\Post;
+
+// ユーザーAを作成
+$userA = User::create(['name' => 'UserA', 'email' => 'usera@example.com', 'password' => bcrypt('password')]);
+
+// ユーザーBを作成
+$userB = User::create(['name' => 'UserB', 'email' => 'userb@example.com', 'password' => bcrypt('password')]);
+
+// ユーザーAの投稿を作成
+Post::create(['title' => 'UserAの投稿', 'content' => 'これはUserAの投稿です', 'user_id' => $userA->id]);
+```
+
+> 📌 **Bladeファイルについて**: バックエンド実装に集中するため、動作確認用のシンプルなBladeファイルを以下に用意しています。
+
+<details>
+<summary>📄 確認用Bladeファイル（クリックで展開）</summary>
+
+`resources/views/posts/index.blade.php`:
+
+```blade
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>投稿一覧</title>
+</head>
+<body>
+    <h1>投稿一覧</h1>
+    <p>ログイン中: {{ auth()->user()->name }}</p>
+    <ul>
+        @foreach ($posts as $post)
+            <li>
+                {{ $post->title }}（投稿者: {{ $post->user->name }}）
+                @can('update', $post)
+                    <a href="/posts/{{ $post->id }}/edit">編集</a>
+                @endcan
+            </li>
+        @endforeach
+    </ul>
+</body>
+</html>
+```
+
+`resources/views/posts/edit.blade.php`:
+
+```blade
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>投稿編集</title>
+</head>
+<body>
+    <h1>投稿編集</h1>
+    <form action="/posts/{{ $post->id }}" method="POST">
+        @csrf
+        @method('PUT')
+        <p><label>タイトル: <input type="text" name="title" value="{{ $post->title }}"></label></p>
+        <p><label>本文: <textarea name="content">{{ $post->content }}</textarea></label></p>
+        <button type="submit">更新</button>
+    </form>
+</body>
+</html>
+```
+
+</details>
 
 ---
 

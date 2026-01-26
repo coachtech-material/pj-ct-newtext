@@ -35,6 +35,16 @@ Chapter 2で学んだGitHub連携を実際に手を動かして確認します�
 
 ## 🎯 演習課題：Pull Requestを作成しよう
 
+### 🖼️ 完成イメージ
+
+<!-- GitHubのIssueとPull Request画面のスクリーンショットをここに配置 -->
+![12-2-4 完成イメージ](images/12-2-4_github_collaboration_complete.png)
+
+**この演習で作るもの**：
+Issueを作成し、ブランチで開発し、Pull Requestを作成する「GitHubコラボレーションワークフロー」を実践します。
+
+---
+
 ### 📋 要件
 
 1. GitHubでIssueを作成
@@ -42,6 +52,36 @@ Chapter 2で学んだGitHub連携を実際に手を動かして確認します�
 3. 機能を実装してコミット
 4. Pull Requestを作成
 5. レビューコメントを追加
+
+---
+
+### ✅ 完成品の確認方法
+
+**🌐 GitHubでの確認**
+
+- **確認場所**: GitHubリポジトリの「Issues」タブと「Pull requests」タブ
+- **確認手順**:
+  1. GitHubリポジトリにアクセス
+  2. 「Issues」タブでIssueが作成されていることを確認
+  3. 「Pull requests」タブでPRが作成されていることを確認
+  4. PRにレビューコメントが追加されていることを確認
+
+**正しく実装できていれば**:
+- [ ] Issueが作成されている
+- [ ] Issueに対応するブランチが作成されている
+- [ ] Pull Requestが作成されている
+- [ ] PRにレビューコメントが追加されている
+- [ ] PRのDescriptionにIssue番号がリンクされている
+
+**🔧 コマンドラインでの確認**:
+
+```bash
+# リモートブランチの確認
+git branch -r
+
+# プッシュ済みコミットの確認
+git log --oneline origin/main
+```
 
 ---
 

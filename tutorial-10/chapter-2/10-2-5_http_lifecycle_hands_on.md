@@ -52,11 +52,95 @@
 
 ## 🎯 演習課題：ブログ記事の閲覧数カウンター
 
+### 🖼️ 完成イメージ
+
+<!-- ブログ記事とログ出力のスクリーンショットをここに配置 -->
+![10-2-5 完成イメージ](images/10-2-5_http_lifecycle_complete.png)
+
+**この演習で作るもの**：
+ミドルウェアで閲覧数をカウントし、HTTPライフサイクルをログで可視化する「ブログ記事表示機能」を作成します。
+
+---
+
 ### 📋 要件
 
 *   ブログ記事を表示する機能を作成する
 *   ミドルウェアを使って、閲覧数をカウントする
 *   ログを記録して、HTTPライフサイクルを可視化する
+
+---
+
+### ✅ 完成品の確認方法
+
+**🌐 ブラウザでの確認（推奨）**
+
+- **動作確認URL**: `http://localhost/posts`
+- **確認手順**:
+  1. Sailを起動する（`./vendor/bin/sail up -d`）
+  2. マイグレーションを実行（`./vendor/bin/sail artisan migrate`）
+  3. シーダーを実行（`./vendor/bin/sail artisan db:seed --class=PostSeeder`）
+  4. ブラウザで `http://localhost/posts` にアクセス
+  5. ページを何度かリロードして閲覧数が増えることを確認
+
+**正しく実装できていれば**:
+- [ ] ブログ記事一覧が表示される
+- [ ] 記事詳細ページをリロードすると閲覧数が増える
+- [ ] ログファイルにHTTPライフサイクルのログが記録される
+
+**🔧 ログの確認方法**:
+
+```bash
+# リアルタイムでログを確認
+./vendor/bin/sail exec laravel.test tail -f storage/logs/laravel.log
+```
+
+> 📌 **Bladeファイルについて**: バックエンド実装に集中するため、動作確認用のシンプルなBladeファイルを以下に用意しています。
+
+<details>
+<summary>📄 確認用Bladeファイル（クリックで展開）</summary>
+
+`resources/views/posts/index.blade.php`:
+
+```blade
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>ブログ記事一覧</title>
+</head>
+<body>
+    <h1>ブログ記事一覧</h1>
+    <ul>
+        @foreach ($posts as $post)
+            <li>
+                <a href="/posts/{{ $post->id }}">{{ $post->title }}</a>
+                （閲覧数: {{ $post->views }}）
+            </li>
+        @endforeach
+    </ul>
+</body>
+</html>
+```
+
+`resources/views/posts/show.blade.php`:
+
+```blade
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ $post->title }}</title>
+</head>
+<body>
+    <h1>{{ $post->title }}</h1>
+    <p>閲覧数: {{ $post->views }}</p>
+    <div>{{ $post->content }}</div>
+    <p><a href="/posts">一覧に戻る</a></p>
+</body>
+</html>
+```
+
+</details>
 
 ---
 

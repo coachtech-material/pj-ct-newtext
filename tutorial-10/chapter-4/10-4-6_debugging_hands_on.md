@@ -41,6 +41,16 @@ Chapter 4で学んだデバッグ手法を実際に手を動かして確認し�
 
 ## 🎯 演習課題：エラーを修正しよう
 
+### 🖼️ 完成イメージ
+
+<!-- エラー画面と修正後の動作確認のスクリーンショットをここに配置 -->
+![10-4-6 完成イメージ](images/10-4-6_debugging_complete.png)
+
+**この演習で作るもの**：
+エラーが含まれたコードをデバッグし、正しく動作する「ユーザー登録機能」に修正します。
+
+---
+
 ### 📋 要件
 
 以下のコードにあるエラーを見つけて修正してください。
@@ -59,6 +69,94 @@ public function store(Request $request)
 
 **エラー内容**：
 - Mass assignment エラーが発生する
+
+---
+
+### ✅ 完成品の確認方法
+
+**🌐 ブラウザでの確認（推奨）**
+
+- **動作確認URL**: `http://localhost/users/create`
+- **確認手順**:
+  1. Sailを起動する（`./vendor/bin/sail up -d`）
+  2. マイグレーションを実行（`./vendor/bin/sail artisan migrate`）
+  3. ブラウザで `http://localhost/users/create` にアクセス
+  4. フォームに入力して送信
+
+**正しく修正できていれば**:
+- [ ] ユーザー登録フォームが表示される
+- [ ] フォーム送信時にMass assignmentエラーが発生しない
+- [ ] ユーザーがデータベースに保存される
+- [ ] ユーザー一覧ページにリダイレクトされる
+
+**🔧 Tinkerでデータ確認**:
+
+```bash
+./vendor/bin/sail artisan tinker
+```
+
+```php
+use App\Models\User;
+User::all();  // 登録したユーザーが表示されればOK
+```
+
+> 📌 **Bladeファイルについて**: バックエンド実装に集中するため、動作確認用のシンプルなBladeファイルを以下に用意しています。
+
+<details>
+<summary>📄 確認用Bladeファイル（クリックで展開）</summary>
+
+`resources/views/users/create.blade.php`:
+
+```blade
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>ユーザー登録</title>
+</head>
+<body>
+    <h1>ユーザー登録</h1>
+
+    @if ($errors->any())
+        <div style="color: red;">
+            @foreach ($errors->all() as $error)
+                <p>{{ $error }}</p>
+            @endforeach
+        </div>
+    @endif
+
+    <form action="/users" method="POST">
+        @csrf
+        <p><label>名前: <input type="text" name="name" value="{{ old('name') }}"></label></p>
+        <p><label>メール: <input type="email" name="email" value="{{ old('email') }}"></label></p>
+        <button type="submit">登録</button>
+    </form>
+</body>
+</html>
+```
+
+`resources/views/users/index.blade.php`:
+
+```blade
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>ユーザー一覧</title>
+</head>
+<body>
+    <h1>ユーザー一覧</h1>
+    <ul>
+        @foreach ($users as $user)
+            <li>{{ $user->name }} ({{ $user->email }})</li>
+        @endforeach
+    </ul>
+    <p><a href="/users/create">新規登録</a></p>
+</body>
+</html>
+```
+
+</details>
 
 ---
 

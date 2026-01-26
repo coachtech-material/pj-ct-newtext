@@ -39,11 +39,78 @@ Chapter 8で学んだミドルウェアを実際に手を動かして確認し�
 
 ## 🎯 演習課題：管理者専用ページの実装
 
+### 🖼️ 完成イメージ
+
+<!-- 管理者ページと403エラーのスクリーンショットをここに配置 -->
+![10-2-4 完成イメージ](images/10-2-4_middleware_complete.png)
+
+**この演習で作るもの**：
+カスタムミドルウェアを使って、管理者のみアクセスできる「管理者専用ページ」を作成します。
+
+---
+
 ### 📋 要件
 
 1. `CheckAdmin`ミドルウェアを作成
 2. ユーザーが管理者でない場合は403エラーを返す
 3. `/admin`ルートにミドルウェアを適用
+
+---
+
+### ✅ 完成品の確認方法
+
+**🌐 ブラウザでの確認（推奨）**
+
+- **動作確認URL**: `http://localhost/admin`
+- **確認手順**:
+  1. Sailを起動する（`./vendor/bin/sail up -d`）
+  2. マイグレーションを実行（`./vendor/bin/sail artisan migrate`）
+  3. Tinkerで管理者ユーザーと一般ユーザーを作成
+  4. ブラウザで `http://localhost/admin` にアクセス
+
+**正しく実装できていれば**:
+- [ ] 管理者ユーザーでログインすると管理者ページが表示される
+- [ ] 一般ユーザーでログインすると403エラーが表示される
+- [ ] 未ログインでアクセスするとログインページにリダイレクトされる
+
+**🔧 Tinkerでテストユーザーを作成**:
+
+```bash
+./vendor/bin/sail artisan tinker
+```
+
+```php
+// 管理者ユーザーを作成
+use App\Models\User;
+User::create(['name' => 'Admin', 'email' => 'admin@example.com', 'password' => bcrypt('password'), 'is_admin' => true]);
+
+// 一般ユーザーを作成
+User::create(['name' => 'User', 'email' => 'user@example.com', 'password' => bcrypt('password'), 'is_admin' => false]);
+```
+
+> 📌 **Bladeファイルについて**: バックエンド実装に集中するため、動作確認用のシンプルなBladeファイルを以下に用意しています。
+
+<details>
+<summary>📄 確認用Bladeファイル（クリックで展開）</summary>
+
+`resources/views/admin.blade.php`:
+
+```blade
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>管理者ページ</title>
+</head>
+<body>
+    <h1>管理者ページ</h1>
+    <p>こんにちは、{{ auth()->user()->name }} さん（管理者）！</p>
+    <p>このページは管理者のみアクセスできます。</p>
+</body>
+</html>
+```
+
+</details>
 
 ---
 

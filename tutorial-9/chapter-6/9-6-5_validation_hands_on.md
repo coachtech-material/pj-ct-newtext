@@ -41,6 +41,16 @@ Chapter 6で学んだバリデーションを実際に手を動かして確認�
 
 ## 🎯 演習課題：ユーザー登録フォームのバリデーション
 
+### 🖼️ 完成イメージ
+
+<!-- バリデーションエラー表示のスクリーンショットをここに配置 -->
+![9-6-5 完成イメージ](images/9-6-5_validation_complete.png)
+
+**この演習で作るもの**：
+フォームリクエストを使ったバリデーションと日本語エラーメッセージを備えた「ユーザー登録フォーム」を作成します。
+
+---
+
 ### 📋 要件
 
 1. `StoreUserRequest`フォームリクエストを作成
@@ -49,6 +59,94 @@ Chapter 6で学んだバリデーションを実際に手を動かして確認�
    - email: 必須、メール形式、ユニーク
    - password: 必須、最小8文字、確認用と一致
 3. エラーメッセージを日本語化
+
+---
+
+### ✅ 完成品の確認方法
+
+**🌐 ブラウザでの確認（推奨）**
+
+- **動作確認URL**: `http://localhost/register`
+- **確認手順**:
+  1. Sailを起動する（`./vendor/bin/sail up -d`）
+  2. マイグレーションを実行（`./vendor/bin/sail artisan migrate`）
+  3. ブラウザで `http://localhost/register` にアクセス
+  4. 空のまま送信してエラーメッセージを確認
+
+**正しく実装できていれば**:
+- [ ] 登録フォームが表示される
+- [ ] 空のまま送信すると日本語のエラーメッセージが表示される
+- [ ] 名前が51文字以上だとエラーになる
+- [ ] メール形式が不正だとエラーになる
+- [ ] パスワードが7文字以下だとエラーになる
+- [ ] パスワード確認が一致しないとエラーになる
+- [ ] 正しく入力すると登録成功画面が表示される
+
+> 📌 **Bladeファイルについて**: バックエンド実装に集中するため、動作確認用のシンプルなBladeファイルを以下に用意しています。
+
+<details>
+<summary>📄 確認用Bladeファイル（クリックで展開）</summary>
+
+`resources/views/register.blade.php`:
+
+```blade
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>ユーザー登録</title>
+</head>
+<body>
+    <h1>ユーザー登録</h1>
+
+    @if ($errors->any())
+        <div style="color: red;">
+            <ul>
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
+    <form action="{{ route('register.store') }}" method="POST">
+        @csrf
+        <p>
+            <label>名前: <input type="text" name="name" value="{{ old('name') }}"></label>
+        </p>
+        <p>
+            <label>メール: <input type="email" name="email" value="{{ old('email') }}"></label>
+        </p>
+        <p>
+            <label>パスワード: <input type="password" name="password"></label>
+        </p>
+        <p>
+            <label>パスワード（確認）: <input type="password" name="password_confirmation"></label>
+        </p>
+        <button type="submit">登録</button>
+    </form>
+</body>
+</html>
+```
+
+`resources/views/register_success.blade.php`:
+
+```blade
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>登録完了</title>
+</head>
+<body>
+    <h1>登録が完了しました！</h1>
+    <p>ご登録ありがとうございます。</p>
+    <a href="{{ route('register.create') }}">戻る</a>
+</body>
+</html>
+```
+
+</details>
 
 ---
 
@@ -504,6 +602,8 @@ value="{{ old('name') }}"
 ---
 
 ## 📖 模範解答
+
+> 💡 模範解答ではCSSでスタイリングしていますが、この演習ではCSSの実装は不要です。機能の実装に集中してください。
 
 ### StoreUserRequest.php
 
