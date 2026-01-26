@@ -13,7 +13,7 @@ Chapter 5で学んだテストを実際に手を動かして確認します。La
 このハンズオンでは、**「自分で作成する用」**と**「解答を確認する用」**の2つのプロジェクトを作成します。
 
 ```
-~/coachtech/laravel-practice/
+~/laravel-practice/
 ├── 10-5-7_hands-on/                      ← このハンズオン用のディレクトリ
 │   ├── testing-app-practice/             ← 要件を見て自分で作成するプロジェクト
 │   │   └── tests/
@@ -101,13 +101,13 @@ Laravelのテスト機能を使って、ユーザー作成機能のテストコ�
 > 
 > 前のハンズオン（10-4-6）のプロジェクトが起動している場合は、先に停止してください。
 > ```bash
-> cd ~/coachtech/laravel-practice/10-4-6_hands-on/debugging-app-sample
+> cd ~/laravel-practice/10-4-6_hands-on/debugging-app-sample
 > ./vendor/bin/sail down
 > ```
 
 ```bash
 # laravel-practiceディレクトリに移動
-cd ~/coachtech/laravel-practice
+cd ~/laravel-practice
 
 # ハンズオン用ディレクトリを作成
 mkdir -p 10-5-7_hands-on
@@ -158,7 +158,7 @@ docker run --rm \
 **✅ ディレクトリ構造の確認**
 
 ```
-~/coachtech/laravel-practice/
+~/laravel-practice/
 └── 10-5-7_hands-on/
     └── testing-app-practice/     ← 自分で作成する用（今ここ）
         ├── app/
@@ -237,7 +237,7 @@ $this->assertDatabaseHas('users', [
 
 ```bash
 # testing-app-practiceディレクトリに移動
-cd ~/coachtech/laravel-practice/10-5-7_hands-on/testing-app-practice
+cd ~/laravel-practice/10-5-7_hands-on/testing-app-practice
 
 # Sailを停止
 ./vendor/bin/sail down
@@ -247,7 +247,7 @@ cd ~/coachtech/laravel-practice/10-5-7_hands-on/testing-app-practice
 
 ```bash
 # ハンズオンディレクトリに移動
-cd ~/coachtech/laravel-practice/10-5-7_hands-on
+cd ~/laravel-practice/10-5-7_hands-on
 
 # Laravel 10.xプロジェクトを作成（実践用）
 docker run --rm \
@@ -294,7 +294,7 @@ docker run --rm \
 **✅ ディレクトリ構造の確認**
 
 ```
-~/coachtech/laravel-practice/
+~/laravel-practice/
 └── 10-5-7_hands-on/
     ├── testing-app-practice/     ← 自分で作成した用（停止中）
     └── testing-app-sample/       ← 実践用（今ここ、起動中）

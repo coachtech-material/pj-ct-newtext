@@ -102,7 +102,7 @@ Route::post('/greeting', [GreetingController::class, 'greet'])->name('greeting.g
 > `sail artisan`コマンドは、**Laravelプロジェクトのルートディレクトリ**（`docker-compose.yml`があるディレクトリ）で実行する必要があります。
 > ```bash
 > # 例: プロジェクトディレクトリに移動
-> cd ~/coachtech/laravel-practice
+> cd ~/laravel-practice/laravel-project
 > ```
 
 ```bash

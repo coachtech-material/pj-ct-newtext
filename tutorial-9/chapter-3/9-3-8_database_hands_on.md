@@ -18,7 +18,7 @@ Chapter 3で学んだLaravelのデータベース操作を実際に手を動か�
 このハンズオンでは、**「自分で作成する用」**と**「解答を確認する用」**の2つのプロジェクトを作成します。
 
 ```
-~/coachtech/laravel-practice/
+~/laravel-practice/
 ├── 9-3-8_hands-on/                       ← このハンズオン用のディレクトリ
 │   ├── database-app-practice/            ← 要件を見て自分で作成するプロジェクト
 │   │   ├── app/
@@ -158,13 +158,13 @@ DB::table('products')->get();
 > 
 > 前のハンズオン（9-2-5）のプロジェクトが起動している場合は、先に停止してください。
 > ```bash
-> cd ~/coachtech/laravel-practice/9-2-5_hands-on/blade-app-sample
+> cd ~/laravel-practice/9-2-5_hands-on/blade-app-sample
 > ./vendor/bin/sail down
 > ```
 
 ```bash
 # laravel-practiceディレクトリに移動
-cd ~/coachtech/laravel-practice
+cd ~/laravel-practice
 
 # ハンズオン用ディレクトリを作成
 mkdir -p 9-3-8_hands-on
@@ -212,7 +212,7 @@ docker run --rm \
 **✅ ディレクトリ構造の確認**
 
 ```
-~/coachtech/laravel-practice/
+~/laravel-practice/
 └── 9-3-8_hands-on/
     └── database-app-practice/     ← 自分で作成する用（今ここ）
         ├── app/
@@ -265,7 +265,7 @@ Schema::create('products', function (Blueprint $table) {
 
 ```bash
 # database-app-practiceディレクトリに移動
-cd ~/coachtech/laravel-practice/9-3-8_hands-on/database-app-practice
+cd ~/laravel-practice/9-3-8_hands-on/database-app-practice
 
 # Sailを停止
 ./vendor/bin/sail down
@@ -275,7 +275,7 @@ cd ~/coachtech/laravel-practice/9-3-8_hands-on/database-app-practice
 
 ```bash
 # ハンズオンディレクトリに移動
-cd ~/coachtech/laravel-practice/9-3-8_hands-on
+cd ~/laravel-practice/9-3-8_hands-on
 
 # Laravel 10.xプロジェクトを作成（実践用）
 docker run --rm \
@@ -319,7 +319,7 @@ docker run --rm \
 **✅ ディレクトリ構造の確認**
 
 ```
-~/coachtech/laravel-practice/
+~/laravel-practice/
 └── 9-3-8_hands-on/
     ├── database-app-practice/     ← 自分で作成した用（停止中）
     └── database-app-sample/       ← 実践用（今ここ、起動中）
@@ -677,20 +677,20 @@ public function store(Request $request)
 
 ```bash
 # database-app-practiceで確認したい場合
-cd ~/coachtech/laravel-practice/9-3-8_hands-on/database-app-sample
+cd ~/laravel-practice/9-3-8_hands-on/database-app-sample
 ./vendor/bin/sail down
 
-cd ~/coachtech/laravel-practice/9-3-8_hands-on/database-app-practice
+cd ~/laravel-practice/9-3-8_hands-on/database-app-practice
 ./vendor/bin/sail up -d
 # マイグレーションとシーダーを実行
 ./vendor/bin/sail artisan migrate
 ./vendor/bin/sail artisan db:seed --class=ProductSeeder
 
 # database-app-sampleで確認したい場合
-cd ~/coachtech/laravel-practice/9-3-8_hands-on/database-app-practice
+cd ~/laravel-practice/9-3-8_hands-on/database-app-practice
 ./vendor/bin/sail down
 
-cd ~/coachtech/laravel-practice/9-3-8_hands-on/database-app-sample
+cd ~/laravel-practice/9-3-8_hands-on/database-app-sample
 ./vendor/bin/sail up -d
 ```
 

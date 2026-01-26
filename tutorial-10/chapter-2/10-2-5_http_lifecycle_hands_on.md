@@ -15,7 +15,7 @@
 このハンズオンでは、**「自分で作成する用」**と**「解答を確認する用」**の2つのプロジェクトを作成します。
 
 ```
-~/coachtech/laravel-practice/
+~/laravel-practice/
 ├── 10-2-5_hands-on/                      ← このハンズオン用のディレクトリ
 │   ├── lifecycle-app-practice/           ← 要件を見て自分で作成するプロジェクト
 │   │   ├── app/
@@ -156,13 +156,13 @@
 > 
 > 前のハンズオン（10-2-4）のプロジェクトが起動している場合は、先に停止してください。
 > ```bash
-> cd ~/coachtech/laravel-practice/10-2-4_hands-on/middleware-app-sample
+> cd ~/laravel-practice/10-2-4_hands-on/middleware-app-sample
 > ./vendor/bin/sail down
 > ```
 
 ```bash
 # laravel-practiceディレクトリに移動
-cd ~/coachtech/laravel-practice
+cd ~/laravel-practice
 
 # ハンズオン用ディレクトリを作成
 mkdir -p 10-2-5_hands-on
@@ -213,7 +213,7 @@ docker run --rm \
 **✅ ディレクトリ構造の確認**
 
 ```
-~/coachtech/laravel-practice/
+~/laravel-practice/
 └── 10-2-5_hands-on/
     └── lifecycle-app-practice/     ← 自分で作成する用（今ここ）
         ├── app/
@@ -266,7 +266,7 @@ return $response;
 
 ```bash
 # lifecycle-app-practiceディレクトリに移動
-cd ~/coachtech/laravel-practice/10-2-5_hands-on/lifecycle-app-practice
+cd ~/laravel-practice/10-2-5_hands-on/lifecycle-app-practice
 
 # Sailを停止
 ./vendor/bin/sail down
@@ -276,7 +276,7 @@ cd ~/coachtech/laravel-practice/10-2-5_hands-on/lifecycle-app-practice
 
 ```bash
 # ハンズオンディレクトリに移動
-cd ~/coachtech/laravel-practice/10-2-5_hands-on
+cd ~/laravel-practice/10-2-5_hands-on
 
 # Laravel 10.xプロジェクトを作成（実践用）
 docker run --rm \
@@ -323,7 +323,7 @@ docker run --rm \
 **✅ ディレクトリ構造の確認**
 
 ```
-~/coachtech/laravel-practice/
+~/laravel-practice/
 └── 10-2-5_hands-on/
     ├── lifecycle-app-practice/     ← 自分で作成した用（停止中）
     └── lifecycle-app-sample/       ← 実践用（今ここ、起動中）
@@ -891,17 +891,17 @@ public function handle(Request $request, Closure $next)
 
 ```bash
 # lifecycle-app-practiceで確認したい場合
-cd ~/coachtech/laravel-practice/10-2-5_hands-on/lifecycle-app-sample
+cd ~/laravel-practice/10-2-5_hands-on/lifecycle-app-sample
 ./vendor/bin/sail down
 
-cd ~/coachtech/laravel-practice/10-2-5_hands-on/lifecycle-app-practice
+cd ~/laravel-practice/10-2-5_hands-on/lifecycle-app-practice
 ./vendor/bin/sail up -d
 
 # lifecycle-app-sampleで確認したい場合
-cd ~/coachtech/laravel-practice/10-2-5_hands-on/lifecycle-app-practice
+cd ~/laravel-practice/10-2-5_hands-on/lifecycle-app-practice
 ./vendor/bin/sail down
 
-cd ~/coachtech/laravel-practice/10-2-5_hands-on/lifecycle-app-sample
+cd ~/laravel-practice/10-2-5_hands-on/lifecycle-app-sample
 ./vendor/bin/sail up -d
 ```
 

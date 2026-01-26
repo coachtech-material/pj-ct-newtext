@@ -13,7 +13,7 @@ Chapter 4で学んだデバッグ手法を実際に手を動かして確認し�
 このハンズオンでは、**「自分で作成する用」**と**「解答を確認する用」**の2つのプロジェクトを作成します。
 
 ```
-~/coachtech/laravel-practice/
+~/laravel-practice/
 ├── 10-4-6_hands-on/                      ← このハンズオン用のディレクトリ
 │   ├── debugging-app-practice/           ← 要件を見て自分で作成するプロジェクト
 │   │   ├── app/
@@ -172,13 +172,13 @@ User::all();  // 登録したユーザーが表示されればOK
 > 
 > 前のハンズオン（10-3-6）のプロジェクトが起動している場合は、先に停止してください。
 > ```bash
-> cd ~/coachtech/laravel-practice/10-3-6_hands-on/authorization-app-sample
+> cd ~/laravel-practice/10-3-6_hands-on/authorization-app-sample
 > ./vendor/bin/sail down
 > ```
 
 ```bash
 # laravel-practiceディレクトリに移動
-cd ~/coachtech/laravel-practice
+cd ~/laravel-practice
 
 # ハンズオン用ディレクトリを作成
 mkdir -p 10-4-6_hands-on
@@ -229,7 +229,7 @@ docker run --rm \
 **✅ ディレクトリ構造の確認**
 
 ```
-~/coachtech/laravel-practice/
+~/laravel-practice/
 └── 10-4-6_hands-on/
     └── debugging-app-practice/     ← 自分で作成する用（今ここ）
         ├── app/
@@ -277,7 +277,7 @@ protected $fillable = ['name', 'email'];
 
 ```bash
 # debugging-app-practiceディレクトリに移動
-cd ~/coachtech/laravel-practice/10-4-6_hands-on/debugging-app-practice
+cd ~/laravel-practice/10-4-6_hands-on/debugging-app-practice
 
 # Sailを停止
 ./vendor/bin/sail down
@@ -287,7 +287,7 @@ cd ~/coachtech/laravel-practice/10-4-6_hands-on/debugging-app-practice
 
 ```bash
 # ハンズオンディレクトリに移動
-cd ~/coachtech/laravel-practice/10-4-6_hands-on
+cd ~/laravel-practice/10-4-6_hands-on
 
 # Laravel 10.xプロジェクトを作成（実践用）
 docker run --rm \
@@ -334,7 +334,7 @@ docker run --rm \
 **✅ ディレクトリ構造の確認**
 
 ```
-~/coachtech/laravel-practice/
+~/laravel-practice/
 └── 10-4-6_hands-on/
     ├── debugging-app-practice/     ← 自分で作成した用（停止中）
     └── debugging-app-sample/       ← 実践用（今ここ、起動中）
@@ -606,17 +606,17 @@ public function store(Request $request)
 
 ```bash
 # debugging-app-practiceで確認したい場合
-cd ~/coachtech/laravel-practice/10-4-6_hands-on/debugging-app-sample
+cd ~/laravel-practice/10-4-6_hands-on/debugging-app-sample
 ./vendor/bin/sail down
 
-cd ~/coachtech/laravel-practice/10-4-6_hands-on/debugging-app-practice
+cd ~/laravel-practice/10-4-6_hands-on/debugging-app-practice
 ./vendor/bin/sail up -d
 
 # debugging-app-sampleで確認したい場合
-cd ~/coachtech/laravel-practice/10-4-6_hands-on/debugging-app-practice
+cd ~/laravel-practice/10-4-6_hands-on/debugging-app-practice
 ./vendor/bin/sail down
 
-cd ~/coachtech/laravel-practice/10-4-6_hands-on/debugging-app-sample
+cd ~/laravel-practice/10-4-6_hands-on/debugging-app-sample
 ./vendor/bin/sail up -d
 ```
 
