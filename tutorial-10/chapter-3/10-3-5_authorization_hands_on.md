@@ -13,7 +13,7 @@ Chapter 3で学んだ認可機能を実際に手を動かして確認します�
 このハンズオンでは、**「自分で作成する用」**と**「解答を確認する用」**の2つのプロジェクトを作成します。
 
 ```
-~/laravel-practice/
+~/coachtech/laravel-practice/
 ├── 10-3-5_hands-on/                      ← このハンズオン用のディレクトリ
 │   ├── authorization-app-practice/       ← 要件を見て自分で作成するプロジェクト
 │   │   ├── app/
@@ -166,13 +166,13 @@ Post::create(['title' => 'UserAの投稿', 'content' => 'これはUserAの投稿
 > 
 > 前のハンズオン（10-2-5）のプロジェクトが起動している場合は、先に停止してください。
 > ```bash
-> cd ~/laravel-practice/10-2-5_hands-on/lifecycle-app-sample
+> cd ~/coachtech/laravel-practice/10-2-5_hands-on/lifecycle-app-sample
 > ./vendor/bin/sail down
 > ```
 
 ```bash
 # laravel-practiceディレクトリに移動
-cd ~/laravel-practice
+cd ~/coachtech/laravel-practice
 
 # ハンズオン用ディレクトリを作成
 mkdir -p 10-3-5_hands-on
@@ -223,7 +223,7 @@ docker run --rm \
 **✅ ディレクトリ構造の確認**
 
 ```
-~/laravel-practice/
+~/coachtech/laravel-practice/
 └── 10-3-5_hands-on/
     └── authorization-app-practice/     ← 自分で作成する用（今ここ）
         ├── app/
@@ -274,7 +274,7 @@ $this->authorize('update', $post);
 
 ```bash
 # authorization-app-practiceディレクトリに移動
-cd ~/laravel-practice/10-3-5_hands-on/authorization-app-practice
+cd ~/coachtech/laravel-practice/10-3-5_hands-on/authorization-app-practice
 
 # Sailを停止
 ./vendor/bin/sail down
@@ -284,7 +284,7 @@ cd ~/laravel-practice/10-3-5_hands-on/authorization-app-practice
 
 ```bash
 # ハンズオンディレクトリに移動
-cd ~/laravel-practice/10-3-5_hands-on
+cd ~/coachtech/laravel-practice/10-3-5_hands-on
 
 # Laravel 10.xプロジェクトを作成（実践用）
 docker run --rm \
@@ -331,7 +331,7 @@ docker run --rm \
 **✅ ディレクトリ構造の確認**
 
 ```
-~/laravel-practice/
+~/coachtech/laravel-practice/
 └── 10-3-5_hands-on/
     ├── authorization-app-practice/     ← 自分で作成した用（停止中）
     └── authorization-app-sample/       ← 実践用（今ここ、起動中）
@@ -693,17 +693,17 @@ public function destroy($id)
 
 ```bash
 # authorization-app-practiceで確認したい場合
-cd ~/laravel-practice/10-3-5_hands-on/authorization-app-sample
+cd ~/coachtech/laravel-practice/10-3-5_hands-on/authorization-app-sample
 ./vendor/bin/sail down
 
-cd ~/laravel-practice/10-3-5_hands-on/authorization-app-practice
+cd ~/coachtech/laravel-practice/10-3-5_hands-on/authorization-app-practice
 ./vendor/bin/sail up -d
 
 # authorization-app-sampleで確認したい場合
-cd ~/laravel-practice/10-3-5_hands-on/authorization-app-practice
+cd ~/coachtech/laravel-practice/10-3-5_hands-on/authorization-app-practice
 ./vendor/bin/sail down
 
-cd ~/laravel-practice/10-3-5_hands-on/authorization-app-sample
+cd ~/coachtech/laravel-practice/10-3-5_hands-on/authorization-app-sample
 ./vendor/bin/sail up -d
 ```
 

@@ -18,7 +18,7 @@ Chapter 5で学んだCRUD機能を実際に手を動かして確認します。�
 このハンズオンでは、**「自分で作成する用」**と**「解答を確認する用」**の2つのプロジェクトを作成します。
 
 ```
-~/laravel-practice/
+~/coachtech/laravel-practice/
 ├── 9-5-5_hands-on/                       ← このハンズオン用のディレクトリ
 │   ├── task-app-practice/                ← 要件を見て自分で作成するプロジェクト
 │   │   ├── app/
@@ -210,13 +210,13 @@ CRUD機能（作成・読み取り・更新・削除）を備えた「タスク�
 > 
 > 前のハンズオン（9-4-9）のプロジェクトが起動している場合は、先に停止してください。
 > ```bash
-> cd ~/laravel-practice/9-4-9_hands-on/eloquent-app-sample
+> cd ~/coachtech/laravel-practice/9-4-9_hands-on/eloquent-app-sample
 > ./vendor/bin/sail down
 > ```
 
 ```bash
 # laravel-practiceディレクトリに移動
-cd ~/laravel-practice
+cd ~/coachtech/laravel-practice
 
 # ハンズオン用ディレクトリを作成
 mkdir -p 9-5-5_hands-on
@@ -267,7 +267,7 @@ docker run --rm \
 **✅ ディレクトリ構造の確認**
 
 ```
-~/laravel-practice/
+~/coachtech/laravel-practice/
 └── 9-5-5_hands-on/
     └── task-app-practice/     ← 自分で作成する用（今ここ）
         ├── app/
@@ -323,7 +323,7 @@ Route::resource('tasks', TaskController::class);
 
 ```bash
 # task-app-practiceディレクトリに移動
-cd ~/laravel-practice/9-5-5_hands-on/task-app-practice
+cd ~/coachtech/laravel-practice/9-5-5_hands-on/task-app-practice
 
 # Sailを停止
 ./vendor/bin/sail down
@@ -333,7 +333,7 @@ cd ~/laravel-practice/9-5-5_hands-on/task-app-practice
 
 ```bash
 # ハンズオンディレクトリに移動
-cd ~/laravel-practice/9-5-5_hands-on
+cd ~/coachtech/laravel-practice/9-5-5_hands-on
 
 # Laravel 10.xプロジェクトを作成（実践用）
 docker run --rm \
@@ -380,7 +380,7 @@ docker run --rm \
 **✅ ディレクトリ構造の確認**
 
 ```
-~/laravel-practice/
+~/coachtech/laravel-practice/
 └── 9-5-5_hands-on/
     ├── task-app-practice/     ← 自分で作成した用（停止中）
     └── task-app-sample/       ← 実践用（今ここ、起動中）
@@ -961,17 +961,17 @@ Route::resource('tasks', TaskController::class);
 
 ```bash
 # task-app-practiceで確認したい場合
-cd ~/laravel-practice/9-5-5_hands-on/task-app-sample
+cd ~/coachtech/laravel-practice/9-5-5_hands-on/task-app-sample
 ./vendor/bin/sail down
 
-cd ~/laravel-practice/9-5-5_hands-on/task-app-practice
+cd ~/coachtech/laravel-practice/9-5-5_hands-on/task-app-practice
 ./vendor/bin/sail up -d
 
 # task-app-sampleで確認したい場合
-cd ~/laravel-practice/9-5-5_hands-on/task-app-practice
+cd ~/coachtech/laravel-practice/9-5-5_hands-on/task-app-practice
 ./vendor/bin/sail down
 
-cd ~/laravel-practice/9-5-5_hands-on/task-app-sample
+cd ~/coachtech/laravel-practice/9-5-5_hands-on/task-app-sample
 ./vendor/bin/sail up -d
 ```
 

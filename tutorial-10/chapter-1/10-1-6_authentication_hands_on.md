@@ -13,7 +13,7 @@ Chapter 1で学んだFortifyを使った認証機能を実際に手を動かし�
 このハンズオンでは、**「自分で作成する用」**と**「解答を確認する用」**の2つのプロジェクトを作成します。
 
 ```
-~/laravel-practice/
+~/coachtech/laravel-practice/
 ├── 10-1-6_hands-on/                      ← このハンズオン用のディレクトリ
 │   ├── auth-app-practice/                ← 要件を見て自分で作成するプロジェクト
 │   │   ├── app/
@@ -189,13 +189,13 @@ Laravel Fortifyを使ったログイン・ログアウト・ユーザー登録�
 > 
 > 前のハンズオン（9-6-5）のプロジェクトが起動している場合は、先に停止してください。
 > ```bash
-> cd ~/laravel-practice/9-6-5_hands-on/validation-app-sample
+> cd ~/coachtech/laravel-practice/9-6-5_hands-on/validation-app-sample
 > ./vendor/bin/sail down
 > ```
 
 ```bash
 # laravel-practiceディレクトリに移動
-cd ~/laravel-practice
+cd ~/coachtech/laravel-practice
 
 # ハンズオン用ディレクトリを作成
 mkdir -p 10-1-6_hands-on
@@ -246,7 +246,7 @@ docker run --rm \
 **✅ ディレクトリ構造の確認**
 
 ```
-~/laravel-practice/
+~/coachtech/laravel-practice/
 └── 10-1-6_hands-on/
     └── auth-app-practice/     ← 自分で作成する用（今ここ）
         ├── app/
@@ -302,7 +302,7 @@ Route::get('/dashboard', [DashboardController::class, 'index'])->middleware('aut
 
 ```bash
 # auth-app-practiceディレクトリに移動
-cd ~/laravel-practice/10-1-6_hands-on/auth-app-practice
+cd ~/coachtech/laravel-practice/10-1-6_hands-on/auth-app-practice
 
 # Sailを停止
 ./vendor/bin/sail down
@@ -312,7 +312,7 @@ cd ~/laravel-practice/10-1-6_hands-on/auth-app-practice
 
 ```bash
 # ハンズオンディレクトリに移動
-cd ~/laravel-practice/10-1-6_hands-on
+cd ~/coachtech/laravel-practice/10-1-6_hands-on
 
 # Laravel 10.xプロジェクトを作成（実践用）
 docker run --rm \
@@ -359,7 +359,7 @@ docker run --rm \
 **✅ ディレクトリ構造の確認**
 
 ```
-~/laravel-practice/
+~/coachtech/laravel-practice/
 └── 10-1-6_hands-on/
     ├── auth-app-practice/     ← 自分で作成した用（停止中）
     └── auth-app-sample/       ← 実践用（今ここ、起動中）
@@ -829,17 +829,17 @@ Route::middleware('auth')->group(function () {
 
 ```bash
 # auth-app-practiceで確認したい場合
-cd ~/laravel-practice/10-1-6_hands-on/auth-app-sample
+cd ~/coachtech/laravel-practice/10-1-6_hands-on/auth-app-sample
 ./vendor/bin/sail down
 
-cd ~/laravel-practice/10-1-6_hands-on/auth-app-practice
+cd ~/coachtech/laravel-practice/10-1-6_hands-on/auth-app-practice
 ./vendor/bin/sail up -d
 
 # auth-app-sampleで確認したい場合
-cd ~/laravel-practice/10-1-6_hands-on/auth-app-practice
+cd ~/coachtech/laravel-practice/10-1-6_hands-on/auth-app-practice
 ./vendor/bin/sail down
 
-cd ~/laravel-practice/10-1-6_hands-on/auth-app-sample
+cd ~/coachtech/laravel-practice/10-1-6_hands-on/auth-app-sample
 ./vendor/bin/sail up -d
 ```
 

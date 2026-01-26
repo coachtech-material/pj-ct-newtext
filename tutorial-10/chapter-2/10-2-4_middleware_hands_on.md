@@ -13,7 +13,7 @@ Chapter 8で学んだミドルウェアを実際に手を動かして確認し�
 このハンズオンでは、**「自分で作成する用」**と**「解答を確認する用」**の2つのプロジェクトを作成します。
 
 ```
-~/laravel-practice/
+~/coachtech/laravel-practice/
 ├── 10-2-4_hands-on/                      ← このハンズオン用のディレクトリ
 │   ├── middleware-app-practice/          ← 要件を見て自分で作成するプロジェクト
 │   │   ├── app/
@@ -126,13 +126,13 @@ User::create(['name' => 'User', 'email' => 'user@example.com', 'password' => bcr
 > 
 > 前のハンズオン（10-1-6）のプロジェクトが起動している場合は、先に停止してください。
 > ```bash
-> cd ~/laravel-practice/10-1-6_hands-on/auth-app-sample
+> cd ~/coachtech/laravel-practice/10-1-6_hands-on/auth-app-sample
 > ./vendor/bin/sail down
 > ```
 
 ```bash
 # laravel-practiceディレクトリに移動
-cd ~/laravel-practice
+cd ~/coachtech/laravel-practice
 
 # ハンズオン用ディレクトリを作成
 mkdir -p 10-2-4_hands-on
@@ -183,7 +183,7 @@ docker run --rm \
 **✅ ディレクトリ構造の確認**
 
 ```
-~/laravel-practice/
+~/coachtech/laravel-practice/
 └── 10-2-4_hands-on/
     └── middleware-app-practice/     ← 自分で作成する用（今ここ）
         ├── app/
@@ -231,7 +231,7 @@ public function handle(Request $request, Closure $next)
 
 ```bash
 # middleware-app-practiceディレクトリに移動
-cd ~/laravel-practice/10-2-4_hands-on/middleware-app-practice
+cd ~/coachtech/laravel-practice/10-2-4_hands-on/middleware-app-practice
 
 # Sailを停止
 ./vendor/bin/sail down
@@ -241,7 +241,7 @@ cd ~/laravel-practice/10-2-4_hands-on/middleware-app-practice
 
 ```bash
 # ハンズオンディレクトリに移動
-cd ~/laravel-practice/10-2-4_hands-on
+cd ~/coachtech/laravel-practice/10-2-4_hands-on
 
 # Laravel 10.xプロジェクトを作成（実践用）
 docker run --rm \
@@ -288,7 +288,7 @@ docker run --rm \
 **✅ ディレクトリ構造の確認**
 
 ```
-~/laravel-practice/
+~/coachtech/laravel-practice/
 └── 10-2-4_hands-on/
     ├── middleware-app-practice/     ← 自分で作成した用（停止中）
     └── middleware-app-sample/       ← 実践用（今ここ、起動中）
@@ -540,17 +540,17 @@ Route::get('/admin', [AdminController::class, 'index'])->middleware('admin');
 
 ```bash
 # middleware-app-practiceで確認したい場合
-cd ~/laravel-practice/10-2-4_hands-on/middleware-app-sample
+cd ~/coachtech/laravel-practice/10-2-4_hands-on/middleware-app-sample
 ./vendor/bin/sail down
 
-cd ~/laravel-practice/10-2-4_hands-on/middleware-app-practice
+cd ~/coachtech/laravel-practice/10-2-4_hands-on/middleware-app-practice
 ./vendor/bin/sail up -d
 
 # middleware-app-sampleで確認したい場合
-cd ~/laravel-practice/10-2-4_hands-on/middleware-app-practice
+cd ~/coachtech/laravel-practice/10-2-4_hands-on/middleware-app-practice
 ./vendor/bin/sail down
 
-cd ~/laravel-practice/10-2-4_hands-on/middleware-app-sample
+cd ~/coachtech/laravel-practice/10-2-4_hands-on/middleware-app-sample
 ./vendor/bin/sail up -d
 ```
 

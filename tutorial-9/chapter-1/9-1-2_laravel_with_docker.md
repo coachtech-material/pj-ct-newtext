@@ -56,20 +56,20 @@ Laravel Sailで構築される環境は、以下のコンテナで構成され�
 
 ### Step 1: Laravelプロジェクトの作成
 
-まず、Laravelプロジェクトを管理するためのディレクトリを作成します。ホームディレクトリ直下にプロジェクトを作成すると散らかりやすいので、`laravel-practice`という専用ディレクトリを作成してその中で作業します。
+まず、Laravelプロジェクトを管理するためのディレクトリを作成します。ホームディレクトリ直下にプロジェクトを作成すると散らかりやすいので、`coachtech`という専用ディレクトリを作成してその中で作業します。
 
 ```bash
 # ホームディレクトリに移動
 cd ~
 
-# Laravelプロジェクト用のディレクトリを作成
-mkdir laravel-practice
+# coachtechディレクトリを作成（既に存在する場合はスキップ）
+mkdir -p coachtech
 
 # 作成したディレクトリに移動
-cd laravel-practice
+cd coachtech
 ```
 
-> 💡 **ポイント**: `laravel-practice`ディレクトリの中に複数のLaravelプロジェクトを作成できます。今後、練習用のプロジェクトを作成する際も、このディレクトリ内で作業すると整理されます。
+> 💡 **ポイント**: `coachtech`ディレクトリの中に複数のLaravelプロジェクトを作成できます。今後、練習用のプロジェクトを作成する際も、このディレクトリ内で作業すると整理されます。
 
 本教材では**Laravel 10.x**の環境を中心に解説を行うため、以下のDockerコマンドを実行して**Laravel 10.x**を明示的に指定してプロジェクトを作成します。
 
@@ -80,7 +80,7 @@ docker run --rm \
     -w /var/www/html \
     -e COMPOSER_CACHE_DIR=/tmp/composer_cache \
     laravelsail/php82-composer:latest \
-    composer create-project laravel/laravel:^10.0 laravel-project
+    composer create-project laravel/laravel:^10.0 laravel-practice
 ```
 
 **コマンドの解説**
@@ -93,7 +93,7 @@ docker run --rm \
 | `-w /var/www/html` | コンテナ内の作業ディレクトリを指定 |
 | `-e COMPOSER_CACHE_DIR=/tmp/composer_cache` | Composerのキャッシュディレクトリを指定 |
 | `laravelsail/php82-composer:latest` | Laravel Sail公式のPHP 8.2 + Composerイメージ |
-| `composer create-project laravel/laravel:^10.0 laravel-project` | Laravel 10.xをインストール |
+| `composer create-project laravel/laravel:^10.0 laravel-practice` | Laravel 10.xをインストール |
 
 > ⚠️ **注意**: このコマンドは初回実行時に数分かかることがあります。Dockerイメージのダウンロードと、Laravelの依存パッケージのインストールが行われます。
 
@@ -103,7 +103,12 @@ docker run --rm \
 
 ### Step 2: Laravel Sailのインストール
 
-作成・移動したプロジェクトディレクトリ（laravel-practice）にて、Laravel Sailをインストールします。
+作成したプロジェクトディレクトリに移動し、Laravel Sailをインストールします。
+
+```bash
+# プロジェクトディレクトリに移動
+cd laravel-practice
+```
 
 ```bash
 docker run --rm \
@@ -143,11 +148,6 @@ docker run --rm \
 ---
 
 ### Step 4: `.env`ファイルの確認
-
-プロジェクトディレクトリにて以下のコマンドを実行し、エディタを開いておきましょう。
-```bash
-cd laravel-practice
-```
 
 `.env`ファイルを開き、データベース接続情報が以下と一致していることを確認します。
 

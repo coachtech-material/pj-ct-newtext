@@ -13,7 +13,7 @@ Chapter 6で学んだセキュリティ対策を実際に手を動かして確�
 このハンズオンでは、**「自分で作成する用」**と**「解答を確認する用」**の2つのプロジェクトを作成します。
 
 ```
-~/laravel-practice/
+~/coachtech/laravel-practice/
 ├── 10-6-6_hands-on/                      ← このハンズオン用のディレクトリ
 │   ├── security-app-practice/            ← 要件を見て自分で作成するプロジェクト
 │   │   ├── app/
@@ -160,13 +160,13 @@ CSRF保護とXSS対策を実装した「お問い合わせフォーム」を作�
 > 
 > 前のハンズオン（10-5-8）のプロジェクトが起動している場合は、先に停止してください。
 > ```bash
-> cd ~/laravel-practice/10-5-8_hands-on/testing-app-sample
+> cd ~/coachtech/laravel-practice/10-5-8_hands-on/testing-app-sample
 > ./vendor/bin/sail down
 > ```
 
 ```bash
 # laravel-practiceディレクトリに移動
-cd ~/laravel-practice
+cd ~/coachtech/laravel-practice
 
 # ハンズオン用ディレクトリを作成
 mkdir -p 10-6-6_hands-on
@@ -214,7 +214,7 @@ docker run --rm \
 **✅ ディレクトリ構造の確認**
 
 ```
-~/laravel-practice/
+~/coachtech/laravel-practice/
 └── 10-6-6_hands-on/
     └── security-app-practice/     ← 自分で作成する用（今ここ）
         ├── app/
@@ -282,7 +282,7 @@ Route::post('/contact', [ContactController::class, 'submit']);
 
 ```bash
 # security-app-practiceディレクトリに移動
-cd ~/laravel-practice/10-6-6_hands-on/security-app-practice
+cd ~/coachtech/laravel-practice/10-6-6_hands-on/security-app-practice
 
 # Sailを停止
 ./vendor/bin/sail down
@@ -292,7 +292,7 @@ cd ~/laravel-practice/10-6-6_hands-on/security-app-practice
 
 ```bash
 # ハンズオンディレクトリに移動
-cd ~/laravel-practice/10-6-6_hands-on
+cd ~/coachtech/laravel-practice/10-6-6_hands-on
 
 # Laravel 10.xプロジェクトを作成（実践用）
 docker run --rm \
@@ -336,7 +336,7 @@ docker run --rm \
 **✅ ディレクトリ構造の確認**
 
 ```
-~/laravel-practice/
+~/coachtech/laravel-practice/
 └── 10-6-6_hands-on/
     ├── security-app-practice/     ← 自分で作成した用（停止中）
     └── security-app-sample/       ← 実践用（今ここ、起動中）

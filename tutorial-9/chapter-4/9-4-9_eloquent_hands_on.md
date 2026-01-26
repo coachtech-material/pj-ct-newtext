@@ -18,7 +18,7 @@ Chapter 4で学んだEloquent ORMを実際に手を動かして確認します�
 このハンズオンでは、**「自分で作成する用」**と**「解答を確認する用」**の2つのプロジェクトを作成します。
 
 ```
-~/laravel-practice/
+~/coachtech/laravel-practice/
 ├── 9-4-9_hands-on/                       ← このハンズオン用のディレクトリ
 │   ├── eloquent-app-practice/            ← 要件を見て自分で作成するプロジェクト
 │   │   ├── app/
@@ -166,13 +166,13 @@ Post::first()->user;
 > 
 > 前のハンズオン（9-3-8）のプロジェクトが起動している場合は、先に停止してください。
 > ```bash
-> cd ~/laravel-practice/9-3-8_hands-on/database-app-sample
+> cd ~/coachtech/laravel-practice/9-3-8_hands-on/database-app-sample
 > ./vendor/bin/sail down
 > ```
 
 ```bash
 # laravel-practiceディレクトリに移動
-cd ~/laravel-practice
+cd ~/coachtech/laravel-practice
 
 # ハンズオン用ディレクトリを作成
 mkdir -p 9-4-9_hands-on
@@ -249,7 +249,7 @@ exit
 **✅ ディレクトリ構造の確認**
 
 ```
-~/laravel-practice/
+~/coachtech/laravel-practice/
 └── 9-4-9_hands-on/
     └── eloquent-app-practice/     ← 自分で作成する用（今ここ）
         ├── app/
@@ -312,7 +312,7 @@ public function user()
 
 ```bash
 # eloquent-app-practiceディレクトリに移動
-cd ~/laravel-practice/9-4-9_hands-on/eloquent-app-practice
+cd ~/coachtech/laravel-practice/9-4-9_hands-on/eloquent-app-practice
 
 # Sailを停止
 ./vendor/bin/sail down
@@ -322,7 +322,7 @@ cd ~/laravel-practice/9-4-9_hands-on/eloquent-app-practice
 
 ```bash
 # ハンズオンディレクトリに移動
-cd ~/laravel-practice/9-4-9_hands-on
+cd ~/coachtech/laravel-practice/9-4-9_hands-on
 
 # Laravel 10.xプロジェクトを作成（実践用）
 docker run --rm \
@@ -395,7 +395,7 @@ exit
 **✅ ディレクトリ構造の確認**
 
 ```
-~/laravel-practice/
+~/coachtech/laravel-practice/
 └── 9-4-9_hands-on/
     ├── eloquent-app-practice/     ← 自分で作成した用（停止中）
     └── eloquent-app-sample/       ← 実践用（今ここ、起動中）
@@ -764,17 +764,17 @@ public function destroy($id)
 
 ```bash
 # eloquent-app-practiceで確認したい場合
-cd ~/laravel-practice/9-4-9_hands-on/eloquent-app-sample
+cd ~/coachtech/laravel-practice/9-4-9_hands-on/eloquent-app-sample
 ./vendor/bin/sail down
 
-cd ~/laravel-practice/9-4-9_hands-on/eloquent-app-practice
+cd ~/coachtech/laravel-practice/9-4-9_hands-on/eloquent-app-practice
 ./vendor/bin/sail up -d
 
 # eloquent-app-sampleで確認したい場合
-cd ~/laravel-practice/9-4-9_hands-on/eloquent-app-practice
+cd ~/coachtech/laravel-practice/9-4-9_hands-on/eloquent-app-practice
 ./vendor/bin/sail down
 
-cd ~/laravel-practice/9-4-9_hands-on/eloquent-app-sample
+cd ~/coachtech/laravel-practice/9-4-9_hands-on/eloquent-app-sample
 ./vendor/bin/sail up -d
 ```
 

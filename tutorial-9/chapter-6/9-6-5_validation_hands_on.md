@@ -13,7 +13,7 @@ Chapter 6で学んだバリデーションを実際に手を動かして確認�
 このハンズオンでは、**「自分で作成する用」**と**「解答を確認する用」**の2つのプロジェクトを作成します。
 
 ```
-~/laravel-practice/
+~/coachtech/laravel-practice/
 ├── 9-6-5_hands-on/                       ← このハンズオン用のディレクトリ
 │   ├── validation-app-practice/          ← 要件を見て自分で作成するプロジェクト
 │   │   ├── app/
@@ -162,13 +162,13 @@ Chapter 6で学んだバリデーションを実際に手を動かして確認�
 > 
 > 前のハンズオン（9-5-6）のプロジェクトが起動している場合は、先に停止してください。
 > ```bash
-> cd ~/laravel-practice/9-5-6_hands-on/task-app-sample
+> cd ~/coachtech/laravel-practice/9-5-6_hands-on/task-app-sample
 > ./vendor/bin/sail down
 > ```
 
 ```bash
 # laravel-practiceディレクトリに移動
-cd ~/laravel-practice
+cd ~/coachtech/laravel-practice
 
 # ハンズオン用ディレクトリを作成
 mkdir -p 9-6-5_hands-on
@@ -219,7 +219,7 @@ docker run --rm \
 **✅ ディレクトリ構造の確認**
 
 ```
-~/laravel-practice/
+~/coachtech/laravel-practice/
 └── 9-6-5_hands-on/
     └── validation-app-practice/     ← 自分で作成する用（今ここ）
         ├── app/
@@ -269,7 +269,7 @@ public function rules()
 
 ```bash
 # validation-app-practiceディレクトリに移動
-cd ~/laravel-practice/9-6-5_hands-on/validation-app-practice
+cd ~/coachtech/laravel-practice/9-6-5_hands-on/validation-app-practice
 
 # Sailを停止
 ./vendor/bin/sail down
@@ -279,7 +279,7 @@ cd ~/laravel-practice/9-6-5_hands-on/validation-app-practice
 
 ```bash
 # ハンズオンディレクトリに移動
-cd ~/laravel-practice/9-6-5_hands-on
+cd ~/coachtech/laravel-practice/9-6-5_hands-on
 
 # Laravel 10.xプロジェクトを作成（実践用）
 docker run --rm \
@@ -326,7 +326,7 @@ docker run --rm \
 **✅ ディレクトリ構造の確認**
 
 ```
-~/laravel-practice/
+~/coachtech/laravel-practice/
 └── 9-6-5_hands-on/
     ├── validation-app-practice/     ← 自分で作成した用（停止中）
     └── validation-app-sample/       ← 実践用（今ここ、起動中）
@@ -700,17 +700,17 @@ public function store(StoreUserRequest $request)
 
 ```bash
 # validation-app-practiceで確認したい場合
-cd ~/laravel-practice/9-6-5_hands-on/validation-app-sample
+cd ~/coachtech/laravel-practice/9-6-5_hands-on/validation-app-sample
 ./vendor/bin/sail down
 
-cd ~/laravel-practice/9-6-5_hands-on/validation-app-practice
+cd ~/coachtech/laravel-practice/9-6-5_hands-on/validation-app-practice
 ./vendor/bin/sail up -d
 
 # validation-app-sampleで確認したい場合
-cd ~/laravel-practice/9-6-5_hands-on/validation-app-practice
+cd ~/coachtech/laravel-practice/9-6-5_hands-on/validation-app-practice
 ./vendor/bin/sail down
 
-cd ~/laravel-practice/9-6-5_hands-on/validation-app-sample
+cd ~/coachtech/laravel-practice/9-6-5_hands-on/validation-app-sample
 ./vendor/bin/sail up -d
 ```
 
