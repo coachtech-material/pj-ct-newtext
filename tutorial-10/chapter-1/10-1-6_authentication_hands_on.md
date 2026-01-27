@@ -381,10 +381,12 @@ docker run --rm \
 Fortifyを使った認証機能を実装する際、以下の順番で考えると効率的です：
 
 1. **Fortifyをインストール**：Composerでインストールし、設定ファイルを公開
-2. **Bladeファイルを配置**：提供されたログイン・登録フォームを配置
-3. **FortifyServiceProviderを設定**：ビューを指定
-4. **ダッシュボードを作成**：認証済みユーザー情報を表示
-5. **ルートを定義**：認証ミドルウェアを適用
+2. **FortifyServiceProviderを登録**：`config/app.php`の`providers`に追加
+3. **リダイレクト先を設定**：`RouteServiceProvider`と`config/fortify.php`で指定
+4. **Bladeファイルを配置**：提供されたログイン・登録フォームを配置
+5. **FortifyServiceProviderを設定**：ビューを指定
+6. **ダッシュボードを作成**：認証済みユーザー情報を表示
+7. **ルートを定義**：認証ミドルウェアを適用
 
 認証のポイントは「Fortifyがバックエンドの認証処理を担当し、フロントエンドは自由に設計できる」ことです。
 
@@ -418,7 +420,74 @@ sail artisan migrate
 
 ---
 
-#### ステップ2: Fortifyの設定を確認する
+#### ステップ2: FortifyServiceProviderを登録する
+
+**何を考えているか**：
+- 「FortifyServiceProviderをアプリケーションに登録しよう」
+- 「config/app.phpのprovidersに追加する必要がある」
+
+`config/app.php`を開いて、`providers`配列に以下を追加します：
+
+```php
+'providers' => ServiceProvider::defaultProviders()->merge([
+    /*
+     * Package Service Providers...
+     */
+
+    /*
+     * Application Service Providers...
+     */
+    App\Providers\AppServiceProvider::class,
+    App\Providers\AuthServiceProvider::class,
+    // App\Providers\BroadcastServiceProvider::class,
+    App\Providers\EventServiceProvider::class,
+    App\Providers\RouteServiceProvider::class,
+    App\Providers\FortifyServiceProvider::class, // ← この行を追加
+])->toArray(),
+```
+
+**コードリーディング**：
+```php
+App\Providers\FortifyServiceProvider::class,
+```
+→ FortifyServiceProviderをアプリケーションに登録します。これにより、Fortifyの認証機能が有効になります。
+
+---
+
+#### ステップ3: リダイレクト先を設定する
+
+**何を考えているか**：
+- 「ログイン後のリダイレクト先を設定しよう」
+- 「RouteServiceProviderとconfig/fortify.phpの両方で設定する必要がある」
+
+**3-1. RouteServiceProviderを編集**
+
+`app/Providers/RouteServiceProvider.php`を開いて、`HOME`定数を以下のように変更します：
+
+```php
+public const HOME = '/dashboard';
+```
+
+**3-2. config/fortify.phpを編集**
+config/fortify.phpを開いて、homeの値を以下のように変更します：
+```php
+'home' => '/dashboard',
+```
+
+**コードリーディング**：
+```php
+public const HOME = '/dashboard';
+```
+→ 認証後のデフォルトリダイレクト先を/dashboardに設定します。
+
+```php
+'home' => '/dashboard',
+```
+→ Fortifyが認証成功後にリダイレクトする先を/dashboardに設定します。
+
+---
+
+#### ステップ4: Fortifyの設定を確認する
 
 **何を考えているか**：
 - 「どの機能を有効にするか確認しよう」
@@ -448,7 +517,7 @@ Features::resetPasswords()
 
 ---
 
-#### ステップ3: Bladeファイルを配置する
+#### ステップ5: Bladeファイルを配置する
 
 **何を考えているか**：
 - 「ログインフォームと登録フォームを作成しよう」
@@ -592,7 +661,7 @@ mkdir -p resources/views/auth
 
 ---
 
-#### ステップ4: FortifyServiceProviderを設定する
+#### ステップ6: FortifyServiceProviderを設定する
 
 **何を考えているか**：
 - 「Fortifyに、どのビューを使うか教えよう」
@@ -641,7 +710,7 @@ Fortify::loginView(function () {
 
 ---
 
-#### ステップ5: Fortifyが登録したルートを確認する
+#### ステップ7: Fortifyが登録したルートを確認する
 
 **何を考えているか**：
 - 「Fortifyがどんなルートを自動的に登録したか確認しよう」
@@ -671,7 +740,7 @@ POST      register .......... Laravel\Fortify\Http\Controllers\RegisteredUserCon
 
 ---
 
-#### ステップ6: ダッシュボードを作成する
+#### ステップ8: ダッシュボードを作成する
 
 **何を考えているか**：
 - 「認証済みユーザーのみがアクセスできるページを作ろう」
@@ -712,7 +781,7 @@ $request->user()
 
 ---
 
-#### ステップ7: ルートを定義する
+#### ステップ9: ルートを定義する
 
 **何を考えているか**：
 - 「ダッシュボードのルートを定義しよう」
@@ -737,7 +806,7 @@ Route::middleware('auth')->group(function () {
 
 ---
 
-#### ステップ8: ダッシュボードのビューを作成する
+#### ステップ10: ダッシュボードのビューを作成する
 
 **何を考えているか**：
 - 「ユーザー情報を表示しよう」
@@ -786,7 +855,7 @@ Route::middleware('auth')->group(function () {
 
 ---
 
-#### ステップ9: 動作確認
+#### ステップ11: 動作確認
 
 **何を考えているか**：
 - 「実際に動作するか確認しよう」
