@@ -48,14 +48,14 @@ Tutorial 11で学んだAPI開発の知識を、実際のアプリで使います
 
 ### 0-1. GitHubでIssueを確認
 
-GitHubで `#7 公開API実装` のIssueを確認します。
+GitHubで `#8 公開API実装` のIssueを確認します。
 
 ### 0-2. ブランチを作成
 
 ```bash
 git checkout main
 git pull origin main
-git switch -c feature/issue-7-public-api
+git switch -c feature/issue-8-public-api
 ```
 
 ---

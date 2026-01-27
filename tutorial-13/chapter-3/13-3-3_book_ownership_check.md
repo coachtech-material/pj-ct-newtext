@@ -8,6 +8,22 @@
 
 ---
 
+## Step 0: 開発の準備（チケット駆動）
+
+### 0-1. GitHubでIssueを確認
+
+GitHubで `#7 ユーザー別レビュー管理` のIssueを確認します。
+
+### 0-2. ブランチを作成
+
+```bash
+git checkout main
+git pull origin main
+git switch -c feature/issue-7-user-review-management
+```
+
+---
+
 ## 🧠 先輩エンジニアの思考プロセス
 
 ### 「なぜリレーションの次に認可なのか？」
@@ -256,6 +272,25 @@ $this->authorize('show', $book);
 // ✅ 正解: Policyのメソッド名と一致
 $this->authorize('view', $book);
 ```
+
+---
+
+## Step 5: コミット、PR、マージ
+
+### 5-1. コミット
+
+```bash
+git add .
+git commit -m "feat: 所有者チェック（Policy）の実装 (Closes #7)"
+```
+
+### 5-2. プッシュ、PR、マージ
+
+```bash
+git push origin feature/issue-7-user-review-management
+```
+
+GitHubでPRを作成し、セルフレビュー後にマージします。
 
 ---
 
