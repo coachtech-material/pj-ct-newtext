@@ -12,14 +12,14 @@
 
 ### 0-1. GitHubでIssueを確認
 
-GitHubで `#7 ユーザー認証機能` のIssueを確認します。
+GitHubで `#6 ユーザー認証機能` のIssueを確認します。
 
 ### 0-2. ブランチを作成
 
 ```bash
 git checkout main
 git pull origin main
-git switch -c feature/issue-7-authentication
+git switch -c feature/issue-6-authentication
 ```
 
 ---
@@ -323,13 +323,13 @@ Route::middleware('auth')->group(function () {
 
 ```bash
 git add .
-git commit -m "feat: 認証機能の実装 (Closes #7)"
+git commit -m "feat: 認証機能の実装 (Closes #6)"
 ```
 
 ### 6-2. プッシュ、PR、マージ
 
 ```bash
-git push origin feature/issue-7-authentication
+git push origin feature/issue-6-authentication
 ```
 
 GitHubでPRを作成し、セルフレビュー後にマージします。
