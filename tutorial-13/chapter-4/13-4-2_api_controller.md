@@ -286,13 +286,13 @@ class BookController extends Controller
 
 ```bash
 git add .
-git commit -m "feat: 公開APIの実装 (Closes #6)"
+git commit -m "feat: 公開APIの実装 (Closes #8)"
 ```
 
 ### 5-2. プッシュ、PR、マージ
 
 ```bash
-git push origin feature/issue-6-public-api
+git push origin feature/issue-8-public-api
 ```
 
 GitHubでPRを作成し、セルフレビュー後にマージします。
@@ -302,7 +302,7 @@ GitHubでPRを作成し、セルフレビュー後にマージします。
 ```bash
 git checkout main
 git pull origin main
-git branch -d feature/issue-6-public-api
+git branch -d feature/issue-8-public-api
 ```
 
 ---
