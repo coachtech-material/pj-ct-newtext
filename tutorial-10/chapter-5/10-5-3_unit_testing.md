@@ -82,121 +82,77 @@ Time:   0.10s
 
 ---
 
-### 🚀 実践例1: クラスのメソッドをテスト
+### 🚀 実践例1: ユニットテストの基本
 
-サービスクラスを作成し、そのメソッドをテストする例です。
+モデルに定義した「文字を変換するメソッド」が正しく動くかをテストする、最もシンプルな例です。
 
-**`app/Services/Calculator.php`**
+**app/Models/User.php**
 
 ```php
 <?php
 
-namespace App\Services;
+namespace App\Models;
 
-class Calculator
+use Illuminate\Database\Eloquent\Model;
+
+class User extends Model
 {
-    public function add($a, $b)
+    /**
+     * 名前の先頭に「様」をつけて返す
+     */
+    public function formatName($name)
     {
-        return $a + $b;
-    }
-
-    public function subtract($a, $b)
-    {
-        return $a - $b;
-    }
-
-    public function multiply($a, $b)
-    {
-        return $a * $b;
-    }
-
-    public function divide($a, $b)
-    {
-        if ($b === 0) {
-            throw new \InvalidArgumentException('Division by zero');
-        }
-
-        return $a / $b;
+        return $name . '様';
     }
 }
 ```
 
-**コードリーディング（Calculator.php）**
+**コードリーディング（User.php）**：
 
 | コード | 説明 |
 |:---|:---|
-| `namespace App\Services;` | サービスクラスを`App\Services`名前空間に配置します |
-| `public function add($a, $b)` | 2つの引数を受け取り、加算結果を返すメソッドです |
-| `public function divide($a, $b)` | 除算を行うメソッドです。ゼロ除算の場合は例外をスローします |
-| `if ($b === 0)` | 除数が0かどうかをチェックします |
-| `throw new \InvalidArgumentException('Division by zero');` | ゼロ除算の場合、`InvalidArgumentException`例外をスローします |
+| `public function formatName($name)` | 文字列を受け取って加工する、テスト対象となるメソッドです |
+| `return $name . '様';` | 受け取った名前の末尾に「様」を連結して返します |
 
-**`tests/Unit/CalculatorTest.php`**
+**tests/Unit/UserTest.php**
 
 ```php
 <?php
 
 namespace Tests\Unit;
 
-use App\Services\Calculator;
+use App\Models\User;
 use PHPUnit\Framework\TestCase;
 
-class CalculatorTest extends TestCase
+class UserTest extends TestCase
 {
-    protected $calculator;
-
-    protected function setUp(): void
+    /**
+     * 名前のフォーマットが正しいかテスト
+     */
+    public function test_format_name_adds_honorific()
     {
-        parent::setUp();
-        $this->calculator = new Calculator();
-    }
+        // 1. 準備：モデルのインスタンスを作る
+        $user = new User();
 
-    public function test_add()
-    {
-        $result = $this->calculator->add(2, 3);
-        $this->assertEquals(5, $result);
-    }
+        // 2. 実行：メソッドを呼び出す
+        $result = $user->formatName('田中');
 
-    public function test_subtract()
-    {
-        $result = $this->calculator->subtract(10, 3);
-        $this->assertEquals(7, $result);
-    }
-
-    public function test_multiply()
-    {
-        $result = $this->calculator->multiply(4, 5);
-        $this->assertEquals(20, $result);
-    }
-
-    public function test_divide()
-    {
-        $result = $this->calculator->divide(10, 2);
-        $this->assertEquals(5, $result);
-    }
-
-    public function test_divide_by_zero_throws_exception()
-    {
-        $this->expectException(\InvalidArgumentException::class);
-        $this->calculator->divide(10, 0);
+        // 3. 検証：結果が「田中様」になっているか確認
+        $this->assertEquals('田中様', $result);
     }
 }
 ```
 
-**コードリーディング（CalculatorTest.php）**
+**コードリーディング（UserTest.php）**：
 
 | コード | 説明 |
 |:---|:---|
-| `use App\Services\Calculator;` | テスト対象のCalculatorクラスをインポートします |
-| `use PHPUnit\Framework\TestCase;` | PHPUnitのTestCaseクラスをインポートします。単体テストはこのクラスを継承します |
-| `protected $calculator;` | テスト全体で使用するCalculatorインスタンスを保持するプロパティです |
-| `protected function setUp(): void` | 各テストメソッドの実行前に呼び出されるセットアップメソッドです |
-| `parent::setUp();` | 親クラスのsetUp()を呼び出します。必ず最初に実行します |
-| `$this->calculator = new Calculator();` | Calculatorのインスタンスを作成し、プロパティに保存します |
-| `public function test_add()` | テストメソッドです。メソッド名は`test_`で始める必要があります |
-| `$this->assertEquals(5, $result);` | 期待値（5）と実際の値（$result）が等しいことを検証します |
-| `$this->expectException(\InvalidArgumentException::class);` | 次の処理で指定した例外がスローされることを期待します |
-| `$this->calculator->divide(10, 0);` | ゼロ除算を実行し、例外がスローされることを確認します |
+| `use PHPUnit\Framework\TestCase;` | 単体テスト（Unitテスト）の基本機能を備えたクラスを読み込みます |
+| `class UserTest extends TestCase` | テスト用クラスです。TestCaseを継承することで、検証用のメソッドが使えます |
+| `test_...`（メソッド名） | PHPUnitのルールで、メソッド名の先頭は必ず `test_` にします |
+| `$user = new User();` | テストしたい機能を持つオブジェクトを新しく用意します |
+| `$user->formatName('田中')` | 実際にテストしたい処理を実行し、結果を `$result` に入れます |
+| `$this->assertEquals('田中様', $result)` | 「田中様」という期待通りの結果が返ってきたかを厳密にチェックします |
 
 ---
 
