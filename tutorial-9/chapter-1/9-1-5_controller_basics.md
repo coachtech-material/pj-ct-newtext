@@ -39,10 +39,6 @@ sail artisan make:controller SampleController
 
 このコマンドを実行すると、`app/Http/Controllers/SampleController.php`というファイルが生成されます。
 
-> **📌 補足**
-> 
-> 前のセクション（9-1-4）で、すでに`UserController`と`WelcomeController`を作成しました。同じ名前のコントローラーを再度作成しようとすると、「Controller already exists.」というエラーが表示されます。ここでは例として`SampleController`という別の名前を使用しています。
-
 **生成されたファイルの内容**
 
 ```php
