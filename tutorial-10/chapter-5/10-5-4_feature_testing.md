@@ -63,6 +63,8 @@ sail artisan test
 
 ### 🚀 実践例1: GETリクエスト
 
+投稿一覧ページにGETリクエストを送信し、レスポンスを検証する例です。
+
 ```php
 public function test_can_get_posts()
 {
@@ -74,9 +76,20 @@ public function test_can_get_posts()
 }
 ```
 
+**コードリーディング**
+
+| コード | 説明 |
+|:---|:---|
+| `$response = $this->get('/posts');` | `/posts`にGETリクエストを送信し、レスポンスを取得します |
+| `$response->assertStatus(200);` | HTTPステータスコードが200（成功）であることを検証します |
+| `$response->assertViewIs('posts.index');` | 返されたビューが`posts.index`であることを検証します |
+| `$response->assertViewHas('posts');` | ビューに`posts`変数が渡されていることを検証します |
+
 ---
 
 ### 🚀 実践例2: POSTリクエスト
+
+投稿を作成するPOSTリクエストを送信し、データベースに保存されることを検証する例です。
 
 ```php
 use App\Models\User;
@@ -104,20 +117,22 @@ class PostTest extends TestCase
 }
 ```
 
-**コードリーディング（メソッドチェーンの分解）**
+**コードリーディング**
 
-`$this->actingAs($user)->post('/posts', $data)` を分解してみましょう。
-
-| ステップ | コード | 演算子 | 戻り値 | 意味 |
-|:---:|:---|:---:|:---|:---|
-| 1 | `$this->actingAs($user)` | `->` | TestCaseインスタンス | 指定ユーザーとして認証状態を設定 |
-| 2 | `->post('/posts', $data)` | `->` | TestResponse | POSTリクエストを送信してレスポンスを取得 |
-
-> **💡 Tutorial 7の復習**: `$this`は現在のテストクラスのインスタンスを指します。`actingAs()`はテストクラス自身を返すので、続けて`->post()`を呼び出せます。
+| コード | 説明 |
+|:---|:---|
+| `use RefreshDatabase;` | テストごとにデータベースをリセットするトレイトです |
+| `$user = User::factory()->create();` | ファクトリを使ってテスト用ユーザーを作成します |
+| `$this->actingAs($user)` | 指定したユーザーとして認証状態を設定します |
+| `->post('/posts', $data);` | `/posts`にPOSTリクエストを送信します |
+| `$response->assertRedirect();` | レスポンスがリダイレクトであることを検証します |
+| `$this->assertDatabaseHas('posts', ['title' => 'Test Post']);` | データベースに指定したデータが存在することを検証します |
 
 ---
 
 ### 🚀 実践例3: PUTリクエスト
+
+投稿を更新するPUTリクエストを送信し、データベースが更新されることを検証する例です。
 
 ```php
 use App\Models\Post;
@@ -141,9 +156,19 @@ public function test_can_update_post()
 }
 ```
 
+**コードリーディング**
+
+| コード | 説明 |
+|:---|:---|
+| `$post = Post::factory()->create(['user_id' => $user->id]);` | ファクトリを使ってテスト用投稿を作成します。`user_id`を指定して所有者を設定します |
+| `->put("/posts/{$post->id}", $data);` | 指定したIDの投稿にPUTリクエストを送信します |
+| `$this->assertDatabaseHas('posts', ['title' => 'Updated Title']);` | データベースの投稿が更新されていることを検証します |
+
 ---
 
 ### 🚀 実践例4: DELETEリクエスト
+
+投稿を削除するDELETEリクエストを送信し、データベースから削除されることを検証する例です。
 
 ```php
 use App\Models\Post;
@@ -162,45 +187,18 @@ public function test_can_delete_post()
 }
 ```
 
----
+**コードリーディング**
 
-### 💡 TIP: よく使うアサーションメソッド
-
-| メソッド | 説明 |
-|----------|------|
-| `assertStatus($status)` | ステータスコードを検証 |
-| `assertJson($data)` | JSONレスポンスを検証 |
-| `assertJsonStructure($structure)` | JSON構造を検証 |
-| `assertJsonCount($count, $key)` | JSON配列の要素数を検証 |
-| `assertJsonFragment($fragment)` | JSON内に特定のデータが含まれることを検証 |
+| コード | 説明 |
+|:---|:---|
+| `->delete("/posts/{$post->id}");` | 指定したIDの投稿にDELETEリクエストを送信します |
+| `$this->assertDatabaseMissing('posts', ['id' => $post->id]);` | データベースに指定したデータが存在しないことを検証します |
 
 ---
 
-### 🚀 実践例5: 認証が必要なページ
+### 🚀 実践例5: バリデーションエラー
 
-```php
-use App\Models\User;
-
-public function test_authenticated_user_can_create_post()
-{
-    $user = User::factory()->create();
-
-    $data = [
-        'title' => 'Test Post',
-        'content' => 'Test Content',
-    ];
-
-    $response = $this->actingAs($user)
-        ->post('/posts', $data);
-
-    $response->assertRedirect();
-    $this->assertDatabaseHas('posts', ['title' => 'Test Post']);
-}
-```
-
----
-
-### 🚀 実践例6: バリデーションエラー
+必須フィールドが不足している場合のバリデーションエラーを検証する例です。
 
 ```php
 public function test_create_post_requires_title()
@@ -219,48 +217,26 @@ public function test_create_post_requires_title()
 }
 ```
 
----
+**コードリーディング**
 
-### 🚀 実践例7: JSONの詳細な検証
-
-```php
-use App\Models\Post;
-
-public function test_can_get_post_details()
-{
-    $post = Post::factory()->create([
-        'title' => 'Test Post',
-        'content' => 'Test Content',
-    ]);
-
-    $response = $this->get("/posts/{$post->id}");
-
-    $response->assertStatus(200);
-    $response->assertViewIs('posts.show');
-    $response->assertViewHas('post');
-    $response->assertSee('Test Post');
-}
-```
+| コード | 説明 |
+|:---|:---|
+| `$data = ['content' => 'Test Content'];` | `title`フィールドを意図的に省略したデータを作成します |
+| `$response->assertSessionHasErrors(['title']);` | セッションに`title`フィールドのバリデーションエラーが含まれていることを検証します |
 
 ---
 
-### 🚀 実践例8: JSON配列の要素数を検証
+### 💡 TIP: よく使うアサーションメソッド
 
-```php
-use App\Models\Post;
-
-public function test_posts_list_has_correct_count()
-{
-    Post::factory()->count(10)->create();
-
-    $response = $this->get('/posts');
-
-    $response->assertStatus(200);
-    $response->assertViewHas('posts', function ($posts) {
-        return $posts->count() === 10;
-    });
-}
-```
+| メソッド | 説明 |
+|----------|------|
+| `assertStatus($status)` | ステータスコードを検証 |
+| `assertRedirect()` | リダイレクトレスポンスであることを検証 |
+| `assertViewIs($view)` | 返されたビュー名を検証 |
+| `assertViewHas($key)` | ビューに変数が渡されていることを検証 |
+| `assertSessionHasErrors($keys)` | セッションにバリデーションエラーがあることを検証 |
+| `assertDatabaseHas($table, $data)` | データベースにデータが存在することを検証 |
+| `assertDatabaseMissing($table, $data)` | データベースにデータが存在しないことを検証 |
 
 ---
 
@@ -284,43 +260,9 @@ class PostTest extends TestCase
 
 ---
 
-### 🚀 実践例9: ヘッダーを含むリクエスト
-
-```php
-public function test_can_create_post_with_custom_header()
-{
-    $user = User::factory()->create();
-
-    $data = [
-        'title' => 'Test Post',
-        'content' => 'Test Content',
-    ];
-
-    $response = $this->actingAs($user)
-        ->withHeaders([
-            'X-Custom-Header' => 'value',
-        ])
-        ->post('/posts', $data);
-
-    $response->assertRedirect();
-}
-```
-
-**コードリーディング（複数のメソッドチェーン）**
-
-| ステップ | コード | 演算子 | 戻り値 | 意味 |
-|:---:|:---|:---:|:---|:---|
-| 1 | `$this->actingAs($user)` | `->` | TestCase | 認証状態を設定 |
-| 2 | `->withHeaders([...])` | `->` | TestCase | カスタムヘッダーを設定 |
-| 3 | `->post('/posts', $data)` | `->` | TestResponse | POSTリクエストを送信 |
-
-> **💡 ポイント**: このように複数のメソッドをチェーンすることで、認証、ヘッダー設定、リクエスト送信を一連の流れで記述できます。
-
----
-
 ### 🚨 よくある間違い
 
-#### 間違い1: データベースがリセットされない
+**間違い1: データベースがリセットされない**
 
 ```php
 // NG: RefreshDatabaseを使っていない
@@ -348,7 +290,7 @@ class PostTest extends TestCase
 
 ---
 
-#### 間違い2: 認証を忘れる
+**間違い2: 認証を忘れる**
 
 ```php
 // NG
@@ -368,7 +310,7 @@ $response = $this->actingAs($user)
 
 *   機能テストは、HTTPリクエストとレスポンスを検証する。
 *   `get()`、`post()`、`put()`、`delete()`メソッドを使って、リクエストを送信できる。
-*   `assertStatus()`、`assertJson()`などのメソッドを使って、レスポンスを検証できる。
+*   `assertStatus()`、`assertRedirect()`などのメソッドを使って、レスポンスを検証できる。
 *   `actingAs()`を使って、認証済みユーザーとしてリクエストを送信できる。
 
 次のセクションでは、データベーステストについて学びます。

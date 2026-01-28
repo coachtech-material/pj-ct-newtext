@@ -82,55 +82,9 @@ Time:   0.10s
 
 ---
 
-### 🚀 実践例1: 基本的なアサーション
+### 🚀 実践例1: クラスのメソッドをテスト
 
-```php
-public function test_basic_assertions()
-{
-    $this->assertTrue(true);
-    $this->assertFalse(false);
-    $this->assertEquals(5, 5);
-    $this->assertNotEquals(5, 10);
-    $this->assertNull(null);
-    $this->assertNotNull('value');
-    $this->assertEmpty([]);
-    $this->assertNotEmpty([1, 2, 3]);
-}
-```
-
----
-
-### 🚀 実践例2: 配列のアサーション
-
-```php
-public function test_array_assertions()
-{
-    $array = [1, 2, 3, 4, 5];
-
-    $this->assertCount(5, $array);
-    $this->assertContains(3, $array);
-    $this->assertNotContains(10, $array);
-}
-```
-
----
-
-### 🚀 実践例3: 文字列のアサーション
-
-```php
-public function test_string_assertions()
-{
-    $string = 'Hello, Laravel!';
-
-    $this->assertStringContainsString('Laravel', $string);
-    $this->assertStringStartsWith('Hello', $string);
-    $this->assertStringEndsWith('!', $string);
-}
-```
-
----
-
-### 🚀 実践例4: クラスのメソッドをテスト
+サービスクラスを作成し、そのメソッドをテストする例です。
 
 **`app/Services/Calculator.php`**
 
@@ -166,6 +120,16 @@ class Calculator
     }
 }
 ```
+
+**コードリーディング（Calculator.php）**
+
+| コード | 説明 |
+|:---|:---|
+| `namespace App\Services;` | サービスクラスを`App\Services`名前空間に配置します |
+| `public function add($a, $b)` | 2つの引数を受け取り、加算結果を返すメソッドです |
+| `public function divide($a, $b)` | 除算を行うメソッドです。ゼロ除算の場合は例外をスローします |
+| `if ($b === 0)` | 除数が0かどうかをチェックします |
+| `throw new \InvalidArgumentException('Division by zero');` | ゼロ除算の場合、`InvalidArgumentException`例外をスローします |
 
 **`tests/Unit/CalculatorTest.php`**
 
@@ -219,51 +183,27 @@ class CalculatorTest extends TestCase
 }
 ```
 
+**コードリーディング（CalculatorTest.php）**
+
+| コード | 説明 |
+|:---|:---|
+| `use App\Services\Calculator;` | テスト対象のCalculatorクラスをインポートします |
+| `use PHPUnit\Framework\TestCase;` | PHPUnitのTestCaseクラスをインポートします。単体テストはこのクラスを継承します |
+| `protected $calculator;` | テスト全体で使用するCalculatorインスタンスを保持するプロパティです |
+| `protected function setUp(): void` | 各テストメソッドの実行前に呼び出されるセットアップメソッドです |
+| `parent::setUp();` | 親クラスのsetUp()を呼び出します。必ず最初に実行します |
+| `$this->calculator = new Calculator();` | Calculatorのインスタンスを作成し、プロパティに保存します |
+| `public function test_add()` | テストメソッドです。メソッド名は`test_`で始める必要があります |
+| `$this->assertEquals(5, $result);` | 期待値（5）と実際の値（$result）が等しいことを検証します |
+| `$this->expectException(\InvalidArgumentException::class);` | 次の処理で指定した例外がスローされることを期待します |
+| `$this->calculator->divide(10, 0);` | ゼロ除算を実行し、例外がスローされることを確認します |
+
 ---
 
 ### 💡 TIP: `setUp()`と`tearDown()`
 
 *   `setUp()`: 各テストの前に実行される
 *   `tearDown()`: 各テストの後に実行される
-
----
-
-### 🚀 実践例5: データプロバイダー
-
-```php
-/**
- * @dataProvider additionProvider
- */
-public function test_add_with_data_provider($a, $b, $expected)
-{
-    $result = $this->calculator->add($a, $b);
-    $this->assertEquals($expected, $result);
-}
-
-public function additionProvider()
-{
-    return [
-        [2, 3, 5],
-        [10, 5, 15],
-        [-5, 5, 0],
-        [0, 0, 0],
-    ];
-}
-```
-
----
-
-### 🚀 実践例6: 例外のテスト
-
-```php
-public function test_divide_by_zero_throws_exception()
-{
-    $this->expectException(\InvalidArgumentException::class);
-    $this->expectExceptionMessage('Division by zero');
-
-    $this->calculator->divide(10, 0);
-}
-```
 
 ---
 
@@ -284,7 +224,7 @@ public function test_divide_by_zero_throws_exception()
 
 ### 🚨 よくある間違い
 
-#### 間違い1: テストメソッド名が`test`で始まっていない
+**間違い1: テストメソッド名が`test`で始まっていない**
 
 ```php
 // NG
@@ -302,7 +242,7 @@ public function test_addition()
 
 ---
 
-#### 間違い2: アサーションがない
+**間違い2: アサーションがない**
 
 ```php
 // NG
@@ -329,7 +269,7 @@ public function test_add()
 *   単体テストは、個々の関数やメソッドが正しく動作するかを検証する。
 *   `sail artisan test`でテストを実行できる。
 *   アサーションメソッドを使って、期待値と実際の値を比較する。
-*   データプロバイダーを使って、複数のテストケースを効率的に実行できる。
+*   `setUp()`メソッドを使って、テストの前準備を行う。
 
 次のセクションでは、機能テストの基礎を学びます。
 
