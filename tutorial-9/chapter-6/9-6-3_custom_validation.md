@@ -2,9 +2,9 @@
 
 ## 🎯 このセクションで学ぶこと
 
-*   独自のバリデーションルールを作成できるようになる。
-*   クロージャを使った簡易的なカスタムバリデーションを実装できるようになる。
-*   `Rule`クラスを使った再利用可能なカスタムバリデーションを実装できるようになる。
+*   独自のバリデーションルールを作成する方法を理解する。
+*   クロージャを使った簡易的なカスタムバリデーションの実装方法を理解する。
+*   `Rule`クラスを使った再利用可能なカスタムバリデーションの実装方法を理解する。
 
 ---
 
@@ -101,7 +101,7 @@ $request->validate([
 
 再利用可能なカスタムバリデーションルールを作成するには、**Ruleクラス**を使います。
 
-#### ステップ1: Ruleクラスを生成
+#### Ruleクラスの生成
 
 ```bash
 sail artisan make:rule Uppercase
@@ -137,7 +137,7 @@ class Uppercase implements Rule
 
 ---
 
-#### ステップ2: Ruleクラスを使う
+#### Ruleクラスの使用
 
 ```php
 use App\Rules\Uppercase;
@@ -151,7 +151,7 @@ $request->validate([
 
 ### 🚀 実践例3: 禁止ワードルール
 
-#### ステップ1: Ruleクラスを生成
+#### Ruleクラスの生成
 
 ```bash
 sail artisan make:rule NoForbiddenWords
@@ -188,7 +188,7 @@ class NoForbiddenWords implements Rule
 }
 ```
 
-#### ステップ2: Ruleクラスを使う
+#### Ruleクラスの使用
 
 ```php
 use App\Rules\NoForbiddenWords;
@@ -202,7 +202,7 @@ $request->validate([
 
 ### 🚀 実践例4: パラメータを受け取るルール
 
-#### ステップ1: Ruleクラスを生成
+#### Ruleクラスの生成
 
 ```bash
 sail artisan make:rule MinWords
@@ -239,7 +239,7 @@ class MinWords implements Rule
 }
 ```
 
-#### ステップ2: Ruleクラスを使う
+#### Ruleクラスの使用
 
 ```php
 use App\Rules\MinWords;
@@ -253,7 +253,7 @@ $request->validate([
 
 ### 🚀 実践例5: データベースを使ったルール
 
-#### ステップ1: Ruleクラスを生成
+#### Ruleクラスの生成
 
 ```bash
 sail artisan make:rule UniqueSlug
@@ -296,7 +296,7 @@ class UniqueSlug implements Rule
 }
 ```
 
-#### ステップ2: Ruleクラスを使う
+#### Ruleクラスの使用
 
 ```php
 use App\Rules\UniqueSlug;
@@ -316,7 +316,7 @@ $request->validate([
 
 ### 🚀 実践例6: 複数のフィールドを使ったルール
 
-#### ステップ1: Ruleクラスを生成
+#### Ruleクラスの生成
 
 ```bash
 sail artisan make:rule ValidDateRange
@@ -352,7 +352,7 @@ class ValidDateRange implements Rule
 }
 ```
 
-#### ステップ2: Ruleクラスを使う
+#### Ruleクラスの使用
 
 ```php
 use App\Rules\ValidDateRange;
@@ -459,6 +459,6 @@ public function message()
 *   データベースを使ったカスタムルールを作成できる。
 *   複数のフィールドを使ったカスタムルールを作成できる。
 
-次のセクションでは、フォームリクエストを使って、バリデーションロジックを分離する方法を学びます。
+
 
 ---

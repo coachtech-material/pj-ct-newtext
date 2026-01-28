@@ -2,9 +2,9 @@
 
 ## 🎯 このセクションで学ぶこと
 
-*   Tutorial 8で学んだ多対多のリレーションシップを、Laravelで実装できるようになる。
-*   `belongsToMany()`を使って、多対多のリレーションシップを定義できるようになる。
-*   中間テーブルを設計し、`attach()`、`detach()`、`sync()`メソッドを使えるようになる。
+*   Tutorial 8で学んだ多対多のリレーションシップを、Laravelで実装する方法を理解する。
+*   `belongsToMany()`を使った、多対多のリレーションシップの定義方法を理解する。
+*   中間テーブルの設計と、`attach()`、`detach()`、`sync()`メソッドの使い方を理解する。
 
 ---
 
@@ -75,7 +75,7 @@ role_user テーブル（中間テーブル）
 
 ### 🔧 マイグレーションの作成
 
-#### ステップ1: rolesテーブルを作成
+#### rolesテーブルの作成
 
 ```bash
 sail artisan make:migration create_roles_table
@@ -94,7 +94,7 @@ public function up()
 }
 ```
 
-#### ステップ2: 中間テーブルを作成
+#### 中間テーブルの作成
 
 ```bash
 sail artisan make:migration create_role_user_table
@@ -457,6 +457,6 @@ public function roles()
 *   `sync()`を使って、中間テーブルのレコードを同期できる。
 *   `withPivot()`を使って、中間テーブルの追加のカラムにアクセスできる。
 
-次のセクションでは、Eager Loadingとレイジーローディングについて学びます。
+
 
 ---
