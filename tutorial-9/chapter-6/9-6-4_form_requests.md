@@ -41,7 +41,7 @@ Laravelでは、**フォームリクエスト**を使うことで、バリデー
 
 ### 🔧 フォームリクエストの作成
 
-#### フォームリクエストの生成
+**フォームリクエストの生成**
 
 ```bash
 sail artisan make:request StorePostRequest
@@ -86,7 +86,7 @@ class StorePostRequest extends FormRequest
 
 ---
 
-#### コントローラーでの使用
+**コントローラーでの使用**
 
 ```php
 use App\Http\Requests\StorePostRequest;
@@ -113,7 +113,7 @@ public function store(StorePostRequest $request)
 
 `authorize()`メソッドを使うことで、**認可ロジック**を実装できます。
 
-#### 例1: ログインユーザーのみ許可
+**例1: ログインユーザーのみ許可**
 
 ```php
 public function authorize()
@@ -122,7 +122,7 @@ public function authorize()
 }
 ```
 
-#### 例2: 自分の投稿のみ更新を許可
+**例2: 自分の投稿のみ更新を許可**
 
 ```php
 public function authorize()
@@ -138,7 +138,7 @@ public function authorize()
 
 ### 📝 エラーメッセージのカスタマイズ
 
-#### `messages()`メソッド
+**`messages()`メソッド**
 
 ```php
 public function messages()
@@ -153,7 +153,7 @@ public function messages()
 
 ---
 
-#### `attributes()`メソッド
+**`attributes()`メソッド**
 
 ```php
 public function attributes()
@@ -172,7 +172,9 @@ public function attributes()
 
 ### 🚀 実践例1: ユーザー登録
 
-#### フォームリクエスト
+ユーザー登録フォームのバリデーションをフォームリクエストで実装する例です。
+
+**フォームリクエストの生成**
 
 ```bash
 sail artisan make:request RegisterRequest
@@ -220,7 +222,33 @@ class RegisterRequest extends FormRequest
 }
 ```
 
-#### コントローラー
+**コードリーディング（フォームリクエスト）**：
+
+| コード | 説明 |
+|:---|:---|
+| `class RegisterRequest extends FormRequest` | `FormRequest`を継承したカスタムリクエストクラスです |
+| `public function authorize()` | リクエストの認可を判定します。`true`で許可、`false`で403エラー |
+| `return true;` | ユーザー登録は誰でも可能なので、常に`true`を返します |
+| `public function rules()` | バリデーションルールを配列で返します |
+| `Password::min(8)->letters()->numbers()` | パスワードルールオブジェクト。8文字以上、英字と数字を含む |
+| `public function messages()` | カスタムエラーメッセージを定義します |
+| `'email.unique' => '...'` | `フィールド名.ルール名`の形式でメッセージを指定します |
+
+**構文解説**：
+
+```php
+'password' => ['required', 'confirmed', Password::min(8)
+    ->letters()
+    ->numbers()],
+```
+→ 配列形式でルールを指定しています。`Password::min(8)`はパスワードルールオブジェクトで、メソッドチェーンで条件を追加できます。`letters()`は英字を含むこと、`numbers()`は数字を含むことを要求します。
+
+```php
+'email.unique' => 'このメールアドレスは既に登録されています。',
+```
+→ `messages()`メソッドでは、`フィールド名.ルール名`の形式でカスタムメッセージを指定します。この場合、`email`フィールドの`unique`ルールに対するメッセージです。
+
+**コントローラー**
 
 ```php
 use App\Http\Requests\RegisterRequest;
@@ -243,64 +271,34 @@ public function register(RegisterRequest $request)
 }
 ```
 
----
+**コードリーディング（コントローラー）**：
 
-### 🚀 実践例2: 投稿の更新
+| コード | 説明 |
+|:---|:---|
+| `RegisterRequest $request` | 型ヒントでフォームリクエストを注入。自動的にバリデーションが実行されます |
+| `$request->validated()` | バリデーション済みのデータのみを取得します |
+| `Hash::make($validated['password'])` | パスワードをハッシュ化してから保存します |
+| `$validated['phone'] ?? null` | null合体演算子。phoneがnullの場合はnullを使用します |
+| `Auth::login($user)` | 作成したユーザーでログイン状態にします |
 
-#### フォームリクエスト
+**処理の流れ**：
 
-```bash
-sail artisan make:request UpdatePostRequest
 ```
-
-**`app/Http/Requests/UpdatePostRequest.php`**
-
-```php
-<?php
-
-namespace App\Http\Requests;
-
-use Illuminate\Foundation\Http\FormRequest;
-
-class UpdatePostRequest extends FormRequest
-{
-    public function authorize()
-    {
-        $post = Post::findOrFail($this->route('post'));
-        return $post->user_id === Auth::id();
-    }
-
-    public function rules()
-    {
-        return [
-            'title' => 'required|string|max:255',
-            'content' => 'required|string',
-            'category_id' => 'required|exists:categories,id',
-            'tags' => 'nullable|array',
-            'tags.*' => 'exists:tags,id',
-            'is_published' => 'required|boolean',
-        ];
-    }
-}
-```
-
-#### コントローラー
-
-```php
-use App\Http\Requests\UpdatePostRequest;
-
-public function update(UpdatePostRequest $request, $id)
-{
-    $post = Post::findOrFail($id);
-    
-    $post->update($request->validated());
-    
-    if ($request->has('tags')) {
-        $post->tags()->sync($request->tags);
-    }
-
-    return redirect('/posts/' . $post->id);
-}
+1. RegisterRequestがコントローラーに注入される
+    ↓
+2. Laravelが自動的にauthorize()を実行
+   - falseの場合: 403 Forbiddenエラー
+   - trueの場合: 次へ進む
+    ↓
+3. Laravelが自動的にrules()のバリデーションを実行
+   - 失敗の場合: 自動的にリダイレクトし、エラーメッセージを表示
+   - 成功の場合: コントローラーのメソッドが実行される
+    ↓
+4. $request->validated()でバリデーション済みデータを取得
+    ↓
+5. ユーザーを作成し、ログイン状態にする
+    ↓
+6. ダッシュボードにリダイレクト
 ```
 
 ---
@@ -350,32 +348,99 @@ public function rules()
 
 ---
 
-### 🚀 実践例3: 条件付きバリデーション
+### 🚀 実践例2: 条件付きバリデーション
 
-#### フォームリクエスト
+フォームの入力内容に応じて、バリデーションルールを動的に変更する例です。
+
+**フォームリクエスト**
 
 ```php
-public function rules()
-{
-    $rules = [
-        'name' => 'required|string|max:255',
-        'email' => 'required|email',
-    ];
+<?php
 
-    if ($this->is_company) {
-        $rules['company_name'] = 'required|string|max:255';
-        $rules['company_address'] = 'required|string';
+namespace App\Http\Requests;
+
+use Illuminate\Foundation\Http\FormRequest;
+
+class ContactRequest extends FormRequest
+{
+    public function authorize()
+    {
+        return true;
     }
 
-    return $rules;
+    public function rules()
+    {
+        $rules = [
+            'name' => 'required|string|max:255',
+            'email' => 'required|email',
+            'is_company' => 'required|boolean',
+        ];
+
+        if ($this->is_company) {
+            $rules['company_name'] = 'required|string|max:255';
+            $rules['company_address'] = 'required|string';
+        }
+
+        return $rules;
+    }
+
+    public function messages()
+    {
+        return [
+            'company_name.required' => '法人の場合、会社名は必須です。',
+            'company_address.required' => '法人の場合、会社住所は必須です。',
+        ];
+    }
 }
 ```
+
+**コードリーディング**：
+
+| コード | 説明 |
+|:---|:---|
+| `$rules = [...]` | 基本のバリデーションルールを配列で定義します |
+| `if ($this->is_company)` | リクエストの`is_company`フィールドの値をチェックします |
+| `$this->is_company` | フォームリクエスト内では`$this`でリクエストデータにアクセスできます |
+| `$rules['company_name'] = '...'` | 条件に応じてルールを動的に追加します |
+| `return $rules;` | 最終的なルール配列を返します |
+
+**構文解説**：
+
+```php
+if ($this->is_company) {
+    $rules['company_name'] = 'required|string|max:255';
+    $rules['company_address'] = 'required|string';
+}
+```
+→ `$this->is_company`でリクエストデータにアクセスしています。フォームリクエストクラス内では、`$this`を使ってリクエストのフィールド値を直接参照できます。`is_company`が`true`の場合のみ、`company_name`と`company_address`のルールが追加されます。
+
+**処理の流れ**：
+
+```
+1. 基本ルール（name, email, is_company）を定義
+    ↓
+2. is_companyの値をチェック
+   - trueの場合: company_nameとcompany_addressのルールを追加
+   - falseの場合: 追加なし
+    ↓
+3. 最終的なルール配列を返す
+    ↓
+4. Laravelがルールに基づいてバリデーションを実行
+```
+
+**条件付きバリデーションの使用場面**：
+
+| 場面 | 例 |
+|:---|:---|
+| 法人/個人の切り替え | 法人の場合のみ会社情報を必須にする |
+| 配送方法の選択 | 配送の場合のみ住所を必須にする |
+| 支払い方法の選択 | クレジットカードの場合のみカード情報を必須にする |
 
 ---
 
 ### 🚨 よくある間違い
 
-#### 間違い1: `authorize()`で`false`を返すとエラーになる
+**間違い1: `authorize()`で`false`を返すとエラーになる**
 
 ```php
 public function authorize()
@@ -395,7 +460,7 @@ public function authorize()
 
 ---
 
-#### 間違い2: `validated()`を使わずに`all()`を使う
+**間違い2: `validated()`を使わずに`all()`を使う**
 
 ```php
 $data = $request->all(); // NG: バリデーションされていないデータも含まれる
@@ -417,7 +482,6 @@ $data = $request->validated(); // OK: バリデーション済みのデータの
 *   `authorize()`メソッドを使って、認可ロジックを実装できる。
 *   `messages()`や`attributes()`を使って、エラーメッセージをカスタマイズできる。
 *   `prepareForValidation()`や`passedValidation()`を使って、バリデーション前後の処理を実装できる。
-
-
+*   条件付きバリデーションを使って、動的にルールを変更できる。
 
 ---
