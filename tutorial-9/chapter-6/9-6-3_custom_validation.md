@@ -28,7 +28,7 @@ Laravelには、多くのバリデーションルールが用意されていま�
 
 最も簡単な方法は、**クロージャ**を使う方法です。
 
-#### 基本的な使い方
+**基本的な使い方**
 
 ```php
 use Illuminate\Validation\Rule;
@@ -56,6 +56,8 @@ $request->validate([
 
 ### 🚀 実践例1: 禁止ワードチェック
 
+コメント投稿時に禁止ワードが含まれていないかをチェックする実装例です。
+
 ```php
 $request->validate([
     'comment' => [
@@ -75,24 +77,44 @@ $request->validate([
 ]);
 ```
 
----
+**コードリーディング**：
 
-### 🚀 実践例2: 営業時間チェック
+| コード | 説明 |
+|:---|:---|
+| `'comment' => [...]` | 配列形式でルールを指定します。クロージャを含める場合は配列形式が必須です |
+| `'required', 'string'` | 必須かつ文字列型であることをチェックします |
+| `function ($attribute, $value, $fail)` | カスタムバリデーションのクロージャを定義します |
+| `$forbiddenWords = [...]` | 禁止ワードの配列を定義します |
+| `stripos($value, $word)` | 大文字小文字を区別せずに、`$value`内に`$word`が含まれるかをチェックします |
+| `$fail('...')` | バリデーションを失敗させ、エラーメッセージを設定します |
+| `return;` | 最初の禁止ワードが見つかった時点で処理を終了します |
+
+**構文解説**：
 
 ```php
-$request->validate([
-    'reservation_time' => [
-        'required',
-        'date',
-        function ($attribute, $value, $fail) {
-            $hour = (int) date('H', strtotime($value));
-            
-            if ($hour < 9 || $hour >= 18) {
-                $fail('Reservations are only available between 9:00 and 18:00.');
-            }
-        },
-    ],
-]);
+function ($attribute, $value, $fail) {
+    // バリデーションロジック
+}
+```
+→ クロージャ（無名関数）を使ったカスタムバリデーションです。3つのパラメータを受け取ります。
+
+```php
+if (stripos($value, $word) !== false) {
+```
+→ `stripos()`は文字列内で別の文字列が最初に現れる位置を返します。見つからない場合は`false`を返すため、`!== false`で「見つかった」ことを判定します。`!= false`ではなく`!== false`を使うのは、位置が0の場合（先頭で見つかった場合）を正しく判定するためです。
+
+**処理の流れ**：
+
+```
+1. 禁止ワードの配列を定義
+    ↓
+2. 各禁止ワードについてループ
+    ↓
+3. stripos()で入力値に禁止ワードが含まれるかチェック
+   - 含まれる場合: $fail()でエラーメッセージを設定し、returnで終了
+   - 含まれない場合: 次の禁止ワードをチェック
+    ↓
+4. すべての禁止ワードをチェックしても見つからなければ、バリデーション成功
 ```
 
 ---
@@ -101,7 +123,7 @@ $request->validate([
 
 再利用可能なカスタムバリデーションルールを作成するには、**Ruleクラス**を使います。
 
-#### Ruleクラスの生成
+**Ruleクラスの生成**
 
 ```bash
 sail artisan make:rule Uppercase
@@ -137,7 +159,7 @@ class Uppercase implements Rule
 
 ---
 
-#### Ruleクラスの使用
+**Ruleクラスの使用**
 
 ```php
 use App\Rules\Uppercase;
@@ -151,7 +173,9 @@ $request->validate([
 
 ### 🚀 実践例3: 禁止ワードルール
 
-#### Ruleクラスの生成
+クロージャで実装した禁止ワードチェックを、再利用可能なRuleクラスとして実装する例です。
+
+**Ruleクラスの生成**
 
 ```bash
 sail artisan make:rule NoForbiddenWords
@@ -188,7 +212,36 @@ class NoForbiddenWords implements Rule
 }
 ```
 
-#### Ruleクラスの使用
+**コードリーディング**：
+
+| コード | 説明 |
+|:---|:---|
+| `class NoForbiddenWords implements Rule` | `Rule`インターフェースを実装したカスタムルールクラスです |
+| `protected $forbiddenWords = [...]` | クラスプロパティとして禁止ワードを定義します |
+| `public function passes($attribute, $value)` | バリデーションロジックを実装します。`true`で成功、`false`で失敗 |
+| `$this->forbiddenWords` | クラスプロパティにアクセスします |
+| `return false;` | 禁止ワードが見つかった場合、バリデーション失敗を返します |
+| `return true;` | すべてのチェックを通過した場合、バリデーション成功を返します |
+| `public function message()` | エラーメッセージを返します。`:attribute`はフィールド名に置換されます |
+
+**構文解説**：
+
+```php
+class NoForbiddenWords implements Rule
+```
+→ `implements Rule`で`Illuminate\Contracts\Validation\Rule`インターフェースを実装します。このインターフェースは`passes()`と`message()`メソッドの実装を要求します。
+
+```php
+protected $forbiddenWords = ['spam', 'abuse', 'badword'];
+```
+→ クラスプロパティとして禁止ワードを定義することで、コンストラクタで外部から渡すこともできるように拡張可能です。
+
+```php
+return 'The :attribute contains forbidden words.';
+```
+→ `:attribute`はLaravelが自動的にフィールド名に置換するプレースホルダーです。
+
+**Ruleクラスの使用**
 
 ```php
 use App\Rules\NoForbiddenWords;
@@ -198,170 +251,19 @@ $request->validate([
 ]);
 ```
 
----
+**コードリーディング**：
 
-### 🚀 実践例4: パラメータを受け取るルール
+| コード | 説明 |
+|:---|:---|
+| `use App\Rules\NoForbiddenWords;` | カスタムルールクラスをインポートします |
+| `new NoForbiddenWords` | ルールクラスのインスタンスを作成し、バリデーションルールとして使用します |
 
-#### Ruleクラスの生成
+**クロージャとRuleクラスの使い分け**：
 
-```bash
-sail artisan make:rule MinWords
-```
-
-**`app/Rules/MinWords.php`**
-
-```php
-<?php
-
-namespace App\Rules;
-
-use Illuminate\Contracts\Validation\Rule;
-
-class MinWords implements Rule
-{
-    protected $minWords;
-
-    public function __construct($minWords)
-    {
-        $this->minWords = $minWords;
-    }
-
-    public function passes($attribute, $value)
-    {
-        $wordCount = str_word_count($value);
-        return $wordCount >= $this->minWords;
-    }
-
-    public function message()
-    {
-        return 'The :attribute must contain at least ' . $this->minWords . ' words.';
-    }
-}
-```
-
-#### Ruleクラスの使用
-
-```php
-use App\Rules\MinWords;
-
-$request->validate([
-    'description' => ['required', 'string', new MinWords(10)],
-]);
-```
-
----
-
-### 🚀 実践例5: データベースを使ったルール
-
-#### Ruleクラスの生成
-
-```bash
-sail artisan make:rule UniqueSlug
-```
-
-**`app/Rules/UniqueSlug.php`**
-
-```php
-<?php
-
-namespace App\Rules;
-
-use App\Models\Post;
-use Illuminate\Contracts\Validation\Rule;
-
-class UniqueSlug implements Rule
-{
-    protected $postId;
-
-    public function __construct($postId = null)
-    {
-        $this->postId = $postId;
-    }
-
-    public function passes($attribute, $value)
-    {
-        $query = Post::where('slug', $value);
-        
-        if ($this->postId) {
-            $query->where('id', '!=', $this->postId);
-        }
-        
-        return $query->doesntExist();
-    }
-
-    public function message()
-    {
-        return 'The :attribute has already been taken.';
-    }
-}
-```
-
-#### Ruleクラスの使用
-
-```php
-use App\Rules\UniqueSlug;
-
-// 新規作成時
-$request->validate([
-    'slug' => ['required', 'string', new UniqueSlug],
-]);
-
-// 更新時
-$request->validate([
-    'slug' => ['required', 'string', new UniqueSlug($post->id)],
-]);
-```
-
----
-
-### 🚀 実践例6: 複数のフィールドを使ったルール
-
-#### Ruleクラスの生成
-
-```bash
-sail artisan make:rule ValidDateRange
-```
-
-**`app/Rules/ValidDateRange.php`**
-
-```php
-<?php
-
-namespace App\Rules;
-
-use Illuminate\Contracts\Validation\Rule;
-
-class ValidDateRange implements Rule
-{
-    protected $startDate;
-
-    public function __construct($startDate)
-    {
-        $this->startDate = $startDate;
-    }
-
-    public function passes($attribute, $value)
-    {
-        return strtotime($value) >= strtotime($this->startDate);
-    }
-
-    public function message()
-    {
-        return 'The :attribute must be after the start date.';
-    }
-}
-```
-
-#### Ruleクラスの使用
-
-```php
-use App\Rules\ValidDateRange;
-
-$request->validate([
-    'start_date' => 'required|date',
-    'end_date' => ['required', 'date', new ValidDateRange($request->start_date)],
-]);
-```
+| 方法 | メリット | デメリット | 使用場面 |
+|:---|:---|:---|:---|
+| クロージャ | 手軽に実装できる | 再利用しにくい | 1箇所でのみ使用する場合 |
+| Ruleクラス | 再利用可能、テストしやすい | ファイルを作成する手間がある | 複数箇所で使用する場合 |
 
 ---
 
@@ -398,7 +300,7 @@ $request->validate([
 
 ### 🚨 よくある間違い
 
-#### 間違い1: `passes()`で例外を投げる
+**間違い1: `passes()`で例外を投げる**
 
 ```php
 public function passes($attribute, $value)
@@ -422,7 +324,7 @@ public function passes($attribute, $value)
 
 ---
 
-#### 間違い2: `message()`で動的なメッセージを返そうとする
+**間違い2: `message()`で動的なメッセージを返そうとする**
 
 ```php
 public function message()
@@ -455,10 +357,6 @@ public function message()
 
 *   クロージャを使って、簡易的なカスタムバリデーションを実装できる。
 *   `Rule`クラスを使って、再利用可能なカスタムバリデーションを実装できる。
-*   パラメータを受け取るカスタムルールを作成できる。
-*   データベースを使ったカスタムルールを作成できる。
-*   複数のフィールドを使ったカスタムルールを作成できる。
-
-
+*   クロージャは1箇所でのみ使用する場合、Ruleクラスは複数箇所で再利用する場合に適している。
 
 ---
