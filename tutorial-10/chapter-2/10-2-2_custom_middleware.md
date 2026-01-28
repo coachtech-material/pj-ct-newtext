@@ -96,12 +96,12 @@ Route::middleware('check.age')->group(function () {
 
 ---
 
-### 🚀 実践例1: APIキーチェックミドルウェア
+### 🚀 実践例1: メンテナンスモードミドルウェア
 
 #### ステップ1: ミドルウェアを生成
 
 ```bash
-sail artisan make:middleware CheckApiKey
+sail artisan make:middleware CheckMaintenance
 ```
 
 #### ステップ2: ミドルウェアを実装
@@ -114,16 +114,14 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 
-class CheckApiKey
+class CheckMaintenance
 {
     public function handle(Request $request, Closure $next)
     {
-        $apiKey = $request->header('X-API-Key');
-
-        if ($apiKey !== config('app.api_key')) {
+        if (config('app.maintenance_mode')) {
             return response()->json([
-                'message' => 'Invalid API key.',
-            ], 401);
+                'message' => 'Service is currently under maintenance.',
+            ], 503);
         }
 
         return $next($request);
@@ -131,78 +129,15 @@ class CheckApiKey
 }
 ```
 
-#### ステップ3: ミドルウェアを登録
+**コードリーディング（ミドルウェア）**：
 
-```php
-protected $middlewareAliases = [
-    'api.key' => \App\Http\Middleware\CheckApiKey::class,
-];
-```
-
-#### ステップ4: ミドルウェアを適用
-
-```php
-Route::middleware('api.key')->group(function () {
-    Route::get('/posts', [PostController::class, 'index']);
-});
-```
-
----
-
-### 🚀 実践例2: ログ記録ミドルウェア
-
-#### ステップ1: ミドルウェアを生成
-
-```bash
-sail artisan make:middleware LogRequests
-```
-
-#### ステップ2: ミドルウェアを実装
-
-```php
-<?php
-
-namespace App\Http\Middleware;
-
-use Closure;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
-
-class LogRequests
-{
-    public function handle(Request $request, Closure $next)
-    {
-        // リクエストの前処理
-        Log::info('Request received', [
-            'url' => $request->url(),
-            'method' => $request->method(),
-            'ip' => $request->ip(),
-            'user_agent' => $request->userAgent(),
-        ]);
-
-        $response = $next($request);
-
-        // レスポンスの後処理
-        Log::info('Response sent', [
-            'status' => $response->status(),
-        ]);
-
-        return $response;
-    }
-}
-```
-
-**コードリーディング（Requestインスタンスのメソッド）**
-
-| コード | 演算子 | 戻り値 | 意味 |
-|:---|:---:|:---|:---|
-| `$request->url()` | `->` | 文字列 | リクエストURLを取得 |
-| `$request->method()` | `->` | 文字列 | HTTPメソッド（GET/POST等）を取得 |
-| `$request->ip()` | `->` | 文字列 | クライアントIPアドレスを取得 |
-| `$request->userAgent()` | `->` | 文字列 | User-Agentヘッダーを取得 |
-| `$response->status()` | `->` | 整数 | HTTPステータスコードを取得 |
-
-> **💡 ポイント**: `$request`と`$response`はどちらもインスタンスなので、`->`でメソッドを呼び出します。`Log::info()`はファサードの静的メソッドなので`::`を使います。
+| コード | 説明 |
+|:---|:---|
+| `config('app.maintenance_mode')` | `config/app.php` などの設定ファイルから、メンテナンス状態の値を取得します |
+| `if (config(...))` | 設定値が `true`（メンテナンス中）であれば、`if` 文の中の処理を実行します |
+| `response()->json([...])` | クライアントに対して、JSON形式でエラーメッセージを返します（API開発で一般的） |
+| `503` | HTTPステータスコード「503 (Service Unavailable)」を返し、一時的に利用不可であることを示します |
+| `return $next($request);` | メンテナンス中でない場合は、通常通りリクエストを次の処理（コントローラーなど）へ通します |
 
 ---
 
@@ -259,7 +194,7 @@ Route::middleware('role:admin')->group(function () {
 
 ---
 
-### 🚀 実践例3: 複数のパラメータを受け取る
+### 🚀 実践例2: 複数のパラメータを受け取る
 
 #### ミドルウェアの実装
 
@@ -278,6 +213,18 @@ public function handle(Request $request, Closure $next, $role, $permission)
 }
 ```
 
+**コードリーディング（ミドルウェアの実装）**：
+
+| コード | 説明 |
+|:---|:---|
+| `$role, $permission` | ルート定義の `role:admin,edit` のようにコロン以降に渡した引数を受け取ります |
+| `!$request->user()` | ユーザーがログインしていない（認証されていない）状態をチェックします |
+| `$request->user()->role !== $role` | ログインユーザーの役割（role）が、期待される役割と一致するかを比較します |
+| `hasPermission($permission)` | Userモデルなどで定義した、特定の権限（編集、削除など）の有無を判定するメソッドです |
+| `response()->json([...], 403)` | 権限不足の場合、403（Forbidden）エラーをJSON形式で即座に返します |
+| `return $next($request);` | 全てのチェックを通過した場合に、リクエストを次の処理（コントローラーなど）へ渡します |
+
+
 #### ミドルウェアの適用
 
 ```php
@@ -286,80 +233,15 @@ Route::middleware('role:admin,manage_users')->group(function () {
 });
 ```
 
----
+**コードリーディング（ルートへの適用）**：
 
-### 🚀 実践例4: IPアドレス制限ミドルウェア
-
-#### ステップ1: ミドルウェアを生成
-
-```bash
-sail artisan make:middleware RestrictIp
-```
-
-#### ステップ2: ミドルウェアを実装
-
-```php
-<?php
-
-namespace App\Http\Middleware;
-
-use Closure;
-use Illuminate\Http\Request;
-
-class RestrictIp
-{
-    protected $allowedIps = [
-        '127.0.0.1',
-        '192.168.1.1',
-    ];
-
-    public function handle(Request $request, Closure $next)
-    {
-        if (!in_array($request->ip(), $this->allowedIps)) {
-            return response()->json([
-                'message' => 'Access denied.',
-            ], 403);
-        }
-
-        return $next($request);
-    }
-}
-```
-
----
-
-### 🚀 実践例5: メンテナンスモードミドルウェア
-
-#### ステップ1: ミドルウェアを生成
-
-```bash
-sail artisan make:middleware CheckMaintenance
-```
-
-#### ステップ2: ミドルウェアを実装
-
-```php
-<?php
-
-namespace App\Http\Middleware;
-
-use Closure;
-use Illuminate\Http\Request;
-
-class CheckMaintenance
-{
-    public function handle(Request $request, Closure $next)
-    {
-        if (config('app.maintenance_mode')) {
-            return response()->json([
-                'message' => 'Service is currently under maintenance.',
-            ], 503);
-        }
-
-        return $next($request);
-    }
-}
-```
+| コード | 説明 |
+|:---|:---|
+| `middleware('role:...')` | 「role」という名前で登録されたミドルウェアを呼び出します。名前の後の `:` は引数の開始合図です |
+| `'admin,manage_users'` | ミドルウェアに渡す具体的な引数です。カンマ区切りで複数の値を渡せます |
+| `group(function () { ... })` | このグループ内のすべてのルートに、一括で権限チェック（adminかつmanage_users権限）を適用します |
+| `'/admin/users'` | ブラウザからアクセスするパスです |
+| `[AdminController::class, 'users']` | 条件（ミドルウェア）をクリアしたときだけ、AdminController の users メソッドが実行されます |
 
 ---
 
@@ -391,41 +273,6 @@ protected $middlewareGroups = [
         \App\Http\Middleware\LogRequests::class, // 追加
     ],
 ];
-```
-
----
-
-### 🚀 実践例6: CORS設定ミドルウェア
-
-#### ステップ1: ミドルウェアを生成
-
-```bash
-sail artisan make:middleware Cors
-```
-
-#### ステップ2: ミドルウェアを実装
-
-```php
-<?php
-
-namespace App\Http\Middleware;
-
-use Closure;
-use Illuminate\Http\Request;
-
-class Cors
-{
-    public function handle(Request $request, Closure $next)
-    {
-        $response = $next($request);
-
-        $response->headers->set('Access-Control-Allow-Origin', '*');
-        $response->headers->set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-        $response->headers->set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-
-        return $response;
-    }
-}
 ```
 
 ---
