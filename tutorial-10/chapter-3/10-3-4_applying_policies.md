@@ -27,7 +27,7 @@ Laravelでは、以下の方法でポリシーを適用できます。
 
 最も一般的な方法は、コントローラーで`$this->authorize()`を使うことです。
 
-#### コントローラー
+**コントローラー**
 
 ```php
 public function update(Request $request, $id)
@@ -50,14 +50,15 @@ public function update(Request $request, $id)
 
 **コードリーディング**
 
-*   `$this->authorize('update', $post)`: ポリシーの`update`メソッドをチェック
-*   許可されない場合、自動的に403エラーが返される
+| コード | 説明 |
+|:---|:---|
+| `$this->authorize('update', $post)` | ポリシーの`update`メソッドをチェックします。許可されない場合、自動的に403エラーが返されます |
 
 ---
 
 ### 🔧 方法2: `Gate::allows()`や`Gate::denies()`
 
-#### コントローラー
+**コントローラー**
 
 ```php
 use Illuminate\Support\Facades\Gate;
@@ -80,7 +81,7 @@ public function destroy($id)
 
 ### 🔧 方法3: `$request->user()->can()`
 
-#### コントローラー
+**コントローラー**
 
 ```php
 public function show(Request $request, $id)
@@ -99,7 +100,9 @@ public function show(Request $request, $id)
 
 ### 🚀 実践例1: Bladeで`@can`ディレクティブ
 
-#### Bladeテンプレート
+Bladeテンプレートでポリシーに基づいて表示を切り替える例です。
+
+**Bladeテンプレート**
 
 ```blade
 @can('update', $post)
@@ -119,109 +122,110 @@ public function show(Request $request, $id)
 @endcannot
 ```
 
+**コードリーディング**
+
+| コード | 説明 |
+|:---|:---|
+| `@can('update', $post)` | ログインユーザーが`$post`に対して`update`権限を持つ場合のみ、内部のHTMLを表示します |
+| `@endcan` | `@can`ブロックの終了を示します |
+| `@can('delete', $post)` | ログインユーザーが`$post`に対して`delete`権限を持つ場合のみ、削除フォームを表示します |
+| `@csrf` | CSRF保護のためのトークンを埋め込みます |
+| `@method('DELETE')` | DELETEメソッドをシミュレートするための隠しフィールドを生成します |
+| `@cannot('update', $post)` | `update`権限を持たない場合のみ、内部のHTMLを表示します |
+| `@endcannot` | `@cannot`ブロックの終了を示します |
+
 ---
 
 ### 🚀 実践例2: ミドルウェアでポリシーを適用
 
-#### ルート
+ルート定義でミドルウェアを使ってポリシーを適用する例です。
+
+**ルート**
 
 ```php
-Route::put('/posts/{id}', [PostController::class, 'update'])
+Route::put('/posts/{post}', [PostController::class, 'update'])
     ->middleware('can:update,post');
 ```
 
 **コードリーディング**
 
-*   `can:update,post`: ポリシーの`update`メソッドをチェック
-*   `post`は、ルートパラメータ`{id}`から自動的に解決される
+| コード | 説明 |
+|:---|:---|
+| `Route::put('/posts/{post}', ...)` | PUTメソッドで`/posts/{post}`へのルートを定義します。`{post}`はルートパラメータです |
+| `->middleware('can:update,post')` | `can`ミドルウェアを適用し、ポリシーの`update`メソッドをチェックします |
+| `can:update,post` | `update`はポリシーのメソッド名、`post`はルートパラメータ名です。Laravelが自動的にモデルを解決します |
 
 ---
 
 ### 🚀 実践例3: リソースコントローラーでポリシーを自動適用
 
-#### コントローラー
+リソースコントローラーの全メソッドに対して、ポリシーを自動的に適用する例です。
+
+**コントローラー**
 
 ```php
-public function __construct()
+class PostController extends Controller
 {
-    $this->authorizeResource(Post::class, 'post');
+    public function __construct()
+    {
+        $this->authorizeResource(Post::class, 'post');
+    }
+
+    public function index()
+    {
+        // viewAnyポリシーが自動適用される
+        $posts = Post::all();
+        return view('posts.index', compact('posts'));
+    }
+
+    public function show(Post $post)
+    {
+        // viewポリシーが自動適用される
+        return view('posts.show', compact('post'));
+    }
+
+    public function edit(Post $post)
+    {
+        // updateポリシーが自動適用される
+        return view('posts.edit', compact('post'));
+    }
+
+    public function update(Request $request, Post $post)
+    {
+        // updateポリシーが自動適用される
+        $post->update($request->validated());
+        return redirect()->route('posts.show', $post);
+    }
+
+    public function destroy(Post $post)
+    {
+        // deleteポリシーが自動適用される
+        $post->delete();
+        return redirect()->route('posts.index');
+    }
 }
 ```
 
 **コードリーディング**
 
-*   `authorizeResource()`: リソースコントローラーのメソッドに対して、自動的にポリシーを適用
-*   `index` → `viewAny`
-*   `show` → `view`
-*   `create` → `create`
-*   `store` → `create`
-*   `edit` → `update`
-*   `update` → `update`
-*   `destroy` → `delete`
+| コード | 説明 |
+|:---|:---|
+| `public function __construct()` | コントローラーのコンストラクタです。インスタンス生成時に実行されます |
+| `$this->authorizeResource(Post::class, 'post')` | リソースコントローラーのメソッドに対して、自動的にポリシーを適用します |
+| `Post::class` | ポリシーを適用するモデルクラスを指定します |
+| `'post'` | ルートパラメータ名を指定します。`{post}`に対応します |
 
----
+**メソッドとポリシーの対応表**
 
-### 🚀 実践例4: カスタムメッセージ
-
-#### コントローラー
-
-```php
-public function destroy($id)
-{
-    $post = Post::findOrFail($id);
-
-    $this->authorize('delete', $post);
-
-    $post->delete();
-
-    return response()->json(['message' => 'Post deleted successfully']);
-}
-```
-
-#### ポリシー
-
-```php
-use Illuminate\Auth\Access\Response;
-
-public function delete(User $user, Post $post)
-{
-    if ($user->id === $post->user_id) {
-        return Response::allow();
-    }
-
-    return Response::deny('You do not own this post.');
-}
-```
-
----
-
-### 🚀 実践例5: 複数のモデルをチェック
-
-#### コントローラー
-
-```php
-public function addComment(Request $request, $postId)
-{
-    $post = Post::findOrFail($postId);
-
-    // 投稿を表示できるかチェック
-    $this->authorize('view', $post);
-
-    // コメントを作成できるかチェック
-    $this->authorize('create', Comment::class);
-
-    $validated = $request->validate([
-        'content' => 'required|string',
-    ]);
-
-    $comment = $post->comments()->create([
-        'user_id' => auth()->id(),
-        'content' => $validated['content'],
-    ]);
-
-    return response()->json(['message' => 'Comment added successfully', 'comment' => $comment], 201);
-}
-```
+| コントローラーメソッド | ポリシーメソッド |
+|:---|:---|
+| `index` | `viewAny` |
+| `show` | `view` |
+| `create` | `create` |
+| `store` | `create` |
+| `edit` | `update` |
+| `update` | `update` |
+| `destroy` | `delete` |
 
 ---
 
@@ -237,34 +241,9 @@ if (Gate::forUser($otherUser)->allows('update', $post)) {
 
 ---
 
-### 🚀 実践例6: APIレスポンスでポリシーをチェック
-
-#### コントローラー
-
-```php
-public function index(Request $request)
-{
-    $posts = Post::all();
-
-    $posts = $posts->map(function ($post) use ($request) {
-        return [
-            'id' => $post->id,
-            'title' => $post->title,
-            'content' => $post->content,
-            'can_update' => $request->user()->can('update', $post),
-            'can_delete' => $request->user()->can('delete', $post),
-        ];
-    });
-
-    return response()->json(['posts' => $posts]);
-}
-```
-
----
-
 ### 🚨 よくある間違い
 
-#### 間違い1: ポリシーをチェックせずにアクションを実行
+**間違い1: ポリシーをチェックせずにアクションを実行**
 
 ```php
 public function destroy($id)
@@ -295,7 +274,7 @@ public function destroy($id)
 
 ---
 
-#### 間違い2: ルートパラメータ名を間違える
+**間違い2: ルートパラメータ名を間違える**
 
 ```php
 // ルート
