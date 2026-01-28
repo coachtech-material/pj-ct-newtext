@@ -58,6 +58,8 @@ Laravelでは、以下のログレベルが用意されています。
 
 ### 🚀 実践例1: 基本的なログ記録
 
+投稿作成時に、処理の開始と完了をログに記録する例です。
+
 ```php
 use Illuminate\Support\Facades\Log;
 
@@ -78,9 +80,20 @@ public function store(Request $request)
 }
 ```
 
+**コードリーディング**
+
+| コード | 説明 |
+|:---|:---|
+| `use Illuminate\Support\Facades\Log;` | Logファサードをインポートします |
+| `Log::info('Post creation started', [...])` | infoレベルでログを記録します。第1引数はメッセージ、第2引数はコンテキスト情報（配列） |
+| `['user_id' => auth()->id()]` | コンテキスト情報として、ログインユーザーのIDを記録します |
+| `Log::info('Post created successfully', ['post_id' => $post->id])` | 投稿作成成功時に、作成された投稿のIDを記録します |
+
 ---
 
 ### 🚀 実践例2: エラーログ
+
+例外が発生した時に、エラー情報をログに記録する例です。
 
 ```php
 public function show($id)
@@ -101,9 +114,22 @@ public function show($id)
 }
 ```
 
+**コードリーディング**
+
+| コード | 説明 |
+|:---|:---|
+| `try { ... } catch (\Exception $e) { ... }` | try-catch構文で例外をキャッチします |
+| `Post::findOrFail($id)` | 投稿が見つからない場合、`ModelNotFoundException`例外をスローします |
+| `Log::error('Failed to retrieve post', [...])` | errorレベルでログを記録します。エラー発生時に使用します |
+| `'post_id' => $id` | どの投稿IDでエラーが発生したかを記録します |
+| `'error' => $e->getMessage()` | 例外のエラーメッセージを記録します |
+| `'trace' => $e->getTraceAsString()` | スタックトレース（エラーが発生するまでの呼び出し履歴）を記録します |
+
 ---
 
 ### 🚀 実践例3: コンテキスト情報を含める
+
+ユーザーのログイン時に、詳細なコンテキスト情報を記録する例です。
 
 ```php
 Log::info('User logged in', [
@@ -114,17 +140,19 @@ Log::info('User logged in', [
 ]);
 ```
 
----
+**コードリーディング**
 
-### 🚀 実践例4: 条件付きログ
+| コード | 説明 |
+|:---|:---|
+| `'user_id' => auth()->id()` | ログインしたユーザーのIDを記録します |
+| `'ip' => request()->ip()` | リクエスト元のIPアドレスを記録します |
+| `'user_agent' => request()->userAgent()` | ブラウザやデバイスの情報（User-Agent）を記録します |
+| `'timestamp' => now()` | ログイン時刻を記録します。`now()`は現在日時を返すヘルパー関数です |
 
-```php
-if (config('app.debug')) {
-    Log::debug('Debug information', [
-        'request' => $request->all(),
-        'user' => auth()->user(),
-    ]);
-}
+**ログファイルの出力例**
+
+```
+[2024-01-01 12:00:00] local.INFO: User logged in {"user_id":1,"ip":"192.168.1.1","user_agent":"Mozilla/5.0...","timestamp":"2024-01-01T12:00:00.000000Z"}
 ```
 
 ---
@@ -173,72 +201,6 @@ Log::channel('slack')->critical('Something went wrong!');
 
 ---
 
-### 🚀 実践例5: カスタムログファイル
-
-```php
-Log::build([
-    'driver' => 'single',
-    'path' => storage_path('logs/custom.log'),
-])->info('This is a custom log');
-```
-
----
-
-### 🚀 実践例6: ログのフォーマット
-
-```php
-Log::info('User action', [
-    'action' => 'create_post',
-    'user_id' => auth()->id(),
-    'post_id' => $post->id,
-    'timestamp' => now()->toDateTimeString(),
-]);
-```
-
-**ログファイル**
-
-```
-[2024-01-01 12:00:00] local.INFO: User action {"action":"create_post","user_id":1,"post_id":10,"timestamp":"2024-01-01 12:00:00"}
-```
-
----
-
-### 🚀 実践例7: ミドルウェアでログ記録
-
-**`app/Http/Middleware/LogRequests.php`**
-
-```php
-<?php
-
-namespace App\Http\Middleware;
-
-use Closure;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
-
-class LogRequests
-{
-    public function handle(Request $request, Closure $next)
-    {
-        Log::info('Request received', [
-            'url' => $request->url(),
-            'method' => $request->method(),
-            'ip' => $request->ip(),
-        ]);
-
-        $response = $next($request);
-
-        Log::info('Response sent', [
-            'status' => $response->status(),
-        ]);
-
-        return $response;
-    }
-}
-```
-
----
-
 ### 💡 TIP: ログのローテーション
 
 `daily`ドライバーを使うと、ログファイルが日ごとに作成されます。
@@ -256,31 +218,9 @@ class LogRequests
 
 ---
 
-### 🚀 実践例8: 例外をログに記録
-
-**`app/Exceptions/Handler.php`**
-
-```php
-public function report(Throwable $exception)
-{
-    if ($this->shouldReport($exception)) {
-        Log::error('Exception occurred', [
-            'message' => $exception->getMessage(),
-            'file' => $exception->getFile(),
-            'line' => $exception->getLine(),
-            'trace' => $exception->getTraceAsString(),
-        ]);
-    }
-
-    parent::report($exception);
-}
-```
-
----
-
 ### 🚨 よくある間違い
 
-#### 間違い1: 機密情報をログに記録
+**間違い1: 機密情報をログに記録**
 
 ```php
 Log::info('User logged in', [
@@ -299,7 +239,7 @@ Log::info('User logged in', [
 
 ---
 
-#### 間違い2: ログレベルを間違える
+**間違い2: ログレベルを間違える**
 
 ```php
 Log::info('Database connection failed'); // NG: errorを使うべき
