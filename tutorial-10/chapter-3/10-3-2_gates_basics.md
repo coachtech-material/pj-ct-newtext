@@ -103,36 +103,7 @@ $post->delete();
 
 ---
 
-### 🚀 実践例1: 管理者のみが投稿を削除できる
-
-#### ゲートの定義
-
-```php
-Gate::define('delete-post', function ($user) {
-    return $user->is_admin;
-});
-```
-
-#### コントローラー
-
-```php
-public function destroy($id)
-{
-    $post = Post::findOrFail($id);
-
-    if (Gate::denies('delete-post')) {
-        return response()->json(['message' => 'Unauthorized'], 403);
-    }
-
-    $post->delete();
-
-    return response()->json(['message' => 'Post deleted successfully']);
-}
-```
-
----
-
-### 🚀 実践例2: 自分の投稿のみを編集できる
+### 🚀 実践例1: 自分の投稿のみを編集できる
 
 #### ゲートの定義
 
@@ -141,6 +112,15 @@ Gate::define('update-post', function ($user, $post) {
     return $user->id === $post->user_id;
 });
 ```
+
+**コードリーディング（ゲートの定義）**：
+
+| コード | 説明 |
+|:---|:---|
+| `Gate::define('update-post', ...)` | 'update-post' という名前で認可ルールを登録します |
+| `function ($user, $post)` | 現在のログインユーザーと、比較対象の投稿データを受け取ります |
+| `$user->id === $post->user_id` | 「投稿の作成者」と「現在のユーザー」が一致する場合のみ許可（true）します |
+
 
 #### コントローラー
 
@@ -162,6 +142,15 @@ public function update(Request $request, $id)
 }
 ```
 
+**コードリーディング（コントローラー）**：
+
+| コード | 説明 |
+|:---|:---|
+| `Post::findOrFail($id)` | IDで投稿を検索し、見つからない場合は自動的に404エラーを返します |
+| `Gate::authorize('update-post', $post)` | 定義したゲートを実行し、権限がない場合は自動的に403エラーを返します |
+| `$post->update($validated)` | バリデーション済みのデータで既存のレコードを一括更新します |
+| `response()->json(...)` | 更新後のデータと成功メッセージをJSON形式でレスポンスします |
+
 ---
 
 ### 💡 TIP: `$user`ヘルパー
@@ -170,19 +159,7 @@ public function update(Request $request, $id)
 
 ---
 
-### 🚀 実践例3: 複数の条件をチェック
-
-#### ゲートの定義
-
-```php
-Gate::define('publish-post', function ($user, $post) {
-    return $user->id === $post->user_id && $user->is_verified;
-});
-```
-
----
-
-### 🚀 実践例4: ゲストユーザーを許可
+### 🚀 実践例2: ゲストユーザーを許可
 
 デフォルトでは、ゲストユーザー（未ログイン）は全てのゲートで拒否されます。ゲストユーザーを許可する場合は、`?User`を使います。
 
@@ -199,6 +176,16 @@ Gate::define('view-post', function (?User $user, $post) {
     return $user && $user->id === $post->user_id; // 下書きは自分のみ閲覧可能
 });
 ```
+
+**コードリーディング（ゲートの定義）**：
+
+| コード | 説明 |
+|:---|:---|
+| `?User $user` | タイプヒントの `?` は、未ログイン（null）の状態も許容することを意味します |
+| `$post->is_published` | 投稿が「公開済み」かどうかをチェックします |
+| `return true;` | 公開済みであれば、ログインの有無に関わらず誰でも閲覧を許可します |
+| `$user && ...` | 下書きの場合、まず「ログインしていること」を確認します（ショートサーキット評価） |
+| `$user->id === $post->user_id` | 下書きは、投稿の作成者（user_id）本人である場合のみ閲覧を許可します |
 
 ---
 
@@ -228,45 +215,6 @@ Gate::after(function ($user, $ability, $result) {
 
 ---
 
-### 🚀 実践例5: ロールベースの認可
-
-#### ゲートの定義
-
-```php
-Gate::define('manage-users', function ($user) {
-    return in_array($user->role, ['admin', 'moderator']);
-});
-
-Gate::define('delete-users', function ($user) {
-    return $user->role === 'admin';
-});
-```
-
-#### コントローラー
-
-```php
-public function index()
-{
-    Gate::authorize('manage-users');
-
-    $users = User::all();
-
-    return response()->json(['users' => $users]);
-}
-
-public function destroy($id)
-{
-    Gate::authorize('delete-users');
-
-    $user = User::findOrFail($id);
-    $user->delete();
-
-    return response()->json(['message' => 'User deleted successfully']);
-}
-```
-
----
-
 ### 💡 TIP: Bladeでゲートを使う
 
 ```blade
@@ -277,31 +225,6 @@ public function destroy($id)
 @cannot('delete-post', $post)
     <p>削除する権限がありません</p>
 @endcannot
-```
-
----
-
-### 🚀 実践例6: パラメータなしのゲート
-
-#### ゲートの定義
-
-```php
-Gate::define('access-admin-panel', function ($user) {
-    return $user->is_admin;
-});
-```
-
-#### コントローラー
-
-```php
-public function index()
-{
-    if (Gate::denies('access-admin-panel')) {
-        return response()->json(['message' => 'Unauthorized'], 403);
-    }
-
-    // 管理画面の処理
-}
 ```
 
 ---
