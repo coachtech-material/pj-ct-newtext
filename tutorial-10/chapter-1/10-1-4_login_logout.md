@@ -1,21 +1,21 @@
-# Tutorial 10-1-4: ログイン・ログアウト機能の実装
+# Tutorial 10-1-4: ログイン・ログアウト機能を理解する
 
 ## 🎯 このセクションで学ぶこと
 
-*   Laravel Fortifyを使って、ログイン機能を実装できるようになる。
-*   ログアウト機能を実装できるようになる。
+*   Laravel Fortifyを使ったログイン機能の仕組みを理解する。
+*   ログアウト機能の仕組みを理解する。
 *   セッションベース認証の仕組みを理解する。
 
 ---
 
 ## 導入：「ログイン」と「ログアウト」
 
-前のセクションで、ユーザー登録機能を実装しました。次は、**ログイン機能**と**ログアウト機能**を実装します。
+ユーザー登録機能に続いて、**ログイン機能**と**ログアウト機能**の仕組みを見ていきます。
 
 *   **ログイン**: ユーザーがメールアドレスとパスワードを入力し、認証される
 *   **ログアウト**: ユーザーが認証状態を解除する
 
-このセクションでは、Laravel Fortifyを使って、これらの機能を実装します。
+このセクションでは、Laravel Fortifyを使ったこれらの機能の仕組みを見ていきます。
 
 ---
 
@@ -45,9 +45,11 @@ Fortifyを使ったログインは、以下の流れで行われます：
 
 ---
 
-### 🎨 ステップ1: ログインフォームのビューを作成する
+### 🎨 ログインフォームのビュー
 
-`resources/views/auth/login.blade.php`を作成します：
+ログインフォームは、`resources/views/auth/login.blade.php`に作成します。
+
+**ログインフォームの例**
 
 ```blade
 <!DOCTYPE html>
@@ -134,9 +136,9 @@ Fortifyを使ったログインは、以下の流れで行われます：
 
 ---
 
-### 🔧 ステップ2: FortifyServiceProviderでビューを指定する
+### 🔧 FortifyServiceProviderでビューを指定
 
-前のセクションで設定済みですが、`boot`メソッドに`loginView`が設定されていることを確認します：
+`boot`メソッドで`loginView`を設定します：
 
 ```php
 public function boot(): void
@@ -155,11 +157,11 @@ public function boot(): void
 
 ---
 
-### 🚀 ステップ3: 動作確認
+### 🛤️ Fortifyが登録するルート
 
-#### ルートの確認
+Fortifyをインストールすると、ログインに関するルートが自動的に登録されます。
 
-Fortifyが登録したルートを確認します：
+**ルートの確認方法**
 
 ```bash
 sail artisan route:list --path=login
@@ -177,7 +179,11 @@ POST      login .......... Laravel\Fortify\Http\Controllers\AuthenticatedSession
 *   `routes/web.php`に何も書いていないのに、ルートが登録されている
 *   Fortifyが内部でルートを定義している
 
-#### ブラウザで確認
+---
+
+### 🔍 動作確認の流れ
+
+ログイン機能の動作確認は、以下の流れで行います：
 
 1. ブラウザで`http://localhost/login`にアクセス
 2. ログインフォームが表示されることを確認
@@ -186,11 +192,11 @@ POST      login .......... Laravel\Fortify\Http\Controllers\AuthenticatedSession
 
 ---
 
-### 🔓 ログアウト機能の実装
+### 🔓 ログアウト機能
 
-#### ログアウトボタンの追加
+ログアウト機能は、ダッシュボードなどのビューにログアウトボタンを追加することで実装します。
 
-ダッシュボードなどのビューに、ログアウトボタンを追加します：
+**ログアウトボタンの例**
 
 ```blade
 <form method="POST" action="{{ route('logout') }}">
@@ -211,7 +217,7 @@ POST      login .......... Laravel\Fortify\Http\Controllers\AuthenticatedSession
 ```
 → CSRF対策のトークン。ログアウトもPOSTリクエストなので必要です。
 
-#### ルートの確認
+**ルートの確認方法**
 
 ```bash
 sail artisan route:list --path=logout
@@ -227,9 +233,9 @@ POST      logout .......... Laravel\Fortify\Http\Controllers\AuthenticatedSessio
 
 ### 🔐 セッションベース認証の仕組み
 
-Fortifyが採用している**セッションベース認証**の仕組みを詳しく見てみましょう。
+Fortifyが採用している**セッションベース認証**の仕組みを詳しく見ていきます。
 
-#### ログイン時の処理
+**ログイン時の処理**
 
 ```
 1. ユーザーがメールアドレスとパスワードを送信
@@ -243,7 +249,7 @@ Fortifyが採用している**セッションベース認証**の仕組みを詳
 5. セッションIDをCookieに保存してブラウザに返す
 ```
 
-#### 認証済みリクエストの処理
+**認証済みリクエストの処理**
 
 ```
 1. ブラウザがCookieに含まれるセッションIDを送信
@@ -253,7 +259,7 @@ Fortifyが採用している**セッションベース認証**の仕組みを詳
 3. Auth::user()でユーザー情報を取得できる
 ```
 
-#### ログアウト時の処理
+**ログアウト時の処理**
 
 ```
 1. ユーザーがログアウトをリクエスト
@@ -271,12 +277,12 @@ Fortifyが採用している**セッションベース認証**の仕組みを詳
 
 「ログイン状態を保持する」にチェックを入れると、**Remember Me**機能が有効になります。
 
-#### 仕組み
+**仕組み**
 
 *   通常のセッション: ブラウザを閉じると終了
 *   Remember Me: 長期間有効なトークンをCookieに保存
 
-#### 設定
+**設定**
 
 `config/auth.php`で、Remember Meの有効期限を設定できます：
 
@@ -295,7 +301,7 @@ Fortifyが採用している**セッションベース認証**の仕組みを詳
 
 ログインしていないユーザーを自動的にログインページにリダイレクトするには、**認証ミドルウェア**を使います。
 
-#### ルートに認証ミドルウェアを適用
+**ルートに認証ミドルウェアを適用する例**
 
 ```php
 <?php
@@ -318,7 +324,7 @@ Route::middleware('auth')->group(function () {
 
 ### 🔍 ログイン状態の確認
 
-#### コントローラーで確認
+**コントローラーでの確認方法**
 
 ```php
 public function index(Request $request)
@@ -332,7 +338,7 @@ public function index(Request $request)
 }
 ```
 
-#### Bladeで確認
+**Bladeでの確認方法**
 
 ```blade
 @auth
@@ -356,7 +362,7 @@ public function index(Request $request)
 
 ### 🚨 よくある間違い
 
-#### 間違い1: ログアウトをGETリクエストで実装する
+**間違い1: ログアウトをGETリクエストで実装する**
 
 ```blade
 <a href="{{ route('logout') }}">ログアウト</a>  <!-- NG -->
@@ -375,7 +381,7 @@ public function index(Request $request)
 
 ---
 
-#### 間違い2: @csrfを忘れる
+**間違い2: @csrfを忘れる**
 
 ```blade
 <form method="POST" action="{{ route('login') }}">
@@ -394,13 +400,9 @@ public function index(Request $request)
 
 ### 🚀 実践例: ダッシュボードの作成
 
-ログイン後に表示するダッシュボードを作成しましょう。
+ログイン後に表示するダッシュボードの実装例を見ていきます。
 
-#### コントローラーの作成
-
-```bash
-sail artisan make:controller DashboardController
-```
+**コントローラーの例**
 
 ```php
 <?php
@@ -420,7 +422,7 @@ class DashboardController extends Controller
 }
 ```
 
-#### ルートの定義
+**ルートの定義例**
 
 ```php
 use App\Http\Controllers\DashboardController;
@@ -430,9 +432,9 @@ Route::middleware('auth')->group(function () {
 });
 ```
 
-#### ビューの作成
+**ビューの例**
 
-`resources/views/dashboard.blade.php`を作成します：
+`resources/views/dashboard.blade.php`の例：
 
 ```blade
 <!DOCTYPE html>
@@ -467,14 +469,12 @@ Route::middleware('auth')->group(function () {
 
 ## ✨ まとめ
 
-このセクションでは、Laravel Fortifyを使って、ログイン・ログアウト機能を実装しました。
+このセクションでは、Laravel Fortifyを使ったログイン・ログアウト機能について学びました。
 
-*   **Bladeファイル**を作成し、`FortifyServiceProvider`で指定した
+*   **Bladeファイル**を作成し、`FortifyServiceProvider`で指定する
 *   **コントローラーを自作する必要がない**：Fortifyが内部で処理を行う
 *   **セッションベース認証**：ログイン状態はセッションで管理される
 *   **認証ミドルウェア**を使うと、ログインしていないユーザーを自動的にリダイレクトできる
 *   **@auth / @endauth**ディレクティブで、ログイン状態に応じた表示ができる
-
-次のセクションでは、認証済みユーザーの取得とミドルウェアについて詳しく学びます。
 
 ---

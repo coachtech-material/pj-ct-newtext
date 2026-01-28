@@ -1,18 +1,18 @@
-# Tutorial 10-1-2: Fortifyで認証機能を実装する
+# Tutorial 10-1-2: Fortifyの認証機能を理解する
 
 ## 🎯 このセクションで学ぶこと
 
-*   Laravel Fortifyをインストールし、設定する方法を理解する。
+*   Laravel Fortifyのインストールと設定の流れを理解する。
 *   Fortifyが提供するルートとコントローラーの仕組みを理解する。
-*   認証機能を有効化し、動作確認する方法を学ぶ。
+*   認証機能の有効化と動作確認の方法を理解する。
 
 ---
 
 ## 導入：Fortifyのセットアップ
 
-前のセクションで、Laravel Fortifyが何であるかを学びました。このセクションでは、実際にFortifyをインストールし、認証機能を実装していきます。
+前のセクションで、Laravel Fortifyが何であるかを学びました。このセクションでは、Fortifyのインストールから認証機能の実装までの流れを見ていきます。
 
-Fortifyは、**バックエンドの認証処理**を提供するパッケージです。フロントエンド（ログインフォームなど）は、後のセクションで自分で作成します。
+Fortifyは、**バックエンドの認証処理**を提供するパッケージです。フロントエンド（ログインフォームなど）は、別途自分で作成する必要があります。
 
 ---
 
@@ -20,9 +20,9 @@ Fortifyは、**バックエンドの認証処理**を提供するパッケージ
 
 ### 📦 Fortifyのインストール
 
-まず、Fortifyをインストールします。
+Fortifyをインストールする流れを見ていきます。
 
-#### ステップ1: Composerでインストール
+**1. Composerでインストール**
 
 ```bash
 sail composer require laravel/fortify
@@ -30,19 +30,19 @@ sail composer require laravel/fortify
 
 このコマンドで、Fortifyパッケージがプロジェクトに追加されます。
 
-#### ステップ2: Fortifyの設定ファイルを公開
+**2. Fortifyの設定ファイルを公開**
 
 ```bash
 sail artisan vendor:publish --provider="Laravel\Fortify\FortifyServiceProvider"
 ```
 
-このコマンドで、以下のファイルが作成されます：
+このコマンドを実行すると、以下のファイルが作成されます：
 
 *   `config/fortify.php`：Fortifyの設定ファイル
 *   `app/Actions/Fortify/`：ユーザー登録・パスワードリセットなどのアクションクラス
 *   `app/Providers/FortifyServiceProvider.php`：Fortifyのサービスプロバイダー
 
-#### ステップ3: マイグレーションを実行
+**3. マイグレーションを実行**
 
 Fortifyは、Laravelのデフォルトの`users`テーブルを使用します。すでにマイグレーションを実行している場合は、このステップは不要です。
 
@@ -54,9 +54,9 @@ sail artisan migrate
 
 ### ⚙️ Fortifyの設定
 
-`config/fortify.php`ファイルを開いて、設定を確認しましょう。
+`config/fortify.php`ファイルには、Fortifyの動作を制御する設定が含まれています。
 
-#### 主要な設定項目
+**主要な設定項目**
 
 ```php
 <?php
@@ -89,7 +89,7 @@ return [
 *   `passwords`：パスワードリセットに使用するブローカー
 *   `features`：有効化する機能（登録、パスワードリセットなど）
 
-#### 今回有効化する機能
+**有効化できる機能**
 
 このチュートリアルでは、以下の機能を有効化します：
 
@@ -102,7 +102,7 @@ return [
 
 Fortifyをインストールすると、以下のルートが自動的に登録されます。
 
-#### ルート一覧
+**ルート一覧の確認方法**
 
 ```bash
 sail artisan route:list --path=login
@@ -131,9 +131,9 @@ sail artisan route:list --path=logout
 
 Fortifyは、フロントエンドを提供しないため、ログインフォームやユーザー登録フォームを自分で作成する必要があります。
 
-#### FortifyServiceProviderでビューを指定
+**FortifyServiceProviderでビューを指定**
 
-`app/Providers/FortifyServiceProvider.php`を開いて、`boot`メソッドに以下を追加します：
+`app/Providers/FortifyServiceProvider.php`の`boot`メソッドで、表示するビューを指定します：
 
 ```php
 <?php
@@ -172,9 +172,9 @@ class FortifyServiceProvider extends ServiceProvider
 
 Fortifyは、ユーザー登録時の処理を**アクションクラス**で管理します。
 
-#### CreateNewUser.php
+**CreateNewUser.php**
 
-`app/Actions/Fortify/CreateNewUser.php`を開いて、内容を確認しましょう：
+`app/Actions/Fortify/CreateNewUser.php`の内容を見ていきます：
 
 ```php
 <?php
@@ -220,15 +220,11 @@ class CreateNewUser implements CreatesNewUsers
 
 ---
 
-### 🔐 認証の確認
+### 🔐 認証の確認方法
 
-Fortifyをインストールしたら、認証が正しく動作するか確認しましょう。
+Fortifyをインストールした後、認証が正しく動作しているかを確認する方法を見ていきます。
 
-#### ステップ1: ログイン状態の確認
-
-コントローラーやBladeで、ログイン状態を確認できます。
-
-**コントローラーで確認**：
+**コントローラーでの確認**
 
 ```php
 <?php
@@ -251,7 +247,7 @@ class DashboardController extends Controller
 }
 ```
 
-**Bladeで確認**：
+**Bladeでの確認**
 
 ```blade
 @auth
@@ -267,7 +263,7 @@ class DashboardController extends Controller
 
 Laravelには、**認証ミドルウェア**が用意されています。これを使うと、ログインしていないユーザーを自動的にログインページにリダイレクトできます。
 
-#### ルートに認証ミドルウェアを適用
+**ルートに認証ミドルウェアを適用**
 
 ```php
 <?php
@@ -292,7 +288,7 @@ Route::middleware('auth')->group(function () {
 
 ### FortifyServiceProviderの登録
 
-Fortifyをインストールすると、`FortifyServiceProvider`が自動的に`config/app.php`の`providers`配列に追加されます。もし追加されていない場合は、手動で追加してください。
+Fortifyをインストールすると、`FortifyServiceProvider`が自動的に`config/app.php`の`providers`配列に追加されます。もし追加されていない場合は、手動で追加する必要があります。
 
 ```php
 'providers' => [
@@ -314,10 +310,12 @@ Fortifyをインストールすると、`FortifyServiceProvider`が自動的に`
 
 ## ✨ まとめ
 
+このセクションでは、Laravel Fortifyの認証機能について学びました。
+
 *   **Fortifyのインストール**は、Composerで`laravel/fortify`をインストールし、設定ファイルを公開する
 *   Fortifyは、**POSTリクエストの処理**のみを提供し、**GETリクエスト（フォーム表示）**は自分で作成する
 *   **FortifyServiceProvider**で、ログインフォームとユーザー登録フォームのビューを指定する
-*   **CreateNewUser**アクションクラスで、ユーザー登録時のバリデーションとパスワードのハッシュ化を行う
+*   **CreateNewUser**アクションクラスで、ユーザー登録時のバリデーションとパスワードのハッシュ化が行われる
 *   **認証ミドルウェア**を使うと、ログインしていないユーザーを自動的にリダイレクトできる
 
 ---

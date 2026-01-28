@@ -1,8 +1,8 @@
-# Tutorial 10-1-3: ユーザー登録機能の実装
+# Tutorial 10-1-3: ユーザー登録機能を理解する
 
 ## 🎯 このセクションで学ぶこと
 
-*   Laravel Fortifyを使って、ユーザー登録機能を実装できるようになる。
+*   Laravel Fortifyを使ったユーザー登録機能の仕組みを理解する。
 *   パスワードのハッシュ化を理解する。
 *   登録後の自動ログインの仕組みを理解する。
 
@@ -12,7 +12,7 @@
 
 認証機能の中で、最も基本的なのが**ユーザー登録機能**です。ユーザー登録機能を実装することで、ユーザーはアプリケーションにアカウントを作成できるようになります。
 
-このセクションでは、前のセクションでインストールしたLaravel Fortifyを使って、ユーザー登録機能を実装します。
+このセクションでは、Laravel Fortifyを使ったユーザー登録機能の仕組みを見ていきます。
 
 ---
 
@@ -43,19 +43,11 @@ Fortifyを使ったユーザー登録は、以下の流れで行われます：
 
 ---
 
-### 🎨 ステップ1: 登録フォームのビューを作成する
+### 🎨 登録フォームのビュー
 
-まず、ユーザー登録フォームのBladeファイルを作成します。
+ユーザー登録フォームは、`resources/views/auth/register.blade.php`に作成します。
 
-#### ディレクトリの作成
-
-```bash
-mkdir -p resources/views/auth
-```
-
-#### 登録フォームの作成
-
-`resources/views/auth/register.blade.php`を作成します：
+**登録フォームの例**
 
 ```blade
 <!DOCTYPE html>
@@ -145,9 +137,9 @@ value="{{ old('name') }}"
 
 ---
 
-### 🔧 ステップ2: FortifyServiceProviderでビューを指定する
+### 🔧 FortifyServiceProviderでビューを指定
 
-`app/Providers/FortifyServiceProvider.php`を開いて、`boot`メソッドに登録ビューを指定します：
+`app/Providers/FortifyServiceProvider.php`の`boot`メソッドで、登録ビューを指定します：
 
 ```php
 <?php
@@ -190,11 +182,11 @@ Fortify::registerView(function () {
 
 ---
 
-### 📝 ステップ3: CreateNewUserアクションクラスを確認する
+### 📝 CreateNewUserアクションクラス
 
 Fortifyは、ユーザー登録時の処理を**アクションクラス**で管理します。
 
-`app/Actions/Fortify/CreateNewUser.php`を開いて、内容を確認しましょう：
+`app/Actions/Fortify/CreateNewUser.php`の内容を見ていきます：
 
 ```php
 <?php
@@ -271,11 +263,11 @@ if (Hash::check('password123', $hashed)) {
 
 ---
 
-### 🚀 ステップ4: 動作確認
+### 🛤️ Fortifyが登録するルート
 
-#### ルートの確認
+Fortifyをインストールすると、ユーザー登録に関するルートが自動的に登録されます。
 
-Fortifyが登録したルートを確認します：
+**ルートの確認方法**
 
 ```bash
 sail artisan route:list --path=register
@@ -294,7 +286,11 @@ POST      register .......... Laravel\Fortify\Http\Controllers\RegisteredUserCon
 *   Fortifyが内部でルートを定義している
 *   これがFortifyの「バックエンドの認証ロジックを提供する」という意味
 
-#### ブラウザで確認
+---
+
+### 🔍 動作確認の流れ
+
+ユーザー登録機能の動作確認は、以下の流れで行います：
 
 1. ブラウザで`http://localhost/register`にアクセス
 2. 登録フォームが表示されることを確認
@@ -303,7 +299,7 @@ POST      register .......... Laravel\Fortify\Http\Controllers\RegisteredUserCon
 
 ---
 
-### ⚙️ 登録後のリダイレクト先を設定する
+### ⚙️ 登録後のリダイレクト先の設定
 
 登録後のリダイレクト先は、`config/fortify.php`で設定します：
 
@@ -323,7 +319,7 @@ public const HOME = '/dashboard';
 
 `CreateNewUser.php`のバリデーションルールをカスタマイズできます。
 
-#### 例: 名前の最大文字数を50文字に変更
+**例: 名前の最大文字数を50文字に変更**
 
 ```php
 Validator::make($input, [
@@ -333,7 +329,7 @@ Validator::make($input, [
 ])->validate();
 ```
 
-#### 例: パスワードの要件を強化
+**例: パスワードの要件を強化**
 
 `app/Actions/Fortify/PasswordValidationRules.php`を編集します：
 
@@ -359,7 +355,7 @@ protected function passwordRules(): array
 
 ### 🚨 よくある間違い
 
-#### 間違い1: パスワードをハッシュ化しない
+**間違い1: パスワードをハッシュ化しない**
 
 ```php
 return User::create([
@@ -377,7 +373,7 @@ return User::create([
 
 ---
 
-#### 間違い2: FortifyServiceProviderでビューを指定しない
+**間違い2: FortifyServiceProviderでビューを指定しない**
 
 ビューを指定しないと、`/register`にアクセスしても何も表示されません。
 
@@ -387,13 +383,11 @@ return User::create([
 
 ## ✨ まとめ
 
-このセクションでは、Laravel Fortifyを使って、ユーザー登録機能を実装しました。
+このセクションでは、Laravel Fortifyを使ったユーザー登録機能について学びました。
 
-*   **Bladeファイル**を作成し、`FortifyServiceProvider`で指定した
-*   **CreateNewUser**アクションクラスで、バリデーションとパスワードのハッシュ化を行う
+*   **Bladeファイル**を作成し、`FortifyServiceProvider`で指定する
+*   **CreateNewUser**アクションクラスで、バリデーションとパスワードのハッシュ化が行われる
 *   **コントローラーを自作する必要がない**：Fortifyが内部で処理を行う
 *   **ルートはFortifyが自動的に登録する**：`sail artisan route:list`で確認できる
-
-次のセクションでは、ログイン・ログアウト機能を実装します。
 
 ---
