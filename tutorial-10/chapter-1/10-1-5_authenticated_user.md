@@ -151,6 +151,15 @@ public function show(Request $request)
 }
 ```
 
+**コードリーディング（コントローラー）**：
+
+| コード | 説明 |
+|:---|:---|
+| `$request->user()` | 現在ログインしているユーザーの情報を取得します |
+| `view('profile.show', ...)` | 表示するビュー（resources/views/profile/show.blade.php）を指定します |
+| `['user' => $user]` | ビュー側で `$user` 変数として使えるようにデータを渡します |
+
+
 #### ルート
 
 ```php
@@ -158,6 +167,15 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
 });
 ```
+
+**コードリーディング（ルート）**：
+
+| コード | 説明 |
+|:---|:---|
+| `middleware('auth')` | ログインしていないユーザーを制限し、ログイン画面へ誘導します |
+| `group(function () { ... })` | グループ内のルートすべてに特定の条件（今回は認証）を一括適用します |
+| `[ProfileController::class, 'show']` | アクセス時に ProfileController の show メソッドを呼び出します |
+| `name('profile.show')` | ルートに名前を付けます。ビューなどで `route('profile.show')` として呼び出せます |
 
 #### ビュー（profile/show.blade.php）
 
@@ -168,31 +186,17 @@ Route::middleware('auth')->group(function () {
 <p>登録日: {{ $user->created_at->format('Y年m月d日') }}</p>
 ```
 
----
+**コードリーディング（ビュー）**：
 
-### 🚀 実践例2: プロフィール更新
-
-#### コントローラー
-
-```php
-public function update(Request $request)
-{
-    $validated = $request->validate([
-        'name' => 'required|string|max:255',
-        'email' => 'required|email|unique:users,email,' . $request->user()->id,
-    ]);
-
-    $user = $request->user();
-    $user->update($validated);
-
-    return redirect()->route('profile.show')
-        ->with('success', 'プロフィールを更新しました');
-}
-```
+| コード | 説明 |
+|:---|:---|
+| `{{ $user->name }}` | 変数の内容を安全に表示（エスケープ処理）します |
+| `$user->created_at` | 登録日時データです。Laravelでは自動的にCarbonインスタンスとして扱われます |
+| `format('Y年m月d日')` | 日付データを「2024年01月01日」のような形式に整えて表示します |
 
 ---
 
-### 🚀 実践例3: 投稿の作成
+### 🚀 実践例2: 投稿の作成
 
 #### コントローラー
 
@@ -211,45 +215,18 @@ public function store(Request $request)
 }
 ```
 
-**コードリーディング（メソッドチェーンの分解）**
+**コードリーディング（コントローラー）**：
 
-`$request->user()->posts()->create($validated)` を分解してみましょう。
-
-| ステップ | コード | 演算子 | 戻り値 | 意味 |
-|:---:|:---|:---:|:---|:---|
-| 1 | `$request->user()` | `->` | Userインスタンス | 認証済みユーザーを取得 |
-| 2 | `->posts()` | `->` | クエリビルダ | ユーザーの投稿リレーションを取得 |
-| 3 | `->create($validated)` | `->` | Postインスタンス | 新しい投稿を作成してDBに保存 |
+| コード | 説明 |
+|:---|:---|
+| `$request->validate([...])` | 入力データのバリデーション（検証）を行い、不備があれば自動で元の画面へ戻します |
+| `$validated` | バリデーションを通過した「安全なデータ」のみが配列として代入されます |
+| `$request->user()->posts()` | ログイン中のユーザーに紐づく「投稿（posts）」のリレーションを取得します |
+| `create($validated)` | リレーションを介して、ユーザーIDを自動で紐付けた状態で新しいレコードを保存します |
+| `redirect()->route('...', $post)` | 処理完了後、指定したルート（詳細画面など）へ移動させます。`$post` を渡すことでIDが自動で補完されます |
+| `with('success', '...')` | セッションに一度だけ表示する「フラッシュメッセージ」を保存します |
 
 > **💡 ポイント**: このメソッドチェーンでは、`user_id`が自動的に設定されます。`$request->user()`で取得したユーザーの投稿として作成されるため、手動で`user_id`を指定する必要はありません。
-
----
-
-### 🚀 実践例4: 自分の投稿のみ更新を許可
-
-#### コントローラー
-
-```php
-public function update(Request $request, $id)
-{
-    $post = Post::findOrFail($id);
-
-    // 自分の投稿かチェック
-    if ($post->user_id !== $request->user()->id) {
-        abort(403, '権限がありません');
-    }
-
-    $validated = $request->validate([
-        'title' => 'required|string|max:255',
-        'content' => 'required|string',
-    ]);
-
-    $post->update($validated);
-
-    return redirect()->route('posts.show', $post)
-        ->with('success', '投稿を更新しました');
-}
-```
 
 ---
 
@@ -292,7 +269,7 @@ $posts = Post::where('user_id', $userId)->get();
 
 ---
 
-### 🚀 実践例5: ダッシュボード
+### 🚀 実践例3: ダッシュボード
 
 #### コントローラー
 
@@ -314,16 +291,15 @@ public function dashboard(Request $request)
 }
 ```
 
-**コードリーディング（メソッドチェーンの分解）**
+**コードリーディング（コントローラー）**：
 
-`$user->posts()->latest()->take(5)->get()` を分解してみましょう。
-
-| ステップ | コード | 演算子 | 戻り値 | 意味 |
-|:---:|:---|:---:|:---|:---|
-| 1 | `$user->posts()` | `->` | クエリビルダ | ユーザーの投稿リレーションを取得 |
-| 2 | `->latest()` | `->` | クエリビルダ | 新しい順に並び替え |
-| 3 | `->take(5)` | `->` | クエリビルダ | 5件に制限 |
-| 4 | `->get()` | `->` | Collection | 結果を取得 |
+| コード | 説明 |
+|:---|:---|
+| `$user->posts()->count()` | リレーションを活用し、そのユーザーが作成した投稿の総数を取得します |
+| `where('is_published', true)` | カラムの値を指定して、公開済みのレコードのみに絞り込みます |
+| `latest()` | `created_at`（作成日時）の降順（新しい順）で並べ替えます |
+| `take(5)->get()` | 指定した件数（今回は5件）だけデータを取得します |
+| `compact('user', 'stats', 'latestPosts')` | 引数に渡した文字列と同じ名前の変数（$userなど）をまとめて配列にしてビューに渡します |
 
 > **💡 ポイント**: `posts()`はメソッド呼び出し（`()`あり）なのでクエリビルダが返り、その後に追加の条件を付けられます。もし`$user->posts`（`()`なし）と書くと、全ての投稿が取得されてしまいます。
 
@@ -348,6 +324,17 @@ public function dashboard(Request $request)
     <p>投稿がありません</p>
 @endforelse
 ```
+
+**コードリーディング（ビュー）**：
+
+| コード | 説明 |
+|:---|:---|
+| `$stats['total_posts']` | コントローラーから渡された連想配列 `stats` の各キーの値を表示します |
+| `@forelse ($latestPosts as $post)` | ループ処理を行います。データが存在しない場合の処理（@empty）も一緒に書ける便利な構文です |
+| `$post->title` | ループ中の各投稿（Postモデルのインスタンス）のタイトルを表示します |
+| `format('Y/m/d')` | 日付を「2024/01/01」のようなスラッシュ区切りの形式に変換します |
+| `@empty` | 繰り返し対象のデータ（今回は $latestPosts）が空だった場合に実行されるブロックです |
+| `@endforelse` | `@forelse` の範囲がここで終了することを示します |
 
 ---
 

@@ -185,6 +185,18 @@ public function destroy($id)
 }
 ```
 
+**コードリーディング（コントローラー）**：
+
+| コード | 説明 |
+|:---|:---|
+| `Post::findOrFail($id)` | 指定されたIDの投稿を取得します。存在しない場合は自動で404エラーを返します |
+| `$this->authorize('view', $post)` | Policyクラスの `view` メソッドを呼び出し、閲覧権限があるか検証します |
+| `$this->authorize('update', $post)` | Policyの `update` メソッドを検証し、許可されない場合は403エラーを返します |
+| `$this->authorize('delete', $post)` | Policyの `delete` メソッドを検証し、作成者本人以外の削除をブロックします |
+| `$post->update($validated)` | バリデーション済みのデータを使って、データベースのレコードを更新します |
+| `$post->delete()` | データベースから対象のレコードを削除します |
+| `response()->json(...)` | 処理結果をJSON形式で返します。API開発における標準的なレスポンス方法です |
+
 ---
 
 ### 💡 TIP: `$this->authorize()`
@@ -201,26 +213,8 @@ public function destroy($id)
 
 ---
 
-### 🚀 実践例2: 管理者は全ての投稿を削除できる
 
-#### ポリシーの実装
-
-```php
-public function delete(User $user, Post $post)
-{
-    // 管理者は全ての投稿を削除できる
-    if ($user->is_admin) {
-        return true;
-    }
-
-    // 自分の投稿のみ削除できる
-    return $user->id === $post->user_id;
-}
-```
-
----
-
-### 🚀 実践例3: `before`メソッド
+### 🚀 実践例2: `before`メソッド
 
 #### ポリシーの実装
 
@@ -234,29 +228,15 @@ public function before(User $user, $ability)
 }
 ```
 
-**コードリーディング**
+**コードリーディング（ポリシーの実装）**：
 
-*   `before`メソッドは、全てのポリシーメソッドの前に実行される
-*   `true`を返すと、他のポリシーメソッドはスキップされる
-
----
-
-### 🚀 実践例4: ゲストユーザーを許可
-
-#### ポリシーの実装
-
-```php
-public function view(?User $user, Post $post)
-{
-    // 公開済みの投稿は誰でも閲覧可能
-    if ($post->is_published) {
-        return true;
-    }
-
-    // 下書きは自分のみ閲覧可能
-    return $user && $user->id === $post->user_id;
-}
-```
+| コード | 説明 |
+|:---|:---|
+| `public function before(...)` | ポリシー内の他のどのチェックよりも先に実行される「特権的なメソッド」です |
+| `User $user` | 現在ログインしているユーザー情報が自動的に渡されます |
+| `$ability` | 実行されようとしているアクション名（'update' や 'delete' など）が渡されます |
+| `$user->is_admin` | ユーザーが管理者かどうかを判定するフラグ（カラム）をチェックします |
+| `return true;` | ここで `true` を返すと、以降の個別メソッドの判定をスキップして即座に認可されます |
 
 ---
 
@@ -268,62 +248,6 @@ public function viewAny(User $user)
     // 認証済みユーザーは投稿一覧を閲覧できる
     return true;
 }
-```
-
----
-
-### 🚀 実践例5: コメントのポリシー
-
-#### ステップ1: ポリシーを生成
-
-```bash
-sail artisan make:policy CommentPolicy --model=Comment
-```
-
-#### ステップ2: ポリシーを実装
-
-```php
-<?php
-
-namespace App\Policies;
-
-use App\Models\Comment;
-use App\Models\User;
-
-class CommentPolicy
-{
-    public function update(User $user, Comment $comment)
-    {
-        // 自分のコメントのみ更新できる
-        return $user->id === $comment->user_id;
-    }
-
-    public function delete(User $user, Comment $comment)
-    {
-        // 自分のコメント、または投稿の所有者は削除できる
-        return $user->id === $comment->user_id || $user->id === $comment->post->user_id;
-    }
-}
-```
-
-**コードリーディング（リレーションアクセス）**
-
-`$comment->post->user_id` を分解してみましょう。
-
-| ステップ | コード | 演算子 | 戻り値 | 意味 |
-|:---:|:---|:---:|:---|:---|
-| 1 | `$comment->post` | `->` | Postインスタンス | コメントが属する投稿を取得 |
-| 2 | `->user_id` | `->` | 整数 | 投稿の所有者IDを取得 |
-
-> **💡 ポイント**: `$comment->post`はリレーションのプロパティアクセスです。Commentモデルに`belongsTo(Post::class)`リレーションが定義されているため、`->`で関連する投稿にアクセスできます。
-
-#### ステップ3: ポリシーを登録
-
-```php
-protected $policies = [
-    Post::class => PostPolicy::class,
-    Comment::class => CommentPolicy::class,
-];
 ```
 
 ---
