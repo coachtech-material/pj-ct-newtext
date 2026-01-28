@@ -1,11 +1,15 @@
 # Tutorial 9-1-2: Docker環境でLaravelを動かそう（Laravel Sail）
 
+> 📖 **このセクションは「見て理解」でOKです**
+> 
+> このセクションでは、Laravel Sailを使った環境構築の**流れと概念**を理解することが目的です。実際の環境構築は、後のハンズオンセクション（9-1-7）で行います。コード例は「こういう手順で構築する」という参考として読み進めてください。
+
 ## 🎯 このセクションで学ぶこと
 
 *   **Laravel Sail**とは何か、なぜ使うのかを理解する。
-*   Laravel Sailを使って、Laravel開発環境（PHP、MySQL、phpMyAdmin）を構築できるようになる。
-*   Laravelプロジェクトを作成し、ブラウザで「Welcome」画面を表示できるようになる。
-*   Sailコマンドの使い方と、エイリアス設定を理解する。
+*   Laravel Sailを使った、Laravel開発環境（PHP、MySQL、phpMyAdmin）の構築方法を理解する。
+*   Laravelプロジェクトの作成から、ブラウザで「Welcome」画面を表示するまでの流れを把握する。
+*   Sailコマンドの使い方と、エイリアス設定について理解する。
 
 ---
 
@@ -28,11 +32,11 @@ Laravel Sailを使えば、これらの作業が**全て自動化**されます�
 |:---|:---|:---|
 | 設定ファイル作成 | 手動で複数ファイル作成 | 自動生成 |
 | PHP拡張機能 | 手動インストール | 事前に最適化済み |
-| コマンド実行 | `sail artisan ...` | `sail artisan ...` |
+| コマンド実行 | `docker-compose exec ...` | `sail artisan ...` |
 | 学習コスト | 高い | 低い |
 | Laravel最適化 | 自分で調整 | 公式が最適化済み |
 
-> 💡 **ポイント**: Laravel Sailは、Dockerの複雑さを隠蔽しつつ、Laravelに最適化された環境を提供します。実務でも広く使われている標準的な開発環境です。ではなぜ、docker-copose.ymlを利用した環境構築を学んだかというと、チーム開発を行なっていく前提では最初からプロジェクトを立ち上げるsailよりも、途中からプロジェクトに参画した上で共有されたプロジェクトにあるdocker環境を利用することが多いです。したがって、docker-copose.ymlに記載されている内容や実行方法を学ぶ必要があったのです。
+> 💡 **ポイント**: Laravel Sailは、Dockerの複雑さを隠蔽しつつ、Laravelに最適化された環境を提供します。実務でも広く使われている標準的な開発環境です。ではなぜ、docker-compose.ymlを利用した環境構築を学んだかというと、チーム開発を行なっていく前提では最初からプロジェクトを立ち上げるSailよりも、途中からプロジェクトに参画した上で共有されたプロジェクトにあるDocker環境を利用することが多いです。したがって、docker-compose.ymlに記載されている内容や実行方法を学ぶ必要があったのです。
 
 ---
 
@@ -52,11 +56,13 @@ Laravel Sailで構築される環境は、以下のコンテナで構成され�
 
 ---
 
-## 🚀 環境構築手順
+## 🚀 環境構築の流れ
 
-### Step 1: Laravelプロジェクトの作成
+ここでは、Laravel Sailを使った環境構築の流れを見ていきます。
 
-まず、Laravelプロジェクトを管理するためのディレクトリを作成します。ホームディレクトリ直下にプロジェクトを作成すると散らかりやすいので、`laravel-practice`という専用ディレクトリを作成してその中で作業します。
+### 1. Laravelプロジェクトの作成
+
+まず、Laravelプロジェクトを管理するためのディレクトリを作成する流れを見ていきます。ホームディレクトリ直下にプロジェクトを作成すると散らかりやすいので、`laravel-practice`という専用ディレクトリを作成してその中で作業します。
 
 ```bash
 # ホームディレクトリに移動
@@ -71,7 +77,7 @@ cd laravel-practice
 
 > 💡 **ポイント**: `laravel-practice`ディレクトリの中に複数のLaravelプロジェクトを作成できます。今後、練習用のプロジェクトを作成する際も、このディレクトリ内で作業すると整理されます。
 
-本教材では**Laravel 10.x**の環境を中心に解説を行うため、以下のDockerコマンドを実行して**Laravel 10.x**を明示的に指定してプロジェクトを作成します。
+本教材では**Laravel 10.x**の環境を中心に解説を行うため、以下のDockerコマンドで**Laravel 10.x**を明示的に指定してプロジェクトを作成します。
 
 ```bash
 docker run --rm \
@@ -97,13 +103,11 @@ docker run --rm \
 
 > ⚠️ **注意**: このコマンドは初回実行時に数分かかることがあります。Dockerイメージのダウンロードと、Laravelの依存パッケージのインストールが行われます。
 
-**[ここに、コマンド実行中のスクリーンショットを挿入]**
-
 ---
 
-### Step 2: Laravel Sailのインストール
+### 2. Laravel Sailのインストール
 
-作成・移動したプロジェクトディレクトリ（laravel-practice）にて、Laravel Sailをインストールします。
+作成したプロジェクトディレクトリに移動し、Laravel Sailをインストールします。
 
 ```bash
 docker run --rm \
@@ -119,7 +123,7 @@ docker run --rm \
 
 ---
 
-### Step 3: Sailの設定ファイルをパブリッシュ
+### 3. Sailの設定ファイルをパブリッシュ
 
 次に、Sailの設定ファイル（`docker-compose.yml`）を生成します。MySQLを使用するように指定します。
 
@@ -142,14 +146,9 @@ docker run --rm \
 
 ---
 
-### Step 4: `.env`ファイルの確認
+### 4. `.env`ファイルの確認
 
-プロジェクトディレクトリにて以下のコマンドを実行し、エディタを開いておきましょう。
-```bash
-cd laravel-practice
-```
-
-`.env`ファイルを開き、データベース接続情報が以下と一致していることを確認します。
+`.env`ファイルを開くと、データベース接続情報は以下のように設定されています。
 
 ```env
 DB_CONNECTION=mysql
@@ -167,11 +166,9 @@ DB_PASSWORD=password
 
 ---
 
-### Step 5: phpMyAdminの追加
+### 5. phpMyAdminの追加
 
-データベースをブラウザで管理できるように、phpMyAdminを追加します。
-
-`docker-compose.yml`（または`compose.yaml`）を開き、`mysql`サービスの後に以下の設定を追加します。
+データベースをブラウザで管理できるように、phpMyAdminを追加する場合は、`docker-compose.yml`（または`compose.yaml`）を開き、`mysql`サービスの後に以下の設定を追加します。
 
 ```yaml
     phpmyadmin:
@@ -201,9 +198,9 @@ DB_PASSWORD=password
 
 ---
 
-### Step 6: Sailの起動
+### 6. Sailの起動
 
-いよいよSailを起動します。
+Sailの起動は以下のコマンドで行います。
 
 ```bash
 ./vendor/bin/sail up -d
@@ -213,11 +210,9 @@ DB_PASSWORD=password
 *   `up`: コンテナを起動
 *   `-d`: バックグラウンドで実行（デタッチモード）
 
-**[ここに、`sail up -d`実行後のスクリーンショットを挿入]**
-
 初回起動時は、Dockerイメージのビルドが行われるため、数分かかることがあります。
 
-コンテナの状態を確認するには、以下のコマンドを実行します。
+コンテナの状態を確認するには、以下のコマンドを使用します。
 
 ```bash
 ./vendor/bin/sail ps
@@ -227,9 +222,9 @@ DB_PASSWORD=password
 
 ---
 
-### Step 7: エイリアス設定（推奨）
+### 7. エイリアス設定（推奨）
 
-毎回`./vendor/bin/sail`と入力するのは面倒なので、エイリアスを設定しましょう。
+毎回`./vendor/bin/sail`と入力するのは面倒なので、エイリアスを設定すると便利です。
 
 **Zshの場合**（macOS Catalina以降のデフォルト）
 
@@ -261,9 +256,9 @@ sail up -d
 
 ---
 
-### Step 8: アプリケーションキーの生成
+### 8. アプリケーションキーの生成
 
-Laravelのアプリケーションキーを生成します。
+Laravelのアプリケーションキーを生成するには、以下のコマンドを使用します。
 
 ```bash
 sail artisan key:generate
@@ -273,31 +268,27 @@ sail artisan key:generate
 
 ---
 
-## 🌐 動作確認
+## 🌐 動作確認の方法
 
 ### Laravelアプリケーションにアクセス
 
-ブラウザで以下のURLにアクセスしてください。
+ブラウザで以下のURLにアクセスすると、Laravelのウェルカム画面が表示されます。
 
 ```
 http://localhost
 ```
 
-Laravelのウェルカム画面が表示されれば、環境構築は成功です！
-
-**[ここに、Laravelのウェルカム画面のスクリーンショットを挿入]**
+Laravelのウェルカム画面が表示されれば、環境構築は成功です。
 
 ### phpMyAdminにアクセス
 
-次に、phpMyAdminにアクセスして、データベースが正しく作成されているか確認しましょう。
+phpMyAdminにアクセスすると、データベースが正しく作成されていることを確認できます。
 
 ```
 http://localhost:8080
 ```
 
 phpMyAdminの画面が表示され、`laravel`データベースが確認できればOKです。
-
-**[ここに、phpMyAdminの画面のスクリーンショットを挿入]**
 
 ---
 
@@ -316,7 +307,7 @@ Laravel Sailでは、様々なコマンドを簡単に実行できます。
 | `sail restart` | コンテナを再起動 |
 | `sail ps` | コンテナの状態を確認 |
 
-> 💡 **ポイント**: 下記のコマンドは未学習のものになりますので、現時点ではLaravel Sailってそのままいろんなコマンドが使えるんだって認識していればOKです！
+> 💡 **ポイント**: 下記のコマンドは未学習のものになりますので、現時点ではLaravel Sailでそのままいろんなコマンドが使えるという認識でOKです。
 
 ### Artisanコマンド
 
@@ -423,16 +414,16 @@ Laravel Sailを使った開発の基本的な流れは以下の通りです。
 
 ## ✨ まとめ
 
-このセクションでは、Laravel Sailを使ってLaravel開発環境を構築しました。
+このセクションでは、Laravel Sailを使ったLaravel開発環境の構築方法を学びました。
 
-*   **Laravel Sail**は、Laravelが提供する公式のDocker開発環境ツールである。
-*   `composer create-project`でLaravelプロジェクトを作成し、`composer require laravel/sail --dev`でSailをインストールした。
-*   `php artisan sail:install --with=mysql`でSailの設定ファイルを生成し、MySQLを使用するように設定した。
-*   `docker-compose.yml`にphpMyAdminを追加して、データベースをブラウザで管理できるようにした。
-*   `sail up -d`でコンテナを起動し、`http://localhost`でLaravelのウェルカム画面を表示できた。
-*   エイリアス設定により、`sail`コマンドで簡単にSailを操作できるようになった。
+*   **Laravel Sail**は、Laravelが提供する公式のDocker開発環境ツールです。
+*   `composer create-project`でLaravelプロジェクトを作成し、`composer require laravel/sail --dev`でSailをインストールします。
+*   `php artisan sail:install --with=mysql`でSailの設定ファイルを生成し、MySQLを使用するように設定します。
+*   `docker-compose.yml`にphpMyAdminを追加して、データベースをブラウザで管理できるようにします。
+*   `sail up -d`でコンテナを起動し、`http://localhost`でLaravelのウェルカム画面を表示できます。
+*   エイリアス設定により、`sail`コマンドで簡単にSailを操作できるようになります。
 
-これで、Laravel開発の準備が整いました。次のセクションでは、Laravelのディレクトリ構成を理解し、どのファイルが何の役割を持っているのかを学んでいきます。
+これで、Laravel開発環境の構築方法を理解できました。次のセクションでは、Laravelのディレクトリ構成を理解し、どのファイルが何の役割を持っているのかを学んでいきます。
 
 ---
 
