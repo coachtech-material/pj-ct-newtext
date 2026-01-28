@@ -2,17 +2,17 @@
 
 ## 🎯 このセクションで学ぶこと
 
-*   `sail artisan make:migration`コマンド（`php artisan make:migration`）を使って、マイグレーションファイルを生成できるようになる。
-*   `Blueprint`クラスを使って、様々なカラム型を定義できるようになる。
-*   外部キー制約、インデックス、ユニーク制約などを設定できるようになる。
+*   `sail artisan make:migration`コマンド（`php artisan make:migration`）を使った、マイグレーションファイルの生成方法を理解する。
+*   `Blueprint`クラスを使った、様々なカラム型の定義方法を理解する。
+*   外部キー制約、インデックス、ユニーク制約などの設定方法を理解する。
 
 ---
 
-## 導入：実際にテーブルを作成してみよう
+## 導入：テーブルを作成する流れ
 
-前のセクションで、マイグレーションの概念と、既存のマイグレーションファイルの構造を学びました。このセクションでは、実際に新しいマイグレーションファイルを作成し、カスタムテーブルを作成する方法を学びます。
+前のセクションで、マイグレーションの概念と、既存のマイグレーションファイルの構造を学びました。このセクションでは、新しいマイグレーションファイルを作成し、カスタムテーブルを作成する流れを見ていきます。
 
-例として、ブログアプリケーションの`posts`テーブルを作成してみましょう。
+例として、ブログアプリケーションの`posts`テーブルを作成する流れを見ていきます。
 
 ---
 
@@ -78,7 +78,7 @@ Laravelは、マイグレーション名から「`posts`テーブルを作成す
 
 `up()`メソッドの中で、`Blueprint`クラスを使ってカラムを定義します。
 
-#### 基本的なカラム型
+**基本的なカラム型**
 
 | メソッド | 説明 | SQLの型 |
 |:---|:---|:---|
@@ -94,7 +94,7 @@ Laravelは、マイグレーション名から「`posts`テーブルを作成す
 | `$table->timestamp('published_at')` | タイムスタンプ | `TIMESTAMP` |
 | `$table->timestamps()` | `created_at`と`updated_at` | `TIMESTAMP` |
 
-#### 例：`posts`テーブルのカラムを定義する
+**例：`posts`テーブルのカラム定義**
 
 ```php
 public function up(): void
@@ -125,7 +125,7 @@ public function up(): void
 
 ### 🔗 外部キー制約の定義
 
-Tutorial 8で学んだように、外部キー制約を使うことで、データの整合性を保つことができます。例えば、`posts`テーブルに`user_id`カラムを追加し、`users`テーブルの`id`と紐付けてみましょう。
+Tutorial 8で学んだように、外部キー制約を使うことで、データの整合性を保つことができます。例えば、`posts`テーブルに`user_id`カラムを追加し、`users`テーブルの`id`と紐付ける場合は以下のようになります。
 
 ```php
 public function up(): void
@@ -197,7 +197,7 @@ $table->integer('age')->unsigned()->nullable()->default(0)->comment('ユーザ�
 
 ### 🚀 マイグレーションの実行
 
-マイグレーションファイルを作成したら、以下のコマンドで実行します。
+マイグレーションファイルを作成したら、以下のコマンドで実行できます。
 
 ```bash
 sail artisan migrate
@@ -258,13 +258,11 @@ return new class extends Migration
 *   `$table->string('subtitle')->nullable()->after('title')`: `subtitle`カラムを追加し、`title`カラムの後に配置します。
 *   `$table->dropColumn('subtitle')`: `down()`メソッドで、`subtitle`カラムを削除します。
 
-マイグレーションを実行します。
+マイグレーションを実行すると、`posts`テーブルに`subtitle`カラムが追加されます。
 
 ```bash
 sail artisan migrate
 ```
-
-これで、`posts`テーブルに`subtitle`カラムが追加されます。
 
 ---
 

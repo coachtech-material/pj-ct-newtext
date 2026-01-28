@@ -2,9 +2,9 @@
 
 ## 🎯 このセクションで学ぶこと
 
-*   `php artisan migrate`でマイグレーションを実行できるようになる。
-*   `php artisan migrate:rollback`でマイグレーションを元に戻せるようになる。
-*   マイグレーションの状態を確認し、適切に管理できるようになる。
+*   `php artisan migrate`によるマイグレーション実行の仕組みを理解する。
+*   `php artisan migrate:rollback`によるロールバックの仕組みを理解する。
+*   マイグレーションの状態管理と、適切な運用方法を理解する。
 
 ---
 
@@ -14,7 +14,7 @@
 
 マイグレーションを**実行**することで、初めてデータベースにテーブルが作成されます。また、間違ったマイグレーションを実行してしまった場合は、**ロールバック**して元に戻すことができます。
 
-このセクションでは、マイグレーションの実行とロールバックの方法を学びます。
+このセクションでは、マイグレーションの実行とロールバックの仕組みを学びます。
 
 ---
 
@@ -22,13 +22,13 @@
 
 ### 🚀 マイグレーションの実行
 
-#### 基本コマンド
+**基本コマンド**
 
 ```bash
 sail artisan migrate
 ```
 
-このコマンドを実行すると、まだ実行されていないマイグレーションファイルが順番に実行されます。
+このコマンドを実行した場合、まだ実行されていないマイグレーションファイルが順番に実行されます。
 
 **実行結果のイメージ**
 
@@ -39,7 +39,7 @@ INFO  Running migrations.
 2024_12_11_000002_create_posts_table .............. 18ms DONE
 ```
 
-#### マイグレーションの仕組み
+**マイグレーションの仕組み**
 
 Laravelは、`migrations`というテーブルを使って、どのマイグレーションが実行済みかを管理しています。
 
@@ -61,13 +61,13 @@ SELECT * FROM migrations;
 
 ### 🔄 マイグレーションのロールバック
 
-#### 最後のバッチをロールバックする
+**最後のバッチをロールバックする**
 
 ```bash
 sail artisan migrate:rollback
 ```
 
-このコマンドを実行すると、最後に実行されたバッチのマイグレーションが元に戻されます。
+このコマンドを実行した場合、最後に実行されたバッチのマイグレーションが元に戻されます。
 
 **実行結果のイメージ**
 
@@ -78,7 +78,7 @@ INFO  Rolling back migrations.
 2024_12_11_000001_create_users_table .............. 10ms DONE
 ```
 
-#### 特定のステップ数だけロールバックする
+**特定のステップ数だけロールバックする**
 
 ```bash
 sail artisan migrate:rollback --step=2
@@ -86,7 +86,7 @@ sail artisan migrate:rollback --step=2
 
 これにより、最後の2バッチ分のマイグレーションがロールバックされます。
 
-#### 全てのマイグレーションをロールバックする
+**全てのマイグレーションをロールバックする**
 
 ```bash
 sail artisan migrate:reset
@@ -100,7 +100,7 @@ sail artisan migrate:reset
 
 開発中は、マイグレーションを何度も修正することがあります。その場合、以下のコマンドが便利です。
 
-#### 全てロールバックしてから再実行する
+**全てロールバックしてから再実行する**
 
 ```bash
 sail artisan migrate:refresh
@@ -113,7 +113,7 @@ sail artisan migrate:reset
 sail artisan migrate
 ```
 
-#### シーダーも一緒に実行する
+**シーダーも一緒に実行する**
 
 ```bash
 sail artisan migrate:refresh --seed
@@ -123,7 +123,7 @@ sail artisan migrate:refresh --seed
 
 ### 🗑️ マイグレーションのフレッシュ
 
-開発環境をリセットしたい場合は、以下のコマンドを使います。
+開発環境をリセットしたい場合は、以下のコマンドを使用します。
 
 ```bash
 sail artisan migrate:fresh
@@ -140,19 +140,19 @@ sail artisan migrate:fresh
 
 `migrate:fresh`の方が、確実にクリーンな状態にできます。
 
-#### シーダーも一緒に実行する
+**シーダーも一緒に実行する**
 
 ```bash
 sail artisan migrate:fresh --seed
 ```
 
-開発中は、このコマンドを頻繁に使います。
+開発中は、このコマンドが頻繁に使用されます。
 
 ---
 
 ### 🔍 マイグレーションの状態を確認する
 
-#### 実行済みのマイグレーションを確認する
+**実行済みのマイグレーションを確認する**
 
 ```bash
 sail artisan migrate:status
@@ -176,13 +176,13 @@ Migration name .................................................. Batch / Status
 
 本番環境では、マイグレーションを慎重に実行する必要があります。
 
-#### 本番環境でマイグレーションを実行する前に
+**本番環境でマイグレーションを実行する前に**
 
 1. **バックアップを取る**: データベースのバックアップを必ず取る
 2. **ステージング環境でテストする**: 本番と同じ環境でマイグレーションをテストする
 3. **ロールバック計画を立てる**: 問題が発生した場合の対処法を事前に決めておく
 
-#### 本番環境でのマイグレーション実行
+**本番環境でのマイグレーション実行**
 
 ```bash
 sail artisan migrate --force
@@ -194,31 +194,20 @@ sail artisan migrate --force
 
 ### 🚨 よくあるエラーと対処法
 
-#### エラー1: `SQLSTATE[42S01]: Base table or view already exists`
+**エラー1: `SQLSTATE[42S01]: Base table or view already exists`**
 
-**原因**: テーブルが既に存在している
+*   **原因**: テーブルが既に存在している
+*   **対処法**: `sail artisan migrate:fresh`を実行する
 
-**対処法**:
+**エラー2: `SQLSTATE[42S02]: Base table or view not found`**
 
-```bash
-sail artisan migrate:fresh
-```
+*   **原因**: ロールバックしようとしているテーブルが存在しない
+*   **対処法**: `sail artisan migrate:fresh`を実行する
 
-#### エラー2: `SQLSTATE[42S02]: Base table or view not found`
+**エラー3: `Nothing to rollback`**
 
-**原因**: ロールバックしようとしているテーブルが存在しない
-
-**対処法**:
-
-```bash
-sail artisan migrate:fresh
-```
-
-#### エラー3: `Nothing to rollback`
-
-**原因**: ロールバックするマイグレーションがない
-
-**対処法**: 問題ありません。既に全てロールバックされています。
+*   **原因**: ロールバックするマイグレーションがない
+*   **対処法**: 問題ありません。既に全てロールバックされています。
 
 ---
 
@@ -242,7 +231,7 @@ sail artisan make:migration add_published_at_to_posts_table
 
 マイグレーションを実行した後に、間違いに気づいた場合の対処法です。
 
-#### 方法1: ロールバックして修正する（推奨）
+**方法1: ロールバックして修正する（推奨）**
 
 ```bash
 # ロールバック
@@ -254,7 +243,7 @@ sail artisan migrate:rollback
 sail artisan migrate
 ```
 
-#### 方法2: 新しいマイグレーションを作成する
+**方法2: 新しいマイグレーションを作成する**
 
 既に本番環境で実行されているマイグレーションは、修正してはいけません。代わりに、新しいマイグレーションを作成します。
 
@@ -266,7 +255,7 @@ sail artisan make:migration add_description_to_posts_table
 
 ## ✨ まとめ
 
-このセクションでは、マイグレーションの実行とロールバックの方法を学びました。
+このセクションでは、マイグレーションの実行とロールバックの仕組みを学びました。
 
 *   `php artisan migrate`でマイグレーションを実行できる。
 *   `php artisan migrate:rollback`で最後のバッチをロールバックできる。
