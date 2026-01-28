@@ -1,4 +1,4 @@
-# Tutorial 9-1-7: Laravel基礎ハンズオン
+# Tutorial 9-1-8: Laravel基礎ハンズオン
 
 ## 📝 このセクションの目的
 
@@ -14,7 +14,7 @@ Chapter 1で学んだLaravelの基礎を実際に手を動かして確認しま�
 
 ```
 ~/laravel-practice/
-├── 9-1-7_hands-on/                       ← このハンズオン用のディレクトリ
+├── 9-1-8_hands-on/                       ← このハンズオン用のディレクトリ
 │   ├── profile-app-practice/             ← 要件を見て自分で作成するプロジェクト
 │   │   ├── app/
 │   │   ├── resources/
@@ -44,7 +44,7 @@ Chapter 1で学んだLaravelの基礎を実際に手を動かして確認しま�
 ### 🖼️ 完成イメージ
 
 <!-- 完成画面のスクリーンショットをここに配置 -->
-![9-1-7 完成イメージ](images/9-1-7_profile_complete.png)
+![9-1-8 完成イメージ](images/9-1-8_profile_complete.png)
 
 **この演習で作るもの**：
 コントローラーで固定データを準備し、Bladeビューに渡して表示する「自己紹介ページ」を作成します。
@@ -127,8 +127,8 @@ Chapter 1で学んだLaravelの基礎を実際に手を動かして確認しま�
 cd ~/laravel-practice
 
 # ハンズオン用ディレクトリを作成
-mkdir -p 9-1-7_hands-on
-cd 9-1-7_hands-on
+mkdir -p 9-1-8_hands-on
+cd 9-1-8_hands-on
 
 # Laravel 10.xプロジェクトを作成（自分で作成する用）
 docker run --rm \
@@ -173,7 +173,7 @@ docker run --rm \
 
 ```
 ~/laravel-practice/
-└── 9-1-7_hands-on/
+└── 9-1-8_hands-on/
     └── profile-app-practice/     ← 自分で作成する用（今ここ）
         ├── app/
         ├── resources/
@@ -257,7 +257,7 @@ Laravel開発のポイントは「ルーティング → コントローラー �
 
 ```bash
 # profile-app-practiceディレクトリに移動
-cd ~/laravel-practice/9-1-7_hands-on/profile-app-practice
+cd ~/laravel-practice/9-1-8_hands-on/profile-app-practice
 
 # Sailを停止
 ./vendor/bin/sail down
@@ -267,7 +267,7 @@ cd ~/laravel-practice/9-1-7_hands-on/profile-app-practice
 
 ```bash
 # ハンズオンディレクトリに移動
-cd ~/laravel-practice/9-1-7_hands-on
+cd ~/laravel-practice/9-1-8_hands-on
 
 # Laravel 10.xプロジェクトを作成（実践用）
 docker run --rm \
@@ -312,7 +312,7 @@ docker run --rm \
 
 ```
 ~/laravel-practice/
-└── 9-1-7_hands-on/
+└── 9-1-8_hands-on/
     ├── profile-app-practice/     ← 自分で作成した用（停止中）
     └── profile-app-sample/       ← 実践用（今ここ、起動中）
         ├── app/
@@ -713,18 +713,18 @@ Route::get('/profile', [ProfileController::class, 'index']);
 
 ```bash
 # profile-app-practiceで確認したい場合
-cd ~/laravel-practice/9-1-7_hands-on/profile-app-sample
+cd ~/laravel-practice/9-1-8_hands-on/profile-app-sample
 ./vendor/bin/sail down
 
-cd ~/laravel-practice/9-1-7_hands-on/profile-app-practice
+cd ~/laravel-practice/9-1-8_hands-on/profile-app-practice
 ./vendor/bin/sail up -d
 # ブラウザで http://localhost/profile にアクセス
 
 # profile-app-sampleで確認したい場合
-cd ~/laravel-practice/9-1-7_hands-on/profile-app-practice
+cd ~/laravel-practice/9-1-8_hands-on/profile-app-practice
 ./vendor/bin/sail down
 
-cd ~/laravel-practice/9-1-7_hands-on/profile-app-sample
+cd ~/laravel-practice/9-1-8_hands-on/profile-app-sample
 ./vendor/bin/sail up -d
 # ブラウザで http://localhost/profile にアクセス
 ```
