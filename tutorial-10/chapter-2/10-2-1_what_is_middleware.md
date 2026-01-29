@@ -4,7 +4,7 @@
 
 *   ミドルウェアが何であるか、その役割を理解する。
 *   Laravelのリクエストライフサイクルにおけるミドルウェアの位置づけを理解する。
-*   カスタムミドルウェアを作成し、特定の処理を挟み込めるようになる。
+*   グローバルミドルウェア、ミドルウェアグループ、ルートミドルウェアの違いを理解する。
 
 ---
 
@@ -30,7 +30,7 @@
 
 ミドルウェアとは、**リクエストがコントローラーに到達する前、またはレスポンスがクライアントに返される前に実行される処理**です。ミドルウェアは、リクエストをフィルタリングしたり、レスポンスを加工したりすることができます。
 
-#### リクエストライフサイクルにおけるミドルウェアの位置
+**リクエストライフサイクルにおけるミドルウェアの位置**
 
 ```
 クライアント
@@ -60,6 +60,71 @@
 
 ---
 
+### 🤔 なぜミドルウェアが必要なのか？
+
+ミドルウェアがない場合、共通の処理を各コントローラーに書く必要があります。
+
+**ミドルウェアがない場合（非効率）**
+
+```php
+class PostController extends Controller
+{
+    public function index()
+    {
+        // 認証チェック（毎回書く必要がある）
+        if (!auth()->check()) {
+            return redirect('/login');
+        }
+        
+        // 本来の処理
+        $posts = Post::all();
+        return view('posts.index', compact('posts'));
+    }
+    
+    public function store(Request $request)
+    {
+        // 認証チェック（また書く）
+        if (!auth()->check()) {
+            return redirect('/login');
+        }
+        
+        // 本来の処理
+        Post::create($request->all());
+        return redirect('/posts');
+    }
+}
+```
+
+**ミドルウェアがある場合（効率的）**
+
+```php
+// routes/web.php
+Route::middleware('auth')->group(function () {
+    Route::get('/posts', [PostController::class, 'index']);
+    Route::post('/posts', [PostController::class, 'store']);
+});
+
+// コントローラーは本来の処理だけに集中できる
+class PostController extends Controller
+{
+    public function index()
+    {
+        $posts = Post::all();
+        return view('posts.index', compact('posts'));
+    }
+    
+    public function store(Request $request)
+    {
+        Post::create($request->all());
+        return redirect('/posts');
+    }
+}
+```
+
+ミドルウェアを使うことで、**関心の分離**（Separation of Concerns）が実現でき、コードの保守性が向上します。
+
+---
+
 ### 📝 Laravelの標準ミドルウェア
 
 Laravelには、いくつかのミドルウェアが標準で用意されています。
@@ -73,107 +138,6 @@ Laravelには、いくつかのミドルウェアが標準で用意されてい�
 | `verified` | メールアドレスが確認されていないユーザーを拒否 |
 
 これらのミドルウェアは、`app/Http/Kernel.php`に登録されています。
-
----
-
-### 🛠️ カスタムミドルウェアの作成
-
-独自のミドルウェアを作成してみましょう。例として、「管理者以外のアクセスを拒否する」ミドルウェアを作成します。
-
-#### ステップ1: ミドルウェアを生成する
-
-```bash
-sail artisan make:middleware AdminMiddleware
-```
-
-これにより、`app/Http/Middleware/AdminMiddleware.php`が生成されます。
-
-#### ステップ2: ミドルウェアのロジックを実装する
-
-**`app/Http/Middleware/AdminMiddleware.php`**
-
-```php
-<?php
-
-namespace App\Http\Middleware;
-
-use Closure;
-use Illuminate\Http\Request;
-
-class AdminMiddleware
-{
-    /**
-     * Handle an incoming request.
-     */
-    public function handle(Request $request, Closure $next)
-    {
-        // ユーザーが認証されていない、または管理者でない場合
-        if (!$request->user() || !$request->user()->is_admin) {
-            return response()->json([
-                'message' => 'アクセス権限がありません'
-            ], 403);
-        }
-
-        // 次のミドルウェアまたはコントローラーに処理を渡す
-        return $next($request);
-    }
-}
-```
-
-**コードリーディング**
-
-*   `handle(Request $request, Closure $next)`: ミドルウェアのメインメソッドです。
-*   `$request`: 現在のHTTPリクエスト
-*   `$next`: 次のミドルウェアまたはコントローラーを呼び出すクロージャ
-*   `$request->user()`: 現在認証されているユーザーを取得します。
-*   `$request->user()->is_admin`: ユーザーが管理者かどうかをチェックします（`users`テーブルに`is_admin`カラムがあると仮定）。
-*   `return $next($request)`: 次のミドルウェアまたはコントローラーに処理を渡します。
-
-#### ステップ3: ミドルウェアを登録する
-
-ミドルウェアを使うには、`bootstrap/app.php`に登録する必要があります。
-
-**`bootstrap/app.php`**
-
-```php
-<?php
-
-use Illuminate\Foundation\Application;
-use Illuminate\Foundation\Configuration\Exceptions;
-use Illuminate\Foundation\Configuration\Middleware;
-
-return Application::configure(basePath: dirname(__DIR__))
-    ->withRouting(
-        web: __DIR__.'/../routes/web.php',
-        api: __DIR__.'/../routes/api.php',
-        commands: __DIR__.'/../routes/console.php',
-        health: '/up',
-    )
-    ->withMiddleware(function (Middleware $middleware) {
-        // ミドルウェアのエイリアスを登録
-        $middleware->alias([
-            'admin' => \App\Http\Middleware\AdminMiddleware::class,
-        ]);
-    })
-    ->withExceptions(function (Exceptions $exceptions) {
-        //
-    })->create();
-```
-
-これにより、`admin`という名前でミドルウェアを使えるようになります。
-
-#### ステップ4: ルートにミドルウェアを適用する
-
-**`routes/api.php`**
-
-```php
-Route::middleware(['auth:sanctum', 'admin'])->group(function () {
-    Route::get('/admin/users', [AdminController::class, 'index']);
-    Route::delete('/admin/users/{id}', [AdminController::class, 'destroy']);
-});
-```
-
-これにより、`/admin/users`エンドポイントは、認証されており、かつ管理者であるユーザーだけがアクセスできるようになります。
 
 ---
 
@@ -209,13 +173,66 @@ first（レスポンス処理）
 レスポンス
 ```
 
+ミドルウェアは、リクエスト時は**上から下**へ、レスポンス時は**下から上**へ実行されます。
+
+---
+
+### 🎯 ミドルウェアの3つの適用範囲
+
+Laravelでは、ミドルウェアを適用する範囲によって、3つの種類に分類されます。
+
+**グローバルミドルウェア**
+
+**全てのリクエスト**に対して自動的に実行されるミドルウェアです。アプリケーション全体で共通の処理（ログ記録、CORS設定など）に使用します。
+
+| 特徴 | 説明 |
+|:---|:---|
+| 適用範囲 | 全てのHTTPリクエスト |
+| 登録場所 | `app/Http/Kernel.php`の`$middleware`プロパティ |
+| 使用例 | ログ記録、CORS設定、メンテナンスモードチェック |
+
+**ミドルウェアグループ**
+
+**複数のミドルウェアをまとめて**、特定のルートグループに適用するための仕組みです。Laravelでは、`web`と`api`という2つのグループがデフォルトで用意されています。
+
+| グループ名 | 説明 |
+|:---|:---|
+| `web` | セッション、CSRF保護など、Webアプリケーション向けのミドルウェア |
+| `api` | レート制限など、API向けのミドルウェア |
+
+| 特徴 | 説明 |
+|:---|:---|
+| 適用範囲 | グループに属するルート |
+| 登録場所 | `app/Http/Kernel.php`の`$middlewareGroups`プロパティ |
+| 使用例 | Webルート用の共通処理、APIルート用の共通処理 |
+
+**ルートミドルウェア（エイリアスミドルウェア）**
+
+**特定のルートにのみ**適用するミドルウェアです。エイリアス（別名）を付けて、ルート定義で指定します。
+
+| 特徴 | 説明 |
+|:---|:---|
+| 適用範囲 | 指定したルートのみ |
+| 登録場所 | `app/Http/Kernel.php`の`$middlewareAliases`プロパティ |
+| 使用例 | 認証チェック、権限チェック、年齢確認 |
+
+---
+
+### 📊 3つのミドルウェアの比較
+
+| 種類 | 適用範囲 | 登録場所 | 使用例 |
+|:---|:---|:---|:---|
+| グローバル | 全リクエスト | `$middleware` | ログ記録、CORS |
+| グループ | ルートグループ | `$middlewareGroups` | web、api |
+| ルート | 特定ルート | `$middlewareAliases` | auth、admin |
+
 ---
 
 ### 🎯 レスポンスを加工するミドルウェア
 
-ミドルウェアは、レスポンスを加工することもできます。
+ミドルウェアは、リクエストをフィルタリングするだけでなく、**レスポンスを加工する**こともできます。
 
-**例：全てのレスポンスに`X-Custom-Header`ヘッダーを追加する**
+**例：全てのレスポンスにカスタムヘッダーを追加する**
 
 ```php
 public function handle(Request $request, Closure $next)
@@ -230,30 +247,19 @@ public function handle(Request $request, Closure $next)
 }
 ```
 
----
-
-## 💡 TIP: グローバルミドルウェア
-
-全てのリクエストに適用したいミドルウェアは、`bootstrap/app.php`の`withMiddleware`メソッドで登録できます。
-
-```php
-->withMiddleware(function (Middleware $middleware) {
-    $middleware->append(\App\Http\Middleware\LogRequests::class);
-})
-```
+この例では、`$next($request)`でコントローラーの処理を実行した後、レスポンスにヘッダーを追加しています。
 
 ---
 
 ## ✨ まとめ
 
-このセクションでは、Laravelのミドルウェアの概念と、カスタムミドルウェアの作成方法を学びました。
+このセクションでは、Laravelのミドルウェアの概念と役割について学びました。
 
 *   ミドルウェアとは、リクエストがコントローラーに到達する前、またはレスポンスがクライアントに返される前に実行される処理である。
 *   ミドルウェアは、認証チェック、権限チェック、ログ記録、CORS設定などに使われる。
-*   `php artisan make:middleware`でカスタムミドルウェアを作成できる。
-*   `$next($request)`で、次のミドルウェアまたはコントローラーに処理を渡す。
-*   ミドルウェアは、`bootstrap/app.php`に登録し、ルートに適用する。
+*   ミドルウェアには、グローバルミドルウェア、ミドルウェアグループ、ルートミドルウェアの3種類がある。
+*   ミドルウェアを使うことで、関心の分離が実現でき、コードの保守性が向上する。
 
-次のセクションでは、認可（Authorization）とポリシー（Policy）について学びます。
+次のセクションでは、**カスタムミドルウェアの作成方法**と、3種類のミドルウェアの**具体的な実装方法**について学びます。
 
 ---

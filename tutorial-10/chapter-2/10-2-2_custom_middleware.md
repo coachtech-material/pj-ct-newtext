@@ -3,26 +3,42 @@
 ## 🎯 このセクションで学ぶこと
 
 *   独自のミドルウェアを作成できるようになる。
-*   ミドルウェアをルートに適用できるようになる。
+*   グローバルミドルウェア、ミドルウェアグループ、ルートミドルウェアの実装方法を理解する。
 *   パラメータを受け取るミドルウェアを作成できるようになる。
 
 ---
 
 ## 導入：「独自の門番」を作る
 
-前のセクションで、Laravelの標準ミドルウェアについて学びました。しかし、アプリケーション固有の処理を実装したい場合、**カスタムミドルウェア**を作成する必要があります。
-
-このセクションでは、独自のミドルウェアを作成し、ルートに適用する方法を学びます。
+前のセクションで、ミドルウェアの概念と3つの種類（グローバル、グループ、ルート）について学びました。このセクションでは、**カスタムミドルウェアの作成方法**と、それぞれの種類の**具体的な実装方法**を学びます。
 
 ---
 
 ## 詳細解説
 
-### 🔧 ステップ1: ミドルウェアを生成
+### 🤔 いつカスタムミドルウェアを作るべきか？
+
+Laravelには多くの標準ミドルウェアが用意されていますが、以下のような場合はカスタムミドルウェアを作成します。
+
+| ケース | 例 |
+|:---|:---|
+| アプリケーション固有のチェックが必要 | 年齢確認、メンテナンスモード、特定の国からのアクセス制限 |
+| 複数のルートで同じ処理を共有したい | リクエストのログ記録、レスポンスへのヘッダー追加 |
+| 標準ミドルウェアをカスタマイズしたい | 認証失敗時のリダイレクト先を変更 |
+
+---
+
+### 🔧 カスタムミドルウェアの基本的な作成手順
+
+**ステップ1: ミドルウェアを生成**
 
 ```bash
 sail artisan make:middleware CheckAge
 ```
+
+このコマンドで、`app/Http/Middleware/CheckAge.php`が生成されます。
+
+**ステップ2: ミドルウェアを実装**
 
 **`app/Http/Middleware/CheckAge.php`**
 
@@ -38,41 +54,30 @@ class CheckAge
 {
     public function handle(Request $request, Closure $next)
     {
-        // ミドルウェアの処理をここに書く
+        if ($request->age < 18) {
+            return redirect('/')->with('error', '18歳以上の方のみアクセスできます。');
+        }
+
         return $next($request);
     }
 }
 ```
 
----
+**コードリーディング**
 
-### 🔧 ステップ2: ミドルウェアを実装
+| コード | 説明 |
+|:---|:---|
+| `namespace App\Http\Middleware;` | このクラスが属する名前空間を宣言します |
+| `use Closure;` | クロージャ（無名関数）を使用するための宣言です |
+| `use Illuminate\Http\Request;` | Requestクラスを使用するための宣言です |
+| `public function handle(...)` | ミドルウェアのメイン処理を定義するメソッドです |
+| `Request $request` | 現在のHTTPリクエストを受け取ります |
+| `Closure $next` | 次のミドルウェアまたはコントローラーを呼び出すクロージャです |
+| `$request->age` | リクエストパラメータの`age`にアクセスします |
+| `return redirect('/')->with(...)` | 条件を満たさない場合、リダイレクトします |
+| `return $next($request);` | 条件を満たす場合、次の処理に進みます |
 
-```php
-public function handle(Request $request, Closure $next)
-{
-    if ($request->age < 18) {
-        return response()->json([
-            'message' => 'You must be 18 or older.',
-        ], 403);
-    }
-
-    return $next($request);
-}
-```
-
-**コードリーディング（1行ずつ分解）**
-
-| コード | 演算子 | 意味 |
-|:---|:---:|:---|
-| `$request->age` | `->` | Requestインスタンスの`age`プロパティ（リクエストパラメータ）にアクセス |
-| `$next($request)` | - | 次のミドルウェアまたはコントローラーにリクエストを渡す |
-
-> **💡 Tutorial 7の復習**: `$request`はRequestクラスのインスタンスなので、`->`でプロパティやメソッドにアクセスします。`$next`はクロージャ（無名関数）なので、関数として`()`で呼び出します。
-
----
-
-### 🔧 ステップ3: ミドルウェアを登録
+**ステップ3: ミドルウェアを登録**
 
 **`app/Http/Kernel.php`**
 
@@ -84,9 +89,15 @@ protected $middlewareAliases = [
 ];
 ```
 
----
+**コードリーディング**
 
-### 🔧 ステップ4: ミドルウェアを適用
+| コード | 説明 |
+|:---|:---|
+| `protected $middlewareAliases` | ルートミドルウェアのエイリアス（別名）を定義する配列です |
+| `'check.age' => ...` | `check.age`という名前でミドルウェアを登録します |
+| `\App\Http\Middleware\CheckAge::class` | ミドルウェアクラスの完全修飾名を指定します |
+
+**ステップ4: ミドルウェアを適用**
 
 ```php
 Route::middleware('check.age')->group(function () {
@@ -96,15 +107,142 @@ Route::middleware('check.age')->group(function () {
 
 ---
 
-### 🚀 実践例1: メンテナンスモードミドルウェア
+### 🌐 グローバルミドルウェアの実装
 
-#### ステップ1: ミドルウェアを生成
+**全てのリクエスト**に対して実行されるミドルウェアです。
+
+**🚀 実践例: リクエストログミドルウェア**
+
+全てのリクエストをログに記録するミドルウェアを作成します。
+
+**ステップ1: ミドルウェアを生成**
 
 ```bash
-sail artisan make:middleware CheckMaintenance
+sail artisan make:middleware LogRequests
 ```
 
-#### ステップ2: ミドルウェアを実装
+**ステップ2: ミドルウェアを実装**
+
+**`app/Http/Middleware/LogRequests.php`**
+
+```php
+<?php
+
+namespace App\Http\Middleware;
+
+use Closure;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+
+class LogRequests
+{
+    public function handle(Request $request, Closure $next)
+    {
+        // リクエスト情報をログに記録
+        Log::info('Request received', [
+            'method' => $request->method(),
+            'url' => $request->fullUrl(),
+            'ip' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+        ]);
+
+        return $next($request);
+    }
+}
+```
+
+**コードリーディング**
+
+| コード | 説明 |
+|:---|:---|
+| `use Illuminate\Support\Facades\Log;` | ログ機能を使用するための宣言です |
+| `Log::info('Request received', [...])` | infoレベルでログを記録します |
+| `$request->method()` | HTTPメソッド（GET、POSTなど）を取得します |
+| `$request->fullUrl()` | クエリパラメータを含む完全なURLを取得します |
+| `$request->ip()` | クライアントのIPアドレスを取得します |
+| `$request->userAgent()` | ブラウザのUser-Agent情報を取得します |
+
+**ステップ3: グローバルミドルウェアとして登録**
+
+**`app/Http/Kernel.php`**
+
+```php
+protected $middleware = [
+    // 既存のミドルウェア...
+    \App\Http\Middleware\LogRequests::class, // 追加
+];
+```
+
+**コードリーディング**
+
+| コード | 説明 |
+|:---|:---|
+| `protected $middleware` | グローバルミドルウェアを定義する配列です |
+| `\App\Http\Middleware\LogRequests::class` | 全てのリクエストで実行されるミドルウェアを追加します |
+
+> **💡 ポイント**: グローバルミドルウェアは`$middleware`配列に追加するだけで、全てのリクエストに自動的に適用されます。ルート定義で指定する必要はありません。
+
+---
+
+### 📦 ミドルウェアグループの実装
+
+**複数のミドルウェアをまとめて**適用する方法です。
+
+**🚀 実践例: APIグループにミドルウェアを追加**
+
+APIルート用のミドルウェアグループにカスタムミドルウェアを追加します。
+
+**`app/Http/Kernel.php`**
+
+```php
+protected $middlewareGroups = [
+    'web' => [
+        \App\Http\Middleware\EncryptCookies::class,
+        \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
+        \Illuminate\Session\Middleware\StartSession::class,
+        \Illuminate\View\Middleware\ShareErrorsFromSession::class,
+        \App\Http\Middleware\VerifyCsrfToken::class,
+        \Illuminate\Routing\Middleware\SubstituteBindings::class,
+    ],
+
+    'api' => [
+        \Illuminate\Routing\Middleware\ThrottleRequests::class.':api',
+        \Illuminate\Routing\Middleware\SubstituteBindings::class,
+        \App\Http\Middleware\LogRequests::class, // 追加
+    ],
+];
+```
+
+**コードリーディング**
+
+| コード | 説明 |
+|:---|:---|
+| `protected $middlewareGroups` | ミドルウェアグループを定義する配列です |
+| `'web' => [...]` | Webルート用のミドルウェアグループです |
+| `'api' => [...]` | APIルート用のミドルウェアグループです |
+| `ThrottleRequests::class.':api'` | レート制限ミドルウェアにパラメータを渡しています |
+
+> **💡 ポイント**: `routes/web.php`のルートには自動的に`web`グループが、`routes/api.php`のルートには自動的に`api`グループが適用されます。
+
+---
+
+### 🎯 ルートミドルウェアの実装
+
+**特定のルートにのみ**適用するミドルウェアです。
+
+**🚀 実践例1: 管理者チェックミドルウェア**
+
+管理者以外のアクセスを拒否するミドルウェアを作成します。
+
+**ステップ1: ミドルウェアを生成**
+
+```bash
+sail artisan make:middleware AdminMiddleware
+```
+
+**ステップ2: ミドルウェアを実装**
+
+**`app/Http/Middleware/AdminMiddleware.php`**
 
 ```php
 <?php
@@ -114,14 +252,12 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 
-class CheckMaintenance
+class AdminMiddleware
 {
     public function handle(Request $request, Closure $next)
     {
-        if (config('app.maintenance_mode')) {
-            return response()->json([
-                'message' => 'Service is currently under maintenance.',
-            ], 503);
+        if (!$request->user() || !$request->user()->is_admin) {
+            return redirect('/')->with('error', '管理者権限が必要です。');
         }
 
         return $next($request);
@@ -129,15 +265,42 @@ class CheckMaintenance
 }
 ```
 
-**コードリーディング（ミドルウェア）**：
+**コードリーディング**
 
 | コード | 説明 |
 |:---|:---|
-| `config('app.maintenance_mode')` | `config/app.php` などの設定ファイルから、メンテナンス状態の値を取得します |
-| `if (config(...))` | 設定値が `true`（メンテナンス中）であれば、`if` 文の中の処理を実行します |
-| `response()->json([...])` | クライアントに対して、JSON形式でエラーメッセージを返します（API開発で一般的） |
-| `503` | HTTPステータスコード「503 (Service Unavailable)」を返し、一時的に利用不可であることを示します |
-| `return $next($request);` | メンテナンス中でない場合は、通常通りリクエストを次の処理（コントローラーなど）へ通します |
+| `$request->user()` | 現在認証されているユーザーを取得します。未認証の場合は`null`を返します |
+| `!$request->user()` | ユーザーが認証されていない場合に`true`になります |
+| `$request->user()->is_admin` | ユーザーの`is_admin`プロパティにアクセスします |
+| `redirect('/')->with('error', ...)` | エラーメッセージをセッションに保存してリダイレクトします |
+
+**ステップ3: ルートミドルウェアとして登録**
+
+**`app/Http/Kernel.php`**
+
+```php
+protected $middlewareAliases = [
+    'auth' => \App\Http\Middleware\Authenticate::class,
+    'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
+    'admin' => \App\Http\Middleware\AdminMiddleware::class, // 追加
+];
+```
+
+**ステップ4: ルートに適用**
+
+```php
+Route::middleware(['auth', 'admin'])->group(function () {
+    Route::get('/admin/dashboard', [AdminController::class, 'index']);
+    Route::get('/admin/users', [AdminController::class, 'users']);
+});
+```
+
+**コードリーディング**
+
+| コード | 説明 |
+|:---|:---|
+| `Route::middleware(['auth', 'admin'])` | `auth`と`admin`の2つのミドルウェアを適用します |
+| `->group(function () { ... })` | グループ内の全ルートにミドルウェアが適用されます |
 
 ---
 
@@ -145,13 +308,19 @@ class CheckMaintenance
 
 ミドルウェアは、パラメータを受け取ることができます。
 
-#### ステップ1: ミドルウェアを生成
+**🚀 実践例2: ロールチェックミドルウェア**
+
+指定されたロール（役割）を持つユーザーのみアクセスを許可するミドルウェアを作成します。
+
+**ステップ1: ミドルウェアを生成**
 
 ```bash
 sail artisan make:middleware CheckRole
 ```
 
-#### ステップ2: ミドルウェアを実装
+**ステップ2: ミドルウェアを実装**
+
+**`app/Http/Middleware/CheckRole.php`**
 
 ```php
 <?php
@@ -166,9 +335,7 @@ class CheckRole
     public function handle(Request $request, Closure $next, $role)
     {
         if (!$request->user() || $request->user()->role !== $role) {
-            return response()->json([
-                'message' => 'Unauthorized.',
-            ], 403);
+            return redirect('/')->with('error', 'アクセス権限がありません。');
         }
 
         return $next($request);
@@ -176,7 +343,16 @@ class CheckRole
 }
 ```
 
-#### ステップ3: ミドルウェアを登録
+**コードリーディング**
+
+| コード | 説明 |
+|:---|:---|
+| `public function handle(..., $role)` | 第3引数でパラメータを受け取ります |
+| `$request->user()->role !== $role` | ユーザーのロールと指定されたロールを比較します |
+
+**ステップ3: ルートミドルウェアとして登録**
+
+**`app/Http/Kernel.php`**
 
 ```php
 protected $middlewareAliases = [
@@ -184,19 +360,34 @@ protected $middlewareAliases = [
 ];
 ```
 
-#### ステップ4: ミドルウェアを適用
+**ステップ4: ルートに適用（パラメータ付き）**
 
 ```php
+// 管理者のみアクセス可能
 Route::middleware('role:admin')->group(function () {
     Route::get('/admin/dashboard', [AdminController::class, 'index']);
 });
+
+// 編集者のみアクセス可能
+Route::middleware('role:editor')->group(function () {
+    Route::get('/editor/posts', [EditorController::class, 'posts']);
+});
 ```
+
+**コードリーディング**
+
+| コード | 説明 |
+|:---|:---|
+| `'role:admin'` | `role`ミドルウェアに`admin`というパラメータを渡します |
+| `:` | ミドルウェア名とパラメータの区切り文字です |
 
 ---
 
-### 🚀 実践例2: 複数のパラメータを受け取る
+### 🔧 複数のパラメータを受け取るミドルウェア
 
-#### ミドルウェアの実装
+カンマ区切りで複数のパラメータを渡すことができます。
+
+**ミドルウェアの実装**
 
 ```php
 public function handle(Request $request, Closure $next, $role, $permission)
@@ -204,28 +395,21 @@ public function handle(Request $request, Closure $next, $role, $permission)
     if (!$request->user() || 
         $request->user()->role !== $role || 
         !$request->user()->hasPermission($permission)) {
-        return response()->json([
-            'message' => 'Unauthorized.',
-        ], 403);
+        return redirect('/')->with('error', 'アクセス権限がありません。');
     }
 
     return $next($request);
 }
 ```
 
-**コードリーディング（ミドルウェアの実装）**：
+**コードリーディング**
 
 | コード | 説明 |
 |:---|:---|
-| `$role, $permission` | ルート定義の `role:admin,edit` のようにコロン以降に渡した引数を受け取ります |
-| `!$request->user()` | ユーザーがログインしていない（認証されていない）状態をチェックします |
-| `$request->user()->role !== $role` | ログインユーザーの役割（role）が、期待される役割と一致するかを比較します |
-| `hasPermission($permission)` | Userモデルなどで定義した、特定の権限（編集、削除など）の有無を判定するメソッドです |
-| `response()->json([...], 403)` | 権限不足の場合、403（Forbidden）エラーをJSON形式で即座に返します |
-| `return $next($request);` | 全てのチェックを通過した場合に、リクエストを次の処理（コントローラーなど）へ渡します |
+| `$role, $permission` | 2つのパラメータを受け取ります |
+| `hasPermission($permission)` | Userモデルで定義した権限チェックメソッドを呼び出します |
 
-
-#### ミドルウェアの適用
+**ルートに適用**
 
 ```php
 Route::middleware('role:admin,manage_users')->group(function () {
@@ -233,53 +417,18 @@ Route::middleware('role:admin,manage_users')->group(function () {
 });
 ```
 
-**コードリーディング（ルートへの適用）**：
+**コードリーディング**
 
 | コード | 説明 |
 |:---|:---|
-| `middleware('role:...')` | 「role」という名前で登録されたミドルウェアを呼び出します。名前の後の `:` は引数の開始合図です |
-| `'admin,manage_users'` | ミドルウェアに渡す具体的な引数です。カンマ区切りで複数の値を渡せます |
-| `group(function () { ... })` | このグループ内のすべてのルートに、一括で権限チェック（adminかつmanage_users権限）を適用します |
-| `'/admin/users'` | ブラウザからアクセスするパスです |
-| `[AdminController::class, 'users']` | 条件（ミドルウェア）をクリアしたときだけ、AdminController の users メソッドが実行されます |
-
----
-
-### 💡 TIP: グローバルミドルウェアとして登録
-
-全てのリクエストに適用したい場合、グローバルミドルウェアとして登録します。
-
-**`app/Http/Kernel.php`**
-
-```php
-protected $middleware = [
-    \App\Http\Middleware\LogRequests::class, // 追加
-];
-```
-
----
-
-### 💡 TIP: ミドルウェアグループに追加
-
-既存のミドルウェアグループに追加することもできます。
-
-**`app/Http/Kernel.php`**
-
-```php
-protected $middlewareGroups = [
-    'api' => [
-        'throttle:api',
-        \Illuminate\Routing\Middleware\SubstituteBindings::class,
-        \App\Http\Middleware\LogRequests::class, // 追加
-    ],
-];
-```
+| `'role:admin,manage_users'` | `admin`と`manage_users`の2つのパラメータを渡します |
+| `,` | パラメータ同士の区切り文字です |
 
 ---
 
 ### 🚨 よくある間違い
 
-#### 間違い1: ミドルウェアを登録し忘れる
+**間違い1: ミドルウェアを登録し忘れる**
 
 ```php
 // Kernel.phpに登録していない
@@ -288,21 +437,21 @@ Route::middleware('check.age')->group(function () {
 });
 ```
 
-**対処法**: `Kernel.php`に登録します。
+**対処法**: `app/Http/Kernel.php`の`$middlewareAliases`に登録します。
 
 ---
 
-#### 間違い2: パラメータの順序を間違える
+**間違い2: パラメータの順序を間違える**
 
 ```php
 public function handle(Request $request, Closure $next, $role, $permission)
 {
-    // ...
+    // $roleが最初、$permissionが2番目
 }
 
 // パラメータの順序が逆
 Route::middleware('role:manage_users,admin')->group(function () {
-    // ...
+    // manage_usersが$roleに、adminが$permissionに入ってしまう
 });
 ```
 
@@ -310,7 +459,7 @@ Route::middleware('role:manage_users,admin')->group(function () {
 
 ```php
 Route::middleware('role:admin,manage_users')->group(function () {
-    // OK
+    // OK: adminが$roleに、manage_usersが$permissionに入る
 });
 ```
 
@@ -318,13 +467,15 @@ Route::middleware('role:admin,manage_users')->group(function () {
 
 ## ✨ まとめ
 
-このセクションでは、カスタムミドルウェアの作成方法を学びました。
+このセクションでは、カスタムミドルウェアの作成方法と3種類のミドルウェアの実装方法を学びました。
 
-*   `sail artisan make:middleware`を使って、ミドルウェアを生成できる。
-*   `handle()`メソッドを実装して、ミドルウェアの処理を定義できる。
-*   `Kernel.php`に登録して、ミドルウェアを使用できるようにする。
-*   パラメータを受け取るミドルウェアを作成できる。
+*   `sail artisan make:middleware`でミドルウェアを生成できる。
+*   `handle()`メソッドでミドルウェアの処理を定義する。
+*   グローバルミドルウェアは`$middleware`配列に登録し、全リクエストに適用される。
+*   ミドルウェアグループは`$middlewareGroups`配列で定義し、複数のミドルウェアをまとめて適用できる。
+*   ルートミドルウェアは`$middlewareAliases`配列に登録し、特定のルートに適用できる。
+*   パラメータを受け取るミドルウェアは、`role:admin`のように`:`で区切って指定する。
 
-次のセクションでは、HTTPライフサイクルを体験する実践演習を行います。
+次のセクションでは、HTTPライフサイクルの詳細について学びます。
 
 ---
