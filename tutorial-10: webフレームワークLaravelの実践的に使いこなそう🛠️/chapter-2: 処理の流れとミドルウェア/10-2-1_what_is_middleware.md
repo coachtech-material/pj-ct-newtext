@@ -131,36 +131,36 @@ class AdminMiddleware
 
 #### ステップ3: ミドルウェアを登録する
 
-ミドルウェアを使うには、`bootstrap/app.php`に登録する必要があります。
+作成したミドルウェアをルートで使用するために、`app/Http/Kernel.php` にエイリアスとして登録します。
 
-**`bootstrap/app.php`**
+**`app/Http/Kernel.php`**
 
 ```php
 <?php
 
-use Illuminate\Foundation\Application;
-use Illuminate\Foundation\Configuration\Exceptions;
-use Illuminate\Foundation\Configuration\Middleware;
+namespace App\Http;
 
-return Application::configure(basePath: dirname(__DIR__))
-    ->withRouting(
-        web: __DIR__.'/../routes/web.php',
-        api: __DIR__.'/../routes/api.php',
-        commands: __DIR__.'/../routes/console.php',
-        health: '/up',
-    )
-    ->withMiddleware(function (Middleware $middleware) {
-        // ミドルウェアのエイリアスを登録
-        $middleware->alias([
-            'admin' => \App\Http\Middleware\AdminMiddleware::class,
-        ]);
-    })
-    ->withExceptions(function (Exceptions $exceptions) {
-        //
-    })->create();
+use Illuminate\Foundation\Http\Kernel as HttpKernel;
+
+class Kernel extends HttpKernel
+{
+    /**
+     * ルートミドルウェアのエイリアス
+     */
+    protected $middlewareAliases = [
+        'auth' => \App\Http\Middleware\Authenticate::class,
+        'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
+
+        // 管理者専用ミドルウェア
+        'admin' => \App\Http\Middleware\AdminMiddleware::class,
+    ];
+}
 ```
 
-これにより、`admin`という名前でミドルウェアを使えるようになります。
+これにより、ルート定義で `admin` という名前のミドルウェアを指定できるようになります。
+
+**補足**
+- Laravel 10では `bootstrap/app.php` ではなく、 `app/Http/Kernel.php` が正しい登録場所です
 
 #### ステップ4: ルートにミドルウェアを適用する
 
@@ -234,12 +234,30 @@ public function handle(Request $request, Closure $next)
 
 ## 💡 TIP: グローバルミドルウェア
 
-全てのリクエストに適用したいミドルウェアは、`bootstrap/app.php`の`withMiddleware`メソッドで登録できます。
+全てのリクエストに適用したいミドルウェア（グローバルミドルウェア）は、`bootstrap/app.php` ではなく `app/Http/Kernel.php` の `$middleware` に登録します。
+
+**例：全リクエストをログに記録する `LogRequests` ミドルウェアを追加する**
+
+**`app/Http/Kernel.php`**
 
 ```php
-->withMiddleware(function (Middleware $middleware) {
-    $middleware->append(\App\Http\Middleware\LogRequests::class);
-})
+<?php
+
+namespace App\Http;
+
+use Illuminate\Foundation\Http\Kernel as HttpKernel;
+
+class Kernel extends HttpKernel
+{
+    /**
+     * アプリケーションに対して常に実行されるHTTPミドルウェア
+     */
+    protected $middleware = [
+        // 既存のミドルウェア...
+
+        \App\Http\Middleware\LogRequests::class,
+    ];
+}
 ```
 
 ---
@@ -252,7 +270,7 @@ public function handle(Request $request, Closure $next)
 *   ミドルウェアは、認証チェック、権限チェック、ログ記録、CORS設定などに使われる。
 *   `php artisan make:middleware`でカスタムミドルウェアを作成できる。
 *   `$next($request)`で、次のミドルウェアまたはコントローラーに処理を渡す。
-*   ミドルウェアは、`bootstrap/app.php`に登録し、ルートに適用する。
+*   ミドルウェアは、`app/Http/Kernel.php`に登録し、ルートに適用する。
 
 次のセクションでは、認可（Authorization）とポリシー（Policy）について学びます。
 
