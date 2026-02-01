@@ -125,30 +125,30 @@ volumes:
 
 `docker-compose.yml`ファイルを作成したら、あとは、以下のコマンドを実行するだけです。
 
-*   **起動: `docker-compose up`**
+*   **起動: `docker compose up`**
 
     `docker-compose.yml`が置かれているディレクトリで、以下のコマンドを実行します。
 
     ```bash
-    docker-compose up -d
+    docker compose up -d
     ```
 
     `-d`は、`docker run`の時と同じく、バックグラウンドで起動する、Detachedモードのオプションです。このコマンド一つで、`web`, `app`, `db` の、3つのコンテナが、設定通りに、ビルドまたはプルされ、互いにリンクされた状態で、一斉に起動します。
 
-*   **停止: `docker-compose down`**
+*   **停止: `docker compose down`**
 
     アプリケーション全体を、停止するには、以下のコマンドを実行します。
 
     ```bash
-    docker-compose down
+    docker compose down
     ```
 
     このコマンドは、コンテナを停止するだけでなく、`up`で作成された、ネットワークなども、一緒に、クリーンアップしてくれます。
 
 *   **その他のコマンド**
-    *   `docker-compose ps`: Composeで管理されている、コンテナの状態を表示します。
-    *   `docker-compose logs`: 全てのサービスのログを、まとめて表示します。
-    *   `docker-compose exec <サービス名> <コマンド>`: 指定したサービスのコンテナ内で、コマンドを実行します。（例: `docker-compose exec app bash`）
+    *   `docker compose ps`: Composeで管理されている、コンテナの状態を表示します。
+    *   `docker compose logs`: 全てのサービスのログを、まとめて表示します。
+    *   `docker compose exec <サービス名> <コマンド>`: 指定したサービスのコンテナ内で、コマンドを実行します。（例: `docker compose exec app bash`）
 
 ---
 
@@ -158,7 +158,7 @@ volumes:
 
 *   **Docker Composeの役割**: 複数のコンテナから成る、アプリケーション全体を、**一つの設定ファイル (`docker-compose.yml`)** で定義し、**一つのコマンド**で、管理するためのツール。
 *   **`docker-compose.yml`**: `YAML`形式で、各サービス（コンテナ）の、イメージ、ポート、ボリューム、依存関係などを定義する。
-*   **基本コマンド**: `docker-compose up -d` で、アプリケーション全体を起動し、`docker-compose down` で、全体を停止・クリーンアップする。
+*   **基本コマンド**: `docker compose up -d` で、アプリケーション全体を起動し、`docker compose down` で、全体を停止・クリーンアップする。
 
 Docker Composeは、`docker run`コマンドの、長く、複雑なオプションを、宣言的で、再利用可能な、設定ファイルに置き換えてくれる、非常に強力なツールです。
 

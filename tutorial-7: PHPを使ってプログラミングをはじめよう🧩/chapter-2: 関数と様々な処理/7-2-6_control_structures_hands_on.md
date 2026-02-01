@@ -87,7 +87,7 @@ code ~/php-practice
 ```bash
 # php-practiceディレクトリでDocker環境を起動
 cd ~/php-practice
-docker-compose up -d
+docker compose up -d
 ```
 
 > 📌 **確認**: ブラウザで`http://localhost:8000`にアクセスして、「Hello from Docker!」が表示されることを確認してください。
@@ -495,7 +495,7 @@ echo "平均点: " . number_format($average, 1) . "点<br>";
 - 「意図通りに表示されているか確認しよう」
 
 1. ファイルを保存します
-2. Docker環境が起動していることを確認します（`docker-compose up -d`）
+2. Docker環境が起動していることを確認します（`docker compose up -d`）
 3. ブラウザで`http://localhost:8000/7-2-6_hands-on/sample/grade_calculator.php`を開きます
 4. 成績一覧と統計情報が表示されることを確認します
 
@@ -756,7 +756,7 @@ foreach ($students as $student) {
 
 Tutorial 6で構築したDocker環境を使用します。
 
-1. Docker環境を起動（`cd ~/php-practice && docker-compose up -d`）
+1. Docker環境を起動（`cd ~/php-practice && docker compose up -d`）
 2. ブラウザで以下のURLにアクセス：
    - 自分で作成したコード: `http://localhost:8000/7-2-6_hands-on/practice/grade_calculator.php`
    - 一緒に作成したコード: `http://localhost:8000/7-2-6_hands-on/sample/grade_calculator.php`

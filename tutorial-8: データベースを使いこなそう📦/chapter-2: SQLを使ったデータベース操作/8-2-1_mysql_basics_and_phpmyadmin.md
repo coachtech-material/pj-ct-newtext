@@ -126,7 +126,7 @@ volumes:
 ターミナルで、以下のコマンドを、実行して、コンテナを、起動します。
 
 ```bash
-docker-compose up -d
+docker compose up -d
 ```
 
 初回実行時は、MySQLとphpMyAdminの、イメージを、ダウンロードするため、少し、時間が、かかります。
