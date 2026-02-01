@@ -62,7 +62,7 @@ git switch -c feature/issue-8-public-api
 
 ## 公開APIとは
 
-**公開API（Public API）**とは、**認証なしでアクセスできるAPI**のことです。
+公開API（Public API）とは、**認証なしでアクセスできるAPI**のことです。
 
 ### 公開APIの用途
 

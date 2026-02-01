@@ -176,7 +176,7 @@ class GreetingController extends Controller
 > **💡 Bladeテンプレートについて**
 > 
 > 以下のコードには`@csrf`や`{{ }}`などの**Blade構文**が含まれています。
-> Bladeの詳細は**次のChapter（Chapter 2: ビューとBlade）**で学びます。
+> Bladeの詳細は次のChapter（Chapter 2: ビューとBlade）で学びます。
 > 今は「こういう書き方をするんだな」と思いながら、**コピペでOK**です。
 
 **`resources/views/greeting/form.blade.php`**

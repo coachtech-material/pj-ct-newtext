@@ -25,7 +25,7 @@
 
 ### 🔑 UUIDとは？
 
-**UUID（Universally Unique Identifier）**は、世界中で一意であることが保証された128ビットの識別子です。以下のような形式で表現されます。
+UUID（Universally Unique Identifier）は、世界中で一意であることが保証された128ビットの識別子です。以下のような形式で表現されます。
 
 ```
 550e8400-e29b-41d4-a716-446655440000

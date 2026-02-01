@@ -24,7 +24,7 @@
 
 ### 🛠️ Tinkerとは？
 
-**Tinker（ティンカー）**は、LaravelのREPL（Read-Eval-Print Loop）ツールです。REPLとは、入力したコードを即座に実行し、結果を表示する対話型の環境のことです。
+Tinker（ティンカー）は、LaravelのREPL（Read-Eval-Print Loop）ツールです。REPLとは、入力したコードを即座に実行し、結果を表示する対話型の環境のことです。
 
 Tinkerを使うと、以下のようなことができます。
 

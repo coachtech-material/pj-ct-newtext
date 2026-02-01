@@ -14,7 +14,7 @@
 
 このChapterでは、Webアプリケーションの代表的な脆弱性と、Laravelがどのように保護しているかを学びます。
 
-最初に学ぶのは、**CSRF（Cross-Site Request Forgery）**攻撃です。
+最初に学ぶのは、CSRF（Cross-Site Request Forgery）攻撃です。
 
 ---
 

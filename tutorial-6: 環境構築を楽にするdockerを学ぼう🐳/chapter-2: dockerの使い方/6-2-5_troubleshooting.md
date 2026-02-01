@@ -107,7 +107,7 @@ Error response from daemon: Ports are not available: listen tcp 0.0.0.0:8080: bi
 
 1. **コンテナが本当に起動しているか確認**
    
-   Docker Desktopの**Containers**メニューで、コンテナが**緑色のアイコン（Running）**になっているか確認。
+   Docker Desktopの**Containers**メニューで、コンテナが緑色のアイコン（Running）になっているか確認。
 
 2. **ポートの設定を確認**
    

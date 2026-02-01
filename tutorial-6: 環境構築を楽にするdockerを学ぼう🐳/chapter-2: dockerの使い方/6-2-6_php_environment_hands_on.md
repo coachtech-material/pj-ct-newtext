@@ -180,7 +180,7 @@ http://localhost:8000
 
 ### Step 8: Docker Desktopでの確認
 
-Docker Desktopを開いて、**Containers**メニューをクリックしてください。`php-practice`というグループの中に、`nginx`と`php`の2つのコンテナが**緑色のアイコン（Running）**で表示されているはずです。
+Docker Desktopを開いて、**Containers**メニューをクリックしてください。`php-practice`というグループの中に、`nginx`と`php`の2つのコンテナが緑色のアイコン（Running）で表示されているはずです。
 
 ここで、以下のことを確認してみましょう。
 

@@ -26,7 +26,7 @@ Tutorial 11でWebアプリケーションを完成させました。次は「API
 
 ### 1-1. APIとは
 
-**API（Application Programming Interface）**とは、**アプリケーション同士が通信するための仕組み**です。
+API（Application Programming Interface）とは、**アプリケーション同士が通信するための仕組み**です。
 
 APIを使うことで、以下のようなことが可能になります。
 

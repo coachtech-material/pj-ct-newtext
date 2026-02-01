@@ -450,7 +450,7 @@ User::chunk(100, function ($users) {
 
 ### 💡 TIP: クエリビルダーの「遅延実行」
 
-Eloquentのクエリビルダーは、**遅延実行（Lazy Evaluation）**という仕組みを採用しています。これは、「`get()`, `first()`, `count()`などのメソッドを呼び出すまで、実際にはSQLが実行されない」という意味です。
+Eloquentのクエリビルダーは、遅延実行（Lazy Evaluation）という仕組みを採用しています。これは、「`get()`, `first()`, `count()`などのメソッドを呼び出すまで、実際にはSQLが実行されない」という意味です。
 
 ```php
 $query = User::where('is_admin', true); // まだSQLは実行されない

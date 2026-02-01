@@ -24,7 +24,7 @@ SELECT * FROM users;
 *   **コードが読みにくい**: SQLとPHPが混在し、コードが複雑になる。
 *   **データベースの種類に依存する**: MySQL、PostgreSQL、SQLiteなど、データベースによってSQLの方言が異なる。
 
-これらの問題を解決するのが、**ORM（Object-Relational Mapping）**です。
+これらの問題を解決するのが、ORM（Object-Relational Mapping）です。
 
 ---
 
