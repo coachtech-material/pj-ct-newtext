@@ -47,7 +47,7 @@ UUIDは、ランダムに生成されるため、事前に調整しなくても�
 
 ### 🔑 ULIDとは？
 
-**ULID（Universally Unique Lexicographically Sortable Identifier）**は、UUIDの欠点を補うために設計された識別子です。以下のような形式で表現されます。
+ULID（Universally Unique Lexicographically Sortable Identifier）は、UUIDの欠点を補うために設計された識別子です。以下のような形式で表現されます。
 
 ```
 01ARZ3NDEKTSV4RRFFQ69G5FAV

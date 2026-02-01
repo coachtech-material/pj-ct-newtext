@@ -367,7 +367,7 @@ main:    A --- B --- C
 
 ### 💡 TIP: プルリクエストのドラフト
 
-開発中のプルリクエストは、**ドラフト（Draft）**として作成できます。
+開発中のプルリクエストは、ドラフト（Draft）として作成できます。
 
 1. 「Create pull request」ボタンの横の「▼」をクリック
 2. 「Create draft pull request」を選択
