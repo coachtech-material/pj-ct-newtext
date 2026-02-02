@@ -189,9 +189,9 @@ Laravel 10では、Policyは `app/Providers/AuthServiceProvider.php` で登録�
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\TaskRequest;
 use App\Models\Category;
 use App\Models\Task;
-use Illuminate\Http\Request;
 
 class TaskController extends Controller
 {
@@ -222,23 +222,9 @@ class TaskController extends Controller
     /**
      * タスクを新規作成
      */
-    public function store(Request $request)
+    public function store(TaskRequest $request)
     {
-        $validated = $request->validate([
-            'category_id' => 'required|exists:categories,id',
-            'title' => 'required|string|max:255',
-            'description' => 'nullable|string|max:1000',
-            'priority' => 'required|integer|in:1,2,3',
-        ], [
-            'category_id.required' => 'カテゴリーを選択してください。',
-            'category_id.exists' => '選択されたカテゴリーは存在しません。',
-            'title.required' => 'タイトルは必須です。',
-            'title.max' => 'タイトルは255文字以内で入力してください。',
-            'description.max' => '説明は1000文字以内で入力してください。',
-            'priority.required' => '優先度を選択してください。',
-            'priority.in' => '優先度は1〜3の値を選択してください。',
-        ]);
-
+        $validated = $request->validated();
         $validated['user_id'] = auth()->id();
 
         Task::create($validated);
@@ -276,27 +262,12 @@ class TaskController extends Controller
     /**
      * タスクを更新
      */
-    public function update(Request $request, Task $task)
+    public function update(TaskRequest $request, Task $task)
     {
         // Policyによる認可チェック
         $this->authorize('update', $task);
 
-        $validated = $request->validate([
-            'category_id' => 'required|exists:categories,id',
-            'title' => 'required|string|max:255',
-            'description' => 'nullable|string|max:1000',
-            'priority' => 'required|integer|in:1,2,3',
-        ], [
-            'category_id.required' => 'カテゴリーを選択してください。',
-            'category_id.exists' => '選択されたカテゴリーは存在しません。',
-            'title.required' => 'タイトルは必須です。',
-            'title.max' => 'タイトルは255文字以内で入力してください。',
-            'description.max' => '説明は1000文字以内で入力してください。',
-            'priority.required' => '優先度を選択してください。',
-            'priority.in' => '優先度は1〜3の値を選択してください。',
-        ]);
-
-        $task->update($validated);
+        $task->update($request->validated());
 
         return redirect()->route('tasks.index')
             ->with('success', 'タスクを更新しました。');
@@ -342,21 +313,46 @@ $this->authorize('view', $task);
 
 Bladeテンプレートでも `@can` ディレクティブを使って認可チェックができます。
 
-`resources/views/tasks/index.blade.php` の操作ボタン部分を修正します。
+`resources/views/tasks/show.blade.php` のアクションボタン部分に `@can` を追加してみましょう。
 
-```php
-<td style="padding: 10px; text-align: center; border-bottom: 1px solid #ddd;">
+**変更前**（Chapter 3-2で配置したコード）:
+
+```blade
+{{-- アクションボタン --}}
+<div class="flex space-x-4 mt-8 pt-6 border-t border-gray-200">
+    <a href="{{ route('tasks.edit', $task) }}" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">
+        編集
+    </a>
+    <form action="{{ route('tasks.destroy', $task) }}" method="POST" onsubmit="return confirm('本当に削除しますか？');">
+        @csrf
+        @method('DELETE')
+        <button type="submit" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded">
+            削除
+        </button>
+    </form>
+</div>
+```
+
+**変更後**（`@can` を追加）:
+
+```blade
+{{-- アクションボタン --}}
+<div class="flex space-x-4 mt-8 pt-6 border-t border-gray-200">
     @can('update', $task)
-        <a href="{{ route('tasks.edit', $task) }}" class="btn btn-secondary" style="padding: 5px 10px; font-size: 0.875rem;">編集</a>
+        <a href="{{ route('tasks.edit', $task) }}" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">
+            編集
+        </a>
     @endcan
     @can('delete', $task)
-        <form action="{{ route('tasks.destroy', $task) }}" method="POST" style="display: inline;" onsubmit="return confirm('本当に削除しますか？');">
+        <form action="{{ route('tasks.destroy', $task) }}" method="POST" onsubmit="return confirm('本当に削除しますか？');">
             @csrf
             @method('DELETE')
-            <button type="submit" class="btn btn-danger" style="padding: 5px 10px; font-size: 0.875rem;">削除</button>
+            <button type="submit" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded">
+                削除
+            </button>
         </form>
     @endcan
-</td>
+</div>
 ```
 
 #### コードリーディング
@@ -367,7 +363,7 @@ Bladeテンプレートでも `@can` ディレクティブを使って認可チ�
 | `@endcan` | @canの終了 |
 | `@cannot('update', $task)` | updateがfalseの場合のみ表示（逆パターン） |
 
-> **💡 補足**: 今回のケースでは、一覧画面には自分のタスクしか表示されないため、`@can` の効果は見えにくいですが、将来的に他のユーザーのタスクも表示するような機能を追加した場合に役立ちます。
+> **💡 補足**: 今回のケースでは、詳細画面には自分のタスクしか表示されないため（コントローラで認可チェック済み）、`@can` の効果は見えにくいです。しかし、将来的に他のユーザーのタスクも閲覧できるような機能を追加した場合に役立ちます。
 
 ---
 
