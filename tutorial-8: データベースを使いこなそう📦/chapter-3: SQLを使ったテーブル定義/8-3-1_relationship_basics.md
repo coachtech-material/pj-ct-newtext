@@ -103,7 +103,7 @@ erDiagram
 
 ```bash
 cd ~/mysql-practice
-docker-compose ps
+docker compose ps
 ```
 
 `mysql`と`phpmyadmin`が`Up`状態であれば準備完了です。
@@ -111,7 +111,7 @@ docker-compose ps
 もし起動していない場合は、以下のコマンドで起動してください。
 
 ```bash
-docker-compose up -d
+docker compose up -d
 ```
 
 ### phpMyAdminへのアクセス

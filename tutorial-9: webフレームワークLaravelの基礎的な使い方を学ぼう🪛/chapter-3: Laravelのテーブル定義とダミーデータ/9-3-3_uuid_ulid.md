@@ -25,7 +25,7 @@
 
 ### 🔑 UUIDとは？
 
-**UUID（Universally Unique Identifier）**は、世界中で一意であることが保証された128ビットの識別子です。以下のような形式で表現されます。
+UUID（Universally Unique Identifier）は、世界中で一意であることが保証された128ビットの識別子です。以下のような形式で表現されます。
 
 ```
 550e8400-e29b-41d4-a716-446655440000
@@ -47,7 +47,7 @@ UUIDは、ランダムに生成されるため、事前に調整しなくても�
 
 ### 🔑 ULIDとは？
 
-**ULID（Universally Unique Lexicographically Sortable Identifier）**は、UUIDの欠点を補うために設計された識別子です。以下のような形式で表現されます。
+ULID（Universally Unique Lexicographically Sortable Identifier）は、UUIDの欠点を補うために設計された識別子です。以下のような形式で表現されます。
 
 ```
 01ARZ3NDEKTSV4RRFFQ69G5FAV

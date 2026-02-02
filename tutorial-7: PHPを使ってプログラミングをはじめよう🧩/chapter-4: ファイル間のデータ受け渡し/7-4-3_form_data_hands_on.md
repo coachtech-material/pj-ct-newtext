@@ -16,7 +16,7 @@ Chapter 4で学んだフォームデータの受け取りとPHPファイル間�
 
 ## 📁 ディレクトリ構成
 
-このハンズオンでは、**「自分で作成する用」**と**「解答を確認する用」**の2つのディレクトリを作成します。
+このハンズオンでは、「自分で作成する用」と「解答を確認する用」の2つのディレクトリを作成します。
 
 Tutorial 6で作成した`php-practice`ディレクトリ内の`src/`フォルダに、ハンズオン用のディレクトリを作成します。
 
@@ -91,7 +91,7 @@ code ~/php-practice
 ```bash
 # php-practiceディレクトリでDocker環境を起動
 cd ~/php-practice
-docker-compose up -d
+docker compose up -d
 ```
 
 > 📌 **確認**: ブラウザで`http://localhost:8000`にアクセスして、「Hello from Docker!」が表示されることを確認してください。
@@ -433,7 +433,7 @@ $name = $_POST["name"];
 - 「入力→確認→完了の流れを確認しよう」
 
 1. ファイルを保存します
-2. Docker環境が起動していることを確認します（`docker-compose up -d`）
+2. Docker環境が起動していることを確認します（`docker compose up -d`）
 3. ブラウザで`http://localhost:8000/7-4-3_hands-on/sample/input.php`を開きます
 4. 入力→確認→完了の流れを確認します
 
@@ -845,7 +845,7 @@ echo htmlspecialchars($_POST["name"], ENT_QUOTES, 'UTF-8');
 
 Tutorial 6で構築したDocker環境を使用します。
 
-1. Docker環境を起動（`cd ~/php-practice && docker-compose up -d`）
+1. Docker環境を起動（`cd ~/php-practice && docker compose up -d`）
 2. ブラウザで以下のURLにアクセス：
    - 自分で作成したコード: `http://localhost:8000/7-4-3_hands-on/practice/input.php`
    - 一緒に作成したコード: `http://localhost:8000/7-4-3_hands-on/sample/input.php`

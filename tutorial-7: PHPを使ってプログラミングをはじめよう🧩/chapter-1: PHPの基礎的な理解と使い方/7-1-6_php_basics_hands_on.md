@@ -16,7 +16,7 @@ Chapter 1で学んだPHPの基礎知識を実際に手を動かして確認し�
 
 ## 📁 ディレクトリ構成
 
-このハンズオンでは、**「自分で作成する用」**と**「解答を確認する用」**の2つのディレクトリを作成します。
+このハンズオンでは、「自分で作成する用」と「解答を確認する用」の2つのディレクトリを作成します。
 
 Tutorial 6で作成した`php-practice`ディレクトリ内の`src/`フォルダに、ハンズオン用のディレクトリを作成します。
 
@@ -84,7 +84,7 @@ code ~/php-practice
 ```bash
 # php-practiceディレクトリでDocker環境を起動
 cd ~/php-practice
-docker-compose up -d
+docker compose up -d
 ```
 
 > 📌 **確認**: ブラウザで`http://localhost:8000`にアクセスして、「Hello from Docker!」が表示されることを確認してください。
@@ -394,7 +394,7 @@ echo "<strong>合計金額: " . number_format($total) . "円</strong><br>";
 - 「意図通りに表示されているか確認しよう」
 
 1. ファイルを保存します
-2. Docker環境が起動していることを確認します（`docker-compose up -d`）
+2. Docker環境が起動していることを確認します（`docker compose up -d`）
 3. ブラウザで`http://localhost:8000/7-1-6_hands-on/sample/price_calculator.php`を開きます
 4. 以下のように表示されることを確認します：
    - 商品名: ノートパソコン
@@ -568,7 +568,7 @@ $tax_amount = $subtotal * $tax_rate;
 
 Tutorial 6で構築したDocker環境を使用します。
 
-1. Docker環境を起動（`cd ~/php-practice && docker-compose up -d`）
+1. Docker環境を起動（`cd ~/php-practice && docker compose up -d`）
 2. ブラウザで以下のURLにアクセス：
    - 自分で作成したコード: `http://localhost:8000/7-1-6_hands-on/practice/price_calculator.php`
    - 一緒に作成したコード: `http://localhost:8000/7-1-6_hands-on/sample/price_calculator.php`

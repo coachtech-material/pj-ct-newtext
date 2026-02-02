@@ -154,7 +154,7 @@ php-practice/
 いよいよコンテナを起動します。`php-practice`フォルダで、以下のコマンドを実行してください。
 
 ```bash
-docker-compose up -d
+docker compose up -d
 ```
 
 初回実行時は、イメージをダウンロードするため、少し時間がかかります。
@@ -180,7 +180,7 @@ http://localhost:8000
 
 ### Step 8: Docker Desktopでの確認
 
-Docker Desktopを開いて、**Containers**メニューをクリックしてください。`php-practice`というグループの中に、`nginx`と`php`の2つのコンテナが**緑色のアイコン（Running）**で表示されているはずです。
+Docker Desktopを開いて、**Containers**メニューをクリックしてください。`php-practice`というグループの中に、`nginx`と`php`の2つのコンテナが緑色のアイコン（Running）で表示されているはずです。
 
 ここで、以下のことを確認してみましょう。
 
@@ -209,7 +209,7 @@ echo "<p style='color: blue;'>ファイルを編集しました！</p>";
 作業が終わったら、コンテナを停止しましょう。
 
 ```bash
-docker-compose down
+docker compose down
 ```
 
 **出力例:**
@@ -232,17 +232,17 @@ Docker Desktopを確認すると、コンテナが消えている（または停
 | 手順 | 内容 |
 | :--- | :--- |
 | **Step 1-5** | プロジェクトフォルダ、設定ファイル、PHPファイル、docker-compose.ymlを作成 |
-| **Step 6** | `docker-compose up -d`でコンテナを起動 |
+| **Step 6** | `docker compose up -d`でコンテナを起動 |
 | **Step 7** | ブラウザで`http://localhost:8000`にアクセスして動作確認 |
 | **Step 8** | Docker Desktopでコンテナの状態を確認 |
 | **Step 9** | ファイルを編集し、リアルタイムで反映されることを確認 |
-| **Step 10** | `docker-compose down`でコンテナを停止 |
+| **Step 10** | `docker compose down`でコンテナを停止 |
 
 **学んだこと:**
 
 *   `docker-compose.yml`を作成し、サービスを定義する方法
-*   `docker-compose up -d`でコンテナを起動する方法
-*   `docker-compose down`でコンテナを停止する方法
+*   `docker compose up -d`でコンテナを起動する方法
+*   `docker compose down`でコンテナを停止する方法
 *   Docker Desktopでコンテナの状態を確認する方法
 *   `volumes`を使ってファイルを同期する方法
 

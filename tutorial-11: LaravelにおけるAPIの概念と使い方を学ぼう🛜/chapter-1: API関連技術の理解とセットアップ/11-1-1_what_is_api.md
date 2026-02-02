@@ -26,7 +26,7 @@ Tutorial 11でWebアプリケーションを完成させました。次は「API
 
 ### 1-1. APIとは
 
-**API（Application Programming Interface）**とは、**アプリケーション同士が通信するための仕組み**です。
+API（Application Programming Interface）とは、**アプリケーション同士が通信するための仕組み**です。
 
 APIを使うことで、以下のようなことが可能になります。
 
@@ -134,7 +134,7 @@ APIは、通常**JSON形式**でデータを返します。
 
 ### 1. 認証方式の比較
 
-Tutorial 10-12で学んだ**Web認証（Fortify）**と、API開発で使う**API認証（Token）**は、仕組みが大きく異なります。
+Tutorial 10-12で学んだWeb認証（Fortify）と、API開発で使うAPI認証（Token）は、仕組みが大きく異なります。
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐

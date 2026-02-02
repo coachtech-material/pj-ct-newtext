@@ -70,10 +70,10 @@ Tutorial 6のハンズオンで、`php-practice`ディレクトリにDocker環�
 
 ```bash
 cd ~/php-practice
-docker-compose up -d
+docker compose up -d
 ```
 
-起動が完了したら、`docker-compose ps`コマンドで、コンテナが正常に起動していることを確認してください。
+起動が完了したら、`docker compose ps`コマンドで、コンテナが正常に起動していることを確認してください。
 
 #### Step 2: PHPファイルの編集
 
@@ -104,7 +104,7 @@ Webブラウザで、`http://localhost:8000/index.php` にアクセスします�
 
 画面に、「1 + 1 は、2 です。」や、現在の日時が、正しく表示されていれば、成功です！ブラウザの「ページのソースを表示」機能で、ソースコードを確認してみてください。`<?php ... ?>`の部分は、完全に消え、その実行結果である「2」や、日時の文字列に、置き換わっていることが、確認できるはずです。
 
-> 💡 **環境の停止**: 作業が終わったら、`docker-compose down`コマンドで環境を停止できます。次回作業するときは、再び`docker-compose up -d`で起動してください。
+> 💡 **環境の停止**: 作業が終わったら、`docker compose down`コマンドで環境を停止できます。次回作業するときは、再び`docker compose up -d`で起動してください。
 
 
 

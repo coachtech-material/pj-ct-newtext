@@ -21,7 +21,7 @@ Docker環境で開発を行っていると、「コンテナが起動しない�
 ### 🔴 トラブル1: コンテナが起動しない
 
 **症状:**
-`docker-compose up -d`を実行しても、コンテナが起動しない。または、起動してもすぐに停止してしまう。
+`docker compose up -d`を実行しても、コンテナが起動しない。または、起動してもすぐに停止してしまう。
 
 **確認方法:**
 
@@ -32,7 +32,7 @@ Docker環境で開発を行っていると、「コンテナが起動しない�
 2. **コンテナの状態を確認**
    
    ```bash
-   docker-compose ps -a
+   docker compose ps -a
    ```
    
    `STATUS`が`Exited`になっている場合、コンテナが停止しています。
@@ -40,7 +40,7 @@ Docker環境で開発を行っていると、「コンテナが起動しない�
 3. **ログを確認**
    
    ```bash
-   docker-compose logs
+   docker compose logs
    ```
    
    エラーメッセージが表示されていないか確認してください。
@@ -51,14 +51,14 @@ Docker環境で開発を行っていると、「コンテナが起動しない�
 | :--- | :--- |
 | Docker Desktopが起動していない | Docker Desktopを起動する |
 | `docker-compose.yml`の記述ミス | インデント（字下げ）が正しいか確認する |
-| イメージのダウンロードに失敗 | インターネット接続を確認し、再度`docker-compose up -d`を実行 |
+| イメージのダウンロードに失敗 | インターネット接続を確認し、再度`docker compose up -d`を実行 |
 
 ---
 
 ### 🔴 トラブル2: ポートが競合している
 
 **症状:**
-`docker-compose up -d`を実行すると、以下のようなエラーが表示される。
+`docker compose up -d`を実行すると、以下のようなエラーが表示される。
 
 ```
 Error response from daemon: Ports are not available: listen tcp 0.0.0.0:8080: bind: address already in use
@@ -107,7 +107,7 @@ Error response from daemon: Ports are not available: listen tcp 0.0.0.0:8080: bi
 
 1. **コンテナが本当に起動しているか確認**
    
-   Docker Desktopの**Containers**メニューで、コンテナが**緑色のアイコン（Running）**になっているか確認。
+   Docker Desktopの**Containers**メニューで、コンテナが緑色のアイコン（Running）になっているか確認。
 
 2. **ポートの設定を確認**
    
@@ -121,7 +121,7 @@ Error response from daemon: Ports are not available: listen tcp 0.0.0.0:8080: bi
 
 | 原因 | 対処法 |
 | :--- | :--- |
-| コンテナが停止している | `docker-compose up -d`で再起動 |
+| コンテナが停止している | `docker compose up -d`で再起動 |
 | ポート番号が違う | `docker-compose.yml`のポート設定を確認 |
 | `https`でアクセスしている | `http`でアクセスする |
 | ファイアウォールがブロックしている | ファイアウォールの設定を確認 |
@@ -173,7 +173,7 @@ Error response from daemon: Ports are not available: listen tcp 0.0.0.0:8080: bi
 
 | 原因 | 対処法 |
 | :--- | :--- |
-| `volumes`の設定が間違っている | パスを確認し、修正後に`docker-compose down`→`docker-compose up -d`で再起動 |
+| `volumes`の設定が間違っている | パスを確認し、修正後に`docker compose down`→`docker compose up -d`で再起動 |
 | キャッシュが残っている | ブラウザのキャッシュをクリア、またはシークレットモードでアクセス |
 
 ---
@@ -191,14 +191,14 @@ Error response from daemon: Ports are not available: listen tcp 0.0.0.0:8080: bi
 ### Step 2: ログを確認
 
 ```bash
-docker-compose logs
+docker compose logs
 ```
 
 エラーメッセージが出ていないか確認します。特定のサービスのログだけを見たい場合は、サービス名を指定します。
 
 ```bash
-docker-compose logs php
-docker-compose logs mysql
+docker compose logs php
+docker compose logs mysql
 ```
 
 ### Step 3: コンテナを再起動
@@ -206,8 +206,8 @@ docker-compose logs mysql
 多くの問題は、コンテナを再起動することで解決します。
 
 ```bash
-docker-compose down
-docker-compose up -d
+docker compose down
+docker compose up -d
 ```
 
 ### Step 4: イメージを再ビルド
@@ -215,9 +215,9 @@ docker-compose up -d
 設定ファイルを変更した場合は、イメージを再ビルドする必要があることがあります。
 
 ```bash
-docker-compose down
-docker-compose build --no-cache
-docker-compose up -d
+docker compose down
+docker compose build --no-cache
+docker compose up -d
 ```
 
 ### Step 5: 全てをリセット
@@ -225,8 +225,8 @@ docker-compose up -d
 それでも解決しない場合は、コンテナ、ネットワーク、ボリュームを全て削除して、最初からやり直します。
 
 ```bash
-docker-compose down -v
-docker-compose up -d
+docker compose down -v
+docker compose up -d
 ```
 
 > ⚠️ **注意**: `-v`オプションを付けると、ボリューム（データベースのデータなど）も削除されます。データが消えても問題ない場合のみ使用してください。
@@ -248,8 +248,8 @@ docker-compose up -d
 **問題解決の基本:**
 
 1. Docker Desktopでコンテナの状態を確認
-2. `docker-compose logs`でエラーを確認
-3. `docker-compose down`→`docker-compose up -d`で再起動
+2. `docker compose logs`でエラーを確認
+3. `docker compose down`→`docker compose up -d`で再起動
 
 トラブルが発生しても、慌てずに、一つずつ確認していきましょう。
 

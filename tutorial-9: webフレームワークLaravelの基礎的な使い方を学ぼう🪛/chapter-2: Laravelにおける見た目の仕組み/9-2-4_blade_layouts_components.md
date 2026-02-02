@@ -3,7 +3,7 @@
 ## 🎯 このセクションで学ぶこと
 
 *   `@extends`, `@section`によるレイアウト継承の仕組みを理解する。
-*   **コンポーネントの「読み方」**を身につける：
+*   コンポーネントの「読み方」を身につける：
     *   `<x-app-layout>`が`resources/views/components/app-layout.blade.php`を指していること。
     *   `<x-slot name="header">`がレイアウト側の`{{ $header }}`に差し込まれること。
 *   他人が作ったBladeファイルを読み解き、データを正しく渡せるようになる。

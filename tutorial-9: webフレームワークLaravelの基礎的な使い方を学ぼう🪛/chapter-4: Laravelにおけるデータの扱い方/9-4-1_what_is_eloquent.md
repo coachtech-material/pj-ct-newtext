@@ -24,7 +24,7 @@ SELECT * FROM users;
 *   **コードが読みにくい**: SQLとPHPが混在し、コードが複雑になる。
 *   **データベースの種類に依存する**: MySQL、PostgreSQL、SQLiteなど、データベースによってSQLの方言が異なる。
 
-これらの問題を解決するのが、**ORM（Object-Relational Mapping）**です。
+これらの問題を解決するのが、ORM（Object-Relational Mapping）です。
 
 ---
 
@@ -62,7 +62,7 @@ echo $user->introduce();            // $userインスタンスの introduce()メ
 
 #### ダブルコロン `::`：クラスに直接アクセス（静的メソッド）
 
-一方、**ダブルコロン `::`** は、**インスタンスを作らずに、クラスに直接アクセス**するために使います。これを**静的メソッド（static method）**と呼びます。
+一方、**ダブルコロン `::`** は、**インスタンスを作らずに、クラスに直接アクセス**するために使います。これを静的メソッド（static method）と呼びます。
 
 ```php
 // Eloquentの例
