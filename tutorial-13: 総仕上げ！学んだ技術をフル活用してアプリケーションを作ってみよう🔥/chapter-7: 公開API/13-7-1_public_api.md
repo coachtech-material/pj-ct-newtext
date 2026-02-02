@@ -271,14 +271,22 @@ sail artisan route:list --path=api
 
 ### ステップ6: 動作確認
 
-APIの動作を確認します。ブラウザまたはcurlコマンドでアクセスしてください。
+APIの動作を確認します。VS Codeの拡張機能「Thunder Client」を使って確認しましょう。
+
+#### Thunder Clientのインストール
+
+1. VS Codeの拡張機能タブを開く（`Cmd + Shift + X` / `Ctrl + Shift + X`）
+2. 「Thunder Client」を検索してインストール
+3. サイドバーに雷アイコンが表示される
 
 #### タスク一覧の取得
 
-```bash
-# curlコマンドで確認
-curl http://localhost/api/tasks
-```
+1. Thunder Clientを開く（サイドバーの雷アイコンをクリック）
+2. 「New Request」をクリック
+3. 以下を設定：
+   - **Method**: `GET`
+   - **URL**: `http://localhost/api/tasks`
+4. 「Send」ボタンをクリック
 
 #### レスポンス例
 
@@ -308,10 +316,11 @@ curl http://localhost/api/tasks
 
 #### タスク詳細の取得
 
-```bash
-# タスクID=1の詳細を取得
-curl http://localhost/api/tasks/1
-```
+1. 「New Request」をクリック
+2. 以下を設定：
+   - **Method**: `GET`
+   - **URL**: `http://localhost/api/tasks/1`
+3. 「Send」ボタンをクリック
 
 #### レスポンス例
 
@@ -336,6 +345,8 @@ curl http://localhost/api/tasks/1
     }
 }
 ```
+
+> **💡 補足**: ブラウザで直接 `http://localhost/api/tasks` にアクセスしてもJSONレスポンスを確認できます。
 
 ---
 
