@@ -52,7 +52,22 @@ git switch -c feature/issue-4-category-crud
 
 ## 🏃 実践
 
-### ステップ1: カテゴリーコントローラの作成
+### ステップ1: ビューの確認と必要なデータの把握
+
+コントローラを実装する前に、Chapter 3-2で配置したビューファイルを確認し、各画面で必要なデータを把握しましょう。
+
+| ビュー | 必要なデータ | 説明 |
+|:---|:---|:---|
+| `index.blade.php` | `$categories`（タスク数付き） | `tasks_count` でタスク数を表示 |
+| `show.blade.php` | `$category`（タスク一覧付き） | リレーションで紐づくタスクを表示 |
+| `create.blade.php` | なし | フォームのみ |
+| `edit.blade.php` | `$category` | 編集対象のカテゴリー |
+
+> **💡 ポイント**: ビューを先に確認することで、コントローラで何を渡す必要があるかが明確になります。
+
+---
+
+### ステップ2: カテゴリーコントローラの作成
 
 リソースコントローラを作成します。
 
@@ -69,7 +84,76 @@ sail artisan make:controller CategoryController --resource
 
 ---
 
-### ステップ2: コントローラの実装
+### ステップ3: FormRequestの作成
+
+バリデーションロジックをコントローラから分離するため、FormRequestを作成します。
+
+```bash
+# FormRequestの作成
+sail artisan make:request CategoryRequest
+```
+
+`app/Http/Requests/CategoryRequest.php` を以下のように編集します。
+
+```php
+<?php
+
+namespace App\Http\Requests;
+
+use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
+
+class CategoryRequest extends FormRequest
+{
+    /**
+     * リクエストの認可
+     */
+    public function authorize(): bool
+    {
+        return true;
+    }
+
+    /**
+     * バリデーションルール
+     */
+    public function rules(): array
+    {
+        return [
+            'name' => [
+                'required',
+                'string',
+                'max:255',
+                Rule::unique('categories', 'name')->ignore($this->category),
+            ],
+        ];
+    }
+
+    /**
+     * バリデーションメッセージ
+     */
+    public function messages(): array
+    {
+        return [
+            'name.required' => 'カテゴリー名は必須です。',
+            'name.max' => 'カテゴリー名は255文字以内で入力してください。',
+            'name.unique' => 'このカテゴリー名は既に使用されています。',
+        ];
+    }
+}
+```
+
+#### コードリーディング
+
+| コード | 説明 |
+|:---|:---|
+| `authorize()` | リクエストを許可するかどうか（`true`で常に許可） |
+| `rules()` | バリデーションルールを定義 |
+| `messages()` | カスタムエラーメッセージを定義 |
+| `Rule::unique(...)->ignore($this->category)` | 更新時は自分自身を除外してユニークチェック |
+
+---
+
+### ステップ4: コントローラの実装
 
 `app/Http/Controllers/CategoryController.php` を以下のように編集します。
 
@@ -78,8 +162,8 @@ sail artisan make:controller CategoryController --resource
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\CategoryRequest;
 use App\Models\Category;
-use Illuminate\Http\Request;
 
 class CategoryController extends Controller
 {
@@ -104,17 +188,9 @@ class CategoryController extends Controller
     /**
      * カテゴリーを新規作成
      */
-    public function store(Request $request)
+    public function store(CategoryRequest $request)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255|unique:categories,name',
-        ], [
-            'name.required' => 'カテゴリー名は必須です。',
-            'name.max' => 'カテゴリー名は255文字以内で入力してください。',
-            'name.unique' => 'このカテゴリー名は既に使用されています。',
-        ]);
-
-        Category::create($validated);
+        Category::create($request->validated());
 
         return redirect()->route('categories.index')
             ->with('success', 'カテゴリーを作成しました。');
@@ -141,17 +217,9 @@ class CategoryController extends Controller
     /**
      * カテゴリーを更新
      */
-    public function update(Request $request, Category $category)
+    public function update(CategoryRequest $request, Category $category)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255|unique:categories,name,' . $category->id,
-        ], [
-            'name.required' => 'カテゴリー名は必須です。',
-            'name.max' => 'カテゴリー名は255文字以内で入力してください。',
-            'name.unique' => 'このカテゴリー名は既に使用されています。',
-        ]);
-
-        $category->update($validated);
+        $category->update($request->validated());
 
         return redirect()->route('categories.index')
             ->with('success', 'カテゴリーを更新しました。');
@@ -181,8 +249,8 @@ class CategoryController extends Controller
 | コード | 説明 |
 |:---|:---|
 | `Category::withCount('tasks')` | 各カテゴリーのタスク数を`tasks_count`として取得 |
-| `$request->validate([...])` | リクエストデータのバリデーション |
-| `'unique:categories,name,' . $category->id` | 更新時は自分自身を除外してユニークチェック |
+| `CategoryRequest $request` | FormRequestによる自動バリデーション |
+| `$request->validated()` | バリデーション済みデータを取得 |
 | `compact('categories')` | 変数をビューに渡す（`['categories' => $categories]`と同等） |
 | `Category $category` | ルートモデルバインディング（IDから自動的にモデルを取得） |
 | `$category->load('tasks')` | リレーションを遅延ロード |
@@ -190,15 +258,16 @@ class CategoryController extends Controller
 
 ---
 
-### ステップ3: ルーティングの設定
+### ステップ5: ルーティングの設定
 
-`routes/web.php` にカテゴリーのルーティングを追加します。
+`routes/web.php` を編集し、Chapter 5-1で定義したカテゴリーの仮ルートを本実装に置き換えます。
+
+> **📌 ポイント**: Chapter 5-1で `Route::get('/categories', fn() => ...)` として仮定義したルートを削除し、リソースルートに置き換えます。
 
 ```php
 <?php
 
 use App\Http\Controllers\CategoryController;
-use App\Http\Controllers\TaskController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -207,11 +276,11 @@ Route::get('/', function () {
 
 // 認証が必要なルート
 Route::middleware('auth')->group(function () {
-    // カテゴリーのCRUDルート
+    // カテゴリーのCRUDルート（仮ルートから置き換え）
     Route::resource('categories', CategoryController::class);
 
-    // タスクのCRUDルート（次のセクションで追加）
-    // Route::resource('tasks', TaskController::class);
+    // タスクの仮ルート（次のセクションで本実装に置き換え）
+    Route::get('/tasks', fn() => 'タスク一覧（準備中）')->name('tasks.index');
 });
 ```
 
@@ -232,13 +301,14 @@ sail artisan route:list --name=categories
 
 ---
 
-### ステップ4: ビューの確認
+### ステップ6: ビューの確認
 
 カテゴリー用のビューファイルは、Chapter 3-2で配置済みです。
 
 | ファイル | 説明 |
 |:---|:---|
 | `resources/views/categories/index.blade.php` | 一覧画面 |
+| `resources/views/categories/show.blade.php` | 詳細画面 |
 | `resources/views/categories/create.blade.php` | 作成画面 |
 | `resources/views/categories/edit.blade.php` | 編集画面 |
 
@@ -246,23 +316,25 @@ sail artisan route:list --name=categories
 
 ---
 
-### ステップ5: 動作確認
+### ステップ7: 動作確認
 
 以下のURLにアクセスして動作を確認してください。
 
-| URL | 機能 |
-|:---|:---|
-| `http://localhost/categories` | カテゴリー一覧 |
-| `http://localhost/categories/create` | カテゴリー作成 |
-| `http://localhost/categories/1` | カテゴリー詳細 |
-| `http://localhost/categories/1/edit` | カテゴリー編集 |
+| URL | 機能 | 確認可否 |
+|:---|:---|:---|
+| `http://localhost/categories` | カテゴリー一覧 | ✅ |
+| `http://localhost/categories/create` | カテゴリー作成 | ✅ |
+| `http://localhost/categories/1/edit` | カテゴリー編集 | ✅ |
+| `http://localhost/categories/1` | カテゴリー詳細 | ❌ |
+
+> **⚠️ 注意**: カテゴリー詳細画面（`/categories/1`）は、タスクへのリンク（`route('tasks.show')`）を使用しているため、次のセクション（13-6-2 タスクCRUD実装）が完了するまでエラーになります。
 
 #### 確認手順
 
 1. ログインする
-2. カテゴリー一覧画面にアクセス
+2. `http://localhost/categories` にアクセス
 3. 「新規作成」からカテゴリーを作成
-4. 作成したカテゴリーを編集
+4. 作成したカテゴリーの「編集」をクリックして編集
 5. カテゴリーを削除
 
 ---
