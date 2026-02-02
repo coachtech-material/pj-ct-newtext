@@ -1,0 +1,346 @@
+# 13-4-1 マイグレーション作成
+
+## 🎯 このセクションで学ぶこと
+
+このセクションでは、タスク管理アプリに必要なデータベーステーブルをマイグレーションで作成します。
+
+- マイグレーションファイルの作成方法
+- 各テーブル（users, categories, tasks）の設計と実装
+- 外部キー制約の設定方法
+- マイグレーションの実行と確認
+
+> **📌 対応Issue**: #1 マイグレーション作成（users/tasks/categories）
+
+---
+
+## 🧠 先輩エンジニアの思考プロセス
+
+マイグレーションを作成する際、先輩エンジニアは以下のように考えます。
+
+> 「Ch1で設計したER図とテーブル定義を見ながら、マイグレーションを作成しよう。テーブルの作成順序は重要だ。外部キーで参照されるテーブルを先に作成しないとエラーになる。今回は `users` → `categories` → `tasks` の順番で作成しよう。」
+
+### テーブル作成の順序
+
+| 順序 | テーブル | 理由 |
+|:---:|:---|:---|
+| 1 | users | 他のテーブルから参照される（tasks.user_id） |
+| 2 | categories | 他のテーブルから参照される（tasks.category_id） |
+| 3 | tasks | users と categories を参照する |
+
+---
+
+## 🏃 実践
+
+### ステップ1: usersテーブルのマイグレーション確認
+
+Laravelには、デフォルトで `users` テーブルのマイグレーションが用意されています。今回はこれをそのまま使用します。
+
+```bash
+# マイグレーションファイルの確認
+ls database/migrations/
+```
+
+`xxxx_xx_xx_000000_create_users_table.php` というファイルが存在することを確認してください。
+
+#### デフォルトのusersマイグレーション
+
+```php
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::create('users', function (Blueprint $table) {
+            $table->id();
+            $table->string('name');
+            $table->string('email')->unique();
+            $table->timestamp('email_verified_at')->nullable();
+            $table->string('password');
+            $table->rememberToken();
+            $table->timestamps();
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::dropIfExists('users');
+    }
+};
+```
+
+#### コードリーディング
+
+| コード | 説明 |
+|:---|:---|
+| `$table->id()` | 自動増分の主キー（BIGINT UNSIGNED） |
+| `$table->string('name')` | VARCHAR(255)型のnameカラム |
+| `$table->string('email')->unique()` | ユニーク制約付きのemailカラム |
+| `$table->timestamp('email_verified_at')->nullable()` | NULL許可のタイムスタンプ |
+| `$table->string('password')` | ハッシュ化されたパスワードを格納 |
+| `$table->rememberToken()` | 「ログイン状態を保持」用のトークン |
+| `$table->timestamps()` | created_at と updated_at を自動追加 |
+
+---
+
+### ステップ2: categoriesテーブルのマイグレーション作成
+
+カテゴリーテーブルのマイグレーションを作成します。
+
+```bash
+# マイグレーションファイルの作成
+php artisan make:migration create_categories_table
+```
+
+#### コマンドの構文
+
+```
+php artisan make:migration {ファイル名}
+```
+
+| 部分 | 説明 |
+|:---|:---|
+| `make:migration` | マイグレーションファイルを作成するArtisanコマンド |
+| `create_categories_table` | ファイル名（`create_テーブル名_table`の命名規則） |
+
+#### マイグレーションファイルの編集
+
+`database/migrations/xxxx_xx_xx_xxxxxx_create_categories_table.php` を以下のように編集します。
+
+```php
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('categories', function (Blueprint $table) {
+            $table->id();
+            $table->string('name');
+            $table->timestamps();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('categories');
+    }
+};
+```
+
+#### コードリーディング
+
+| コード | 説明 |
+|:---|:---|
+| `Schema::create('categories', ...)` | categoriesテーブルを作成 |
+| `$table->id()` | 主キー（id）を作成 |
+| `$table->string('name')` | カテゴリー名を格納するカラム |
+| `$table->timestamps()` | created_at, updated_atを自動追加 |
+| `Schema::dropIfExists('categories')` | ロールバック時にテーブルを削除 |
+
+---
+
+### ステップ3: tasksテーブルのマイグレーション作成
+
+タスクテーブルのマイグレーションを作成します。
+
+```bash
+# マイグレーションファイルの作成
+php artisan make:migration create_tasks_table
+```
+
+#### マイグレーションファイルの編集
+
+`database/migrations/xxxx_xx_xx_xxxxxx_create_tasks_table.php` を以下のように編集します。
+
+```php
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('tasks', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('category_id')->constrained()->cascadeOnDelete();
+            $table->string('title');
+            $table->text('description')->nullable();
+            $table->unsignedTinyInteger('priority')->default(2);
+            $table->timestamps();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('tasks');
+    }
+};
+```
+
+#### コードリーディング
+
+| コード | 説明 |
+|:---|:---|
+| `$table->foreignId('user_id')` | usersテーブルへの外部キーカラムを作成 |
+| `->constrained()` | 外部キー制約を自動設定（usersテーブルのidを参照） |
+| `->cascadeOnDelete()` | 親レコード削除時に子レコードも削除 |
+| `$table->foreignId('category_id')` | categoriesテーブルへの外部キーカラムを作成 |
+| `$table->string('title')` | タスクのタイトル（VARCHAR(255)） |
+| `$table->text('description')->nullable()` | タスクの説明（NULL許可） |
+| `$table->unsignedTinyInteger('priority')` | 優先度（1:低、2:中、3:高） |
+| `->default(2)` | デフォルト値を「中」に設定 |
+
+#### 外部キー制約の詳細
+
+```
+foreignId('user_id')->constrained()->cascadeOnDelete()
+```
+
+この1行は、以下の処理を行います：
+
+1. `user_id` カラムを作成（BIGINT UNSIGNED）
+2. `users` テーブルの `id` カラムへの外部キー制約を設定
+3. 親レコード（User）が削除されたら、子レコード（Task）も自動削除
+
+---
+
+### ステップ4: マイグレーションの実行
+
+すべてのマイグレーションを実行します。
+
+```bash
+# マイグレーションの実行
+php artisan migrate
+```
+
+#### 実行結果の例
+
+```
+INFO  Running migrations.
+
+2024_01_01_000000_create_users_table .......................... 35ms DONE
+2024_01_01_000001_create_categories_table ..................... 12ms DONE
+2024_01_01_000002_create_tasks_table .......................... 18ms DONE
+```
+
+---
+
+### ステップ5: テーブルの確認
+
+phpMyAdminまたはArtisanコマンドでテーブルが正しく作成されたことを確認します。
+
+```bash
+# テーブル一覧の確認
+php artisan db:show
+```
+
+または、phpMyAdmin（`http://localhost:8080`）にアクセスして、以下のテーブルが作成されていることを確認してください。
+
+- `users`
+- `categories`
+- `tasks`
+
+---
+
+## 💡 TIP: マイグレーションのやり直し
+
+マイグレーションを間違えた場合は、以下のコマンドでやり直すことができます。
+
+```bash
+# 直前のマイグレーションを取り消す
+php artisan migrate:rollback
+
+# すべてのマイグレーションを取り消して再実行
+php artisan migrate:fresh
+```
+
+> ⚠️ **注意**: `migrate:fresh` はすべてのテーブルを削除して再作成します。本番環境では絶対に使用しないでください。
+
+---
+
+## ❌ よくある間違い
+
+### 1. 外部キーの参照先テーブルが存在しない
+
+```php
+// ❌ NG: categoriesテーブルより先にtasksテーブルを作成しようとする
+$table->foreignId('category_id')->constrained();
+// エラー: categoriesテーブルが存在しない
+```
+
+**対処法**: マイグレーションファイルのタイムスタンプを確認し、参照先テーブルが先に作成されるようにする。
+
+### 2. cascadeOnDeleteを忘れる
+
+```php
+// ❌ NG: cascadeOnDeleteがない
+$table->foreignId('user_id')->constrained();
+// ユーザー削除時にエラーが発生する可能性がある
+```
+
+**対処法**: 親レコード削除時の動作を明示的に指定する。
+
+---
+
+## ✅ 完了条件
+
+以下の条件を満たしていることを確認してください。
+
+- [ ] `users` テーブルが存在する
+- [ ] `categories` テーブルが存在する（id, name, created_at, updated_at）
+- [ ] `tasks` テーブルが存在する（id, user_id, category_id, title, description, priority, created_at, updated_at）
+- [ ] 外部キー制約が正しく設定されている
+
+---
+
+## ✨ まとめ
+
+このセクションでは、タスク管理アプリに必要な3つのテーブルをマイグレーションで作成しました。
+
+| 学んだこと | 内容 |
+|:---|:---|
+| マイグレーションの作成 | `php artisan make:migration` コマンド |
+| 外部キー制約 | `foreignId()->constrained()->cascadeOnDelete()` |
+| テーブル作成の順序 | 参照先テーブルを先に作成する |
+| マイグレーションの実行 | `php artisan migrate` コマンド |
+
+次のセクションでは、これらのテーブルに対応するモデルを作成し、リレーションを定義します。
+
+---
+
+## 🔄 Gitコミット
+
+作業が完了したら、変更をコミットしましょう。
+
+```bash
+git add .
+git commit -m "feat: マイグレーション作成（users/tasks/categories） #1"
+git push origin main
+```
+
+> **📌 Issue対応**: このコミットで Issue #1 が完了します。
