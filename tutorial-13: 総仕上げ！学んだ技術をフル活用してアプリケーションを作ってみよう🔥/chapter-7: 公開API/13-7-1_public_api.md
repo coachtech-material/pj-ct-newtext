@@ -1,0 +1,556 @@
+# 13-7-1 公開API実装
+
+## 🎯 このセクションで学ぶこと
+
+このセクションでは、タスク情報を取得する公開APIを実装します。
+
+- APIコントローラの作成
+- APIルーティングの設定
+- APIリソースを使ったレスポンス整形
+- JSONレスポンスの返却
+
+> **📌 対応Issue**: #7 公開API実装
+
+---
+
+## 🧠 先輩エンジニアの思考プロセス
+
+公開APIを実装する際、先輩エンジニアは以下のように考えます。
+
+> 「今回は認証なしで誰でもアクセスできる公開APIを作る。WebアプリのコントローラとAPIコントローラは分けておくと管理しやすい。また、APIのレスポンス形式はAPIリソースを使って統一しよう。これにより、レスポンスの構造を一元管理でき、将来的な変更にも対応しやすくなる。」
+
+### WebコントローラとAPIコントローラの違い
+
+| 項目 | Webコントローラ | APIコントローラ |
+|:---|:---|:---|
+| レスポンス形式 | HTMLビュー | JSON |
+| 認証方式 | セッション | トークン（今回は認証なし） |
+| 配置場所 | `app/Http/Controllers/` | `app/Http/Controllers/Api/` |
+| ルート定義 | `routes/web.php` | `routes/api.php` |
+
+---
+
+## 🔀 ブランチの作成
+
+Issue駆動開発のワークフローに従い、まずはIssue #7に対応するブランチを作成します。
+
+```bash
+# 現在のブランチを確認（mainにいることを確認）
+git branch
+
+# mainブランチの最新状態を取得
+git pull origin main
+
+# Issue #7 に対応するブランチを作成して切り替え
+git switch -c feature/issue-7-public-api
+```
+
+---
+
+## 🏃 実践
+
+### ステップ1: API用コントローラの作成
+
+API用のコントローラを `Api` 名前空間に作成します。
+
+```bash
+# API用ディレクトリにコントローラを作成
+sail artisan make:controller Api/TaskController --api
+```
+
+#### コマンドのコードリーディング
+
+| オプション | 説明 |
+|:---|:---|
+| `Api/TaskController` | `app/Http/Controllers/Api/` ディレクトリに作成 |
+| `--api` | APIリソースコントローラ用のメソッドを生成（`create`と`edit`を除く） |
+
+---
+
+### ステップ2: APIリソースの作成
+
+APIレスポンスの形式を統一するため、APIリソースを作成します。
+
+```bash
+# タスク用のAPIリソースを作成
+sail artisan make:resource TaskResource
+```
+
+このコマンドで `app/Http/Resources/TaskResource.php` が作成されます。
+
+---
+
+### ステップ3: TaskResourceの実装
+
+`app/Http/Resources/TaskResource.php` を以下のように編集します。
+
+```php
+<?php
+
+namespace App\Http\Resources;
+
+use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\JsonResource;
+
+class TaskResource extends JsonResource
+{
+    /**
+     * Transform the resource into an array.
+     *
+     * @return array<string, mixed>
+     */
+    public function toArray(Request $request): array
+    {
+        return [
+            'id' => $this->id,
+            'title' => $this->title,
+            'description' => $this->description,
+            'priority' => $this->priority,
+            'priority_label' => $this->priority_label,
+            'category' => [
+                'id' => $this->category->id,
+                'name' => $this->category->name,
+            ],
+            'user' => [
+                'id' => $this->user->id,
+                'name' => $this->user->name,
+            ],
+            'created_at' => $this->created_at->toIso8601String(),
+            'updated_at' => $this->updated_at->toIso8601String(),
+        ];
+    }
+}
+```
+
+#### コードリーディング
+
+| コード | 説明 |
+|:---|:---|
+| `extends JsonResource` | JSONリソースの基底クラスを継承 |
+| `$this->id` | モデルのプロパティに直接アクセス（`$this->resource->id`と同等） |
+| `$this->priority_label` | アクセサも使用可能 |
+| `$this->category->id` | リレーション先のデータも含められる |
+| `->toIso8601String()` | ISO 8601形式の日時文字列に変換 |
+
+#### APIリソースを使うメリット
+
+1. **レスポンス形式の統一**: 全てのAPIで同じ形式のレスポンスを返せる
+2. **変更の一元管理**: レスポンス形式を変更する際、1箇所の修正で済む
+3. **セキュリティ**: 公開したくないフィールド（パスワードなど）を除外できる
+4. **可読性**: コントローラがシンプルになる
+
+---
+
+### ステップ4: APIコントローラの実装
+
+`app/Http/Controllers/Api/TaskController.php` を以下のように編集します。
+
+```php
+<?php
+
+namespace App\Http\Controllers\Api;
+
+use App\Http\Controllers\Controller;
+use App\Http\Resources\TaskResource;
+use App\Models\Task;
+use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+
+class TaskController extends Controller
+{
+    /**
+     * タスク一覧を取得
+     */
+    public function index(): AnonymousResourceCollection
+    {
+        $tasks = Task::with(['category', 'user'])
+            ->orderBy('priority', 'desc')
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return TaskResource::collection($tasks);
+    }
+
+    /**
+     * タスクを新規作成（今回は未実装）
+     */
+    public function store(Request $request)
+    {
+        // 公開APIのため、作成機能は提供しない
+        return response()->json([
+            'message' => 'このエンドポイントは利用できません。',
+        ], 405);
+    }
+
+    /**
+     * タスク詳細を取得
+     */
+    public function show(Task $task): TaskResource
+    {
+        $task->load(['category', 'user']);
+
+        return new TaskResource($task);
+    }
+
+    /**
+     * タスクを更新（今回は未実装）
+     */
+    public function update(Request $request, Task $task)
+    {
+        // 公開APIのため、更新機能は提供しない
+        return response()->json([
+            'message' => 'このエンドポイントは利用できません。',
+        ], 405);
+    }
+
+    /**
+     * タスクを削除（今回は未実装）
+     */
+    public function destroy(Task $task)
+    {
+        // 公開APIのため、削除機能は提供しない
+        return response()->json([
+            'message' => 'このエンドポイントは利用できません。',
+        ], 405);
+    }
+}
+```
+
+#### コードリーディング
+
+| コード | 説明 |
+|:---|:---|
+| `TaskResource::collection($tasks)` | コレクション（複数件）をリソースに変換 |
+| `new TaskResource($task)` | 単一のモデルをリソースに変換 |
+| `AnonymousResourceCollection` | コレクションの戻り値の型 |
+| `response()->json([...], 405)` | 405 Method Not Allowedを返す |
+
+---
+
+### ステップ5: APIルーティングの設定
+
+`routes/api.php` にAPIルーティングを設定します。
+
+```php
+<?php
+
+use App\Http\Controllers\Api\TaskController;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
+
+Route::get('/user', function (Request $request) {
+    return $request->user();
+})->middleware('auth:sanctum');
+
+// 公開API（認証不要）
+Route::apiResource('tasks', TaskController::class)->only(['index', 'show']);
+```
+
+#### コードリーディング
+
+| コード | 説明 |
+|:---|:---|
+| `Route::apiResource()` | APIリソースルートを登録（`create`と`edit`を除く） |
+| `->only(['index', 'show'])` | 指定したアクションのみルートを登録 |
+
+#### 登録されるルートの確認
+
+```bash
+# APIルート一覧を確認
+sail artisan route:list --path=api
+```
+
+出力例：
+
+| メソッド | URI | アクション |
+|:---|:---|:---|
+| GET | /api/tasks | index |
+| GET | /api/tasks/{task} | show |
+
+---
+
+### ステップ6: 動作確認
+
+APIの動作を確認します。ブラウザまたはcurlコマンドでアクセスしてください。
+
+#### タスク一覧の取得
+
+```bash
+# curlコマンドで確認
+curl http://localhost/api/tasks
+```
+
+#### レスポンス例
+
+```json
+{
+    "data": [
+        {
+            "id": 1,
+            "title": "Laravelの勉強",
+            "description": "Eloquentについて学ぶ",
+            "priority": 3,
+            "priority_label": "高",
+            "category": {
+                "id": 1,
+                "name": "学習"
+            },
+            "user": {
+                "id": 1,
+                "name": "テストユーザー"
+            },
+            "created_at": "2024-01-15T10:30:00+09:00",
+            "updated_at": "2024-01-15T10:30:00+09:00"
+        }
+    ]
+}
+```
+
+#### タスク詳細の取得
+
+```bash
+# タスクID=1の詳細を取得
+curl http://localhost/api/tasks/1
+```
+
+#### レスポンス例
+
+```json
+{
+    "data": {
+        "id": 1,
+        "title": "Laravelの勉強",
+        "description": "Eloquentについて学ぶ",
+        "priority": 3,
+        "priority_label": "高",
+        "category": {
+            "id": 1,
+            "name": "学習"
+        },
+        "user": {
+            "id": 1,
+            "name": "テストユーザー"
+        },
+        "created_at": "2024-01-15T10:30:00+09:00",
+        "updated_at": "2024-01-15T10:30:00+09:00"
+    }
+}
+```
+
+---
+
+## 💡 TIP: APIレスポンスのラッパー
+
+LaravelのAPIリソースは、デフォルトでレスポンスを `data` キーでラップします。
+
+```json
+{
+    "data": { ... }
+}
+```
+
+このラッピングを無効にしたい場合は、`AppServiceProvider` で設定できます。
+
+```php
+// app/Providers/AppServiceProvider.php
+use Illuminate\Http\Resources\Json\JsonResource;
+
+public function boot(): void
+{
+    JsonResource::withoutWrapping();
+}
+```
+
+ただし、ラッピングを維持することで、将来的にメタ情報（ページネーション情報など）を追加しやすくなるため、通常はデフォルトのままにしておくことをお勧めします。
+
+---
+
+## 💡 TIP: ページネーションの追加
+
+大量のデータを扱う場合は、ページネーションを追加することをお勧めします。
+
+```php
+// コントローラ
+public function index(): AnonymousResourceCollection
+{
+    $tasks = Task::with(['category', 'user'])
+        ->orderBy('priority', 'desc')
+        ->paginate(15);
+
+    return TaskResource::collection($tasks);
+}
+```
+
+レスポンスには自動的にページネーション情報が含まれます。
+
+```json
+{
+    "data": [...],
+    "links": {
+        "first": "http://localhost/api/tasks?page=1",
+        "last": "http://localhost/api/tasks?page=3",
+        "prev": null,
+        "next": "http://localhost/api/tasks?page=2"
+    },
+    "meta": {
+        "current_page": 1,
+        "from": 1,
+        "last_page": 3,
+        "per_page": 15,
+        "to": 15,
+        "total": 42
+    }
+}
+```
+
+---
+
+## ❌ よくある間違い
+
+### 1. APIリソースを使わずに直接モデルを返す
+
+```php
+// ❌ NG: モデルを直接返す
+public function show(Task $task)
+{
+    return $task;
+}
+// 問題: 全てのカラム（パスワードなど）が公開される可能性がある
+```
+
+**対処法**: APIリソースを使って公開するフィールドを明示的に指定する。
+
+### 2. リレーションをロードし忘れる
+
+```php
+// ❌ NG: リレーションをロードしていない
+public function show(Task $task): TaskResource
+{
+    return new TaskResource($task);
+}
+// 問題: N+1問題が発生する可能性がある
+```
+
+**対処法**: `$task->load(['category', 'user'])` でリレーションをロードする。
+
+### 3. web.phpにAPIルートを書く
+
+```php
+// ❌ NG: web.phpにAPIルートを書く
+// routes/web.php
+Route::get('/api/tasks', [TaskController::class, 'index']);
+// 問題: CSRFトークンが必要になる
+```
+
+**対処法**: APIルートは `routes/api.php` に書く。
+
+---
+
+## ✅ 完了条件
+
+以下の条件を満たしていることを確認してください。
+
+- [ ] `Api\TaskController` が作成されている
+- [ ] `TaskResource` が作成されている
+- [ ] APIルーティングが設定されている
+- [ ] `GET /api/tasks` でタスク一覧がJSON形式で返る
+- [ ] `GET /api/tasks/{id}` でタスク詳細がJSON形式で返る
+
+---
+
+## ✨ まとめ
+
+このセクションでは、タスク情報を取得する公開APIを実装しました。
+
+| 学んだこと | 内容 |
+|:---|:---|
+| APIコントローラ | `sail artisan make:controller Api/TaskController --api` |
+| APIリソース | `sail artisan make:resource TaskResource` |
+| APIルーティング | `Route::apiResource()` で登録 |
+| レスポンス形式 | APIリソースでJSON形式を統一 |
+
+次のChapterでは、テストを実装します。
+
+---
+
+## 🔄 Git操作とプルリクエスト
+
+作業が完了したら、変更をコミットしてプッシュし、プルリクエストを作成して変更内容を確認しましょう。
+
+### ステップ1: コミットとプッシュ
+
+```bash
+# 変更をステージング
+git add .
+
+# コミット（Issue番号を含める）
+git commit -m "feat: 公開API実装 #7"
+
+# リモートにプッシュ
+git push origin feature/issue-7-public-api
+```
+
+### ステップ2: プルリクエストの作成と確認
+
+GitHubでプルリクエストを作成し、変更内容を確認してみましょう。
+
+1. GitHubのリポジトリページを開く
+2. 「Pull requests」タブをクリックする
+3. 「New pull request」ボタンをクリックする
+4. `base: main` ← `compare: feature/issue-7-public-api` を選択する
+5. 「Create pull request」ボタンをクリックする
+6. 以下の内容を入力する
+
+**タイトル**:
+```
+feat: 公開API実装
+```
+
+**説明欄**:
+```markdown
+## 概要
+タスク情報を取得する公開APIを実装しました。
+
+## 変更内容
+- Api\TaskControllerの作成
+- TaskResourceの作成
+- APIルーティングの設定
+
+## エンドポイント
+- GET /api/tasks - タスク一覧取得
+- GET /api/tasks/{id} - タスク詳細取得
+
+## 動作確認
+- [ ] タスク一覧がJSON形式で返る
+- [ ] タスク詳細がJSON形式で返る
+
+## 対応Issue
+close #7
+```
+
+7. 「Create pull request」ボタンをクリックする
+
+> **💡 確認ポイント**: PRを作成したら、「Files changed」タブでAPIリソースの実装を確認してみましょう。`toArray` メソッドでどのフィールドが公開されているかを確認することで、APIの仕様を把握できます。
+
+### ステップ3: プルリクエストのマージ
+
+変更内容を確認したら、PRをマージします。
+
+1. PRのページで「Merge pull request」ボタンをクリックする
+2. 「Confirm merge」ボタンをクリックする
+3. マージが完了すると、Issue #7が自動的にクローズされる
+
+### ステップ4: ローカルのmainブランチを更新し、ブランチを削除
+
+```bash
+# mainブランチに切り替え
+git switch main
+
+# リモートの変更を取り込む
+git pull origin main
+
+# マージ済みのブランチを削除
+git branch -d feature/issue-7-public-api
+```
+
+> **📌 Issue対応**: PRをマージすると、説明欄の `close #7` によりIssue #7が自動的にクローズされます。
