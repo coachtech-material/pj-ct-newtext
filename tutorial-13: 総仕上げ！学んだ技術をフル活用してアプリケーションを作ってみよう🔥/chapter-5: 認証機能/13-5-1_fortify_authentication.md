@@ -97,15 +97,22 @@ sail artisan vendor:publish --provider="Laravel\Fortify\FortifyServiceProvider"
 
 ### ステップ3: サービスプロバイダの登録
 
-`bootstrap/providers.php` にFortifyServiceProviderを追加します。
+`config/app.php` の `providers` 配列にFortifyServiceProviderを追加します。
 
 ```php
-<?php
+'providers' => [
+    // ...既存のプロバイダ
 
-return [
+    /*
+     * Application Service Providers...
+     */
     App\Providers\AppServiceProvider::class,
-    App\Providers\FortifyServiceProvider::class,
-];
+    // App\Providers\AuthServiceProvider::class,
+    // App\Providers\BroadcastServiceProvider::class,
+    App\Providers\EventServiceProvider::class,
+    App\Providers\RouteServiceProvider::class,
+    App\Providers\FortifyServiceProvider::class, // ← この行を追加
+],
 ```
 
 #### コードリーディング
@@ -118,50 +125,46 @@ return [
 
 ### ステップ4: Fortifyの設定
 
-`config/fortify.php` を確認し、必要な機能を有効にします。
+`config/fortify.php` を開き、ログイン後のリダイレクト先を `RouteServiceProvider::HOME` を参照するように変更します。
 
 ```php
+// config/fortify.php
+
 <?php
 
+use App\Providers\RouteServiceProvider;  // ← この行を追加
 use Laravel\Fortify\Features;
 
 return [
-    'guard' => 'web',
+    // ...
 
-    'passwords' => 'users',
-
-    'username' => 'email',
-
-    'email' => 'email',
-
-    'home' => '/tasks',
-
-    'prefix' => '',
-
-    'domain' => null,
-
-    'middleware' => ['web'],
-
-    'limiters' => [
-        'login' => 'login',
-        'two-factor' => 'two-factor',
-    ],
-
-    'views' => true,
-
-    'features' => [
-        Features::registration(),
-        Features::resetPasswords(),
-        // Features::emailVerification(),
-        Features::updateProfileInformation(),
-        Features::updatePasswords(),
-        // Features::twoFactorAuthentication([
-        //     'confirm' => true,
-        //     'confirmPassword' => true,
-        // ]),
-    ],
-];
+    'home' => RouteServiceProvider::HOME,  // ← '/home' から変更
 ```
+
+次に、`app/Providers/RouteServiceProvider.php` を開き、`HOME` 定数をタスク一覧ページに変更します。
+
+```php
+// app/Providers/RouteServiceProvider.php
+
+// 変更前
+public const HOME = '/home';
+
+// 変更後
+public const HOME = '/tasks';
+```
+
+この設定により、ログイン成功後にタスク一覧ページ（`/tasks`）にリダイレクトされます。
+
+#### コードリーディング
+
+| 設定 | 説明 |
+|:---|:---|
+| `RouteServiceProvider::HOME` | ログイン後のリダイレクト先を一元管理 |
+| `public const HOME = '/tasks'` | タスク一覧をホームページに設定 |
+
+> **💡 なぜRouteServiceProvider::HOMEを使うのか？**
+>
+> リダイレクト先を直接 `'/tasks'` と書くこともできますが、`RouteServiceProvider::HOME` を使うことで、アプリケーション全体でリダイレクト先を一元管理できます。将来的にホームページを変更する際も、1箇所の修正で済みます。
 
 #### コードリーディング
 
@@ -249,260 +252,92 @@ class FortifyServiceProvider extends ServiceProvider
 
 ---
 
-### ステップ6: 認証ビューの作成
+### ステップ6: 仮ルートの定義
+
+レイアウトファイル内でタスク・カテゴリーへのリンクが参照されていますが、これらのルートはChapter 6で実装します。動作確認のため、ここでは仮のルートを定義しておきます。
+
+`routes/web.php` に以下を追加します。
+
+```php
+use Illuminate\Support\Facades\Route;
+
+Route::get('/', function () {
+    return redirect()->route('login');
+});
+
+// 仮ルート（Chapter 6で本実装に置き換え）
+Route::middleware('auth')->group(function () {
+    Route::get('/tasks', fn() => 'タスク一覧（準備中）')->name('tasks.index');
+    Route::get('/categories', fn() => 'カテゴリー一覧（準備中）')->name('categories.index');
+});
+```
+
+> **📌 補足**: この仮ルートは、Chapter 6でコントローラを実装する際に置き換えます。
+
+---
+
+### ステップ7: 認証ビューの作成
 
 認証用のビューファイルを作成します。
 
-#### レイアウトファイルの作成
-
-`resources/views/layouts/app.blade.php` を作成します。
-
-```php
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'タスク管理アプリ')</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            font-family: 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', Meiryo, sans-serif;
-            background-color: #f5f5f5;
-            line-height: 1.6;
-        }
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        .header {
-            background-color: #333;
-            color: white;
-            padding: 15px 0;
-            margin-bottom: 30px;
-        }
-        .header-content {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .header h1 {
-            font-size: 1.5rem;
-        }
-        .header nav a {
-            color: white;
-            text-decoration: none;
-            margin-left: 20px;
-        }
-        .header nav a:hover {
-            text-decoration: underline;
-        }
-        .card {
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            padding: 30px;
-            margin-bottom: 20px;
-        }
-        .form-group {
-            margin-bottom: 20px;
-        }
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-            color: #333;
-        }
-        .form-group input,
-        .form-group select,
-        .form-group textarea {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 1rem;
-        }
-        .form-group input:focus,
-        .form-group select:focus,
-        .form-group textarea:focus {
-            outline: none;
-            border-color: #007bff;
-        }
-        .btn {
-            display: inline-block;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 4px;
-            font-size: 1rem;
-            cursor: pointer;
-            text-decoration: none;
-        }
-        .btn-primary {
-            background-color: #007bff;
-            color: white;
-        }
-        .btn-primary:hover {
-            background-color: #0056b3;
-        }
-        .btn-danger {
-            background-color: #dc3545;
-            color: white;
-        }
-        .btn-danger:hover {
-            background-color: #c82333;
-        }
-        .btn-secondary {
-            background-color: #6c757d;
-            color: white;
-        }
-        .btn-secondary:hover {
-            background-color: #545b62;
-        }
-        .alert {
-            padding: 15px;
-            border-radius: 4px;
-            margin-bottom: 20px;
-        }
-        .alert-success {
-            background-color: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-        .alert-danger {
-            background-color: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-        .error-message {
-            color: #dc3545;
-            font-size: 0.875rem;
-            margin-top: 5px;
-        }
-        .text-center {
-            text-align: center;
-        }
-        .mt-3 {
-            margin-top: 1rem;
-        }
-    </style>
-</head>
-<body>
-    <header class="header">
-        <div class="header-content">
-            <h1>タスク管理アプリ</h1>
-            <nav>
-                @auth
-                    <a href="{{ route('tasks.index') }}">タスク一覧</a>
-                    <a href="{{ route('categories.index') }}">カテゴリー</a>
-                    <span>{{ auth()->user()->name }}さん</span>
-                    <form action="{{ route('logout') }}" method="POST" style="display: inline;">
-                        @csrf
-                        <button type="submit" style="background: none; border: none; color: white; cursor: pointer; margin-left: 20px;">ログアウト</button>
-                    </form>
-                @else
-                    <a href="{{ route('login') }}">ログイン</a>
-                    <a href="{{ route('register') }}">新規登録</a>
-                @endauth
-            </nav>
-        </div>
-    </header>
-
-    <div class="container">
-        @if (session('success'))
-            <div class="alert alert-success">
-                {{ session('success') }}
-            </div>
-        @endif
-
-        @if (session('error'))
-            <div class="alert alert-danger">
-                {{ session('error') }}
-            </div>
-        @endif
-
-        @yield('content')
-    </div>
-</body>
-</html>
-```
-
-#### コードリーディング
-
-| コード | 説明 |
-|:---|:---|
-| `@yield('title', 'タスク管理アプリ')` | 子ビューからタイトルを受け取る（デフォルト値あり） |
-| `@auth ... @else ... @endauth` | 認証状態による表示の切り替え |
-| `{{ csrf_token() }}` | CSRFトークンをmetaタグに埋め込む |
-| `{{ route('logout') }}` | 名前付きルートからURLを生成 |
-| `@yield('content')` | 子ビューのコンテンツを表示する場所 |
-
----
+認証ビューは、Chapter 3で配置した `resources/views/components/app-layout.blade.php` をコンポーネントとして使用します。
 
 #### ログインビューの作成
 
 `resources/views/auth/login.blade.php` を作成します。
 
 ```php
-@extends('layouts.app')
+<x-app-layout>
+    <div class="max-w-md mx-auto">
+        <div class="bg-white rounded-lg shadow-md p-8">
+            <h2 class="text-2xl font-bold text-center text-gray-800 mb-6">ログイン</h2>
 
-@section('title', 'ログイン')
+            <form method="POST" action="{{ route('login') }}">
+                @csrf
 
-@section('content')
-<div style="max-width: 400px; margin: 0 auto;">
-    <div class="card">
-        <h2 class="text-center" style="margin-bottom: 20px;">ログイン</h2>
+                <div class="mb-4">
+                    <label for="email" class="block text-sm font-medium text-gray-700 mb-1">メールアドレス</label>
+                    <input type="email" id="email" name="email" value="{{ old('email') }}" required autofocus
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    @error('email')
+                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
 
-        <form method="POST" action="{{ route('login') }}">
-            @csrf
+                <div class="mb-4">
+                    <label for="password" class="block text-sm font-medium text-gray-700 mb-1">パスワード</label>
+                    <input type="password" id="password" name="password" required
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    @error('password')
+                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
 
-            <div class="form-group">
-                <label for="email">メールアドレス</label>
-                <input type="email" id="email" name="email" value="{{ old('email') }}" required autofocus>
-                @error('email')
-                    <p class="error-message">{{ $message }}</p>
-                @enderror
-            </div>
+                <div class="mb-6">
+                    <label class="flex items-center">
+                        <input type="checkbox" name="remember" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                        <span class="ml-2 text-sm text-gray-600">ログイン状態を保持する</span>
+                    </label>
+                </div>
 
-            <div class="form-group">
-                <label for="password">パスワード</label>
-                <input type="password" id="password" name="password" required>
-                @error('password')
-                    <p class="error-message">{{ $message }}</p>
-                @enderror
-            </div>
+                <button type="submit" class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition">
+                    ログイン
+                </button>
+            </form>
 
-            <div class="form-group">
-                <label>
-                    <input type="checkbox" name="remember"> ログイン状態を保持する
-                </label>
-            </div>
-
-            <button type="submit" class="btn btn-primary" style="width: 100%;">ログイン</button>
-        </form>
-
-        <p class="text-center mt-3">
-            アカウントをお持ちでない方は<a href="{{ route('register') }}">新規登録</a>
-        </p>
+            <p class="text-center text-sm text-gray-600 mt-4">
+                アカウントをお持ちでない方は<a href="{{ route('register') }}" class="text-blue-600 hover:underline">新規登録</a>
+            </p>
+        </div>
     </div>
-</div>
-@endsection
+</x-app-layout>
 ```
 
 #### コードリーディング
 
 | コード | 説明 |
 |:---|:---|
-| `@extends('layouts.app')` | レイアウトファイルを継承 |
-| `@section('title', 'ログイン')` | タイトルを設定 |
+| `<x-app-layout>` | レイアウトコンポーネントを使用（`components/app-layout.blade.php`） |
 | `@csrf` | CSRFトークンを埋め込む（必須） |
 | `{{ old('email') }}` | バリデーションエラー時に入力値を復元 |
 | `@error('email') ... @enderror` | エラーメッセージを表示 |
@@ -515,68 +350,71 @@ class FortifyServiceProvider extends ServiceProvider
 `resources/views/auth/register.blade.php` を作成します。
 
 ```php
-@extends('layouts.app')
+<x-app-layout>
+    <div class="max-w-md mx-auto">
+        <div class="bg-white rounded-lg shadow-md p-8">
+            <h2 class="text-2xl font-bold text-center text-gray-800 mb-6">新規登録</h2>
 
-@section('title', '新規登録')
+            <form method="POST" action="{{ route('register') }}">
+                @csrf
 
-@section('content')
-<div style="max-width: 400px; margin: 0 auto;">
-    <div class="card">
-        <h2 class="text-center" style="margin-bottom: 20px;">新規登録</h2>
+                <div class="mb-4">
+                    <label for="name" class="block text-sm font-medium text-gray-700 mb-1">名前</label>
+                    <input type="text" id="name" name="name" value="{{ old('name') }}" required autofocus
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    @error('name')
+                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
 
-        <form method="POST" action="{{ route('register') }}">
-            @csrf
+                <div class="mb-4">
+                    <label for="email" class="block text-sm font-medium text-gray-700 mb-1">メールアドレス</label>
+                    <input type="email" id="email" name="email" value="{{ old('email') }}" required
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    @error('email')
+                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
 
-            <div class="form-group">
-                <label for="name">名前</label>
-                <input type="text" id="name" name="name" value="{{ old('name') }}" required autofocus>
-                @error('name')
-                    <p class="error-message">{{ $message }}</p>
-                @enderror
-            </div>
+                <div class="mb-4">
+                    <label for="password" class="block text-sm font-medium text-gray-700 mb-1">パスワード</label>
+                    <input type="password" id="password" name="password" required
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    @error('password')
+                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
 
-            <div class="form-group">
-                <label for="email">メールアドレス</label>
-                <input type="email" id="email" name="email" value="{{ old('email') }}" required>
-                @error('email')
-                    <p class="error-message">{{ $message }}</p>
-                @enderror
-            </div>
+                <div class="mb-6">
+                    <label for="password_confirmation" class="block text-sm font-medium text-gray-700 mb-1">パスワード（確認）</label>
+                    <input type="password" id="password_confirmation" name="password_confirmation" required
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
 
-            <div class="form-group">
-                <label for="password">パスワード</label>
-                <input type="password" id="password" name="password" required>
-                @error('password')
-                    <p class="error-message">{{ $message }}</p>
-                @enderror
-            </div>
+                <button type="submit" class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition">
+                    登録
+                </button>
+            </form>
 
-            <div class="form-group">
-                <label for="password_confirmation">パスワード（確認）</label>
-                <input type="password" id="password_confirmation" name="password_confirmation" required>
-            </div>
-
-            <button type="submit" class="btn btn-primary" style="width: 100%;">登録</button>
-        </form>
-
-        <p class="text-center mt-3">
-            すでにアカウントをお持ちの方は<a href="{{ route('login') }}">ログイン</a>
-        </p>
+            <p class="text-center text-sm text-gray-600 mt-4">
+                すでにアカウントをお持ちの方は<a href="{{ route('login') }}" class="text-blue-600 hover:underline">ログイン</a>
+            </p>
+        </div>
     </div>
-</div>
-@endsection
+</x-app-layout>
 ```
 
 #### コードリーディング
 
 | コード | 説明 |
 |:---|:---|
+| `<x-app-layout>` | レイアウトコンポーネントを使用（`components/app-layout.blade.php`） |
 | `name="password_confirmation"` | パスワード確認用フィールド（Laravelの`confirmed`ルールで使用） |
 | `{{ old('name') }}` | バリデーションエラー時に入力値を復元 |
 
 ---
 
-### ステップ7: ユーザー登録アクションの確認
+### ステップ8: ユーザー登録アクションの確認
 
 `app/Actions/Fortify/CreateNewUser.php` を確認します。このファイルはFortifyが自動生成したもので、ユーザー登録時のバリデーションとユーザー作成を行います。
 
@@ -635,7 +473,7 @@ class CreateNewUser implements CreatesNewUsers
 
 ---
 
-### ステップ8: 動作確認
+### ステップ9: 動作確認
 
 開発サーバーを起動して、認証機能が正しく動作するか確認します。
 
@@ -644,18 +482,22 @@ class CreateNewUser implements CreatesNewUsers
 sail up -d
 ```
 
-以下のURLにアクセスして動作を確認してください。
-
-| URL | 機能 |
-|:---|:---|
-| `http://localhost/register` | ユーザー登録画面 |
-| `http://localhost/login` | ログイン画面 |
-
 #### 確認手順
 
-1. **ユーザー登録**: `/register` にアクセスし、名前・メールアドレス・パスワードを入力して登録
-2. **ログイン**: `/login` にアクセスし、登録したメールアドレスとパスワードでログイン
-3. **ログアウト**: ヘッダーの「ログアウト」ボタンをクリック
+1. **ユーザー登録（通常のブラウザ）**: `http://localhost/register` にアクセスし、名前・メールアドレス・パスワードを入力して登録
+
+2. **シークレットモードを開く**: 新しいシークレットウィンドウを開く
+   - **Chrome**: `Cmd + Shift + N`（Mac）/ `Ctrl + Shift + N`（Windows）
+   - **Firefox**: `Cmd + Shift + P`（Mac）/ `Ctrl + Shift + P`（Windows）
+   - **Safari**: `Cmd + Shift + N`
+
+3. **ログイン確認（シークレットモード）**: `http://localhost/login` にアクセスし、登録したメールアドレスとパスワードでログイン
+
+4. **リダイレクト確認**: ログイン後、`/tasks` にリダイレクトされることを確認
+
+5. **ログアウト**: シークレットウィンドウを閉じる（セッションが終了します）
+
+> **📌 補足**: ログイン後の `/tasks` ページは現在「準備中」と表示されます。ナビゲーションバーを含む完全なページは、Chapter 6でCRUD機能を実装した後に動作するようになります。
 
 ---
 
@@ -688,14 +530,15 @@ if (auth()->guest()) {
 ### 1. FortifyServiceProviderを登録し忘れる
 
 ```php
-// ❌ NG: bootstrap/providers.php に追加し忘れ
-return [
+// ❌ NG: config/app.php の providers に追加し忘れ
+'providers' => [
+    // ...
     App\Providers\AppServiceProvider::class,
     // FortifyServiceProviderがない
-];
+],
 ```
 
-**対処法**: `bootstrap/providers.php` に `App\Providers\FortifyServiceProvider::class` を追加する。
+**対処法**: `config/app.php` の `providers` 配列に `App\Providers\FortifyServiceProvider::class` を追加する。
 
 ### 2. CSRFトークンを忘れる
 
