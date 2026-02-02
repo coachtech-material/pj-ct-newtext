@@ -81,7 +81,7 @@
 
 | ファイル | 説明 |
 |:---|:---|
-| `layouts/app.blade.php` | 共通レイアウト |
+| `components/app-layout.blade.php` | 共通レイアウト |
 | `components/navigation.blade.php` | ナビゲーションコンポーネント |
 
 ### タスク関連
@@ -115,7 +115,6 @@
 ### 2-1. ディレクトリを作成する
 
 ```bash
-mkdir -p resources/views/layouts
 mkdir -p resources/views/components
 mkdir -p resources/views/tasks
 mkdir -p resources/views/categories
@@ -126,7 +125,7 @@ mkdir -p resources/views/auth
 
 ### 2-2. レイアウトファイルを配置する
 
-**ファイル**: `resources/views/layouts/app.blade.php`
+**ファイル**: `resources/views/components/app-layout.blade.php`
 
 ```blade
 <!DOCTYPE html>
