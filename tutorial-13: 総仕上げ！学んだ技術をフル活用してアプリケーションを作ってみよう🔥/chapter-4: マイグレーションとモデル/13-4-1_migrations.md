@@ -359,7 +359,7 @@ $table->foreignId('user_id')->constrained();
 
 ## 🔄 Git操作とプルリクエスト
 
-作業が完了したら、変更をコミットしてプッシュし、プルリクエストを作成します。
+作業が完了したら、変更をコミットしてプッシュし、プルリクエストを作成して変更内容を確認しましょう。
 
 ### ステップ1: コミットとプッシュ
 
@@ -374,7 +374,9 @@ git commit -m "feat: マイグレーション作成（users/tasks/categories） 
 git push origin feature/issue-1-migrations
 ```
 
-### ステップ2: プルリクエストの作成
+### ステップ2: プルリクエストの作成と確認
+
+GitHubでプルリクエストを作成し、変更内容を確認してみましょう。
 
 1. GitHubのリポジトリページを開く
 2. 「Pull requests」タブをクリックする
@@ -403,13 +405,17 @@ close #1
 
 7. 「Create pull request」ボタンをクリックする
 
+> **💡 確認ポイント**: PRを作成したら、「Files changed」タブでマイグレーションファイルの内容を確認してみましょう。テーブル定義が設計通りになっているかを確認することで、実装の品質を担保できます。
+
 ### ステップ3: プルリクエストのマージ
+
+変更内容を確認したら、PRをマージします。
 
 1. PRのページで「Merge pull request」ボタンをクリックする
 2. 「Confirm merge」ボタンをクリックする
 3. マージが完了すると、Issue #1が自動的にクローズされる
 
-### ステップ4: ローカルのmainブランチを更新
+### ステップ4: ローカルのmainブランチを更新し、ブランチを削除
 
 ```bash
 # mainブランチに切り替え
@@ -417,6 +423,9 @@ git switch main
 
 # リモートの変更を取り込む
 git pull origin main
+
+# マージ済みのブランチを削除
+git branch -d feature/issue-1-migrations
 ```
 
 > **📌 Issue対応**: PRをマージすると、説明欄の `close #1` によりIssue #1が自動的にクローズされます。
