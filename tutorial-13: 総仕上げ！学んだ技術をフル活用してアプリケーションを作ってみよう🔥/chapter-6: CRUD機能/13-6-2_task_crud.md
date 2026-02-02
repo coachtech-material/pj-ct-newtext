@@ -48,7 +48,22 @@ git switch -c feature/issue-5-task-crud
 
 ## 🏃 実践
 
-### ステップ1: タスクコントローラの作成
+### ステップ1: ビューの確認と必要なデータの把握
+
+コントローラを実装する前に、Chapter 3-2で配置したビューファイルを確認し、各画面で必要なデータを把握しましょう。
+
+| ビュー | 必要なデータ | 説明 |
+|:---|:---|:---|
+| `index.blade.php` | `$tasks`（カテゴリー付き） | ログインユーザーのタスク一覧 |
+| `show.blade.php` | `$task`（カテゴリー付き） | タスク詳細 |
+| `create.blade.php` | `$categories` | カテゴリー選択用 |
+| `edit.blade.php` | `$task`, `$categories` | 編集対象とカテゴリー選択用 |
+
+> **💡 ポイント**: タスクはログインユーザーに紐づくため、`auth()->user()->tasks()` で取得します。
+
+---
+
+### ステップ2: タスクコントローラの作成
 
 リソースコントローラを作成します。
 
@@ -59,7 +74,76 @@ sail artisan make:controller TaskController --resource
 
 ---
 
-### ステップ2: コントローラの実装
+### ステップ3: FormRequestの作成
+
+バリデーションロジックをコントローラから分離するため、FormRequestを作成します。
+
+```bash
+# FormRequestの作成
+sail artisan make:request TaskRequest
+```
+
+`app/Http/Requests/TaskRequest.php` を以下のように編集します。
+
+```php
+<?php
+
+namespace App\Http\Requests;
+
+use Illuminate\Foundation\Http\FormRequest;
+
+class TaskRequest extends FormRequest
+{
+    /**
+     * リクエストの認可
+     */
+    public function authorize(): bool
+    {
+        return true;
+    }
+
+    /**
+     * バリデーションルール
+     */
+    public function rules(): array
+    {
+        return [
+            'category_id' => 'required|exists:categories,id',
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string|max:1000',
+            'priority' => 'required|integer|in:1,2,3',
+        ];
+    }
+
+    /**
+     * バリデーションメッセージ
+     */
+    public function messages(): array
+    {
+        return [
+            'category_id.required' => 'カテゴリーを選択してください。',
+            'category_id.exists' => '選択されたカテゴリーは存在しません。',
+            'title.required' => 'タイトルは必須です。',
+            'title.max' => 'タイトルは255文字以内で入力してください。',
+            'description.max' => '説明は1000文字以内で入力してください。',
+            'priority.required' => '優先度を選択してください。',
+            'priority.in' => '優先度は1〜3の値を選択してください。',
+        ];
+    }
+}
+```
+
+#### コードリーディング
+
+| コード | 説明 |
+|:---|:---|
+| `'exists:categories,id'` | categoriesテーブルに存在するIDかを検証 |
+| `'in:1,2,3'` | 1, 2, 3のいずれかの値かを検証 |
+| `'nullable'` | 値がnullでも許可 |
+
+---
+
+### ステップ4: コントローラの実装
 
 `app/Http/Controllers/TaskController.php` を以下のように編集します。
 
@@ -68,9 +152,9 @@ sail artisan make:controller TaskController --resource
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\TaskRequest;
 use App\Models\Category;
 use App\Models\Task;
-use Illuminate\Http\Request;
 
 class TaskController extends Controller
 {
@@ -101,24 +185,9 @@ class TaskController extends Controller
     /**
      * タスクを新規作成
      */
-    public function store(Request $request)
+    public function store(TaskRequest $request)
     {
-        $validated = $request->validate([
-            'category_id' => 'required|exists:categories,id',
-            'title' => 'required|string|max:255',
-            'description' => 'nullable|string|max:1000',
-            'priority' => 'required|integer|in:1,2,3',
-        ], [
-            'category_id.required' => 'カテゴリーを選択してください。',
-            'category_id.exists' => '選択されたカテゴリーは存在しません。',
-            'title.required' => 'タイトルは必須です。',
-            'title.max' => 'タイトルは255文字以内で入力してください。',
-            'description.max' => '説明は1000文字以内で入力してください。',
-            'priority.required' => '優先度を選択してください。',
-            'priority.in' => '優先度は1〜3の値を選択してください。',
-        ]);
-
-        // ログインユーザーのIDを追加
+        $validated = $request->validated();
         $validated['user_id'] = auth()->id();
 
         Task::create($validated);
@@ -160,29 +229,14 @@ class TaskController extends Controller
     /**
      * タスクを更新
      */
-    public function update(Request $request, Task $task)
+    public function update(TaskRequest $request, Task $task)
     {
         // 他のユーザーのタスクにはアクセスできない
         if ($task->user_id !== auth()->id()) {
             abort(403);
         }
 
-        $validated = $request->validate([
-            'category_id' => 'required|exists:categories,id',
-            'title' => 'required|string|max:255',
-            'description' => 'nullable|string|max:1000',
-            'priority' => 'required|integer|in:1,2,3',
-        ], [
-            'category_id.required' => 'カテゴリーを選択してください。',
-            'category_id.exists' => '選択されたカテゴリーは存在しません。',
-            'title.required' => 'タイトルは必須です。',
-            'title.max' => 'タイトルは255文字以内で入力してください。',
-            'description.max' => '説明は1000文字以内で入力してください。',
-            'priority.required' => '優先度を選択してください。',
-            'priority.in' => '優先度は1〜3の値を選択してください。',
-        ]);
-
-        $task->update($validated);
+        $task->update($request->validated());
 
         return redirect()->route('tasks.index')
             ->with('success', 'タスクを更新しました。');
@@ -213,16 +267,20 @@ class TaskController extends Controller
 | `auth()->user()->tasks()` | ログインユーザーのタスクを取得 |
 | `->with('category')` | カテゴリー情報をEager Loadingで取得（N+1問題を回避） |
 | `->orderBy('priority', 'desc')` | 優先度の高い順にソート |
-| `'exists:categories,id'` | categoriesテーブルに存在するIDかを検証 |
-| `'in:1,2,3'` | 1, 2, 3のいずれかの値かを検証 |
-| `$task->user_id !== auth()->id()` | タスクの所有者チェック |
+| `TaskRequest $request` | FormRequestによる自動バリデーション |
+| `$request->validated()` | バリデーション済みデータを取得 |
+| `$task->user_id !== auth()->id()` | タスクの所有者チェック（次のセクションでPolicyに移行） |
 | `abort(403)` | 403 Forbiddenエラーを返す |
+
+> **📌 補足**: 所有者チェック（`$task->user_id !== auth()->id()`）は、次のセクション「13-6-3 タスクPolicy実装」でPolicyを使った認可に置き換えます。
 
 ---
 
-### ステップ3: ルーティングの設定
+### ステップ5: ルーティングの設定
 
-`routes/web.php` にタスクのルーティングを追加します。
+`routes/web.php` を編集し、13-6-1で残していたタスクの仮ルートを本実装に置き換えます。
+
+> **📌 ポイント**: 13-6-1で `Route::get('/tasks', fn() => 'タスク一覧（準備中）')` として仮定義したルートを削除し、リソースルートに置き換えます。
 
 ```php
 <?php
@@ -240,14 +298,14 @@ Route::middleware('auth')->group(function () {
     // カテゴリーのCRUDルート
     Route::resource('categories', CategoryController::class);
 
-    // タスクのCRUDルート
+    // タスクのCRUDルート（仮ルートから置き換え）
     Route::resource('tasks', TaskController::class);
 });
 ```
 
 ---
 
-### ステップ4: ビューの確認
+### ステップ6: ビューの確認
 
 タスク用のビューファイルは、Chapter 3-2で配置済みです。
 
@@ -262,7 +320,7 @@ Route::middleware('auth')->group(function () {
 
 ---
 
-### ステップ5: 動作確認
+### ステップ7: 動作確認
 
 以下のURLにアクセスして動作を確認してください。
 
