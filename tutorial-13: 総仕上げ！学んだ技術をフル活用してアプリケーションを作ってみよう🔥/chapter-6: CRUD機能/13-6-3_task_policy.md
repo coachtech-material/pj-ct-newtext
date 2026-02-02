@@ -168,13 +168,15 @@ public function view(User $user, Task $task): bool
 
 ### ステップ3: Policyの登録
 
-Laravel 11以降では、Policyは自動的に検出されるため、明示的な登録は不要です。ただし、命名規則に従っている必要があります。
+Laravel 10では、Policyは `app/Providers/AuthServiceProvider.php` で登録します。ただし、命名規則（モデル名 + Policy）に従っていれば自動的に検出されるため、明示的な登録は省略可能です。
 
 | モデル | ポリシー | 命名規則 |
 |:---|:---|:---|
 | `App\Models\Task` | `App\Policies\TaskPolicy` | モデル名 + Policy |
 
-> **💡 補足**: 命名規則に従わない場合は、`app/Providers/AppServiceProvider.php` で手動登録が必要です。
+今回は命名規則に従っているため、`AuthServiceProvider` での登録は不要です。
+
+> **💡 補足**: 命名規則に従わない場合は、`app/Providers/AuthServiceProvider.php` の `$policies` プロパティで手動登録が必要です。
 
 ---
 
