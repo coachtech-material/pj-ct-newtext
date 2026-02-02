@@ -1,243 +1,554 @@
-# Tutorial 13-6-3: 認証・認可テスト
+# 13-6-3 タスクPolicy実装
 
 ## 🎯 このセクションで学ぶこと
 
-- 認証が必要なルートのテスト方法を学ぶ
-- 認可（Policy）のテスト方法を学ぶ
-- 403エラーのテスト方法を学ぶ
+このセクションでは、Laravel Policyを使ってタスクの認可処理をリファクタリングします。
+
+- Policyの作成と登録
+- Policyメソッドの実装
+- コントローラでのPolicy適用
+- Bladeテンプレートでの認可チェック
+
+> **📌 対応Issue**: #6 タスクPolicy実装
 
 ---
 
 ## 🧠 先輩エンジニアの思考プロセス
 
-### 「なぜCRUDの次に認証・認可テストなのか？」
+認可処理をリファクタリングする際、先輩エンジニアは以下のように考えます。
 
-CRUDテストができたら、次は**認証・認可のテスト**を書きます。
+> 「前のセクションでは各メソッドに所有者チェックのコードを書いたが、同じコードが何度も出てきて冗長だ。LaravelにはPolicyという認可専用の仕組みがあるから、これを使ってコードを整理しよう。Policyを使えば、認可ロジックを1箇所にまとめられるし、Bladeテンプレートでも簡単に認可チェックができる。」
 
-### 理由1: セキュリティは重要
+### Policyを使うメリット
 
-```
-CRUDテスト → 機能が動くか
-認証テスト → ログインが必要か
-認可テスト → 他人のデータにアクセスできないか
-```
-
-### 理由2: 「できないこと」をテスト
-
-認証・認可テストは、「できること」だけでなく「できないこと」もテストします。
-
----
-
-## Step 1: 認証テスト
-
-### 1-1. 未認証ユーザーがリダイレクトされることをテスト
-
-```php
-public function test_未認証ユーザーは一覧画面にアクセスできない(): void
-{
-    // 実行（ログインせずにアクセス）
-    $response = $this->get('/books');
-
-    // 検証（ログイン画面にリダイレクト）
-    $response->assertRedirect('/login');
-}
-```
-
-### 1-2. 認証済みユーザーがアクセスできることをテスト
-
-```php
-public function test_認証済みユーザーは一覧画面にアクセスできる(): void
-{
-    // 準備
-    $user = User::factory()->create();
-
-    // 実行
-    $response = $this->actingAs($user)->get('/books');
-
-    // 検証
-    $response->assertStatus(200);
-}
-```
-
----
-
-## Step 2: 認可テスト（他のユーザーの書籍）
-
-### 2-1. 他のユーザーの書籍にアクセスできないことをテスト
-
-```php
-public function test_他のユーザーの書籍詳細にアクセスできない(): void
-{
-    // 準備
-    $user1 = User::factory()->create();
-    $user2 = User::factory()->create();
-    $book = Book::factory()->create(['user_id' => $user1->id]);
-
-    // 実行（user2がuser1の書籍にアクセス）
-    $response = $this->actingAs($user2)->get("/books/{$book->id}");
-
-    // 検証（403 Forbidden）
-    $response->assertStatus(403);
-}
-```
-
-### コードリーディング
-
-#### 認可テストのパターン
-
-| フェーズ | 内容 |
+| メリット | 説明 |
 |:---|:---|
-| 準備 | 2人のユーザーと、user1の書籍を作成 |
-| 実行 | user2がuser1の書籍にアクセス |
-| 検証 | 403エラーが返ることを確認 |
-
-> 💡 **ポイント**: 「できないこと」をテストするのが認可テストの特徴です。
-
-### 2-2. 他のユーザーの書籍を編集できないことをテスト
-
-```php
-public function test_他のユーザーの書籍を編集できない(): void
-{
-    // 準備
-    $user1 = User::factory()->create();
-    $user2 = User::factory()->create();
-    $book = Book::factory()->create(['user_id' => $user1->id]);
-
-    // 実行
-    $response = $this->actingAs($user2)->put("/books/{$book->id}", [
-        'title' => '不正な更新',
-        'author' => 'テスト',
-        'rating' => 5,
-    ]);
-
-    // 検証
-    $response->assertStatus(403);
-    $this->assertDatabaseMissing('books', [
-        'id' => $book->id,
-        'title' => '不正な更新',
-    ]);
-}
-```
-
-### 2-3. 他のユーザーの書籍を削除できないことをテスト
-
-```php
-public function test_他のユーザーの書籍を削除できない(): void
-{
-    // 準備
-    $user1 = User::factory()->create();
-    $user2 = User::factory()->create();
-    $book = Book::factory()->create(['user_id' => $user1->id]);
-
-    // 実行
-    $response = $this->actingAs($user2)->delete("/books/{$book->id}");
-
-    // 検証
-    $response->assertStatus(403);
-    $this->assertDatabaseHas('books', [
-        'id' => $book->id,
-    ]);
-}
-```
+| コードの集約 | 認可ロジックを1箇所にまとめられる |
+| 再利用性 | 同じ認可ロジックを複数の場所で使える |
+| テスト容易性 | 認可ロジックを単独でテストできる |
+| Blade連携 | `@can` ディレクティブで簡単に認可チェック |
 
 ---
 
-## Step 3: 自分の書籍へのアクセス
+## 🔀 ブランチの作成
 
-### 3-1. 自分の書籍にはアクセスできることをテスト
-
-```php
-public function test_自分の書籍詳細にアクセスできる(): void
-{
-    // 準備
-    $user = User::factory()->create();
-    $book = Book::factory()->create(['user_id' => $user->id]);
-
-    // 実行
-    $response = $this->actingAs($user)->get("/books/{$book->id}");
-
-    // 検証
-    $response->assertStatus(200);
-    $response->assertSee($book->title);
-}
-```
-
----
-
-## Step 4: テストの整理
-
-### 4-1. データプロバイダを使う
-
-同じようなテストを複数書く場合、データプロバイダを使うと効率的です。
-
-```php
-/**
- * @dataProvider unauthorizedRoutesProvider
- */
-public function test_他のユーザーの書籍にアクセスできない(string $method, string $route): void
-{
-    $user1 = User::factory()->create();
-    $user2 = User::factory()->create();
-    $book = Book::factory()->create(['user_id' => $user1->id]);
-
-    $response = $this->actingAs($user2)->{$method}(str_replace('{id}', $book->id, $route));
-
-    $response->assertStatus(403);
-}
-
-public static function unauthorizedRoutesProvider(): array
-{
-    return [
-        '詳細画面' => ['get', '/books/{id}'],
-        '編集画面' => ['get', '/books/{id}/edit'],
-        '更新処理' => ['put', '/books/{id}'],
-        '削除処理' => ['delete', '/books/{id}'],
-    ];
-}
-```
-
----
-
-## Step 5: テストの実行と確認
-
-### 5-1. 全テストを実行
+Issue駆動開発のワークフローに従い、まずはIssue #6に対応するブランチを作成します。
 
 ```bash
-sail artisan test
+# 現在のブランチを確認（mainにいることを確認）
+git branch
+
+# mainブランチの最新状態を取得
+git pull origin main
+
+# Issue #6 に対応するブランチを作成して切り替え
+git switch -c feature/issue-6-task-policy
 ```
 
-**出力例**:
+---
 
-```
-   PASS  Tests\Feature\BookControllerTest
-  ✓ 書籍一覧が表示される
-  ✓ 書籍を登録できる
-  ✓ タイトルなしで登録するとエラー
-  ✓ 書籍を更新できる
-  ✓ 書籍を削除できる
-  ✓ 未認証ユーザーは一覧画面にアクセスできない
-  ✓ 認証済みユーザーは一覧画面にアクセスできる
-  ✓ 他のユーザーの書籍詳細にアクセスできない
-  ✓ 他のユーザーの書籍を編集できない
-  ✓ 他のユーザーの書籍を削除できない
-  ✓ 自分の書籍詳細にアクセスできる
+## 🏃 実践
 
-  Tests:    11 passed (22 assertions)
-  Duration: 1.50s
+### ステップ1: TaskPolicyの作成
+
+Artisanコマンドでポリシーを作成します。
+
+```bash
+# ポリシーの作成
+sail artisan make:policy TaskPolicy --model=Task
 ```
+
+#### コマンドのコードリーディング
+
+| オプション | 説明 |
+|:---|:---|
+| `--model=Task` | Taskモデルに対応するポリシーを作成（CRUDメソッドが自動生成される） |
+
+---
+
+### ステップ2: TaskPolicyの実装
+
+`app/Policies/TaskPolicy.php` を以下のように編集します。
+
+```php
+<?php
+
+namespace App\Policies;
+
+use App\Models\Task;
+use App\Models\User;
+use Illuminate\Auth\Access\Response;
+
+class TaskPolicy
+{
+    /**
+     * タスク一覧を表示できるか
+     */
+    public function viewAny(User $user): bool
+    {
+        // ログインしていれば誰でも一覧は見れる（自分のタスクのみ表示される）
+        return true;
+    }
+
+    /**
+     * タスク詳細を表示できるか
+     */
+    public function view(User $user, Task $task): bool
+    {
+        return $user->id === $task->user_id;
+    }
+
+    /**
+     * タスクを作成できるか
+     */
+    public function create(User $user): bool
+    {
+        // ログインしていれば誰でも作成できる
+        return true;
+    }
+
+    /**
+     * タスクを更新できるか
+     */
+    public function update(User $user, Task $task): bool
+    {
+        return $user->id === $task->user_id;
+    }
+
+    /**
+     * タスクを削除できるか
+     */
+    public function delete(User $user, Task $task): bool
+    {
+        return $user->id === $task->user_id;
+    }
+
+    /**
+     * 削除済みタスクを復元できるか
+     */
+    public function restore(User $user, Task $task): bool
+    {
+        return $user->id === $task->user_id;
+    }
+
+    /**
+     * タスクを完全に削除できるか
+     */
+    public function forceDelete(User $user, Task $task): bool
+    {
+        return $user->id === $task->user_id;
+    }
+}
+```
+
+#### コードリーディング
+
+| メソッド | 引数 | 説明 |
+|:---|:---|:---|
+| `viewAny` | `User $user` | 一覧表示の認可（モデルインスタンス不要） |
+| `view` | `User $user, Task $task` | 詳細表示の認可 |
+| `create` | `User $user` | 作成の認可（モデルインスタンス不要） |
+| `update` | `User $user, Task $task` | 更新の認可 |
+| `delete` | `User $user, Task $task` | 削除の認可 |
+| `restore` | `User $user, Task $task` | 復元の認可（SoftDeletes使用時） |
+| `forceDelete` | `User $user, Task $task` | 完全削除の認可（SoftDeletes使用時） |
+
+#### 認可ロジックの解説
+
+```php
+public function view(User $user, Task $task): bool
+{
+    return $user->id === $task->user_id;
+}
+```
+
+このコードは「ログインユーザーのIDとタスクの所有者IDが一致すれば`true`（許可）、そうでなければ`false`（拒否）」を返します。
+
+---
+
+### ステップ3: Policyの登録
+
+Laravel 10では、Policyは `app/Providers/AuthServiceProvider.php` で登録します。ただし、命名規則（モデル名 + Policy）に従っていれば自動的に検出されるため、明示的な登録は省略可能です。
+
+| モデル | ポリシー | 命名規則 |
+|:---|:---|:---|
+| `App\Models\Task` | `App\Policies\TaskPolicy` | モデル名 + Policy |
+
+今回は命名規則に従っているため、`AuthServiceProvider` での登録は不要です。
+
+> **💡 補足**: 命名規則に従わない場合は、`app/Providers/AuthServiceProvider.php` の `$policies` プロパティで手動登録が必要です。
+
+---
+
+### ステップ4: コントローラの修正
+
+`app/Http/Controllers/TaskController.php` を修正し、Policyを使った認可に変更します。
+
+```php
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Category;
+use App\Models\Task;
+use Illuminate\Http\Request;
+
+class TaskController extends Controller
+{
+    /**
+     * タスク一覧を表示
+     */
+    public function index()
+    {
+        $tasks = auth()->user()->tasks()
+            ->with('category')
+            ->orderBy('priority', 'desc')
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return view('tasks.index', compact('tasks'));
+    }
+
+    /**
+     * タスク作成フォームを表示
+     */
+    public function create()
+    {
+        $categories = Category::orderBy('name')->get();
+
+        return view('tasks.create', compact('categories'));
+    }
+
+    /**
+     * タスクを新規作成
+     */
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'category_id' => 'required|exists:categories,id',
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string|max:1000',
+            'priority' => 'required|integer|in:1,2,3',
+        ], [
+            'category_id.required' => 'カテゴリーを選択してください。',
+            'category_id.exists' => '選択されたカテゴリーは存在しません。',
+            'title.required' => 'タイトルは必須です。',
+            'title.max' => 'タイトルは255文字以内で入力してください。',
+            'description.max' => '説明は1000文字以内で入力してください。',
+            'priority.required' => '優先度を選択してください。',
+            'priority.in' => '優先度は1〜3の値を選択してください。',
+        ]);
+
+        $validated['user_id'] = auth()->id();
+
+        Task::create($validated);
+
+        return redirect()->route('tasks.index')
+            ->with('success', 'タスクを作成しました。');
+    }
+
+    /**
+     * タスク詳細を表示
+     */
+    public function show(Task $task)
+    {
+        // Policyによる認可チェック
+        $this->authorize('view', $task);
+
+        $task->load('category');
+
+        return view('tasks.show', compact('task'));
+    }
+
+    /**
+     * タスク編集フォームを表示
+     */
+    public function edit(Task $task)
+    {
+        // Policyによる認可チェック
+        $this->authorize('update', $task);
+
+        $categories = Category::orderBy('name')->get();
+
+        return view('tasks.edit', compact('task', 'categories'));
+    }
+
+    /**
+     * タスクを更新
+     */
+    public function update(Request $request, Task $task)
+    {
+        // Policyによる認可チェック
+        $this->authorize('update', $task);
+
+        $validated = $request->validate([
+            'category_id' => 'required|exists:categories,id',
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string|max:1000',
+            'priority' => 'required|integer|in:1,2,3',
+        ], [
+            'category_id.required' => 'カテゴリーを選択してください。',
+            'category_id.exists' => '選択されたカテゴリーは存在しません。',
+            'title.required' => 'タイトルは必須です。',
+            'title.max' => 'タイトルは255文字以内で入力してください。',
+            'description.max' => '説明は1000文字以内で入力してください。',
+            'priority.required' => '優先度を選択してください。',
+            'priority.in' => '優先度は1〜3の値を選択してください。',
+        ]);
+
+        $task->update($validated);
+
+        return redirect()->route('tasks.index')
+            ->with('success', 'タスクを更新しました。');
+    }
+
+    /**
+     * タスクを削除
+     */
+    public function destroy(Task $task)
+    {
+        // Policyによる認可チェック
+        $this->authorize('delete', $task);
+
+        $task->delete();
+
+        return redirect()->route('tasks.index')
+            ->with('success', 'タスクを削除しました。');
+    }
+}
+```
+
+#### コードリーディング（変更点）
+
+| 変更前 | 変更後 | 説明 |
+|:---|:---|:---|
+| `if ($task->user_id !== auth()->id()) { abort(403); }` | `$this->authorize('view', $task);` | Policyを使った認可チェック |
+
+#### authorizeメソッドの動作
+
+```php
+$this->authorize('view', $task);
+```
+
+このコードは以下の処理を行います：
+
+1. `TaskPolicy` の `view` メソッドを呼び出す
+2. `view` メソッドが `true` を返せば処理を続行
+3. `view` メソッドが `false` を返せば403エラーを自動的に返す
+
+---
+
+### ステップ5: Bladeテンプレートでの認可チェック
+
+Bladeテンプレートでも `@can` ディレクティブを使って認可チェックができます。
+
+`resources/views/tasks/index.blade.php` の操作ボタン部分を修正します。
+
+```php
+<td style="padding: 10px; text-align: center; border-bottom: 1px solid #ddd;">
+    @can('update', $task)
+        <a href="{{ route('tasks.edit', $task) }}" class="btn btn-secondary" style="padding: 5px 10px; font-size: 0.875rem;">編集</a>
+    @endcan
+    @can('delete', $task)
+        <form action="{{ route('tasks.destroy', $task) }}" method="POST" style="display: inline;" onsubmit="return confirm('本当に削除しますか？');">
+            @csrf
+            @method('DELETE')
+            <button type="submit" class="btn btn-danger" style="padding: 5px 10px; font-size: 0.875rem;">削除</button>
+        </form>
+    @endcan
+</td>
+```
+
+#### コードリーディング
+
+| ディレクティブ | 説明 |
+|:---|:---|
+| `@can('update', $task)` | TaskPolicyのupdateメソッドがtrueを返す場合のみ表示 |
+| `@endcan` | @canの終了 |
+| `@cannot('update', $task)` | updateがfalseの場合のみ表示（逆パターン） |
+
+> **💡 補足**: 今回のケースでは、一覧画面には自分のタスクしか表示されないため、`@can` の効果は見えにくいですが、将来的に他のユーザーのタスクも表示するような機能を追加した場合に役立ちます。
+
+---
+
+### ステップ6: 動作確認
+
+以下の手順で動作を確認してください。
+
+1. ユーザーAでログインし、タスクを作成
+2. ログアウトして、ユーザーBでログイン
+3. ユーザーAのタスクのURLに直接アクセス（例: `/tasks/1`）
+4. 403エラーが表示されることを確認
+
+---
+
+## 💡 TIP: Policyの便利な使い方
+
+### 1. Responseオブジェクトでカスタムメッセージ
+
+```php
+use Illuminate\Auth\Access\Response;
+
+public function update(User $user, Task $task): Response
+{
+    return $user->id === $task->user_id
+        ? Response::allow()
+        : Response::deny('このタスクを編集する権限がありません。');
+}
+```
+
+### 2. before メソッドで管理者を許可
+
+```php
+public function before(User $user, string $ability): ?bool
+{
+    // 管理者は全ての操作を許可
+    if ($user->is_admin) {
+        return true;
+    }
+
+    return null; // 通常の認可チェックを続行
+}
+```
+
+---
+
+## ❌ よくある間違い
+
+### 1. authorizeの第2引数を忘れる
+
+```php
+// ❌ NG: モデルインスタンスを渡し忘れ
+$this->authorize('view');
+// エラー: Too few arguments
+```
+
+**対処法**: `$this->authorize('view', $task)` のようにモデルインスタンスを渡す。
+
+### 2. Policyの命名規則を間違える
+
+```php
+// ❌ NG: 命名規則に従っていない
+// app/Policies/TasksPolicy.php（複数形）
+// app/Policies/Task.php（Policyがない）
+```
+
+**対処法**: `{モデル名}Policy` の命名規則に従う（例: `TaskPolicy`）。
+
+### 3. Policyメソッドの引数順序を間違える
+
+```php
+// ❌ NG: 引数の順序が逆
+public function view(Task $task, User $user): bool
+{
+    return $user->id === $task->user_id;
+}
+```
+
+**対処法**: 第1引数は必ず `User $user`、第2引数がモデルインスタンス。
+
+---
+
+## ✅ 完了条件
+
+以下の条件を満たしていることを確認してください。
+
+- [ ] TaskPolicyが作成されている
+- [ ] コントローラで `$this->authorize()` を使用している
+- [ ] 自分のタスクは編集・削除できる
+- [ ] 他人のタスクにアクセスすると403エラーになる
 
 ---
 
 ## ✨ まとめ
 
-このセクションでは、認証・認可テストについて学びました。
+このセクションでは、Laravel Policyを使ってタスクの認可処理をリファクタリングしました。
 
-| テスト対象 | テスト内容 |
+| 学んだこと | 内容 |
 |:---|:---|
-| 認証 | 未認証ユーザーがリダイレクトされること |
-| 認可 | 他のユーザーの書籍にアクセスできないこと |
-| 正常系 | 自分の書籍にはアクセスできること |
+| Policyの作成 | `sail artisan make:policy --model=` |
+| 認可チェック | `$this->authorize('ability', $model)` |
+| Blade連携 | `@can('ability', $model)` ディレクティブ |
+| 認可ロジックの集約 | 1箇所にまとめて再利用性を向上 |
 
-テストを書くことで、セキュリティの問題を早期に発見できます。
+次のChapterでは、公開APIを実装します。
 
 ---
+
+## 🔄 Git操作とプルリクエスト
+
+作業が完了したら、変更をコミットしてプッシュし、プルリクエストを作成して変更内容を確認しましょう。
+
+### ステップ1: コミットとプッシュ
+
+```bash
+# 変更をステージング
+git add .
+
+# コミット（Issue番号を含める）
+git commit -m "feat: タスクPolicy実装 #6"
+
+# リモートにプッシュ
+git push origin feature/issue-6-task-policy
+```
+
+### ステップ2: プルリクエストの作成と確認
+
+GitHubでプルリクエストを作成し、変更内容を確認してみましょう。
+
+1. GitHubのリポジトリページを開く
+2. 「Pull requests」タブをクリックする
+3. 「New pull request」ボタンをクリックする
+4. `base: main` ← `compare: feature/issue-6-task-policy` を選択する
+5. 「Create pull request」ボタンをクリックする
+6. 以下の内容を入力する
+
+**タイトル**:
+```
+feat: タスクPolicy実装
+```
+
+**説明欄**:
+```markdown
+## 概要
+タスクの認可処理をPolicyを使ってリファクタリングしました。
+
+## 変更内容
+- TaskPolicyの作成
+- TaskControllerの認可処理をPolicyに置き換え
+- Bladeテンプレートで@canディレクティブを使用
+
+## 動作確認
+- [ ] 自分のタスクは編集・削除できる
+- [ ] 他人のタスクにアクセスすると403エラーになる
+
+## 対応Issue
+close #6
+```
+
+7. 「Create pull request」ボタンをクリックする
+
+> **💡 確認ポイント**: PRを作成したら、「Files changed」タブでコントローラの変更を確認してみましょう。`if ($task->user_id !== auth()->id()) { abort(403); }` が `$this->authorize('view', $task);` に置き換わっていることで、コードがシンプルになっていることがわかります。
+
+### ステップ3: プルリクエストのマージ
+
+変更内容を確認したら、PRをマージします。
+
+1. PRのページで「Merge pull request」ボタンをクリックする
+2. 「Confirm merge」ボタンをクリックする
+3. マージが完了すると、Issue #6が自動的にクローズされる
+
+### ステップ4: ローカルのmainブランチを更新し、ブランチを削除
+
+```bash
+# mainブランチに切り替え
+git switch main
+
+# リモートの変更を取り込む
+git pull origin main
+
+# マージ済みのブランチを削除
+git branch -d feature/issue-6-task-policy
+```
+
+> **📌 Issue対応**: PRをマージすると、説明欄の `close #6` によりIssue #6が自動的にクローズされます。
