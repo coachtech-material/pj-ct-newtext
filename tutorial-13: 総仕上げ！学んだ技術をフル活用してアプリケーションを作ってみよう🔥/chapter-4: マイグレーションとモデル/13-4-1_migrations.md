@@ -17,7 +17,7 @@
 
 マイグレーションを作成する際、先輩エンジニアは以下のように考えます。
 
-> 「Ch1で設計したER図とテーブル定義を見ながら、マイグレーションを作成しよう。テーブルの作成順序は重要だ。外部キーで参照されるテーブルを先に作成しないとエラーになる。今回は `users` → `categories` → `tasks` の順番で作成しよう。」
+> 「Chapter 1で設計したER図とテーブル定義を見ながら、マイグレーションを作成しよう。テーブルの作成順序は重要だ。外部キーで参照されるテーブルを先に作成しないとエラーになる。今回は `users` → `categories` → `tasks` の順番で作成しよう。」
 
 ### テーブル作成の順序
 
@@ -26,6 +26,29 @@
 | 1 | users | 他のテーブルから参照される（tasks.user_id） |
 | 2 | categories | 他のテーブルから参照される（tasks.category_id） |
 | 3 | tasks | users と categories を参照する |
+
+---
+
+## 🔀 ブランチの作成
+
+Issue駆動開発のワークフローに従い、まずはIssue #1に対応するブランチを作成します。
+
+```bash
+# 現在のブランチを確認
+git branch
+
+# Issue #1 に対応するブランチを作成して切り替え
+git switch -c feature/issue-1-migrations
+```
+
+### コマンドのコードリーディング
+
+| コマンド | 説明 |
+|:---|:---|
+| `git branch` | 現在のブランチ一覧を表示（`*`が付いているのが現在のブランチ） |
+| `git switch -c feature/issue-1-migrations` | 新しいブランチを作成して切り替え（`-c`は create の略） |
+
+> **💡 ブランチ命名規則**: `feature/issue-{Issue番号}-{簡潔な説明}` の形式で命名すると、どのIssueに対応しているか一目でわかります。
 
 ---
 
@@ -93,17 +116,18 @@ return new class extends Migration
 
 ```bash
 # マイグレーションファイルの作成
-php artisan make:migration create_categories_table
+sail artisan make:migration create_categories_table
 ```
 
 #### コマンドの構文
 
 ```
-php artisan make:migration {ファイル名}
+sail artisan make:migration {ファイル名}
 ```
 
 | 部分 | 説明 |
 |:---|:---|
+| `sail artisan` | Laravel Sailを使ってArtisanコマンドを実行 |
 | `make:migration` | マイグレーションファイルを作成するArtisanコマンド |
 | `create_categories_table` | ファイル名（`create_テーブル名_table`の命名規則） |
 
@@ -160,7 +184,7 @@ return new class extends Migration
 
 ```bash
 # マイグレーションファイルの作成
-php artisan make:migration create_tasks_table
+sail artisan make:migration create_tasks_table
 ```
 
 #### マイグレーションファイルの編集
@@ -235,7 +259,7 @@ foreignId('user_id')->constrained()->cascadeOnDelete()
 
 ```bash
 # マイグレーションの実行
-php artisan migrate
+sail artisan migrate
 ```
 
 #### 実行結果の例
@@ -256,7 +280,7 @@ phpMyAdminまたはArtisanコマンドでテーブルが正しく作成された
 
 ```bash
 # テーブル一覧の確認
-php artisan db:show
+sail artisan db:show
 ```
 
 または、phpMyAdmin（`http://localhost:8080`）にアクセスして、以下のテーブルが作成されていることを確認してください。
@@ -273,10 +297,10 @@ php artisan db:show
 
 ```bash
 # 直前のマイグレーションを取り消す
-php artisan migrate:rollback
+sail artisan migrate:rollback
 
 # すべてのマイグレーションを取り消して再実行
-php artisan migrate:fresh
+sail artisan migrate:fresh
 ```
 
 > ⚠️ **注意**: `migrate:fresh` はすべてのテーブルを削除して再作成します。本番環境では絶対に使用しないでください。
@@ -324,10 +348,10 @@ $table->foreignId('user_id')->constrained();
 
 | 学んだこと | 内容 |
 |:---|:---|
-| マイグレーションの作成 | `php artisan make:migration` コマンド |
+| マイグレーションの作成 | `sail artisan make:migration` コマンド |
 | 外部キー制約 | `foreignId()->constrained()->cascadeOnDelete()` |
 | テーブル作成の順序 | 参照先テーブルを先に作成する |
-| マイグレーションの実行 | `php artisan migrate` コマンド |
+| マイグレーションの実行 | `sail artisan migrate` コマンド |
 
 次のセクションでは、これらのテーブルに対応するモデルを作成し、リレーションを定義します。
 
@@ -335,12 +359,32 @@ $table->foreignId('user_id')->constrained();
 
 ## 🔄 Gitコミット
 
-作業が完了したら、変更をコミットしましょう。
+作業が完了したら、変更をコミットしてプッシュしましょう。
 
 ```bash
+# 変更をステージング
 git add .
+
+# コミット（Issue番号を含める）
 git commit -m "feat: マイグレーション作成（users/tasks/categories） #1"
+
+# リモートにプッシュ
+git push origin feature/issue-1-migrations
+```
+
+### mainブランチへのマージ
+
+プッシュが完了したら、mainブランチにマージします。
+
+```bash
+# mainブランチに切り替え
+git switch main
+
+# feature/issue-1-migrationsブランチをマージ
+git merge feature/issue-1-migrations
+
+# リモートのmainにプッシュ
 git push origin main
 ```
 
-> **📌 Issue対応**: このコミットで Issue #1 が完了します。
+> **📌 Issue対応**: このコミットで Issue #1 が完了します。コミットメッセージに `close #1` を含めると、GitHubでIssueが自動的にクローズされます。

@@ -116,15 +116,15 @@ git push -u origin main
 
 | # | タイトル | 消化するChapter |
 |:---:|:---|:---|
-| 1 | マイグレーション作成（users/tasks/categories） | Ch4 |
-| 2 | モデル作成とリレーション定義 | Ch4 |
-| 3 | 認証機能の実装（Fortify） | Ch5 |
-| 4 | カテゴリーCRUD実装 | Ch6 |
-| 5 | タスクCRUD実装 | Ch6 |
-| 6 | タスクPolicy実装 | Ch6 |
-| 7 | 公開API実装 | Ch7 |
-| 8 | CRUDテスト実装 | Ch8 |
-| 9 | 認証・認可テスト実装 | Ch8 |
+| 1 | マイグレーション作成（users/tasks/categories） | Chapter 4 |
+| 2 | モデル作成とリレーション定義 | Chapter 4 |
+| 3 | 認証機能の実装（Fortify） | Chapter 5 |
+| 4 | カテゴリーCRUD実装 | Chapter 6 |
+| 5 | タスクCRUD実装 | Chapter 6 |
+| 6 | タスクPolicy実装 | Chapter 6 |
+| 7 | 公開API実装 | Chapter 7 |
+| 8 | CRUDテスト実装 | Chapter 8 |
+| 9 | 認証・認可テスト実装 | Chapter 8 |
 
 ---
 

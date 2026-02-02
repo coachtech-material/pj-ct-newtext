@@ -38,6 +38,33 @@
 
 ---
 
+## 🔀 ブランチの作成
+
+Issue駆動開発のワークフローに従い、まずはIssue #2に対応するブランチを作成します。
+
+```bash
+# 現在のブランチを確認（mainにいることを確認）
+git branch
+
+# mainブランチの最新状態を取得
+git pull origin main
+
+# Issue #2 に対応するブランチを作成して切り替え
+git switch -c feature/issue-2-models
+```
+
+### コマンドのコードリーディング
+
+| コマンド | 説明 |
+|:---|:---|
+| `git branch` | 現在のブランチ一覧を表示（`*`が付いているのが現在のブランチ） |
+| `git pull origin main` | リモートのmainブランチの最新状態をローカルに取り込む |
+| `git switch -c feature/issue-2-models` | 新しいブランチを作成して切り替え |
+
+> **💡 ポイント**: 新しいブランチを作成する前に、必ず `git pull` でmainブランチを最新状態にしておきましょう。
+
+---
+
 ## 🏃 実践
 
 ### ステップ1: Categoryモデルの作成
@@ -46,17 +73,18 @@
 
 ```bash
 # モデルファイルの作成
-php artisan make:model Category
+sail artisan make:model Category
 ```
 
 #### コマンドの構文
 
 ```
-php artisan make:model {モデル名}
+sail artisan make:model {モデル名}
 ```
 
 | 部分 | 説明 |
 |:---|:---|
+| `sail artisan` | Laravel Sailを使ってArtisanコマンドを実行 |
 | `make:model` | モデルファイルを作成するArtisanコマンド |
 | `Category` | モデル名（単数形・パスカルケース） |
 
@@ -126,7 +154,7 @@ Category::create(['name' => '仕事', 'id' => 999]); // idは無視される
 
 ```bash
 # モデルファイルの作成
-php artisan make:model Task
+sail artisan make:model Task
 ```
 
 #### モデルファイルの編集
@@ -293,7 +321,7 @@ Tinkerを使ってリレーションが正しく動作するか確認します�
 
 ```bash
 # Tinkerを起動
-php artisan tinker
+sail artisan tinker
 ```
 
 ```php
@@ -451,24 +479,44 @@ public function owner()
 
 | 学んだこと | 内容 |
 |:---|:---|
-| モデルの作成 | `php artisan make:model` コマンド |
+| モデルの作成 | `sail artisan make:model` コマンド |
 | $fillable | マスアサインメントを許可するカラムを指定 |
 | hasMany | 1対多リレーション（親→子） |
 | belongsTo | 多対1リレーション（子→親） |
 | アクセサ | `get{属性名}Attribute()` で計算プロパティを定義 |
 
-次のセクションでは、認証機能を実装します。
+次のChapterでは、認証機能を実装します。
 
 ---
 
 ## 🔄 Gitコミット
 
-作業が完了したら、変更をコミットしましょう。
+作業が完了したら、変更をコミットしてプッシュしましょう。
 
 ```bash
+# 変更をステージング
 git add .
+
+# コミット（Issue番号を含める）
 git commit -m "feat: モデル作成とリレーション定義 #2"
+
+# リモートにプッシュ
+git push origin feature/issue-2-models
+```
+
+### mainブランチへのマージ
+
+プッシュが完了したら、mainブランチにマージします。
+
+```bash
+# mainブランチに切り替え
+git switch main
+
+# feature/issue-2-modelsブランチをマージ
+git merge feature/issue-2-models
+
+# リモートのmainにプッシュ
 git push origin main
 ```
 
-> **📌 Issue対応**: このコミットで Issue #2 が完了します。
+> **📌 Issue対応**: このコミットで Issue #2 が完了します。コミットメッセージに `close #2` を含めると、GitHubでIssueが自動的にクローズされます。
