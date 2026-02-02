@@ -357,9 +357,11 @@ $table->foreignId('user_id')->constrained();
 
 ---
 
-## 🔄 Gitコミット
+## 🔄 Git操作とプルリクエスト
 
-作業が完了したら、変更をコミットしてプッシュしましょう。
+作業が完了したら、変更をコミットしてプッシュし、プルリクエストを作成します。
+
+### ステップ1: コミットとプッシュ
 
 ```bash
 # 変更をステージング
@@ -372,19 +374,49 @@ git commit -m "feat: マイグレーション作成（users/tasks/categories） 
 git push origin feature/issue-1-migrations
 ```
 
-### mainブランチへのマージ
+### ステップ2: プルリクエストの作成
 
-プッシュが完了したら、mainブランチにマージします。
+1. GitHubのリポジトリページを開く
+2. 「Pull requests」タブをクリックする
+3. 「New pull request」ボタンをクリックする
+4. `base: main` ← `compare: feature/issue-1-migrations` を選択する
+5. 「Create pull request」ボタンをクリックする
+6. 以下の内容を入力する
+
+**タイトル**:
+```
+feat: マイグレーション作成（users/tasks/categories）
+```
+
+**説明欄**:
+```markdown
+## 概要
+データベースのマイグレーションファイルを作成しました。
+
+## 変更内容
+- categoriesテーブルのマイグレーション作成
+- tasksテーブルのマイグレーション作成
+
+## 対応Issue
+close #1
+```
+
+7. 「Create pull request」ボタンをクリックする
+
+### ステップ3: プルリクエストのマージ
+
+1. PRのページで「Merge pull request」ボタンをクリックする
+2. 「Confirm merge」ボタンをクリックする
+3. マージが完了すると、Issue #1が自動的にクローズされる
+
+### ステップ4: ローカルのmainブランチを更新
 
 ```bash
 # mainブランチに切り替え
 git switch main
 
-# feature/issue-1-migrationsブランチをマージ
-git merge feature/issue-1-migrations
-
-# リモートのmainにプッシュ
-git push origin main
+# リモートの変更を取り込む
+git pull origin main
 ```
 
-> **📌 Issue対応**: このコミットで Issue #1 が完了します。コミットメッセージに `close #1` を含めると、GitHubでIssueが自動的にクローズされます。
+> **📌 Issue対応**: PRをマージすると、説明欄の `close #1` によりIssue #1が自動的にクローズされます。

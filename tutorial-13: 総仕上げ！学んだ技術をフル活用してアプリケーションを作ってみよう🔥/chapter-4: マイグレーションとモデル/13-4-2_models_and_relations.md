@@ -489,9 +489,11 @@ public function owner()
 
 ---
 
-## 🔄 Gitコミット
+## 🔄 Git操作とプルリクエスト
 
-作業が完了したら、変更をコミットしてプッシュしましょう。
+作業が完了したら、変更をコミットしてプッシュし、プルリクエストを作成します。
+
+### ステップ1: コミットとプッシュ
 
 ```bash
 # 変更をステージング
@@ -504,19 +506,51 @@ git commit -m "feat: モデル作成とリレーション定義 #2"
 git push origin feature/issue-2-models
 ```
 
-### mainブランチへのマージ
+### ステップ2: プルリクエストの作成
 
-プッシュが完了したら、mainブランチにマージします。
+1. GitHubのリポジトリページを開く
+2. 「Pull requests」タブをクリックする
+3. 「New pull request」ボタンをクリックする
+4. `base: main` ← `compare: feature/issue-2-models` を選択する
+5. 「Create pull request」ボタンをクリックする
+6. 以下の内容を入力する
+
+**タイトル**:
+```
+feat: モデル作成とリレーション定義
+```
+
+**説明欄**:
+```markdown
+## 概要
+Eloquentモデルを作成し、リレーションを定義しました。
+
+## 変更内容
+- Categoryモデルの作成
+- Taskモデルの作成
+- Userモデルにtasks()リレーションを追加
+- 各モデルに$fillableを設定
+
+## 対応Issue
+close #2
+```
+
+7. 「Create pull request」ボタンをクリックする
+
+### ステップ3: プルリクエストのマージ
+
+1. PRのページで「Merge pull request」ボタンをクリックする
+2. 「Confirm merge」ボタンをクリックする
+3. マージが完了すると、Issue #2が自動的にクローズされる
+
+### ステップ4: ローカルのmainブランチを更新
 
 ```bash
 # mainブランチに切り替え
 git switch main
 
-# feature/issue-2-modelsブランチをマージ
-git merge feature/issue-2-models
-
-# リモートのmainにプッシュ
-git push origin main
+# リモートの変更を取り込む
+git pull origin main
 ```
 
-> **📌 Issue対応**: このコミットで Issue #2 が完了します。コミットメッセージに `close #2` を含めると、GitHubでIssueが自動的にクローズされます。
+> **📌 Issue対応**: PRをマージすると、説明欄の `close #2` によりIssue #2が自動的にクローズされます。
