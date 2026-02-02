@@ -1,0 +1,337 @@
+# Tutorial 13-2-2: 命名規則
+
+## 🎯 このセクションで学ぶこと
+
+- 変数・メソッド・クラスの命名規則を学ぶ
+- 意図が伝わる名前の付け方を理解する
+- Laravelの命名規則に従う重要性を学ぶ
+
+> ⚠️ **注意**: このChapterでは**実際のコードは書きません**。品質の高いコードを書くための「心得」を学びます。
+
+---
+
+## 🧠 先輩エンジニアの思考プロセス
+
+### 「なぜDRYの次に命名規則なのか？」
+
+DRY原則で重複を排除したら、次は**命名規則**を見直します。
+
+### 理由1: コードは「読まれる」もの
+
+```
+コードを書く時間 ＜ コードを読む時間
+```
+
+プログラマーは、コードを書く時間よりも**読む時間の方が長い**と言われています。自分が書いたコードも、1週間後には「他人のコード」のように感じます。
+
+### 理由2: 命名は「コメント」の代わり
+
+良い命名は、コメントがなくても意図が伝わります。
+
+```php
+// ❌ 命名が悪いとコメントが必要
+$d = Task::find(1);  // タスクを取得
+
+// ✅ 命名が良いとコメント不要
+$task = Task::find(1);
+```
+
+### 理由3: チーム開発での共通言語
+
+命名規則を統一することで、チームメンバー全員が**同じ言葉**でコードを理解できます。
+
+---
+
+## なぜ命名が重要なのか
+
+### 悪い命名の例
+
+```php
+// ❌ 何を表しているかわからない
+$d = Task::find(1);
+$x = $d->title;
+
+// ❌ 省略しすぎ
+$tsk = Task::find(1);
+$cat = Category::find(1);
+
+// ❌ 意味が曖昧
+$data = Task::all();
+$info = $task->title;
+```
+
+### 良い命名の例
+
+```php
+// ✅ 意図が明確
+$task = Task::find(1);
+$taskTitle = $task->title;
+
+// ✅ 省略せず完全な単語を使用
+$category = Category::find(1);
+
+// ✅ 具体的な名前
+$tasks = Task::all();
+$highPriorityTasks = Task::where('priority', 3)->get();
+```
+
+---
+
+## Laravelの命名規則
+
+Laravelには**推奨される命名規則**があります。これに従うことで、フレームワークの機能を最大限に活用できます。
+
+### モデル
+
+| 規則 | 例 | 説明 |
+|:---|:---|:---|
+| **単数形** | `Task`, `Category`, `User` | 1つのレコードを表すため |
+| **PascalCase** | `TaskComment`, `UserProfile` | クラス名の標準的な書き方 |
+
+```php
+// ✅ 正しい命名
+class Task extends Model { }
+class Category extends Model { }
+
+// ❌ 間違った命名
+class Tasks extends Model { }      // 複数形はNG
+class task extends Model { }       // 小文字始まりはNG
+```
+
+### テーブル
+
+| 規則 | 例 | 説明 |
+|:---|:---|:---|
+| **複数形** | `tasks`, `categories`, `users` | 複数のレコードを格納するため |
+| **snake_case** | `task_comments`, `user_profiles` | SQLの標準的な書き方 |
+
+```php
+// マイグレーションでのテーブル名
+Schema::create('tasks', function (Blueprint $table) { });
+Schema::create('categories', function (Blueprint $table) { });
+```
+
+> 💡 **ポイント**: Laravelは自動的にモデル名（単数形・PascalCase）からテーブル名（複数形・snake_case）を推測します。`Task`モデルは`tasks`テーブルを参照します。
+
+### コントローラー
+
+| 規則 | 例 | 説明 |
+|:---|:---|:---|
+| **単数形 + Controller** | `TaskController`, `CategoryController` | リソースを管理するコントローラー |
+| **リソースコントローラーのメソッド** | `index`, `create`, `store`, `show`, `edit`, `update`, `destroy` | RESTfulな命名 |
+
+```php
+// ✅ 正しい命名
+class TaskController extends Controller
+{
+    public function index() { }
+    public function create() { }
+    public function store(Request $request) { }
+    public function show(Task $task) { }
+    public function edit(Task $task) { }
+    public function update(Request $request, Task $task) { }
+    public function destroy(Task $task) { }
+}
+```
+
+### 変数・メソッド
+
+| 規則 | 例 | 説明 |
+|:---|:---|:---|
+| **camelCase** | `$taskTitle`, `$categoryName` | 変数名の標準的な書き方 |
+| **動詞で始める（メソッド）** | `getTasks()`, `createTask()`, `updatePriority()` | 何をするかが明確 |
+
+```php
+// ✅ 正しい命名
+$taskTitle = $task->title;
+$highPriorityTasks = Task::where('priority', 3)->get();
+
+public function getTasksByCategory($categoryId) { }
+public function calculateCompletionRate() { }
+```
+
+---
+
+## 具体的な命名のコツ
+
+### コレクションは複数形
+
+```php
+// ❌ 単数形（コレクションなのに）
+$task = Task::all();
+
+// ✅ 複数形
+$tasks = Task::all();
+```
+
+### 単一のモデルは単数形
+
+```php
+// ❌ 複数形（1つのモデルなのに）
+$tasks = Task::find(1);
+
+// ✅ 単数形
+$task = Task::find(1);
+```
+
+### 真偽値はis/has/canで始める
+
+```php
+// ❌ 曖昧
+$completed = true;
+$admin = false;
+
+// ✅ 明確
+$isCompleted = true;
+$isAdmin = false;
+$hasDescription = true;
+$canEdit = true;
+```
+
+### メソッドは動詞で始める
+
+```php
+// ❌ 名詞のみ
+public function tasks() { ... }
+public function priority() { ... }
+
+// ✅ 動詞で始める（取得系）
+public function getTasks() { ... }
+public function calculateAveragePriority() { ... }
+
+// ✅ リレーションメソッドは例外（名詞でOK）
+public function tasks() { return $this->hasMany(Task::class); }
+public function category() { return $this->belongsTo(Category::class); }
+```
+
+> 💡 **ポイント**: Eloquentのリレーションメソッドは、Laravelの規約に従って**名詞**で命名します。これにより、`$user->tasks`のようにプロパティとしてアクセスできます。
+
+---
+
+## 実践例
+
+### Before（悪い命名）
+
+```php
+public function idx()
+{
+    $d = auth()->user()->tasks;
+    return view('tasks.index', ['d' => $d]);
+}
+
+public function str(Request $r)
+{
+    $v = $r->validate([...]);
+    auth()->user()->tasks()->create($v);
+    return redirect()->route('tasks.index');
+}
+```
+
+**問題点**:
+- `idx`、`str`は何をするメソッドかわからない
+- `$d`、`$r`、`$v`は何を表しているかわからない
+
+### After（良い命名）
+
+```php
+public function index()
+{
+    $tasks = auth()->user()->tasks()->with('category')->latest()->get();
+    return view('tasks.index', compact('tasks'));
+}
+
+public function store(StoreTaskRequest $request)
+{
+    auth()->user()->tasks()->create($request->validated());
+    return redirect()->route('tasks.index')->with('success', 'タスクを登録しました。');
+}
+```
+
+**改善点**:
+- `index`、`store`はリソースコントローラーの標準的なメソッド名
+- `$tasks`はタスクのコレクションであることが明確
+- `$request`はHTTPリクエストであることが明確
+
+---
+
+## タスク管理アプリでの命名例
+
+| 対象 | 命名 | 説明 |
+|:---|:---|:---|
+| モデル | `Task`, `Category`, `User` | 単数形・PascalCase |
+| テーブル | `tasks`, `categories`, `users` | 複数形・snake_case |
+| コントローラー | `TaskController`, `CategoryController` | 単数形 + Controller |
+| 変数（単一） | `$task`, `$category`, `$user` | 単数形・camelCase |
+| 変数（コレクション） | `$tasks`, `$categories`, `$users` | 複数形・camelCase |
+| 真偽値 | `$isCompleted`, `$hasDescription` | is/has/canで始める |
+| 外部キー | `user_id`, `category_id` | モデル名_id |
+
+---
+
+## 🚨 よくある間違い
+
+### 間違い1: 省略しすぎる
+
+```php
+// ❌ 省略しすぎ
+$tsk = Task::find(1);
+$cat = Category::find(1);
+$usr = User::find(1);
+
+// ✅ 完全な単語を使う
+$task = Task::find(1);
+$category = Category::find(1);
+$user = User::find(1);
+```
+
+**対処法**: タイピングの手間よりも、**読みやすさ**を優先する。IDEの補完機能を活用する。
+
+### 間違い2: 汎用的すぎる名前
+
+```php
+// ❌ 汎用的すぎる
+$data = Task::all();
+$info = $task->title;
+$result = Task::where('priority', 3)->get();
+
+// ✅ 具体的な名前
+$tasks = Task::all();
+$taskTitle = $task->title;
+$highPriorityTasks = Task::where('priority', 3)->get();
+```
+
+**対処法**: 「何のデータか」がわかる名前をつける。
+
+### 間違い3: Laravelの規約に従わない
+
+```php
+// ❌ Laravelの規約に従っていない
+class Tasks extends Model { }  // 複数形
+class taskController extends Controller { }  // 小文字始まり
+
+// ✅ Laravelの規約に従う
+class Task extends Model { }
+class TaskController extends Controller { }
+```
+
+**対処法**: Laravelの公式ドキュメントを参照し、規約に従う。
+
+---
+
+## ✨ まとめ
+
+このセクションでは、命名規則について学びました。
+
+| 対象 | 規則 | 例 |
+|:---|:---|:---|
+| モデル | 単数形・PascalCase | `Task`, `Category` |
+| テーブル | 複数形・snake_case | `tasks`, `categories` |
+| コントローラー | 単数形 + Controller | `TaskController` |
+| 変数 | camelCase | `$taskTitle` |
+| コレクション | 複数形 | `$tasks` |
+| 真偽値 | is/has/can | `$isCompleted` |
+| メソッド | 動詞で始める | `getTasks()` |
+
+良い命名は、コードの可読性を大幅に向上させます。次のセクションでは、**コレクションメソッド**について学びます。
+
+---
