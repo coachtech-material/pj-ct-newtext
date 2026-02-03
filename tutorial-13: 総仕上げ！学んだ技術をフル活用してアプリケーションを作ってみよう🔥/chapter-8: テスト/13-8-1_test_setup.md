@@ -144,7 +144,7 @@ public function タイトルが256文字以上だとバリデーションエラ�
 
 ---
 
-## 💭 先輩エンジニアの思考プロセス
+## 🧠 先輩エンジニアの思考プロセス
 
 テストを書く際、経験豊富なエンジニアはどのように考えているのでしょうか。
 
@@ -376,9 +376,6 @@ $task = Task::factory()->create(['user_id' => $user->id]);
 # 全てのテストを実行
 sail test
 
-# 詳細な出力を表示
-sail test -v
-
 # 特定のテストファイルを実行
 sail test tests/Feature/TaskControllerTest.php
 
@@ -391,7 +388,6 @@ sail test --filter=ユーザーはタスク一覧を取得できる
 | コマンド | 説明 |
 |:---|:---|
 | `sail test` | PHPUnitを使って全テストを実行 |
-| `-v` | 詳細な出力を表示（verbose） |
 | `--filter=テスト名` | 指定した名前を含むテストのみ実行 |
 
 ### テスト結果の見方
@@ -544,7 +540,7 @@ public function definition(): array
 | テストの観点 | 正常系・異常系・境界値 |
 | phpunit.xml | テスト用データベース設定（SQLite in-memory） |
 | ファクトリ | テストデータを効率的に作成 |
-| テスト実行 | `sail test`, `--filter`, `-v` |
+| テスト実行 | `sail test`, `--filter` |
 | カバレッジ | `sail test --coverage` でカバレッジを確認 |
 
 次のセクションでは、CRUD機能のテストを実装します。
