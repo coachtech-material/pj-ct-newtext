@@ -172,17 +172,6 @@ class TaskController extends Controller
     }
 
     /**
-     * タスクを新規作成（今回は未実装）
-     */
-    public function store(Request $request)
-    {
-        // 公開APIのため、作成機能は提供しない
-        return response()->json([
-            'message' => 'このエンドポイントは利用できません。',
-        ], 405);
-    }
-
-    /**
      * タスク詳細を取得
      */
     public function show(Task $task): TaskResource
@@ -190,28 +179,6 @@ class TaskController extends Controller
         $task->load(['category', 'user']);
 
         return new TaskResource($task);
-    }
-
-    /**
-     * タスクを更新（今回は未実装）
-     */
-    public function update(Request $request, Task $task)
-    {
-        // 公開APIのため、更新機能は提供しない
-        return response()->json([
-            'message' => 'このエンドポイントは利用できません。',
-        ], 405);
-    }
-
-    /**
-     * タスクを削除（今回は未実装）
-     */
-    public function destroy(Task $task)
-    {
-        // 公開APIのため、削除機能は提供しない
-        return response()->json([
-            'message' => 'このエンドポイントは利用できません。',
-        ], 405);
     }
 }
 ```
@@ -223,7 +190,8 @@ class TaskController extends Controller
 | `TaskResource::collection($tasks)` | コレクション（複数件）をリソースに変換 |
 | `new TaskResource($task)` | 単一のモデルをリソースに変換 |
 | `AnonymousResourceCollection` | コレクションの戻り値の型 |
-| `response()->json([...], 405)` | 405 Method Not Allowedを返す |
+
+> **💡 補足**: `--api` オプションで生成されるコントローラには `store`, `update`, `destroy` メソッドも含まれますが、今回は読み取り専用APIのため、使用するメソッドのみ残しています。
 
 ---
 
