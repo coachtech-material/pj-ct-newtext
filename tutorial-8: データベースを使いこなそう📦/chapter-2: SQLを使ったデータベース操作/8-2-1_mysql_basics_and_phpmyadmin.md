@@ -109,6 +109,18 @@ volumes:
   mysql_data:
 ```
 
+> ⚠️ **M1/M2/M3 Mac（Apple Silicon）をお使いの方へ**
+>
+> MySQLのDockerイメージはApple Siliconで問題が発生することがあります。エラーが出た場合は、mysqlサービスの`image`と`environment`の間に`platform: 'linux/amd64'`を追加してください。
+>
+> ```yaml
+> mysql:
+>     image: mysql:8.0
+>     platform: 'linux/amd64'  # ← この行を追加
+>     environment:
+>         MYSQL_ROOT_PASSWORD: ...
+> ```
+
 設定の、意味を、確認しましょう。
 
 | 項目 | 説明 |

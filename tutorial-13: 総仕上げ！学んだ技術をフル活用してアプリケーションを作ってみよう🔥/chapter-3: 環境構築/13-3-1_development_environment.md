@@ -125,6 +125,29 @@ docker run --rm \
     php artisan sail:install --with=mysql
 ```
 
+<details>
+<summary>⚠️ M1/M2/M3 Mac（Apple Silicon）をお使いの方</summary>
+
+Apple Silicon搭載のMacでは、`sail up -d`実行時に以下のエラーが発生することがあります：
+
+```
+no matching manifest for linux/arm64/v8
+```
+
+**解決方法**: `compose.yaml`を開き、mysqlサービスに`platform: 'linux/amd64'`を追加してください。
+
+```yaml
+mysql:
+    image: 'mysql/mysql-server:8.0'
+    platform: 'linux/amd64'  # ← この行を追加
+    ports:
+        ...
+```
+
+編集後、保存してから`sail up -d`を実行してください。
+
+</details>
+
 ### コードリーディング
 
 | コマンド | 説明 |
