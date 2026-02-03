@@ -225,10 +225,6 @@ class FortifyServiceProvider extends ServiceProvider
             return Limit::perMinute(5)->by($throttleKey);
         });
 
-        RateLimiter::for('two-factor', function (Request $request) {
-            return Limit::perMinute(5)->by($request->session()->get('login.id'));
-        });
-
         // 認証ビューの設定
         Fortify::loginView(function () {
             return view('auth.login');
@@ -249,6 +245,8 @@ class FortifyServiceProvider extends ServiceProvider
 | `RateLimiter::for('login', ...)` | ログイン試行回数の制限（1分間に5回まで） |
 | `Fortify::loginView(...)` | ログインビューを指定 |
 | `Fortify::registerView(...)` | 登録ビューを指定 |
+
+> **💡 補足**: Fortifyが自動生成するコードには2要素認証（two-factor）用のRateLimiterも含まれますが、今回のアプリケーションでは2FA機能を使用しないため削除しています。
 
 ---
 
