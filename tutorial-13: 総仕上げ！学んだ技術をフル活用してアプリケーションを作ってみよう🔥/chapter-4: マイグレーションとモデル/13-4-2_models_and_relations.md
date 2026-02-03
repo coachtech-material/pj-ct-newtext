@@ -211,8 +211,7 @@ class Task extends Model
         return match ($this->priority) {
             1 => '低',
             2 => '中',
-            3 => '高',
-            default => '不明',
+            default => '高',
         };
     }
 }
@@ -228,6 +227,8 @@ class Task extends Model
 | `public function category(): BelongsTo` | カテゴリーへのリレーション（多対1） |
 | `getPriorityLabelAttribute()` | アクセサ（`$task->priority_label` で呼び出し可能） |
 | `match ($this->priority) { ... }` | PHP 8のmatch式で優先度を日本語ラベルに変換 |
+
+> **💡 補足**: `default => '高'` としているのは、バリデーションで `in:1,2,3` と制約しているため、priorityは必ず1, 2, 3のいずれかになるからです。
 
 #### アクセサの使い方
 
