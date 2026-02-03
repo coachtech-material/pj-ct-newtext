@@ -435,7 +435,7 @@ sail test --coverage
   ✓ 未認証ユーザーはタスク一覧にアクセスするとログインページにリダイレクトされる
   ...
 
-  Tests:    53 passed
+  Tests:    54 passed
   Duration: 5.00s
 ```
 
