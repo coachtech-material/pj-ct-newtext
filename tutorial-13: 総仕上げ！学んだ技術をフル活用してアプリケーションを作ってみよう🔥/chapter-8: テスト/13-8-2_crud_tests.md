@@ -30,9 +30,51 @@ git switch -c feature/issue-8-crud-tests
 
 ---
 
+## 🗑️ デフォルトのテストファイルを削除
+
+Laravelには、デフォルトでサンプルのテストファイル（ExampleTest）が含まれています。これらは今回のアプリケーションでは動作しないため、削除します。
+
+```bash
+# デフォルトのExampleTestを削除
+rm tests/Feature/ExampleTest.php
+rm tests/Unit/ExampleTest.php
+```
+
+> **💡 なぜ削除するのか？**: デフォルトのExampleTestは、Laravelの初期状態（`/` にアクセスするとウェルカムページが表示される）を前提としたテストです。今回のアプリケーションでは `/` はログインページにリダイレクトするため、そのままではエラーになります。
+
+---
+
 ## 📝 ステップ1: CategoryControllerTest の作成
 
 カテゴリーのCRUD機能をテストします。
+
+### 🧠 先輩エンジニアの視点：テスト項目を考える
+
+CRUDコントローラのテストを書く際、13-8-1で学んだ**3つの観点**でテスト項目を洗い出します。
+
+| 観点 | 考えること | 具体例 |
+|:---|:---|:---|
+| **正常系** | 期待通りの入力で正しく動作するか | CRUD各アクションが成功する |
+| **異常系** | エラー時に適切にハンドリングされるか | 空入力、ビジネスルール違反 |
+| **境界値** | 上限・下限ギリギリで正しく動作するか | 255文字OK、256文字NG |
+
+### テスト項目一覧
+
+| # | テスト名 | 観点 |
+|:--|:---|:---|
+| 1 | ユーザーはカテゴリー一覧を取得できる | 正常系 |
+| 2 | ユーザーはカテゴリー詳細を取得できる | 正常系 |
+| 3 | ユーザーはカテゴリー作成画面を表示できる | 正常系 |
+| 4 | ユーザーはカテゴリーを作成できる | 正常系 |
+| 5 | カテゴリー名が空だとバリデーションエラーになる | 異常系 |
+| 6 | カテゴリー名は255文字まで入力できる | 境界値 |
+| 7 | カテゴリー名が256文字以上だとバリデーションエラーになる | 境界値 |
+| 8 | ユーザーはカテゴリー編集画面を表示できる | 正常系 |
+| 9 | ユーザーはカテゴリーを更新できる | 正常系 |
+| 10 | ユーザーはカテゴリーを削除できる | 正常系 |
+| 11 | タスクが紐づいているカテゴリーは削除できない | 異常系 |
+
+### テストファイルの作成
 
 ```bash
 sail artisan make:test CategoryControllerTest
@@ -60,7 +102,7 @@ class CategoryControllerTest extends TestCase
     {
         // Arrange
         $user = User::factory()->create();
-        Category::factory()->count(3)->create(['user_id' => $user->id]);
+        Category::factory()->count(3)->create();
 
         // Act
         $response = $this->actingAs($user)->get(route('categories.index'));
@@ -75,7 +117,7 @@ class CategoryControllerTest extends TestCase
     {
         // Arrange
         $user = User::factory()->create();
-        $category = Category::factory()->create(['user_id' => $user->id]);
+        $category = Category::factory()->create();
 
         // Act
         $response = $this->actingAs($user)->get(route('categories.show', $category));
@@ -113,7 +155,6 @@ class CategoryControllerTest extends TestCase
         $response->assertRedirect(route('categories.index'));
         $this->assertDatabaseHas('categories', [
             'name' => 'テストカテゴリー',
-            'user_id' => $user->id,
         ]);
     }
 
@@ -130,6 +171,24 @@ class CategoryControllerTest extends TestCase
 
         // Assert
         $response->assertSessionHasErrors('name');
+    }
+
+    /** @test */
+    public function カテゴリー名は255文字まで入力できる(): void
+    {
+        // Arrange
+        $user = User::factory()->create();
+
+        // Act
+        $response = $this->actingAs($user)->post(route('categories.store'), [
+            'name' => str_repeat('あ', 255),
+        ]);
+
+        // Assert
+        $response->assertRedirect(route('categories.index'));
+        $this->assertDatabaseHas('categories', [
+            'name' => str_repeat('あ', 255),
+        ]);
     }
 
     /** @test */
@@ -152,7 +211,7 @@ class CategoryControllerTest extends TestCase
     {
         // Arrange
         $user = User::factory()->create();
-        $category = Category::factory()->create(['user_id' => $user->id]);
+        $category = Category::factory()->create();
 
         // Act
         $response = $this->actingAs($user)->get(route('categories.edit', $category));
@@ -167,7 +226,7 @@ class CategoryControllerTest extends TestCase
     {
         // Arrange
         $user = User::factory()->create();
-        $category = Category::factory()->create(['user_id' => $user->id]);
+        $category = Category::factory()->create();
 
         // Act
         $response = $this->actingAs($user)->put(route('categories.update', $category), [
@@ -187,7 +246,7 @@ class CategoryControllerTest extends TestCase
     {
         // Arrange
         $user = User::factory()->create();
-        $category = Category::factory()->create(['user_id' => $user->id]);
+        $category = Category::factory()->create();
 
         // Act
         $response = $this->actingAs($user)->delete(route('categories.destroy', $category));
@@ -202,7 +261,7 @@ class CategoryControllerTest extends TestCase
     {
         // Arrange
         $user = User::factory()->create();
-        $category = Category::factory()->create(['user_id' => $user->id]);
+        $category = Category::factory()->create();
         // カテゴリーにタスクを紐づける
         Task::factory()->create([
             'user_id' => $user->id,
@@ -220,26 +279,91 @@ class CategoryControllerTest extends TestCase
 }
 ```
 
-### コードリーディング
+### コードリーディング（AAA形式で解説）
+
+#### 共通パターン
 
 | コード | 説明 |
 |:---|:---|
 | `use RefreshDatabase` | 各テスト実行前にデータベースをリセット |
-| `User::factory()->create()` | テスト用のユーザーを作成 |
 | `$this->actingAs($user)` | 指定したユーザーとしてログインした状態でリクエスト |
-| `assertStatus(200)` | HTTPステータスコードが200であることを確認 |
-| `assertViewHas('categories')` | ビューに `categories` 変数が渡されていることを確認 |
-| `assertRedirect()` | リダイレクトされることを確認 |
-| `assertDatabaseHas()` | データベースに指定したレコードが存在することを確認 |
-| `assertDatabaseMissing()` | データベースに指定したレコードが存在しないことを確認 |
-| `assertSessionHasErrors()` | セッションにバリデーションエラーが含まれることを確認 |
-| `assertSessionHas('error')` | セッションに指定したキーが含まれることを確認 |
+
+#### `ユーザーはカテゴリーを作成できる`（正常系）
+
+| フェーズ | コード | 説明 |
+|:---|:---|:---|
+| **Arrange** | `$user = User::factory()->create()` | テスト用ユーザーを作成 |
+| **Act** | `$this->actingAs($user)->post(route('categories.store'), [...])` | ログイン状態でPOSTリクエストを送信 |
+| **Assert** | `assertRedirect(route('categories.index'))` | 一覧ページにリダイレクトされることを確認 |
+| **Assert** | `assertDatabaseHas('categories', [...])` | カテゴリーがDBに保存されていることを確認 |
+
+#### `カテゴリー名が空だとバリデーションエラーになる`（異常系）
+
+| フェーズ | コード | 説明 |
+|:---|:---|:---|
+| **Arrange** | `$user = User::factory()->create()` | テスト用ユーザーを作成 |
+| **Act** | `post(route('categories.store'), ['name' => ''])` | 空のnameでPOSTリクエスト |
+| **Assert** | `assertSessionHasErrors('name')` | nameフィールドにバリデーションエラーがあることを確認 |
+
+#### `カテゴリー名は255文字まで入力できる` / `256文字以上だとエラー`（境界値）
+
+| フェーズ | 255文字（成功） | 256文字（失敗） |
+|:---|:---|:---|
+| **Arrange** | ユーザーを作成 | ユーザーを作成 |
+| **Act** | `str_repeat('あ', 255)` でPOST | `str_repeat('あ', 256)` でPOST |
+| **Assert** | `assertRedirect` + `assertDatabaseHas` | `assertSessionHasErrors('name')` |
+
+> **💡 境界値テストのポイント**: 上限ギリギリ（255文字）で**成功**することと、上限を超えた（256文字）で**失敗**することの両方をテストします。
+
+#### `タスクが紐づいているカテゴリーは削除できない`（異常系：ビジネスルール）
+
+| フェーズ | コード | 説明 |
+|:---|:---|:---|
+| **Arrange** | `$category = Category::factory()->create()` | カテゴリーを作成 |
+| **Arrange** | `Task::factory()->create(['category_id' => $category->id])` | そのカテゴリーにタスクを紐づけ |
+| **Act** | `delete(route('categories.destroy', $category))` | 削除リクエストを送信 |
+| **Assert** | `assertSessionHas('error')` | エラーメッセージがセッションにあることを確認 |
+| **Assert** | `assertDatabaseHas('categories', [...])` | カテゴリーが削除されていないことを確認 |
+
+> **💡 異常系の種類**: 異常系には「バリデーションエラー」「認可エラー」「ビジネスルール違反」などがあります。どれも「期待通りでない操作」に対して適切にエラーハンドリングされることを確認します。
 
 ---
 
 ## 📝 ステップ2: TaskControllerTest の作成
 
 タスクのCRUD機能をテストします。
+
+### 🧠 先輩エンジニアの視点：テスト項目を考える
+
+タスクはカテゴリーと異なり、**ユーザーに紐づくリソース**です。そのため、異常系の中でも特に**認可**（他人のタスクにアクセスできないこと）のテストが重要になります。
+
+| 観点 | 考えること | 具体例 |
+|:---|:---|:---|
+| **正常系** | 期待通りの入力で正しく動作するか | CRUD各アクションが成功する |
+| **異常系** | エラー時に適切にハンドリングされるか | 空入力、無効値、**認可エラー** |
+| **境界値** | 上限・下限ギリギリで正しく動作するか | タイトル255文字OK、256文字NG |
+
+> **💡 ポイント**: 「誰のデータか」を意識するリソースでは、認可テスト（異常系）が特に重要です。セキュリティに直結するため、必ずテストを書きましょう。
+
+### テスト項目一覧
+
+| # | テスト名 | 観点 |
+|:--|:---|:---|
+| 1 | ユーザーはタスク一覧を取得できる | 正常系 |
+| 2 | ユーザーはタスク詳細を取得できる | 正常系 |
+| 3 | ユーザーはタスク作成画面を表示できる | 正常系 |
+| 4 | ユーザーはタスクを作成できる | 正常系 |
+| 5 | タスクタイトルが空だとバリデーションエラーになる | 異常系 |
+| 6 | 無効な優先度だとバリデーションエラーになる | 異常系 |
+| 7 | タイトルは255文字まで入力できる | 境界値 |
+| 8 | タイトルが256文字以上だとバリデーションエラーになる | 境界値 |
+| 9 | ユーザーはタスク編集画面を表示できる | 正常系 |
+| 10 | ユーザーはタスクを更新できる | 正常系 |
+| 11 | ユーザーはタスクを削除できる | 正常系 |
+
+※ 認可テスト（異常系）はステップ3で追加します。
+
+### テストファイルの作成
 
 ```bash
 sail artisan make:test TaskControllerTest
@@ -310,14 +434,13 @@ class TaskControllerTest extends TestCase
     {
         // Arrange
         $user = User::factory()->create();
-        $category = Category::factory()->create(['user_id' => $user->id]);
+        $category = Category::factory()->create();
 
         // Act
         $response = $this->actingAs($user)->post(route('tasks.store'), [
             'title' => 'テストタスク',
             'description' => 'テストの説明',
-            'status' => 'pending',
-            'due_date' => '2025-12-31',
+            'priority' => 2,
             'category_id' => $category->id,
         ]);
 
@@ -334,12 +457,12 @@ class TaskControllerTest extends TestCase
     {
         // Arrange
         $user = User::factory()->create();
-        $category = Category::factory()->create(['user_id' => $user->id]);
+        $category = Category::factory()->create();
 
         // Act
         $response = $this->actingAs($user)->post(route('tasks.store'), [
             'title' => '',
-            'status' => 'pending',
+            'priority' => 2,
             'category_id' => $category->id,
         ]);
 
@@ -348,21 +471,61 @@ class TaskControllerTest extends TestCase
     }
 
     /** @test */
-    public function 無効なステータスだとバリデーションエラーになる(): void
+    public function 無効な優先度だとバリデーションエラーになる(): void
     {
         // Arrange
         $user = User::factory()->create();
-        $category = Category::factory()->create(['user_id' => $user->id]);
+        $category = Category::factory()->create();
 
         // Act
         $response = $this->actingAs($user)->post(route('tasks.store'), [
             'title' => 'テストタスク',
-            'status' => 'invalid_status', // 無効なステータス
+            'priority' => 99, // 無効な優先度（1, 2, 3以外）
             'category_id' => $category->id,
         ]);
 
         // Assert
-        $response->assertSessionHasErrors('status');
+        $response->assertSessionHasErrors('priority');
+    }
+
+    /** @test */
+    public function タイトルは255文字まで入力できる(): void
+    {
+        // Arrange
+        $user = User::factory()->create();
+        $category = Category::factory()->create();
+
+        // Act
+        $response = $this->actingAs($user)->post(route('tasks.store'), [
+            'title' => str_repeat('あ', 255),
+            'priority' => 2,
+            'category_id' => $category->id,
+        ]);
+
+        // Assert
+        $response->assertRedirect(route('tasks.index'));
+        $this->assertDatabaseHas('tasks', [
+            'title' => str_repeat('あ', 255),
+            'user_id' => $user->id,
+        ]);
+    }
+
+    /** @test */
+    public function タイトルが256文字以上だとバリデーションエラーになる(): void
+    {
+        // Arrange
+        $user = User::factory()->create();
+        $category = Category::factory()->create();
+
+        // Act
+        $response = $this->actingAs($user)->post(route('tasks.store'), [
+            'title' => str_repeat('あ', 256),
+            'priority' => 2,
+            'category_id' => $category->id,
+        ]);
+
+        // Assert
+        $response->assertSessionHasErrors('title');
     }
 
     /** @test */
@@ -386,12 +549,12 @@ class TaskControllerTest extends TestCase
         // Arrange
         $user = User::factory()->create();
         $task = Task::factory()->create(['user_id' => $user->id]);
-        $category = Category::factory()->create(['user_id' => $user->id]);
+        $category = Category::factory()->create();
 
         // Act
         $response = $this->actingAs($user)->put(route('tasks.update', $task), [
             'title' => '更新後のタスク名',
-            'status' => 'completed',
+            'priority' => 3,
             'category_id' => $category->id,
         ]);
 
@@ -400,7 +563,7 @@ class TaskControllerTest extends TestCase
         $this->assertDatabaseHas('tasks', [
             'id' => $task->id,
             'title' => '更新後のタスク名',
-            'status' => 'completed',
+            'priority' => 3,
         ]);
     }
 
@@ -420,6 +583,44 @@ class TaskControllerTest extends TestCase
     }
 }
 ```
+
+### コードリーディング（AAA形式で解説）
+
+#### `ユーザーはタスク一覧を取得できる`（正常系）
+
+| フェーズ | コード | 説明 |
+|:---|:---|:---|
+| **Arrange** | `$user = User::factory()->create()` | テスト用ユーザーを作成 |
+| **Arrange** | `Task::factory()->count(3)->create(['user_id' => $user->id])` | そのユーザーのタスクを3件作成 |
+| **Act** | `$this->actingAs($user)->get(route('tasks.index'))` | ログイン状態で一覧ページにアクセス |
+| **Assert** | `assertStatus(200)` | 正常にページが表示されることを確認 |
+| **Assert** | `assertViewHas('tasks')` | ビューにtasks変数が渡されていることを確認 |
+
+#### `ユーザーはタスクを作成できる`（正常系）
+
+| フェーズ | コード | 説明 |
+|:---|:---|:---|
+| **Arrange** | `$user = User::factory()->create()` | テスト用ユーザーを作成 |
+| **Arrange** | `$category = Category::factory()->create()` | タスクに紐づけるカテゴリーを作成 |
+| **Act** | `post(route('tasks.store'), ['title' => ..., 'priority' => ..., ...])` | タスク作成リクエストを送信 |
+| **Assert** | `assertRedirect(route('tasks.index'))` | 一覧ページにリダイレクトされることを確認 |
+| **Assert** | `assertDatabaseHas('tasks', ['title' => ..., 'user_id' => $user->id])` | タスクがDBに保存され、ログインユーザーに紐づいていることを確認 |
+
+#### `無効な優先度だとバリデーションエラーになる`（異常系）
+
+| フェーズ | コード | 説明 |
+|:---|:---|:---|
+| **Arrange** | ユーザーとカテゴリーを作成 | テストの前提条件を準備 |
+| **Act** | `post(route('tasks.store'), ['priority' => 99, ...])` | 無効な優先度（1,2,3以外）でリクエスト |
+| **Assert** | `assertSessionHasErrors('priority')` | priorityフィールドにバリデーションエラーがあることを確認 |
+
+#### `タイトルは255文字まで入力できる` / `256文字以上だとエラー`（境界値）
+
+| フェーズ | 255文字（成功） | 256文字（失敗） |
+|:---|:---|:---|
+| **Arrange** | ユーザーとカテゴリーを作成 | ユーザーとカテゴリーを作成 |
+| **Act** | `str_repeat('あ', 255)` でPOST | `str_repeat('あ', 256)` でPOST |
+| **Assert** | `assertRedirect` + `assertDatabaseHas` | `assertSessionHasErrors('title')` |
 
 ---
 
@@ -469,12 +670,12 @@ TaskControllerTestに認可（Policy）のテストを追加します。他人�
         $user = User::factory()->create();
         $otherUser = User::factory()->create();
         $task = Task::factory()->create(['user_id' => $otherUser->id]);
-        $category = Category::factory()->create(['user_id' => $user->id]);
+        $category = Category::factory()->create();
 
         // Act
         $response = $this->actingAs($user)->put(route('tasks.update', $task), [
             'title' => '不正な更新',
-            'status' => 'pending',
+            'priority' => 2,
             'category_id' => $category->id,
         ]);
 
@@ -498,13 +699,28 @@ TaskControllerTestに認可（Policy）のテストを追加します。他人�
     }
 ```
 
-### コードリーディング
+### 認可テスト項目一覧（異常系）
 
-| コード | 説明 |
-|:---|:---|
-| `$otherUser = User::factory()->create()` | 別のユーザーを作成 |
-| `['user_id' => $otherUser->id]` | タスクを別ユーザーの所有にする |
-| `assertForbidden()` | 403ステータスコードを確認（`assertStatus(403)` と同等） |
+| # | テスト名 | 観点 |
+|:--|:---|:---|
+| 12 | 他人のタスク詳細にアクセスすると403エラーになる | 異常系（認可） |
+| 13 | 他人のタスク編集画面にアクセスすると403エラーになる | 異常系（認可） |
+| 14 | 他人のタスクを更新しようとすると403エラーになる | 異常系（認可） |
+| 15 | 他人のタスクを削除しようとすると403エラーになる | 異常系（認可） |
+
+### コードリーディング（AAA形式で解説）
+
+#### `他人のタスク詳細にアクセスすると403エラーになる`（異常系：認可）
+
+| フェーズ | コード | 説明 |
+|:---|:---|:---|
+| **Arrange** | `$user = User::factory()->create()` | ログインするユーザーを作成 |
+| **Arrange** | `$otherUser = User::factory()->create()` | 別のユーザーを作成 |
+| **Arrange** | `Task::factory()->create(['user_id' => $otherUser->id])` | **別ユーザーの**タスクを作成 |
+| **Act** | `$this->actingAs($user)->get(route('tasks.show', $task))` | ログインユーザーが他人のタスクにアクセス |
+| **Assert** | `assertForbidden()` | 403エラーになることを確認 |
+
+> **💡 ポイント**: `assertForbidden()` は `assertStatus(403)` と同等です。認可エラー（異常系）を検証する際によく使います。
 
 ---
 
@@ -532,6 +748,7 @@ sail test --filter=ControllerTest
   ✓ ユーザーはカテゴリー作成画面を表示できる
   ✓ ユーザーはカテゴリーを作成できる
   ✓ カテゴリー名が空だとバリデーションエラーになる
+  ✓ カテゴリー名は255文字まで入力できる
   ✓ カテゴリー名が256文字以上だとバリデーションエラーになる
   ✓ ユーザーはカテゴリー編集画面を表示できる
   ✓ ユーザーはカテゴリーを更新できる
@@ -543,8 +760,8 @@ sail test --filter=ControllerTest
   ...
   ✓ 他人のタスクを削除しようとすると403エラーになる
 
-  Tests:    24 passed
-  Duration: 2.45s
+  Tests:    26 passed
+  Duration: 2.50s
 ```
 
 ---
@@ -589,11 +806,11 @@ $task = Task::factory()->create();
 
 以下の条件を満たしていることを確認してください。
 
-- [ ] CategoryControllerTestが作成されている
-- [ ] TaskControllerTestが作成されている
-- [ ] 全てのテストがパスする
+- [ ] CategoryControllerTestが作成されている（11テスト）
+- [ ] TaskControllerTestが作成されている（15テスト）
+- [ ] 全てのテストがパスする（合計26テスト）
+- [ ] 正常系・異常系・境界値の3観点でテストが書かれている
 - [ ] 認可テスト（4アクション分）が含まれている
-- [ ] タスク紐づき時のカテゴリー削除不可テストが含まれている
 
 ---
 
@@ -603,11 +820,13 @@ $task = Task::factory()->create();
 
 | 学んだこと | 内容 |
 |:---|:---|
+| テストの3観点 | 正常系・異常系・境界値でテスト項目を洗い出す |
 | Featureテスト | HTTPリクエストをシミュレートしてコントローラをテスト |
 | actingAs | 特定のユーザーとしてログインした状態でテスト |
 | assertDatabaseHas/Missing | データベースの状態を検証 |
-| assertSessionHasErrors | バリデーションエラーを検証 |
-| assertForbidden | 403エラー（認可エラー）を検証 |
+| assertSessionHasErrors | バリデーションエラーを検証（異常系） |
+| assertForbidden | 403エラーを検証（異常系：認可） |
+| 境界値テスト | 上限ギリギリ（成功）と上限超え（失敗）の両方をテスト |
 
 次のセクションでは、認証機能のテストを実装します。
 
@@ -658,9 +877,9 @@ feat: CRUD機能のテスト実装
 - 認可（Policy）のテスト
 
 ## テスト項目
-- [ ] カテゴリーCRUD（10テスト）
-- [ ] タスクCRUD（10テスト）
-- [ ] 認可テスト（4テスト）
+- [ ] カテゴリーCRUD（11テスト：正常系7 + 異常系2 + 境界値2）
+- [ ] タスクCRUD（11テスト：正常系7 + 異常系2 + 境界値2）
+- [ ] 認可テスト（4テスト：異常系）
 
 ## 対応Issue
 close #8
