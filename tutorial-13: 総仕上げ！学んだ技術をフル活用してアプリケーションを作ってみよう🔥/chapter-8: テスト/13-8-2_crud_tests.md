@@ -38,9 +38,14 @@ Laravelには、デフォルトでサンプルのテストファイル（Example
 # デフォルトのExampleTestを削除
 rm tests/Feature/ExampleTest.php
 rm tests/Unit/ExampleTest.php
+
+# tests/Unitディレクトリを維持するため、.gitkeepを作成
+touch tests/Unit/.gitkeep
 ```
 
 > **💡 なぜ削除するのか？**: デフォルトのExampleTestは、Laravelの初期状態（`/` にアクセスするとウェルカムページが表示される）を前提としたテストです。今回のアプリケーションでは `/` はログインページにリダイレクトするため、そのままではエラーになります。
+>
+> **📌 .gitkeepについて**: `tests/Unit/`ディレクトリが空になると、PHPUnitが「Test directory not found」という警告を出します。`.gitkeep`は空のファイルで、Gitで空ディレクトリを維持するための慣習的なファイルです。
 
 ---
 
