@@ -33,6 +33,31 @@ git switch -c feature/issue-10-api-tests
 
 公開APIのテストを作成します。
 
+### 🧠 先輩エンジニアの視点：テスト項目を考える
+
+APIテストでは、**レスポンスの構造と内容の両方**を検証することが重要です。また、エッジケース（データが0件の場合など）も忘れずにテストします。
+
+| 観点 | 考えること | 具体例 |
+|:---|:---|:---|
+| **正常系** | APIが正しいレスポンスを返すか | 一覧取得、詳細取得 |
+| **異常系** | 存在しないリソースで適切なエラーを返すか | 404エラー |
+| **境界値** | データが0件の場合に正しく動作するか | 空配列を返す |
+
+### テスト項目一覧
+
+| # | テスト名 | 観点 |
+|:--|:---|:---|
+| 1 | タスク一覧をJSON形式で取得できる | 正常系 |
+| 2 | タスク一覧のJSONレスポンス構造が正しい | 正常系 |
+| 3 | タスク一覧のJSONレスポンス内容が正しい | 正常系 |
+| 4 | タスクが0件の場合は空の配列を返す | 境界値 |
+| 5 | 特定のタスクをJSON形式で取得できる | 正常系 |
+| 6 | 特定のタスクのJSONレスポンス内容が正しい | 正常系 |
+| 7 | 存在しないタスクIDで404エラーを返す | 異常系 |
+| 8 | 無効なタスクIDで404エラーを返す | 異常系 |
+
+### テストファイルの作成
+
 ```bash
 sail artisan make:test ApiTaskTest
 ```
@@ -59,7 +84,7 @@ class ApiTaskTest extends TestCase
     {
         // Arrange
         $user = User::factory()->create();
-        $category = Category::factory()->create(['user_id' => $user->id]);
+        $category = Category::factory()->create();
         Task::factory()->count(3)->create([
             'user_id' => $user->id,
             'category_id' => $category->id,
@@ -78,15 +103,12 @@ class ApiTaskTest extends TestCase
     {
         // Arrange
         $user = User::factory()->create();
-        $category = Category::factory()->create([
-            'user_id' => $user->id,
-            'name' => 'テストカテゴリー',
-        ]);
+        $category = Category::factory()->create(['name' => 'テストカテゴリー']);
         Task::factory()->create([
             'user_id' => $user->id,
             'category_id' => $category->id,
             'title' => 'テストタスク',
-            'status' => 'pending',
+            'priority' => 2,
         ]);
 
         // Act
@@ -99,7 +121,8 @@ class ApiTaskTest extends TestCase
                 '*' => [
                     'id',
                     'title',
-                    'status',
+                    'priority',
+                    'priority_label',
                     'category' => [
                         'id',
                         'name',
@@ -114,15 +137,12 @@ class ApiTaskTest extends TestCase
     {
         // Arrange
         $user = User::factory()->create();
-        $category = Category::factory()->create([
-            'user_id' => $user->id,
-            'name' => 'テストカテゴリー',
-        ]);
+        $category = Category::factory()->create(['name' => 'テストカテゴリー']);
         $task = Task::factory()->create([
             'user_id' => $user->id,
             'category_id' => $category->id,
             'title' => 'テストタスク',
-            'status' => 'pending',
+            'priority' => 2,
         ]);
 
         // Act
@@ -133,7 +153,8 @@ class ApiTaskTest extends TestCase
         $response->assertJsonFragment([
             'id' => $task->id,
             'title' => 'テストタスク',
-            'status' => 'pending',
+            'priority' => 2,
+            'priority_label' => '中',
         ]);
         $response->assertJsonFragment([
             'name' => 'テストカテゴリー',
@@ -157,17 +178,13 @@ class ApiTaskTest extends TestCase
     {
         // Arrange
         $user = User::factory()->create();
-        $category = Category::factory()->create([
-            'user_id' => $user->id,
-            'name' => 'テストカテゴリー',
-        ]);
+        $category = Category::factory()->create(['name' => 'テストカテゴリー']);
         $task = Task::factory()->create([
             'user_id' => $user->id,
             'category_id' => $category->id,
             'title' => 'テストタスク',
             'description' => 'テストの説明',
-            'status' => 'in_progress',
-            'due_date' => '2025-12-31',
+            'priority' => 3,
         ]);
 
         // Act
@@ -180,8 +197,8 @@ class ApiTaskTest extends TestCase
                 'id',
                 'title',
                 'description',
-                'status',
-                'due_date',
+                'priority',
+                'priority_label',
                 'category' => [
                     'id',
                     'name',
@@ -195,17 +212,13 @@ class ApiTaskTest extends TestCase
     {
         // Arrange
         $user = User::factory()->create();
-        $category = Category::factory()->create([
-            'user_id' => $user->id,
-            'name' => '仕事',
-        ]);
+        $category = Category::factory()->create(['name' => '仕事']);
         $task = Task::factory()->create([
             'user_id' => $user->id,
             'category_id' => $category->id,
             'title' => '重要なタスク',
             'description' => 'これは重要なタスクです',
-            'status' => 'completed',
-            'due_date' => '2025-06-15',
+            'priority' => 3,
         ]);
 
         // Act
@@ -218,8 +231,8 @@ class ApiTaskTest extends TestCase
                 'id' => $task->id,
                 'title' => '重要なタスク',
                 'description' => 'これは重要なタスクです',
-                'status' => 'completed',
-                'due_date' => '2025-06-15',
+                'priority' => 3,
+                'priority_label' => '高',
                 'category' => [
                     'id' => $category->id,
                     'name' => '仕事',
@@ -235,10 +248,7 @@ class ApiTaskTest extends TestCase
         $response = $this->getJson('/api/tasks/99999');
 
         // Assert
-        $response->assertStatus(404);
-        $response->assertJson([
-            'message' => 'Task not found',
-        ]);
+        $response->assertNotFound(); // 404
     }
 
     /** @test */
@@ -253,12 +263,38 @@ class ApiTaskTest extends TestCase
 }
 ```
 
-### コードリーディング
+### コードリーディング（AAA形式で解説）
+
+#### `タスク一覧をJSON形式で取得できる`（正常系）
+
+| フェーズ | コード | 説明 |
+|:---|:---|:---|
+| **Arrange** | `Task::factory()->count(3)->create([...])` | テスト用タスクを3件作成 |
+| **Act** | `$this->getJson('/api/tasks')` | JSON形式でGETリクエストを送信 |
+| **Assert** | `assertStatus(200)` | ステータスコード200を確認 |
+| **Assert** | `assertJsonCount(3, 'data')` | データが3件あることを確認 |
+
+#### `タスクが0件の場合は空の配列を返す`（境界値）
+
+| フェーズ | コード | 説明 |
+|:---|:---|:---|
+| **Arrange** | （なし） | データを作成しない |
+| **Act** | `$this->getJson('/api/tasks')` | 空のデータベースに対してリクエスト |
+| **Assert** | `assertJsonCount(0, 'data')` | データが0件であることを確認 |
+| **Assert** | `assertJson(['data' => []])` | 空配列が返ることを確認 |
+
+#### `存在しないタスクIDで404エラーを返す`（異常系）
+
+| フェーズ | コード | 説明 |
+|:---|:---|:---|
+| **Arrange** | （なし） | 存在しないIDにアクセスするので準備不要 |
+| **Act** | `$this->getJson('/api/tasks/99999')` | 存在しないIDでリクエスト |
+| **Assert** | `assertNotFound()` | 404エラーが返ることを確認 |
+
+#### 補足：使用するアサーション
 
 | コード | 説明 |
 |:---|:---|
-| `$this->getJson('/api/tasks')` | JSON形式でGETリクエストを送信 |
-| `assertJsonCount(3, 'data')` | `data` キー内の要素数が3であることを確認 |
 | `assertJsonStructure([...])` | JSONレスポンスの構造を検証 |
 | `assertJsonFragment([...])` | JSONレスポンスに指定した内容が含まれることを確認 |
 | `assertJson([...])` | JSONレスポンスが指定した内容と一致することを確認 |
@@ -287,7 +323,7 @@ APIテストでは `getJson()` を使用することで、`Accept: application/j
 $response->assertJsonStructure([
     'id',
     'title',
-    'status',
+    'priority',
 ]);
 
 // ネストした構造
@@ -339,9 +375,6 @@ $response->assertJsonFragment([
 ```bash
 # ApiTaskTestを実行
 sail test tests/Feature/ApiTaskTest.php
-
-# 詳細な出力を表示
-sail test tests/Feature/ApiTaskTest.php -v
 ```
 
 **期待される出力**:
@@ -402,8 +435,8 @@ sail test --coverage
   ✓ 未認証ユーザーはタスク一覧にアクセスするとログインページにリダイレクトされる
   ...
 
-  Tests:    51 passed
-  Duration: 4.85s
+  Tests:    53 passed
+  Duration: 5.00s
 ```
 
 ---
@@ -462,7 +495,8 @@ $response->assertJsonCount(3, 'data');
 - [ ] タスク一覧取得のテストがパスする
 - [ ] タスク詳細取得のテストがパスする
 - [ ] 404エラーのテストがパスする
-- [ ] Chapter 8の全テスト（51テスト）がパスする
+- [ ] 正常系・異常系・境界値の3観点でテストが書かれている
+- [ ] Chapter 8の全テスト（53テスト）がパスする
 
 ---
 
@@ -472,11 +506,12 @@ $response->assertJsonCount(3, 'data');
 
 | 学んだこと | 内容 |
 |:---|:---|
+| APIテストの3観点 | 正常系（レスポンス検証）・異常系（404エラー）・境界値（0件の場合） |
 | getJson | JSON形式でGETリクエストを送信 |
 | assertJsonStructure | JSONレスポンスの構造を検証 |
 | assertJsonFragment | JSONレスポンスに指定した内容が含まれることを確認 |
 | assertJsonCount | JSON配列の要素数を検証 |
-| 404テスト | 存在しないリソースへのアクセスを検証 |
+| 404テスト | 存在しないリソースへのアクセスを検証（異常系） |
 
 ---
 
@@ -525,9 +560,9 @@ feat: APIテスト実装
 - 404エラーのテスト
 
 ## テスト項目
-- [ ] タスク一覧取得（4テスト）
-- [ ] タスク詳細取得（2テスト）
-- [ ] 404エラー（2テスト）
+- [ ] タスク一覧取得（4テスト：正常系3 + 境界値1）
+- [ ] タスク詳細取得（2テスト：正常系2）
+- [ ] 404エラー（2テスト：異常系2）
 
 ## 対応Issue
 close #10
