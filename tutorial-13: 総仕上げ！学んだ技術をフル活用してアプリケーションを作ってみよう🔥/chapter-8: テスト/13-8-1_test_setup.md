@@ -115,12 +115,12 @@ public function 間違ったパスワードではログインできない(): voi
 public function タイトルは255文字まで入力できる(): void
 {
     $user = User::factory()->create();
-    $category = Category::factory()->create(['user_id' => $user->id]);
+    $category = Category::factory()->create();
 
     $response = $this->actingAs($user)->post(route('tasks.store'), [
         'title' => str_repeat('あ', 255), // 255文字
         'category_id' => $category->id,
-        'status' => 'pending',
+        'priority' => 2,
     ]);
 
     $response->assertRedirect(route('tasks.index'));
@@ -130,12 +130,12 @@ public function タイトルは255文字まで入力できる(): void
 public function タイトルが256文字以上だとバリデーションエラーになる(): void
 {
     $user = User::factory()->create();
-    $category = Category::factory()->create(['user_id' => $user->id]);
+    $category = Category::factory()->create();
 
     $response = $this->actingAs($user)->post(route('tasks.store'), [
         'title' => str_repeat('あ', 256), // 256文字
         'category_id' => $category->id,
-        'status' => 'pending',
+        'priority' => 2,
     ]);
 
     $response->assertSessionHasErrors('title');
@@ -190,38 +190,38 @@ Laravelプロジェクトには、テスト設定ファイル `phpunit.xml` が�
 
 **ファイル**: `phpunit.xml`
 
+#### 修正箇所
+
+`<php>` セクション内で以下の2点を修正します。
+
+**1. `DB_CONNECTION` 行を追加**（デフォルトでは存在しません）
+
+**2. `DB_DATABASE` の値を変更**
+
 ```xml
-<?xml version="1.0" encoding="UTF-8"?>
-<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:noNamespaceSchemaLocation="./vendor/phpunit/phpunit/phpunit.xsd"
-         bootstrap="vendor/autoload.php"
-         colors="true"
->
-    <testsuites>
-        <testsuite name="Unit">
-            <directory suffix="Test.php">./tests/Unit</directory>
-        </testsuite>
-        <testsuite name="Feature">
-            <directory suffix="Test.php">./tests/Feature</directory>
-        </testsuite>
-    </testsuites>
-    <source>
-        <include>
-            <directory suffix=".php">./app</directory>
-        </include>
-    </source>
-    <php>
-        <env name="APP_ENV" value="testing"/>
-        <env name="BCRYPT_ROUNDS" value="4"/>
-        <env name="CACHE_DRIVER" value="array"/>
-        <env name="DB_CONNECTION" value="sqlite"/>
-        <env name="DB_DATABASE" value=":memory:"/>
-        <env name="MAIL_MAILER" value="array"/>
-        <env name="QUEUE_CONNECTION" value="sync"/>
-        <env name="SESSION_DRIVER" value="array"/>
-        <env name="TELESCOPE_ENABLED" value="false"/>
-    </php>
-</phpunit>
+<!-- 変更前 -->
+<env name="DB_DATABASE" value="testing"/>
+
+<!-- 変更後 -->
+<env name="DB_CONNECTION" value="sqlite"/>   <!-- ← この行を追加 -->
+<env name="DB_DATABASE" value=":memory:"/>   <!-- ← 値を変更 -->
+```
+
+#### 修正後の `<php>` セクション全体
+
+```xml
+<php>
+    <env name="APP_ENV" value="testing"/>
+    <env name="BCRYPT_ROUNDS" value="4"/>
+    <env name="CACHE_DRIVER" value="array"/>
+    <env name="DB_CONNECTION" value="sqlite"/>   <!-- ← 追加 -->
+    <env name="DB_DATABASE" value=":memory:"/>   <!-- ← 値を変更 -->
+    <env name="MAIL_MAILER" value="array"/>
+    <env name="PULSE_ENABLED" value="false"/>
+    <env name="QUEUE_CONNECTION" value="sync"/>
+    <env name="SESSION_DRIVER" value="array"/>
+    <env name="TELESCOPE_ENABLED" value="false"/>
+</php>
 ```
 
 #### 設定内容の解説
@@ -236,6 +236,8 @@ Laravelプロジェクトには、テスト設定ファイル `phpunit.xml` が�
 | `SESSION_DRIVER` | array | セッションをメモリ上に保持 |
 
 > **💡 ポイント**: `DB_DATABASE` を `:memory:` に設定することで、テストごとにデータベースがリセットされ、テスト間の影響を防げます。
+>
+> **📌 なぜSQLiteを使うのか？**: 本番環境ではMySQLを使用していますが、テストではSQLiteのインメモリデータベースを使用します。これにより、テストが高速に実行され、本番データベースに影響を与えません。
 
 ---
 
@@ -257,7 +259,6 @@ sail artisan make:factory CategoryFactory --model=Category
 namespace Database\Factories;
 
 use App\Models\Category;
-use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -274,7 +275,6 @@ class CategoryFactory extends Factory
     {
         return [
             'name' => fake()->word(),
-            'user_id' => User::factory(),
         ];
     }
 }
@@ -313,30 +313,29 @@ class TaskFactory extends Factory
         return [
             'title' => fake()->sentence(),
             'description' => fake()->paragraph(),
-            'status' => fake()->randomElement(['pending', 'in_progress', 'completed']),
-            'due_date' => fake()->dateTimeBetween('now', '+1 month'),
+            'priority' => fake()->randomElement([1, 2, 3]),
             'user_id' => User::factory(),
             'category_id' => Category::factory(),
         ];
     }
 
     /**
-     * タスクを完了状態にする
+     * 優先度を高にする
      */
-    public function completed(): static
+    public function highPriority(): static
     {
         return $this->state(fn (array $attributes) => [
-            'status' => 'completed',
+            'priority' => 3,
         ]);
     }
 
     /**
-     * タスクを未着手状態にする
+     * 優先度を低にする
      */
-    public function pending(): static
+    public function lowPriority(): static
     {
         return $this->state(fn (array $attributes) => [
-            'status' => 'pending',
+            'priority' => 1,
         ]);
     }
 }
@@ -354,11 +353,11 @@ $tasks = Task::factory()->count(5)->create();
 // 属性を指定して作成
 $task = Task::factory()->create([
     'title' => 'テストタスク',
-    'status' => 'pending',
+    'priority' => 3,
 ]);
 
 // ステートを使用
-$completedTask = Task::factory()->completed()->create();
+$highPriorityTask = Task::factory()->highPriority()->create();
 
 // リレーションを指定
 $user = User::factory()->create();
@@ -368,6 +367,8 @@ $task = Task::factory()->create(['user_id' => $user->id]);
 ---
 
 ## 🚀 テスト実行コマンド
+
+> **📌 参考情報**: このセクションでは、テスト実行コマンドの使い方を紹介します。実際にテストを実行するのは、次のセクション（13-8-2）以降でテストファイルを作成した後になります。
 
 ### 基本的なテスト実行
 
@@ -422,26 +423,30 @@ sail test --filter=ユーザーはタスク一覧を取得できる
 
 **Xdebugのセットアップ**
 
-カバレッジレポートを生成するには、Xdebugが必要です。Laravel Sailでは以下の手順でセットアップします。
+カバレッジレポートを生成するには、Xdebugが必要です。Laravel Sailでは `.env` ファイルに設定を追加するだけでセットアップできます。
 
-**ステップ1**: `docker-compose.yml` を編集して、Xdebugを有効化します。
+**ステップ1**: `.env` ファイルに以下の行を追加します。
 
-```yaml
-# docker-compose.yml
-services:
-    laravel.test:
-        # ...
-        environment:
-            # ...
-            XDEBUG_MODE: 'coverage'
+```
+XDEBUG_MODE=coverage
 ```
 
-**ステップ2**: コンテナを再起動します。
+**ステップ2**: コンテナを再起動して設定を反映します。
 
 ```bash
 sail down
 sail up -d
 ```
+
+**ステップ3**: Vite開発サーバーを起動します（別のターミナルタブで実行）。
+
+```bash
+sail npm run dev
+```
+
+> **📌 補足**: `sail down` を実行すると、起動していたVite開発サーバー（`sail npm run dev`）も停止します。`sail npm run dev` はターミナルを占有するため、別のタブで起動してください。
+
+> **💡 ポイント**: `XDEBUG_MODE` には他にも `debug`（デバッグ用）や `off`（無効化）などの値を設定できます。カバレッジレポートが不要になったら `off` に変更することで、テストの実行速度が向上します。
 
 **カバレッジレポートの生成**
 
@@ -543,3 +548,13 @@ public function definition(): array
 | カバレッジ | `sail test --coverage` でカバレッジを確認 |
 
 次のセクションでは、CRUD機能のテストを実装します。
+
+---
+
+## 📌 Git操作について
+
+このセクションで作成・編集したファイル（phpunit.xml、CategoryFactory、TaskFactory）は、**まだコミットしません**。
+
+次のセクション（13-8-2 CRUD機能のテスト）で、テストファイルと一緒にコミットします。
+
+> **💡 なぜ？**: Gitでは、ブランチを作成するときに未コミットの変更がある場合、その変更は新しいブランチに引き継がれます。次のセクションでブランチを作成した後、このセクションで行った変更とテストファイルをまとめてコミットします。
