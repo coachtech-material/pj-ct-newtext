@@ -77,34 +77,15 @@ namespace App\Policies;
 
 use App\Models\Task;
 use App\Models\User;
-use Illuminate\Auth\Access\Response;
 
 class TaskPolicy
 {
-    /**
-     * タスク一覧を表示できるか
-     */
-    public function viewAny(User $user): bool
-    {
-        // ログインしていれば誰でも一覧は見れる（自分のタスクのみ表示される）
-        return true;
-    }
-
     /**
      * タスク詳細を表示できるか
      */
     public function view(User $user, Task $task): bool
     {
         return $user->id === $task->user_id;
-    }
-
-    /**
-     * タスクを作成できるか
-     */
-    public function create(User $user): bool
-    {
-        // ログインしていれば誰でも作成できる
-        return true;
     }
 
     /**
@@ -122,36 +103,18 @@ class TaskPolicy
     {
         return $user->id === $task->user_id;
     }
-
-    /**
-     * 削除済みタスクを復元できるか
-     */
-    public function restore(User $user, Task $task): bool
-    {
-        return $user->id === $task->user_id;
-    }
-
-    /**
-     * タスクを完全に削除できるか
-     */
-    public function forceDelete(User $user, Task $task): bool
-    {
-        return $user->id === $task->user_id;
-    }
 }
 ```
+
+> **💡 補足**: `--model=Task` オプションで生成されるPolicyには `viewAny`, `create`, `restore`, `forceDelete` メソッドも含まれますが、今回のアプリケーションでは使用しないため削除しています。
 
 #### コードリーディング
 
 | メソッド | 引数 | 説明 |
 |:---|:---|:---|
-| `viewAny` | `User $user` | 一覧表示の認可（モデルインスタンス不要） |
 | `view` | `User $user, Task $task` | 詳細表示の認可 |
-| `create` | `User $user` | 作成の認可（モデルインスタンス不要） |
 | `update` | `User $user, Task $task` | 更新の認可 |
 | `delete` | `User $user, Task $task` | 削除の認可 |
-| `restore` | `User $user, Task $task` | 復元の認可（SoftDeletes使用時） |
-| `forceDelete` | `User $user, Task $task` | 完全削除の認可（SoftDeletes使用時） |
 
 #### 認可ロジックの解説
 
