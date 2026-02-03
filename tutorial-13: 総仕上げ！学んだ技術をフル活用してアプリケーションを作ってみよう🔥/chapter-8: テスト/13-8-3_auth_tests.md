@@ -55,6 +55,7 @@ git switch -c feature/issue-9-auth-tests
 | 5 | メールアドレスが空だとバリデーションエラーになる | 異常系 |
 | 6 | パスワードが空だとバリデーションエラーになる | 異常系 |
 | 7 | ログアウトできる | 正常系 |
+| 8 | 認証済みユーザーはログインページにアクセスするとリダイレクトされる | 正常系 |
 
 ### テストファイルの作成
 
@@ -181,6 +182,19 @@ class AuthenticationTest extends TestCase
         $response->assertRedirect('/');
         $this->assertGuest();
     }
+
+    /** @test */
+    public function 認証済みユーザーはログインページにアクセスするとリダイレクトされる(): void
+    {
+        // Arrange
+        $user = User::factory()->create();
+
+        // Act
+        $response = $this->actingAs($user)->get(route('login'));
+
+        // Assert
+        $response->assertRedirect(route('tasks.index'));
+    }
 }
 ```
 
@@ -211,6 +225,16 @@ class AuthenticationTest extends TestCase
 | **Act** | `$this->post(route('login'), ['password' => 'wrong-password'])` | **間違った**パスワードでリクエスト |
 | **Assert** | `assertSessionHasErrors('email')` | エラーメッセージがあることを確認 |
 | **Assert** | `assertGuest()` | 認証されていないことを確認 |
+
+#### `認証済みユーザーはログインページにアクセスするとリダイレクトされる`（正常系）
+
+| フェーズ | コード | 説明 |
+|:---|:---|:---|
+| **Arrange** | `User::factory()->create()` | テスト用ユーザーを作成 |
+| **Act** | `$this->actingAs($user)->get(route('login'))` | 認証済み状態でログインページにアクセス |
+| **Assert** | `assertRedirect(route('tasks.index'))` | タスク一覧にリダイレクトされることを確認 |
+
+> **💡 補足**: このテストは `RedirectIfAuthenticated` ミドルウェアの動作を確認しています。認証済みユーザーがゲスト専用ページ（ログイン/登録）にアクセスした場合、ホーム画面にリダイレクトされるのが正しい動作です。
 
 ---
 
@@ -546,6 +570,7 @@ sail test --filter=Unauthenticated
   ✓ メールアドレスが空だとバリデーションエラーになる
   ✓ パスワードが空だとバリデーションエラーになる
   ✓ ログアウトできる
+  ✓ 認証済みユーザーはログインページにアクセスするとリダイレクトされる
 
    PASS  Tests\Feature\RegistrationTest
   ✓ 登録画面を表示できる
@@ -557,7 +582,7 @@ sail test --filter=Unauthenticated
   ✓ 未認証ユーザーはタスク一覧にアクセスするとログインページにリダイレクトされる
   ...
 
-  Tests:    19 passed
+  Tests:    20 passed
   Duration: 1.85s
 ```
 
