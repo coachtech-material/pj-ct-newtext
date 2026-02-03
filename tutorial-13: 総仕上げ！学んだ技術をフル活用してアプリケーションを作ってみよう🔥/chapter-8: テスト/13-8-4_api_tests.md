@@ -138,10 +138,16 @@ class ApiTaskTest extends TestCase
         // Arrange
         $user = User::factory()->create();
         $category = Category::factory()->create(['name' => 'テストカテゴリー']);
-        $task = Task::factory()->create([
+        $taskLow = Task::factory()->create([
             'user_id' => $user->id,
             'category_id' => $category->id,
-            'title' => 'テストタスク',
+            'title' => '低優先度タスク',
+            'priority' => 1,
+        ]);
+        $taskMedium = Task::factory()->create([
+            'user_id' => $user->id,
+            'category_id' => $category->id,
+            'title' => '中優先度タスク',
             'priority' => 2,
         ]);
 
@@ -151,8 +157,14 @@ class ApiTaskTest extends TestCase
         // Assert
         $response->assertStatus(200);
         $response->assertJsonFragment([
-            'id' => $task->id,
-            'title' => 'テストタスク',
+            'id' => $taskLow->id,
+            'title' => '低優先度タスク',
+            'priority' => 1,
+            'priority_label' => '低',
+        ]);
+        $response->assertJsonFragment([
+            'id' => $taskMedium->id,
+            'title' => '中優先度タスク',
             'priority' => 2,
             'priority_label' => '中',
         ]);
