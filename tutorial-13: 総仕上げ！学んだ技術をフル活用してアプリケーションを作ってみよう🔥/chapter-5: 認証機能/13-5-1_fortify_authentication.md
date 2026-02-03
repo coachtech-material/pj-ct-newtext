@@ -1,4 +1,4 @@
-# Tutorial 13-5-1 認証機能の実装（Fortify）
+# Tutorial 13-5-1: 認証機能の実装（Fortify）
 
 ## 🎯 このセクションで学ぶこと
 
