@@ -1,4 +1,4 @@
-# Tutorial 13-6-3 タスクPolicy実装
+# Tutorial 13-6-3: タスクPolicy実装
 
 ## 🎯 このセクションで学ぶこと
 
