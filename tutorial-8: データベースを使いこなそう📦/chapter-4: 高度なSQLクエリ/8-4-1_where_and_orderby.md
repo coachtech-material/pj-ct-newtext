@@ -8,14 +8,14 @@
 > ```sql
 > -- ユーザーデータ（usersテーブルが空の場合）
 > INSERT INTO users (name, email, password) VALUES
->     ('John Doe', 'john@example.com', 'password123'),
->     ('Jane Smith', 'jane@example.com', 'password456');
+>     ('Jonathan Doe', 'alice@example.com', 'pass_alice'),
+>     ('Bob', 'jane.s@example.org', 'new_password_789');
 >
 > -- 投稿データ（postsテーブルが空の場合）
 > INSERT INTO posts (user_id, title, content) VALUES
+>     (1, '初めての投稿', 'リレーションシップを学びました！'),
 >     (1, 'Laravel入門', 'Laravelは楽しい！'),
->     (1, 'SQLの基本', 'SELECT文を学びました'),
->     (2, 'PHPの基礎', 'PHPはサーバーサイド言語です');
+>     (1, 'SQLの基本', 'SELECT文を学びました');
 > ```
 
 ## 🎯 このセクションで学ぶこと

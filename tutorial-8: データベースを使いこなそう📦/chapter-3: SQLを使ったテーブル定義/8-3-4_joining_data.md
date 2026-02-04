@@ -19,16 +19,16 @@
 
 | id | user_id | title | content |
 |:---|:---|:---|:---|
-| 101 | 1 | 今日は良い天気！ | ... |
-| 102 | 1 | 昼食はパスタ。 | ... |
-| 103 | 2 | プログラミング楽しい！ | ... |
+| 1 | 1 | 初めての投稿 | ... |
+| 3 | 1 | Laravel入門 | ... |
+| 4 | 1 | SQLの基本 | ... |
 
 `posts`テーブルには投稿者の名前（`name`）は含まれておらず、誰が書いたかを示す`user_id`しかありません。投稿者の名前は`users`テーブルにあります。
 
 | id | name | email |
 |:---|:---|:---|
-| 1 | John Doe | john@example.com |
-| 2 | Jane Smith | jane@example.com |
+| 1 | Jonathan Doe | alice@example.com |
+| 2 | Bob | jane.s@example.org |
 
 これでは、投稿一覧を表示するために、まず`posts`テーブルから全件データを取得し、次に一件一件の`user_id`を使って`users`テーブルに問い合わせる...といった面倒な処理が必要になってしまいます。アプリケーション側で何度もデータベースに問い合わせるのは非常に非効率です。
 
@@ -113,10 +113,10 @@ LEFT JOIN
 
 | name | title |
 |:---|:---|
-| John Doe | 今日は良い天気！ |
-| John Doe | 昼食はパスタ。 |
-| Jane Smith | プログラミング楽しい！ |
-| Bob Johnson | NULL |
+| Jonathan Doe | 初めての投稿 |
+| Jonathan Doe | Laravel入門 |
+| Jonathan Doe | SQLの基本 |
+| Bob | NULL |
 
 このように、`LEFT JOIN`を使うと、「〜を持っている/持っていない」にかかわらず、基準となる側の全データを取得できます。
 

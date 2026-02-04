@@ -115,31 +115,31 @@ INSERT INTO posts (user_id, title, content) VALUES (1, 'SQLの基本', 'SELECT�
 | id | user_id | title | content |
 |:---|:---|:---|:---|
 | 1 | 1 | 初めての投稿 | リレーションシップを学びました！ |
-| 2 | 1 | Laravel入門 | Laravelは楽しい！ |
-| 3 | 1 | SQLの基本 | SELECT文を学びました |
+| 3 | 1 | Laravel入門 | Laravelは楽しい！ |
+| 4 | 1 | SQLの基本 | SELECT文を学びました |
 
 次に、中間テーブルにデータを登録して、投稿とタグを紐付けます。
 
 ```sql
--- 投稿ID=2「Laravel入門」に、タグID=1(PHP)とタグID=2(Laravel)を紐付ける
-INSERT INTO post_tag (post_id, tag_id) VALUES (2, 1);
-INSERT INTO post_tag (post_id, tag_id) VALUES (2, 2);
+-- 投稿ID=3「Laravel入門」に、タグID=1(PHP)とタグID=2(Laravel)を紐付ける
+INSERT INTO post_tag (post_id, tag_id) VALUES (3, 1);
+INSERT INTO post_tag (post_id, tag_id) VALUES (3, 2);
 
--- 投稿ID=3「SQLの基本」に、タグID=3(SQL)を紐付ける
-INSERT INTO post_tag (post_id, tag_id) VALUES (3, 3);
+-- 投稿ID=4「SQLの基本」に、タグID=3(SQL)を紐付ける
+INSERT INTO post_tag (post_id, tag_id) VALUES (4, 3);
 ```
 
 `post_tag`テーブルの中身を見てみましょう。
 
 | id | post_id | tag_id |
 |:---|:---|:---|
-| 1 | 2 | 1 |
-| 2 | 2 | 2 |
-| 3 | 3 | 3 |
+| 1 | 3 | 1 |
+| 2 | 3 | 2 |
+| 3 | 4 | 3 |
 
-この中間テーブルを見ることで、「投稿ID=2（Laravel入門）は、タグID=1（PHP）とタグID=2（Laravel）に関連している」という多対多の関係が見事に表現できています。
+この中間テーブルを見ることで、「投稿ID=3（Laravel入門）は、タグID=1（PHP）とタグID=2（Laravel）に関連している」という多対多の関係が見事に表現できています。
 
-もしここで、再度 `INSERT INTO post_tag (post_id, tag_id) VALUES (2, 1);` を実行しようとすると、先ほど設定した複合ユニークキー制約によってエラーとなり、重複した関連付けが防がれます。
+もしここで、再度 `INSERT INTO post_tag (post_id, tag_id) VALUES (3, 1);` を実行しようとすると、先ほど設定した複合ユニークキー制約によってエラーとなり、重複した関連付けが防がれます。
 
 **[ここに、複合ユニークキー制約違反のエラーメッセージが表示されたスクリーンショットを挿入]**
 
