@@ -139,46 +139,21 @@ value="{{ old('name') }}"
 
 ### 🔧 FortifyServiceProviderでビューを指定
 
-`app/Providers/FortifyServiceProvider.php`の`boot`メソッドで、登録ビューを指定します：
+前のセクション（10-1-2）で設定した`FortifyServiceProvider`の`boot`メソッドに、以下の記述があります：
 
 ```php
-<?php
-
-namespace App\Providers;
-
-use Illuminate\Support\ServiceProvider;
-use Laravel\Fortify\Fortify;
-
-class FortifyServiceProvider extends ServiceProvider
-{
-    public function register(): void
-    {
-        //
-    }
-
-    public function boot(): void
-    {
-        // ユーザー登録フォームのビューを指定
-        Fortify::registerView(function () {
-            return view('auth.register');
-        });
-
-        // ログインフォームのビューを指定（次のセクションで使用）
-        Fortify::loginView(function () {
-            return view('auth.login');
-        });
-    }
-}
-```
-
-**コードリーディング**：
-
-```php
+// ユーザー登録フォームのビューを指定
 Fortify::registerView(function () {
     return view('auth.register');
 });
 ```
-→ `/register`にGETリクエストが来たときに、`resources/views/auth/register.blade.php`を表示するよう指定します。
+
+**コードリーディング**：
+
+| コード | 説明 |
+|:---|:---|
+| `Fortify::registerView(...)` | `/register`にGETリクエストが来たときに表示するビューを指定 |
+| `view('auth.register')` | `resources/views/auth/register.blade.php`を表示 |
 
 ---
 
@@ -301,17 +276,32 @@ POST      register .......... Laravel\Fortify\Http\Controllers\RegisteredUserCon
 
 ### ⚙️ 登録後のリダイレクト先の設定
 
-登録後のリダイレクト先は、`config/fortify.php`で設定します：
+登録後のリダイレクト先は、`config/fortify.php`と`app/Providers/RouteServiceProvider.php`で設定します。
 
-```php
-'home' => '/dashboard',
-```
+**1. RouteServiceProviderでリダイレクト先を定義**
 
-または、`app/Providers/RouteServiceProvider.php`の`HOME`定数を変更します：
+`app/Providers/RouteServiceProvider.php`の`HOME`定数を変更します：
 
 ```php
 public const HOME = '/dashboard';
 ```
+
+**2. config/fortify.phpでRouteServiceProvider::HOMEを参照**
+
+`config/fortify.php`で`RouteServiceProvider::HOME`を参照するように設定します：
+
+```php
+use App\Providers\RouteServiceProvider;
+
+return [
+    // ...
+
+    'home' => RouteServiceProvider::HOME,
+```
+
+> **💡 なぜRouteServiceProvider::HOMEを使うのか？**
+>
+> リダイレクト先を直接 `'/dashboard'` と書くこともできますが、`RouteServiceProvider::HOME` を使うことで、アプリケーション全体でリダイレクト先を一元管理できます。将来的にホームページを変更する際も、`RouteServiceProvider.php`の1箇所を修正するだけで済みます。
 
 ---
 

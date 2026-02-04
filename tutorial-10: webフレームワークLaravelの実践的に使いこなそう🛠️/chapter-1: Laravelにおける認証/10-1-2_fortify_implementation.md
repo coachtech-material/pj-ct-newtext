@@ -127,26 +127,78 @@ sail artisan route:list --path=logout
 
 ---
 
-### 🎨 ビューのカスタマイズ
+### 🔧 サービスプロバイダの登録
+
+`vendor:publish`コマンドで`FortifyServiceProvider`が作成されますが、**手動で`config/app.php`に登録する必要があります**。
+
+**`config/app.php`**
+
+```php
+'providers' => [
+    // ...既存のプロバイダ
+
+    /*
+     * Application Service Providers...
+     */
+    App\Providers\AppServiceProvider::class,
+    // App\Providers\AuthServiceProvider::class,
+    // App\Providers\BroadcastServiceProvider::class,
+    App\Providers\EventServiceProvider::class,
+    App\Providers\RouteServiceProvider::class,
+    App\Providers\FortifyServiceProvider::class, // ← この行を追加
+],
+```
+
+> ⚠️ **注意**: この登録を忘れると、Fortifyのルートやビューが機能しません。
+
+---
+
+### 🎨 FortifyServiceProviderの設定
 
 Fortifyは、フロントエンドを提供しないため、ログインフォームやユーザー登録フォームを自分で作成する必要があります。
 
-**FortifyServiceProviderでビューを指定**
+`app/Providers/FortifyServiceProvider.php`の`boot`メソッドで、アクションクラスの登録、レート制限、ビューの指定を行います。
 
-`app/Providers/FortifyServiceProvider.php`の`boot`メソッドで、表示するビューを指定します：
+**FortifyServiceProvider.php**
 
 ```php
 <?php
 
 namespace App\Providers;
 
+use App\Actions\Fortify\CreateNewUser;
+use App\Actions\Fortify\ResetUserPassword;
+use App\Actions\Fortify\UpdateUserPassword;
+use App\Actions\Fortify\UpdateUserProfileInformation;
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Str;
 use Laravel\Fortify\Fortify;
 
 class FortifyServiceProvider extends ServiceProvider
 {
+    public function register(): void
+    {
+        //
+    }
+
     public function boot(): void
     {
+        // アクションクラスの登録
+        Fortify::createUsersUsing(CreateNewUser::class);
+        Fortify::updateUserProfileInformationUsing(UpdateUserProfileInformation::class);
+        Fortify::updateUserPasswordsUsing(UpdateUserPassword::class);
+        Fortify::resetUserPasswordsUsing(ResetUserPassword::class);
+
+        // ログイン試行回数の制限（1分間に5回まで）
+        RateLimiter::for('login', function (Request $request) {
+            $throttleKey = Str::transliterate(Str::lower($request->input(Fortify::username())).'|'.$request->ip());
+
+            return Limit::perMinute(5)->by($throttleKey);
+        });
+
         // ログインフォームのビューを指定
         Fortify::loginView(function () {
             return view('auth.login');
@@ -160,11 +212,22 @@ class FortifyServiceProvider extends ServiceProvider
 }
 ```
 
-**コードリーディング**：
+**コードリーディング**
 
-*   `Fortify::loginView()`：ログインフォームのビューを指定
-*   `Fortify::registerView()`：ユーザー登録フォームのビューを指定
-*   `view('auth.login')`：`resources/views/auth/login.blade.php`を表示
+| コード | 説明 |
+|:---|:---|
+| `Fortify::createUsersUsing(CreateNewUser::class)` | ユーザー登録時に`CreateNewUser`アクションを使用 |
+| `Fortify::updateUserProfileInformationUsing(...)` | プロフィール更新時のアクションを指定 |
+| `Fortify::updateUserPasswordsUsing(...)` | パスワード更新時のアクションを指定 |
+| `Fortify::resetUserPasswordsUsing(...)` | パスワードリセット時のアクションを指定 |
+| `RateLimiter::for('login', ...)` | ログイン試行回数を制限（ブルートフォース攻撃対策） |
+| `Limit::perMinute(5)` | 1分間に5回までに制限 |
+| `Fortify::loginView(...)` | ログインフォームのビューを指定 |
+| `Fortify::registerView(...)` | ユーザー登録フォームのビューを指定 |
+
+> **💡 RateLimiterとは？**
+>
+> ログイン試行回数を制限することで、悪意のあるユーザーがパスワードを総当たりで試す「ブルートフォース攻撃」を防ぎます。1分間に5回以上ログインに失敗すると、一時的にログインがブロックされます。
 
 ---
 
@@ -286,17 +349,6 @@ Route::middleware('auth')->group(function () {
 
 ## 💡 TIP
 
-### FortifyServiceProviderの登録
-
-Fortifyをインストールすると、`FortifyServiceProvider`が自動的に`config/app.php`の`providers`配列に追加されます。もし追加されていない場合は、手動で追加する必要があります。
-
-```php
-'providers' => [
-    // ...
-    App\Providers\FortifyServiceProvider::class,
-],
-```
-
 ### パスワードのバリデーションルール
 
 `CreateNewUser.php`で使われている`$this->passwordRules()`は、`PasswordValidationRules`トレイトで定義されています。デフォルトでは、以下のルールが適用されます：
@@ -313,8 +365,9 @@ Fortifyをインストールすると、`FortifyServiceProvider`が自動的に`
 このセクションでは、Laravel Fortifyの認証機能について学びました。
 
 *   **Fortifyのインストール**は、Composerで`laravel/fortify`をインストールし、設定ファイルを公開する
+*   **FortifyServiceProvider**を`config/app.php`の`providers`配列に登録する必要がある
+*   **FortifyServiceProvider**で、アクションクラスの登録、レート制限、ビューの指定を行う
 *   Fortifyは、**POSTリクエストの処理**のみを提供し、GETリクエスト（フォーム表示）は自分で作成する
-*   **FortifyServiceProvider**で、ログインフォームとユーザー登録フォームのビューを指定する
 *   **CreateNewUser**アクションクラスで、ユーザー登録時のバリデーションとパスワードのハッシュ化が行われる
 *   **認証ミドルウェア**を使うと、ログインしていないユーザーを自動的にリダイレクトできる
 

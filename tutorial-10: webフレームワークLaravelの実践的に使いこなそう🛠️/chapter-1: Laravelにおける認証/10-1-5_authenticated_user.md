@@ -70,11 +70,13 @@ $user = Auth::user();
 
 #### 方法3: `$request->user()`
 
+コントローラーのメソッド内で使う場合は、`$request->user()`が便利です。`Request`オブジェクトから直接ユーザーを取得できるため、依存性注入のパターンに沿った書き方ができます。
+
 ```php
 public function show(Request $request)
 {
     $user = $request->user();
-    
+
     return view('profile', ['user' => $user]);
 }
 ```
@@ -83,7 +85,11 @@ public function show(Request $request)
 
 ### 🔍 ログイン状態の確認
 
+ユーザー情報を取得する前に、「そもそもログインしているか」を確認したい場合があります。
+
 #### `auth()->check()`
+
+`auth()->check()`は、ユーザーがログインしているかどうかを**真偽値（true/false）**で返します。「ログインしていれば何かをする」という条件分岐に使います。
 
 ```php
 if (auth()->check()) {
@@ -97,6 +103,8 @@ if (auth()->check()) {
 
 #### `auth()->guest()`
 
+`auth()->guest()`は、`auth()->check()`の**逆**です。ユーザーが**ログインしていない（ゲスト）**場合に`true`を返します。「未ログインの場合に何かをする」という条件分岐に使います。
+
 ```php
 if (auth()->guest()) {
     echo '未ログイン';
@@ -104,6 +112,13 @@ if (auth()->guest()) {
     echo 'ログイン済み';
 }
 ```
+
+> **💡 使い分けのポイント**
+>
+> - `auth()->check()`：「ログイン済みなら〜する」という処理に使う
+> - `auth()->guest()`：「未ログインなら〜する」という処理に使う
+>
+> どちらを使っても同じことはできますが、コードの意図が明確になる方を選びましょう。
 
 ---
 

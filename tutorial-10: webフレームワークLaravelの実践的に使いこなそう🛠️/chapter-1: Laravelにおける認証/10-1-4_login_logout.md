@@ -138,22 +138,21 @@ Fortifyを使ったログインは、以下の流れで行われます：
 
 ### 🔧 FortifyServiceProviderでビューを指定
 
-`boot`メソッドで`loginView`を設定します：
+10-1-2で設定した`FortifyServiceProvider`の`boot`メソッドに、以下の記述があります：
 
 ```php
-public function boot(): void
-{
-    // ユーザー登録フォームのビューを指定
-    Fortify::registerView(function () {
-        return view('auth.register');
-    });
-
-    // ログインフォームのビューを指定
-    Fortify::loginView(function () {
-        return view('auth.login');
-    });
-}
+// ログインフォームのビューを指定
+Fortify::loginView(function () {
+    return view('auth.login');
+});
 ```
+
+**コードリーディング**：
+
+| コード | 説明 |
+|:---|:---|
+| `Fortify::loginView(...)` | `/login`にGETリクエストが来たときに表示するビューを指定 |
+| `view('auth.login')` | `resources/views/auth/login.blade.php`を表示 |
 
 ---
 
@@ -192,11 +191,80 @@ POST      login .......... Laravel\Fortify\Http\Controllers\AuthenticatedSession
 
 ---
 
+### 🏠 ダッシュボードの作成
+
+ログイン後に表示するダッシュボードを作成します。ダッシュボードには、ユーザー情報の表示と**ログアウトボタン**を配置します。
+
+**コントローラー（DashboardController.php）**
+
+```php
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+
+class DashboardController extends Controller
+{
+    public function index(Request $request)
+    {
+        return view('dashboard', [
+            'user' => $request->user(),
+        ]);
+    }
+}
+```
+
+**ルート（routes/web.php）**
+
+```php
+use App\Http\Controllers\DashboardController;
+
+Route::middleware('auth')->group(function () {
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+});
+```
+
+**ビュー（dashboard.blade.php）**
+
+`resources/views/dashboard.blade.php`を作成します：
+
+```blade
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>ダッシュボード</title>
+    <style>
+        body { font-family: sans-serif; max-width: 600px; margin: 50px auto; padding: 20px; }
+        .card { background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+        .logout-btn { background: #dc3545; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>ダッシュボード</h1>
+
+    <div class="card">
+        <h2>ようこそ、{{ $user->name }}さん！</h2>
+        <p>メールアドレス: {{ $user->email }}</p>
+        <p>登録日: {{ $user->created_at->format('Y年m月d日') }}</p>
+    </div>
+
+    <form method="POST" action="{{ route('logout') }}">
+        @csrf
+        <button type="submit" class="logout-btn">ログアウト</button>
+    </form>
+</body>
+</html>
+```
+
+---
+
 ### 🔓 ログアウト機能
 
-ログアウト機能は、ダッシュボードなどのビューにログアウトボタンを追加することで実装します。
+上記のダッシュボードに含まれる**ログアウトボタン**の仕組みを詳しく見ていきます。
 
-**ログアウトボタンの例**
+**ログアウトボタンのコード**
 
 ```blade
 <form method="POST" action="{{ route('logout') }}">
@@ -207,15 +275,11 @@ POST      login .......... Laravel\Fortify\Http\Controllers\AuthenticatedSession
 
 **コードリーディング**：
 
-```blade
-<form method="POST" action="{{ route('logout') }}">
-```
-→ Fortifyが自動的に登録した`logout`ルートにPOSTします。
-
-```blade
-@csrf
-```
-→ CSRF対策のトークン。ログアウトもPOSTリクエストなので必要です。
+| コード | 説明 |
+|:---|:---|
+| `method="POST"` | ログアウトはPOSTリクエストで行う（セキュリティ上重要） |
+| `action="{{ route('logout') }}"` | Fortifyが自動登録した`logout`ルートにPOST |
+| `@csrf` | CSRF対策トークン（POSTリクエストには必須） |
 
 **ルートの確認方法**
 
@@ -398,81 +462,13 @@ public function index(Request $request)
 
 ---
 
-### 🚀 実践例: ダッシュボードの作成
-
-ログイン後に表示するダッシュボードの実装例を見ていきます。
-
-**コントローラーの例**
-
-```php
-<?php
-
-namespace App\Http\Controllers;
-
-use Illuminate\Http\Request;
-
-class DashboardController extends Controller
-{
-    public function index(Request $request)
-    {
-        return view('dashboard', [
-            'user' => $request->user(),
-        ]);
-    }
-}
-```
-
-**ルートの定義例**
-
-```php
-use App\Http\Controllers\DashboardController;
-
-Route::middleware('auth')->group(function () {
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-});
-```
-
-**ビューの例**
-
-`resources/views/dashboard.blade.php`の例：
-
-```blade
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <title>ダッシュボード</title>
-    <style>
-        body { font-family: sans-serif; max-width: 600px; margin: 50px auto; padding: 20px; }
-        .card { background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
-        .logout-btn { background: #dc3545; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; }
-    </style>
-</head>
-<body>
-    <h1>ダッシュボード</h1>
-    
-    <div class="card">
-        <h2>ようこそ、{{ $user->name }}さん！</h2>
-        <p>メールアドレス: {{ $user->email }}</p>
-        <p>登録日: {{ $user->created_at->format('Y年m月d日') }}</p>
-    </div>
-    
-    <form method="POST" action="{{ route('logout') }}">
-        @csrf
-        <button type="submit" class="logout-btn">ログアウト</button>
-    </form>
-</body>
-</html>
-```
-
----
-
 ## ✨ まとめ
 
 このセクションでは、Laravel Fortifyを使ったログイン・ログアウト機能について学びました。
 
-*   **Bladeファイル**を作成し、`FortifyServiceProvider`で指定する
-*   **コントローラーを自作する必要がない**：Fortifyが内部で処理を行う
+*   **ログインフォーム（login.blade.php）**を作成し、`FortifyServiceProvider`で指定する
+*   **ダッシュボード（dashboard.blade.php）**を作成し、ログイン後のリダイレクト先として設定する
+*   **ログアウトボタン**はPOSTリクエストで実装し、ダッシュボードに配置する
 *   **セッションベース認証**：ログイン状態はセッションで管理される
 *   **認証ミドルウェア**を使うと、ログインしていないユーザーを自動的にリダイレクトできる
 *   **@auth / @endauth**ディレクティブで、ログイン状態に応じた表示ができる
