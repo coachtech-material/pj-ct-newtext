@@ -273,6 +273,11 @@ $request->input('message')
 
 ### 2-5. Thunder Clientでテスト
 
+> 💡 **Thunder Clientとは**
+>
+> VSCodeの拡張機能で、APIテストを行うツールです。詳しいセットアップ方法は「11-1-4 API開発ツール」で学びます。
+> まだインストールしていない場合は、VSCodeの拡張機能から「Thunder Client」を検索してインストールしてください。
+
 Thunder Clientを使って、作成したAPIをテストします。
 
 **1. Hello World API**

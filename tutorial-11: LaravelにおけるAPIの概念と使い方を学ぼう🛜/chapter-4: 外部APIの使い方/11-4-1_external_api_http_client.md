@@ -24,7 +24,7 @@
 |------|-----|
 | 決済API | Stripe、PayPal |
 | 地図API | Google Maps |
-| SNS API | Twitter、LINE |
+| SNS API | X（旧Twitter）、LINE |
 | その他 | 天気API、翻訳API |
 
 ---
@@ -355,7 +355,9 @@ $apiKey = env('OPENWEATHER_API_KEY');
 
 ## 💡 TIP: テストでのモック
 
-テストでは、実際のAPIにリクエストを送信せず、モックを使います。
+テストでは、実際のAPIにリクエストを送信せず、**モック**（偽のレスポンスを返す仕組み）を使います。
+
+モックを使うことで、外部APIの状態に依存せず、安定したテストが可能になります。
 
 ```php
 use Illuminate\Support\Facades\Http;

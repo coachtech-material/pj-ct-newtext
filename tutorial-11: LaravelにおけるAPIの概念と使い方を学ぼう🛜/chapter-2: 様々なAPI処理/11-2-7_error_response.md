@@ -324,7 +324,9 @@ Laravelの`$request->validate()`は、バリデーションエラー時に自動
 
 - メソッド: `POST`
 - URL: `http://localhost/api/tasks`
-- Headers: `Content-Type: application/json`
+- Headers:
+  - `Content-Type: application/json`
+  - `Accept: application/json`
 - Body（JSON）:
 
 ```json

@@ -80,14 +80,23 @@ Laravelには、多くのセキュリティ機能が組み込まれています�
 
 Laravelでは、デフォルトでAPIにレート制限が適用されています。
 
-**ファイル**: `bootstrap/app.php`
+**ファイル**: `app/Http/Kernel.php`
 
 ```php
-->withMiddleware(function (Middleware $middleware) {
-    // レート制限の設定
-    $middleware->throttleApi();
-})
+protected $middlewareGroups = [
+    'web' => [
+        // ... 省略
+    ],
+
+    'api' => [
+        // \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
+        \Illuminate\Routing\Middleware\ThrottleRequests::class.':api',  // レート制限
+        \Illuminate\Routing\Middleware\SubstituteBindings::class,
+    ],
+];
 ```
+
+`ThrottleRequests::class.':api'` の部分で、`api`という名前のレート制限が適用されています。
 
 ---
 
@@ -95,7 +104,7 @@ Laravelでは、デフォルトでAPIにレート制限が適用されていま�
 
 デフォルトでは、**1分間に60回**までのリクエストが許可されています。
 
-**ファイル**: `app/Providers/AppServiceProvider.php`
+**ファイル**: `app/Providers/RouteServiceProvider.php`
 
 ```php
 <?php
@@ -105,14 +114,29 @@ namespace App\Providers;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
-use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\Route;
+use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 
-class AppServiceProvider extends ServiceProvider
+class RouteServiceProvider extends ServiceProvider
 {
     public function boot(): void
     {
+        $this->configureRateLimiting();
+
+        $this->routes(function () {
+            Route::middleware('api')
+                ->prefix('api')
+                ->group(base_path('routes/api.php'));
+
+            Route::middleware('web')
+                ->group(base_path('routes/web.php'));
+        });
+    }
+
+    protected function configureRateLimiting(): void
+    {
         RateLimiter::for('api', function (Request $request) {
-            return Limit::perMinute(60)->by($request->ip());
+            return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
         });
     }
 }
