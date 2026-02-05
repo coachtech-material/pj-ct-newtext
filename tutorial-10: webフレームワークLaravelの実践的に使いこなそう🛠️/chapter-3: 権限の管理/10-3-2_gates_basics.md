@@ -66,6 +66,8 @@ class AuthServiceProvider extends ServiceProvider
 
 #### `Gate::allows()`
 
+権限があるかを**真偽値（true/false）**で返します。条件分岐で使用します。
+
 ```php
 use Illuminate\Support\Facades\Gate;
 
@@ -82,6 +84,8 @@ if (Gate::allows('delete-post', $post)) {
 
 #### `Gate::denies()`
 
+権限が**ない**かを真偽値で返します。`allows()`の逆です。
+
 ```php
 if (Gate::denies('delete-post', $post)) {
     abort(403);
@@ -93,6 +97,8 @@ $post->delete();
 ---
 
 #### `Gate::authorize()`
+
+権限がない場合、**自動的に403エラー**を返します。if文が不要になります。
 
 ```php
 Gate::authorize('delete-post', $post);

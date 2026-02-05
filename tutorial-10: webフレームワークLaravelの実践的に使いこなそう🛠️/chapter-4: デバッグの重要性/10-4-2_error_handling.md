@@ -34,7 +34,7 @@ Laravelでは、全ての例外（Exception）は、`app/Exceptions/Handler.php`
 
 ### 🔍 HTTPステータスコードとエラーレスポンス
 
-REST APIでは、エラーが発生した際に、適切なHTTPステータスコードを返すことが重要です。
+Webアプリケーションでは、エラーが発生した際に、適切なHTTPステータスコードを返すことが重要です。
 
 | ステータスコード | 意味 | 用途 |
 |:---|:---|:---|
@@ -85,6 +85,8 @@ if (!$user) {
 
 ### 🎨 API用のエラーレスポンスをカスタマイズする
 
+> 💡 **補足**: 以下の内容はAPI開発で使用するテクニックです。APIについてはTutorial 11で詳しく学びます。今は「こういうことができる」程度の理解でOKです。
+
 `app/Exceptions/Handler.php`の`register`メソッドで、例外ごとのレスポンスをカスタマイズできます。
 
 **`app/Exceptions/Handler.php`**
@@ -126,9 +128,13 @@ class Handler extends ExceptionHandler
 
 **コードリーディング**
 
-*   `$this->renderable()`: 特定の例外に対するレスポンスをカスタマイズします。
-*   `ModelNotFoundException`: Eloquentで`findOrFail()`を使った際に、レコードが見つからない場合にスローされる例外。
-*   `$request->is('api/*')`: APIルート（`/api/`で始まるURL）の場合のみ、カスタムレスポンスを返します。
+このコードは「特定のエラーが起きたときに、どんなメッセージを返すか」をカスタマイズしています。
+
+*   `$this->renderable()`: 「このエラーが起きたら、このレスポンスを返す」というルールを登録します。
+*   `ModelNotFoundException`: データベースでレコードが見つからなかったときに発生するエラーです。
+*   `response()->json([...], 404)`: エラーメッセージをJSON形式で返します（APIで使用）。
+
+Tutorial 11でAPIを学ぶと、このコードの意味がより深く理解できます。
 
 ---
 
