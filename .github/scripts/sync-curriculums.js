@@ -87,7 +87,7 @@ function collectCurriculums() {
 function sendToApi(data, apiUrl, apiKey) {
   return new Promise((resolve, reject) => {
     const jsonData = JSON.stringify(data);
-    const url = new URL(apiUrl + '/api/deploy/sections/upsert');
+    const url = new URL(apiUrl + '/deploy/sections/upsert');
     const isHttps = url.protocol === 'https:';
     const client = isHttps ? https : http;
 
