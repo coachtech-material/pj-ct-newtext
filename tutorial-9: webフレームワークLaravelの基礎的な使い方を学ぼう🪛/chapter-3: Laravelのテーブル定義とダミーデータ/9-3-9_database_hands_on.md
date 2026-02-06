@@ -1,4 +1,4 @@
-# Tutorial 9-3-8: データベース操作 ハンズオン演習
+# Tutorial 9-3-9: データベース操作 ハンズオン演習
 
 ## 📝 このセクションの目的
 
@@ -19,7 +19,7 @@ Chapter 3で学んだLaravelのデータベース操作を実際に手を動か�
 
 ```
 ~/laravel-practice/
-├── 9-3-8_hands-on/                       ← このハンズオン用のディレクトリ
+├── 9-3-9_hands-on/                       ← このハンズオン用のディレクトリ
 │   ├── database-app-practice/            ← 要件を見て自分で作成するプロジェクト
 │   │   ├── app/
 │   │   ├── database/
@@ -49,7 +49,7 @@ Chapter 3で学んだLaravelのデータベース操作を実際に手を動か�
 ### 🖼️ 完成イメージ
 
 <!-- Tinkerでのデータ確認のスクリーンショットをここに配置 -->
-![9-3-8 完成イメージ](images/9-3-8_database_complete.png)
+![9-3-9 完成イメージ](images/9-3-9_database_complete.png)
 
 **この演習で作るもの**：
 マイグレーションでテーブルを作成し、シーダーでテストデータを投入し、クエリビルダでデータを操作する「商品管理システム」のデータベースを構築します。
@@ -167,8 +167,8 @@ DB::table('products')->get();
 cd ~/laravel-practice
 
 # ハンズオン用ディレクトリを作成
-mkdir -p 9-3-8_hands-on
-cd 9-3-8_hands-on
+mkdir -p 9-3-9_hands-on
+cd 9-3-9_hands-on
 
 # Laravel 10.xプロジェクトを作成（自分で作成する用）
 docker run --rm \
@@ -238,7 +238,7 @@ mysql:
 
 ```
 ~/laravel-practice/
-└── 9-3-8_hands-on/
+└── 9-3-9_hands-on/
     └── database-app-practice/     ← 自分で作成する用（今ここ）
         ├── app/
         ├── database/
@@ -290,7 +290,7 @@ Schema::create('products', function (Blueprint $table) {
 
 ```bash
 # database-app-practiceディレクトリに移動
-cd ~/laravel-practice/9-3-8_hands-on/database-app-practice
+cd ~/laravel-practice/9-3-9_hands-on/database-app-practice
 
 # Sailを停止
 ./vendor/bin/sail down
@@ -300,7 +300,7 @@ cd ~/laravel-practice/9-3-8_hands-on/database-app-practice
 
 ```bash
 # ハンズオンディレクトリに移動
-cd ~/laravel-practice/9-3-8_hands-on
+cd ~/laravel-practice/9-3-9_hands-on
 
 # Laravel 10.xプロジェクトを作成（実践用）
 docker run --rm \
@@ -345,7 +345,7 @@ docker run --rm \
 
 ```
 ~/laravel-practice/
-└── 9-3-8_hands-on/
+└── 9-3-9_hands-on/
     ├── database-app-practice/     ← 自分で作成した用（停止中）
     └── database-app-sample/       ← 実践用（今ここ、起動中）
         ├── app/
@@ -702,20 +702,20 @@ public function store(Request $request)
 
 ```bash
 # database-app-practiceで確認したい場合
-cd ~/laravel-practice/9-3-8_hands-on/database-app-sample
+cd ~/laravel-practice/9-3-9_hands-on/database-app-sample
 ./vendor/bin/sail down
 
-cd ~/laravel-practice/9-3-8_hands-on/database-app-practice
+cd ~/laravel-practice/9-3-9_hands-on/database-app-practice
 ./vendor/bin/sail up -d
 # マイグレーションとシーダーを実行
 ./vendor/bin/sail artisan migrate
 ./vendor/bin/sail artisan db:seed --class=ProductSeeder
 
 # database-app-sampleで確認したい場合
-cd ~/laravel-practice/9-3-8_hands-on/database-app-practice
+cd ~/laravel-practice/9-3-9_hands-on/database-app-practice
 ./vendor/bin/sail down
 
-cd ~/laravel-practice/9-3-8_hands-on/database-app-sample
+cd ~/laravel-practice/9-3-9_hands-on/database-app-sample
 ./vendor/bin/sail up -d
 ```
 
