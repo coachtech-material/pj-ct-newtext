@@ -1,6 +1,6 @@
 # GitHub Actions ワークフロー
 
-このディレクトリには、カリキュラムをStaging環境に同期するためのGitHub Actionsワークフローとスクリプトが含まれています。
+このディレクトリには、カリキュラムをStaging環境および本番環境に同期するためのGitHub Actionsワークフローとスクリプトが含まれています。
 
 ## 📋 目次
 
@@ -16,6 +16,10 @@
 ### sync-curriculums-staging.yml
 
 `staging`ブランチ内の教材コンテンツをStaging環境に登録・更新するワークフローです。
+
+### sync-curriculums-production.yml
+
+`main`ブランチ内の教材コンテンツを本番環境に登録・更新するワークフローです。
 
 ```mermaid
 flowchart TD
@@ -33,17 +37,29 @@ flowchart TD
 **重要な注意点：**
 
 - ⚠️ **手動実行のみ**：誤爆を防ぐため、現在は`workflow_dispatch`（手動実行）のみをサポートしています
-- 🔒 **ブランチ制限**：`staging`ブランチでのみ実行可能です
+- 🔒 **ブランチ制限**：
+  - Staging環境：`staging`ブランチでのみ実行可能
+  - 本番環境：`main`ブランチでのみ実行可能
 - 📝 **将来の拡張**：pushによる自動化も検討中ですが、安全性を優先して一旦保留しています
 
 ## 実行方法
 
 ### 1. GitHub上での手動実行
 
+#### Staging環境への同期
+
 1. GitHubリポジトリの「Actions」タブを開く
 2. 左サイドバーから「**教材をStaging環境に登録・更新**」を選択
 3. 「Run workflow」ボタンをクリック
 4. ブランチを`staging`に設定（デフォルトで選択されているはず）
+5. 「Run workflow」をクリックして実行
+
+#### 本番環境への同期
+
+1. GitHubリポジトリの「Actions」タブを開く
+2. 左サイドバーから「**教材を本番環境に登録・更新**」を選択
+3. 「Run workflow」ボタンをクリック
+4. ブランチを`main`に設定（デフォルトで選択されているはず）
 5. 「Run workflow」をクリックして実行
 
 ### 2. 実行フロー
@@ -73,11 +89,21 @@ sequenceDiagram
 
 以下のシークレットがリポジトリに設定されている必要があります：
 
+#### Staging環境用
+
 | Secret名               | 説明                         | 必須 |
 | ---------------------- | ---------------------------- | ---- |
 | `STAGING_API_URL`      | Staging環境のAPIベースURL    | ✅   |
 | `STAGING_API_KEY`      | API認証用のBearerトークン    | ✅   |
 | `STAGING_WORKSPACE_ID` | ワークスペースID（ULID形式） | ✅   |
+
+#### 本番環境用
+
+| Secret名                  | 説明                         | 必須 |
+| ------------------------- | ---------------------------- | ---- |
+| `PRODUCTION_API_URL`      | 本番環境のAPIベースURL       | ✅   |
+| `PRODUCTION_API_KEY`      | API認証用のBearerトークン    | ✅   |
+| `PRODUCTION_WORKSPACE_ID` | ワークスペースID（ULID形式） | ✅   |
 
 ### シークレットの設定方法
 
@@ -216,28 +242,34 @@ flowchart TD
 
 #### 1. `API_URL is not set`
 
-**原因：** GitHub Secretsに`STAGING_API_URL`が設定されていない（スクリプト内では`API_URL`として読み込まれます）
+**原因：** GitHub Secretsに環境変数が設定されていない（スクリプト内では`API_URL`として読み込まれます）
 
 **対処法：**
 
+- Staging環境の場合：`STAGING_API_URL`が設定されているか確認
+- 本番環境の場合：`PRODUCTION_API_URL`が設定されているか確認
 - リポジトリのSettings → Secrets and variables → Actionsで確認
 - 必要に応じてシークレットを追加
 
 #### 2. `API_KEY is not set`
 
-**原因：** GitHub Secretsに`STAGING_API_KEY`が設定されていない（スクリプト内では`API_KEY`として読み込まれます）
+**原因：** GitHub Secretsに環境変数が設定されていない（スクリプト内では`API_KEY`として読み込まれます）
 
 **対処法：**
 
+- Staging環境の場合：`STAGING_API_KEY`が設定されているか確認
+- 本番環境の場合：`PRODUCTION_API_KEY`が設定されているか確認
 - リポジトリのSettings → Secrets and variables → Actionsで確認
 - 必要に応じてシークレットを追加
 
 #### 3. `WORKSPACE_ID is not set`
 
-**原因：** GitHub Secretsに`STAGING_WORKSPACE_ID`が設定されていない（スクリプト内では`WORKSPACE_ID`として読み込まれます）
+**原因：** GitHub Secretsに環境変数が設定されていない（スクリプト内では`WORKSPACE_ID`として読み込まれます）
 
 **対処法：**
 
+- Staging環境の場合：`STAGING_WORKSPACE_ID`が設定されているか確認
+- 本番環境の場合：`PRODUCTION_WORKSPACE_ID`が設定されているか確認
 - リポジトリのSettings → Secrets and variables → Actionsで確認
 - 必要に応じてシークレットを追加
 
@@ -251,14 +283,14 @@ flowchart TD
 - APIのエラーメッセージを参照
 - API URLやAPI Keyが正しいか確認
 
-#### 5. `staging`ブランチ以外で実行できない
+#### 5. 指定されたブランチ以外で実行できない
 
-**原因：** ワークフローは`staging`ブランチでのみ実行可能
+**原因：** ワークフローは特定のブランチでのみ実行可能
 
 **対処法：**
 
-- `staging`ブランチに切り替えてから実行
-- または、`staging`ブランチにマージしてから実行
+- Staging環境の場合：`staging`ブランチに切り替えてから実行、または`staging`ブランチにマージしてから実行
+- 本番環境の場合：`main`ブランチに切り替えてから実行、または`main`ブランチにマージしてから実行
 
 #### 6. 教材が正しく更新されない
 
@@ -315,5 +347,6 @@ env:
 
 ## 関連ファイル
 
-- **ワークフローファイル**: `.github/workflows/sync-curriculums-staging.yml`
+- **Staging環境用ワークフローファイル**: `.github/workflows/sync-curriculums-staging.yml`
+- **本番環境用ワークフローファイル**: `.github/workflows/sync-curriculums-production.yml`
 - **スクリプト**: `.github/scripts/sync-curriculums.js`
