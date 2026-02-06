@@ -7,9 +7,6 @@ jobs:
   sync-curriculums:
     runs-on: ubuntu-latest
 
-    # staging ブランチのみで実行可能
-    if: github.ref == 'refs/heads/staging'
-
     steps:
       - name: リポジトリを取得
         uses: actions/checkout@v4
