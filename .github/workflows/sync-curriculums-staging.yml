@@ -1,0 +1,29 @@
+name: 教材をStaging環境に登録・更新
+
+on:
+  workflow_dispatch:
+
+jobs:
+  sync-curriculums:
+    runs-on: ubuntu-latest
+
+    # staging ブランチのみで実行可能
+    if: github.ref == 'refs/heads/staging'
+
+    steps:
+      - name: リポジトリを取得
+        uses: actions/checkout@v4
+        with:
+          ref: staging
+
+      - name: Node.js環境をセットアップ
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: 教材データを収集してAPIに送信
+        env:
+          API_URL: ${{ secrets.STAGING_API_URL }}
+          API_KEY: ${{ secrets.STAGING_API_KEY }}
+          WORKSPACE_ID: ${{ secrets.STAGING_WORKSPACE_ID }}
+        run: node .github/scripts/sync-curriculums.js
