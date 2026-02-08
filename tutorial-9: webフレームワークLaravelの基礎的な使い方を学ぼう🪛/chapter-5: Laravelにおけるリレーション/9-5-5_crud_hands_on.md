@@ -1,35 +1,32 @@
-# Tutorial 9-5-5: CRUD機能 - ハンズオン演習
+# Tutorial 9-5-5: リレーション - ハンズオン演習
 
-## 📝 このセクションの目的
+## 📌 このハンズオンについて
 
-Chapter 5で学んだCRUD機能を実際に手を動かして確認します。タスク管理アプリを作成して、Create、Read、Update、Deleteの全機能を実装しましょう。
+Chapter 5で学んだリレーションを実際に手を動かして確認します。1対多（Post/Comment）と多対多（Post/Tag）のリレーションを実装しましょう。
 
 > 分からない文法や実装があっても、すぐに答えを見るのではなく、過去の教材を見たり、AIにヒントをもらいながら進めるなど、自身で創意工夫しながら進めてみましょう🔥
 
-**学習のポイント**：
-- リソースコントローラーを使えるか
-- フォームからデータを送信できるか
-- CRUD操作を実装できるか
+> 💡 **このハンズオンのポイント**: リレーションを定義し、Eager Loadingとリレーションクエリを使って効率的にデータを取得することが目的です。
+
+> ⚠️ **このハンズオンの範囲**: リレーションの定義に集中するため、今回は**閲覧機能（一覧・詳細）のみ**を実装します。データの作成・編集・削除機能は作らず、テストデータは**Tinker**で作成します。
 
 ---
 
-## 📁 ディレクトリ構成
+### ディレクトリ構成
 
 このハンズオンでは、「自分で作成する用」と「解答を確認する用」の2つのプロジェクトを作成します。
 
 ```
 ~/laravel-practice/
 ├── 9-5-5_hands-on/                       ← このハンズオン用のディレクトリ
-│   ├── task-app-practice/                ← 要件を見て自分で作成するプロジェクト
+│   ├── relation-app-practice/            ← 要件を見て自分で作成するプロジェクト
 │   │   ├── app/
 │   │   ├── database/
-│   │   ├── resources/views/
 │   │   ├── routes/
 │   │   └── ...
-│   └── task-app-sample/                  ← 実践で一緒に作成するプロジェクト
+│   └── relation-app-sample/              ← 実践で一緒に作成するプロジェクト
 │       ├── app/
 │       ├── database/
-│       ├── resources/views/
 │       ├── routes/
 │       └── ...
 └── ...
@@ -37,8 +34,8 @@ Chapter 5で学んだCRUD機能を実際に手を動かして確認します。�
 
 | ディレクトリ | 用途 | URL |
 |:---|:---|:---|
-| `task-app-practice/` | 📋 要件を見て、自分の力で作成する | `http://localhost/tasks` |
-| `task-app-sample/` | 🏃 実践セクションで、一緒に手を動かしながら作成する | `http://localhost/tasks` |
+| `relation-app-practice/` | 📋 要件を見て、自分の力で作成する | `http://localhost/posts` |
+| `relation-app-sample/` | 🏃 実践セクションで、一緒に手を動かしながら作成する | `http://localhost/posts` |
 
 > 💡 **なぜ2つに分けるのか？**: 自分で考えて作成したコードと、解答を見ながら作成したコードを比較することで、理解が深まります。
 
@@ -46,168 +43,112 @@ Chapter 5で学んだCRUD機能を実際に手を動かして確認します。�
 
 ---
 
-## 🎯 演習課題：タスク管理アプリを作成しよう
+## 🎯 演習課題：リレーションを使ったブログシステム
+
+**この演習で作るもの**：
+リレーションを使った「ブログシステム」を作成します。投稿にコメント（1対多）とタグ（多対多）を関連付けます。
 
 ### 🖼️ 完成イメージ
 
-<!-- タスク一覧画面のスクリーンショットをここに配置 -->
-![9-5-5 完成イメージ](images/9-5-5_crud_complete.png)
-
-**この演習で作るもの**：
-CRUD機能（作成・読み取り・更新・削除）を備えた「タスク管理アプリ」を作成します。
-
----
-
-### 📋 要件
-
-#### 1. Taskモデルとマイグレーションの作成
-
-**カラム構成**：
-- id, title (VARCHAR 200), description (TEXT nullable), status (VARCHAR 20, default 'pending'), due_date (DATE nullable), timestamps
-
-#### 2. リソースコントローラーの作成
-
-`TaskController`をリソースコントローラーとして作成してください。
-
-#### 3. ビューの作成
-
-以下のビューを作成してください：
-
-- `tasks/index.blade.php`: タスク一覧
-- `tasks/create.blade.php`: タスク作成フォーム
-- `tasks/edit.blade.php`: タスク編集フォーム
-
-#### 4. ルートの定義
-
-リソースルートを定義してください。
-
----
-
-### ✅ 完成品の確認方法
-
-**🌐 ブラウザでの確認（推奨）**
-
-- **動作確認URL**: `http://localhost/tasks`
-- **確認手順**:
-  1. Sailを起動する（`./vendor/bin/sail up -d`）
-  2. マイグレーションを実行（`./vendor/bin/sail artisan migrate`）
-  3. ブラウザで `http://localhost/tasks` にアクセス
-
-**正しく実装できていれば**:
-- [ ] タスク一覧が表示される
-- [ ] 「新規作成」ボタンをクリックすると作成フォームが表示される
-- [ ] タスクを作成すると一覧に追加される
-- [ ] 「編集」ボタンをクリックすると編集フォームが表示される
-- [ ] タスクを更新すると内容が変更される
-- [ ] 「削除」ボタンをクリックするとタスクが削除される
-
-> 📌 **Bladeファイルについて**: バックエンド実装に集中するため、動作確認用のシンプルなBladeファイルを以下に用意しています。
-
 <details>
-<summary>📄 確認用Bladeファイル（クリックで展開）</summary>
+<summary>📸 完成画面を確認する（クリックで展開）</summary>
 
-`resources/views/tasks/index.blade.php`:
+**投稿一覧ページ**
 
-```blade
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <title>タスク一覧</title>
-</head>
-<body>
-    <h1>タスク一覧</h1>
-    <a href="{{ route('tasks.create') }}">新規作成</a>
-    <table border="1">
-        <tr><th>ID</th><th>タイトル</th><th>ステータス</th><th>操作</th></tr>
-        @foreach ($tasks as $task)
-            <tr>
-                <td>{{ $task->id }}</td>
-                <td>{{ $task->title }}</td>
-                <td>{{ $task->status }}</td>
-                <td>
-                    <a href="{{ route('tasks.edit', $task) }}">編集</a>
-                    <form action="{{ route('tasks.destroy', $task) }}" method="POST" style="display:inline;">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit">削除</button>
-                    </form>
-                </td>
-            </tr>
-        @endforeach
-    </table>
-</body>
-</html>
-```
+<img alt="9-5-5_1.png" src="">
 
-`resources/views/tasks/create.blade.php`:
+**投稿詳細ページ**
 
-```blade
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <title>タスク作成</title>
-</head>
-<body>
-    <h1>タスク作成</h1>
-    <form action="{{ route('tasks.store') }}" method="POST">
-        @csrf
-        <p><label>タイトル: <input type="text" name="title" required></label></p>
-        <p><label>説明: <textarea name="description"></textarea></label></p>
-        <p><label>期限: <input type="date" name="due_date"></label></p>
-        <button type="submit">作成</button>
-    </form>
-    <a href="{{ route('tasks.index') }}">戻る</a>
-</body>
-</html>
-```
-
-`resources/views/tasks/edit.blade.php`:
-
-```blade
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <title>タスク編集</title>
-</head>
-<body>
-    <h1>タスク編集</h1>
-    <form action="{{ route('tasks.update', $task) }}" method="POST">
-        @csrf
-        @method('PUT')
-        <p><label>タイトル: <input type="text" name="title" value="{{ $task->title }}" required></label></p>
-        <p><label>説明: <textarea name="description">{{ $task->description }}</textarea></label></p>
-        <p><label>ステータス:
-            <select name="status">
-                <option value="pending" {{ $task->status === 'pending' ? 'selected' : '' }}>未着手</option>
-                <option value="in_progress" {{ $task->status === 'in_progress' ? 'selected' : '' }}>進行中</option>
-                <option value="completed" {{ $task->status === 'completed' ? 'selected' : '' }}>完了</option>
-            </select>
-        </label></p>
-        <p><label>期限: <input type="date" name="due_date" value="{{ $task->due_date }}"></label></p>
-        <button type="submit">更新</button>
-    </form>
-    <a href="{{ route('tasks.index') }}">戻る</a>
-</body>
-</html>
-```
+<img alt="9-5-5_2.png" src="">
 
 </details>
 
 ---
 
-### 📁 Step 0: 環境を準備する（自分で作成する用）
+### 📋 要件
+
+- 投稿一覧が閲覧できる（コメント数・タグ表示）
+- 投稿詳細が閲覧できる（コメント一覧表示）
+- タグで投稿を絞り込める
+
+> ⚠️ **注意**: このハンズオンでは**閲覧機能（index/show）のみ**を実装します。データの作成・編集・削除は行わず、テストデータはTinkerで作成します。
+
+**テーブル構成**：
+
+**postsテーブル**
+
+| カラム名 | 型 | 備考 |
+|:---------|:---|:-----|
+| id | BIGINT | 主キー、自動採番 |
+| title | VARCHAR(200) | タイトル |
+| content | TEXT | 本文 |
+| created_at | TIMESTAMP | 作成日時 |
+| updated_at | TIMESTAMP | 更新日時 |
+
+**commentsテーブル**
+
+| カラム名 | 型 | 備考 |
+|:---------|:---|:-----|
+| id | BIGINT | 主キー、自動採番 |
+| post_id | BIGINT | 外部キー（postsテーブル） |
+| body | TEXT | コメント本文 |
+| created_at | TIMESTAMP | 作成日時 |
+| updated_at | TIMESTAMP | 更新日時 |
+
+**tagsテーブル**
+
+| カラム名 | 型 | 備考 |
+|:---------|:---|:-----|
+| id | BIGINT | 主キー、自動採番 |
+| name | VARCHAR(50) | タグ名 |
+| created_at | TIMESTAMP | 作成日時 |
+| updated_at | TIMESTAMP | 更新日時 |
+
+**post_tagテーブル（中間テーブル）**
+
+| カラム名 | 型 | 備考 |
+|:---------|:---|:-----|
+| id | BIGINT | 主キー、自動採番 |
+| post_id | BIGINT | 外部キー（postsテーブル） |
+| tag_id | BIGINT | 外部キー（tagsテーブル） |
+
+---
+
+### ✅ 完成チェックリスト
+
+- [ ] `/posts`にアクセスすると投稿一覧が表示される
+- [ ] 各投稿にコメント数が表示される
+- [ ] 各投稿にタグが表示される
+- [ ] `/posts/{id}`にアクセスすると投稿詳細とコメント一覧が表示される
+- [ ] `/posts?tag=Laravel`でタグ絞り込みができる
+
+> 💡 **動作確認**: `http://localhost/posts` にアクセス
+
+---
+
+### ✏️ 実装タスク
+
+1. モデルとマイグレーションを作成する（Post → Comment → Tag → post_tag の順）
+2. リレーションを定義する（hasMany, belongsTo, belongsToMany）
+3. **Tinkerでテストデータを作成する**
+4. コントローラーでEager Loadingとタグ絞り込みを実装する
+5. ルーティングを設定する
+6. Bladeファイルを配置する
+
+> 💡 Bladeファイルは「⚙️ 環境準備」セクションで提供します。
+
+---
+
+## ⚙️ 環境準備（自分で作成する用）
 
 まず、ハンズオン用のディレクトリを作成し、**自分で作成する用**のプロジェクトを準備します。
 
 > **📌 Dockerが起動していることを確認**
-> 
+>
 > 以下のコマンドを実行する前に、Docker Desktop（またはDocker Engine）が起動していることを確認してください。
 
 > **📌 前のハンズオンのプロジェクトを停止**
-> 
+>
 > 前のハンズオン（9-4-9）のプロジェクトが起動している場合は、先に停止してください。
 > ```bash
 > cd ~/laravel-practice/9-4-9_hands-on/eloquent-app-sample
@@ -221,7 +162,9 @@ cd ~/laravel-practice
 # ハンズオン用ディレクトリを作成
 mkdir -p 9-5-5_hands-on
 cd 9-5-5_hands-on
+```
 
+```bash
 # Laravel 10.xプロジェクトを作成（自分で作成する用）
 docker run --rm \
     -u "$(id -u):$(id -g)" \
@@ -229,12 +172,12 @@ docker run --rm \
     -w /var/www/html \
     -e COMPOSER_CACHE_DIR=/tmp/composer_cache \
     laravelsail/php82-composer:latest \
-    composer create-project laravel/laravel:^10.0 task-app-practice
+    composer create-project laravel/laravel:^10.0 relation-app-practice
 ```
 
 ```bash
 # プロジェクトディレクトリに移動
-cd task-app-practice
+cd relation-app-practice
 
 # Laravel Sailのインストール
 docker run --rm \
@@ -285,70 +228,211 @@ mysql:
 # アプリケーションキーの生成
 ./vendor/bin/sail artisan key:generate
 
-# データベースのマイグレーション
-./vendor/bin/sail artisan migrate
+# データベースをリセットしてマイグレーション実行
+./vendor/bin/sail artisan migrate:fresh
 ```
+
+> 💡 `migrate:fresh`を使うことで、前のハンズオンのデータをクリアして新しい状態から始められます。
 
 **✅ ディレクトリ構造の確認**
 
 ```
 ~/laravel-practice/
 └── 9-5-5_hands-on/
-    └── task-app-practice/     ← 自分で作成する用（今ここ）
+    └── relation-app-practice/     ← 自分で作成する用（今ここ）
         ├── app/
         ├── database/
-        ├── resources/views/
         ├── routes/
         └── ...
 ```
 
 > 💡 **環境構築が完了！**
-> 
+>
 > ブラウザで `http://localhost` にアクセスして、Laravelのウェルカムページが表示されれば成功です。
 
-> 💡 **ポイント**: タスクのデータは、モデルとマイグレーションを作成した後、tinkerで作成します。実践セクションの「ステップ4: Tinkerでデータ構造を確認する」を参考にしてください。
+> ⚠️ **テストデータについて**: このハンズオンでは閲覧機能のみを実装するため、データ作成画面はありません。モデルとリレーション実装後、**Tinkerでテストデータを作成**します（実装タスクのステップ3）。
 
-**ここから先は、自分の力で実装してみましょう！**
+---
+
+### 📄 提供ファイル
+
+**`resources/views/posts/index.blade.php`**（投稿一覧）
+
+```blade
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>投稿一覧</title>
+    <style>
+        body { font-family: sans-serif; margin: 20px; }
+        h1 { color: #333; }
+        .post { border: 1px solid #ddd; padding: 15px; margin-bottom: 15px; border-radius: 5px; }
+        .post h2 { margin: 0 0 10px 0; }
+        .post h2 a { text-decoration: none; color: #007bff; }
+        .meta { color: #666; font-size: 14px; margin-bottom: 10px; }
+        .tags { margin-top: 10px; }
+        .tag { display: inline-block; background: #e9ecef; padding: 3px 8px; border-radius: 3px; margin-right: 5px; font-size: 12px; text-decoration: none; color: #333; }
+        .tag:hover { background: #dee2e6; }
+        .filter { margin-bottom: 20px; padding: 10px; background: #f8f9fa; border-radius: 5px; }
+        .filter a { margin-left: 10px; }
+    </style>
+</head>
+<body>
+    <h1>投稿一覧</h1>
+
+    @if(request('tag'))
+        <div class="filter">
+            タグ「{{ request('tag') }}」で絞り込み中
+            <a href="/posts">絞り込み解除</a>
+        </div>
+    @endif
+
+    <p>全{{ count($posts) }}件の投稿があります。</p>
+
+    @foreach ($posts as $post)
+        <div class="post">
+            <h2><a href="/posts/{{ $post->id }}">{{ $post->title }}</a></h2>
+            <div class="meta">
+                コメント: {{ $post->comments_count }}件
+            </div>
+            <div class="tags">
+                @foreach ($post->tags as $tag)
+                    <a href="/posts?tag={{ $tag->name }}" class="tag">{{ $tag->name }}</a>
+                @endforeach
+            </div>
+        </div>
+    @endforeach
+</body>
+</html>
+```
+
+**show.blade.php**（投稿詳細）
+
+```blade
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ $post->title }}</title>
+    <style>
+        body { font-family: sans-serif; margin: 20px; }
+        h1 { color: #333; }
+        .content { margin: 20px 0; line-height: 1.8; }
+        .tags { margin: 20px 0; }
+        .tag { display: inline-block; background: #e9ecef; padding: 3px 8px; border-radius: 3px; margin-right: 5px; font-size: 12px; }
+        .comments { margin-top: 30px; }
+        .comment { border: 1px solid #ddd; padding: 10px; margin-bottom: 10px; border-radius: 5px; background: #f8f9fa; }
+        .comment-date { color: #666; font-size: 12px; }
+        .back { margin-top: 20px; }
+        .back a { color: #007bff; }
+    </style>
+</head>
+<body>
+    <h1>{{ $post->title }}</h1>
+
+    <div class="tags">
+        @foreach ($post->tags as $tag)
+            <span class="tag">{{ $tag->name }}</span>
+        @endforeach
+    </div>
+
+    <div class="content">
+        {{ $post->content }}
+    </div>
+
+    <div class="comments">
+        <h2>コメント（{{ $post->comments->count() }}件）</h2>
+        @forelse ($post->comments as $comment)
+            <div class="comment">
+                <p>{{ $comment->body }}</p>
+                <div class="comment-date">{{ $comment->created_at->format('Y/m/d H:i') }}</div>
+            </div>
+        @empty
+            <p>コメントはまだありません。</p>
+        @endforelse
+    </div>
+
+    <div class="back">
+        <a href="/posts">← 一覧に戻る</a>
+    </div>
+</body>
+</html>
+```
+
+---
+
+---
+
+> 🚀 **ここから先は、自分の力で実装してみましょう！**
+
+---
 
 ---
 
 ## 💡 ヒント
 
+**モデル作成**（1つずつ順番に実行！）
+
 ```bash
-sail artisan make:model Task -mcr
+sail artisan make:model Post -m
+# → マイグレーション編集 → sail artisan migrate
+
+sail artisan make:model Comment -m
+# → マイグレーション編集 → sail artisan migrate
+
+sail artisan make:model Tag -m
+# → マイグレーション編集 → sail artisan migrate
+
+sail artisan make:migration create_post_tag_table
+# → マイグレーション編集 → sail artisan migrate
 ```
+
+> ⚠️ **なぜ1つずつ？**: commentsテーブルはpost_id外部キーを持つため、postsテーブルより先に作成しようとするとエラーになります。
+
+**リレーションの定義**
 
 ```php
-// routes/web.php
-Route::resource('tasks', TaskController::class);
+// Post.php
+public function comments() { return $this->hasMany(Comment::class); }
+public function tags() { return $this->belongsToMany(Tag::class); }
+
+// Comment.php
+public function post() { return $this->belongsTo(Post::class); }
+
+// Tag.php
+public function posts() { return $this->belongsToMany(Post::class); }
 ```
 
-```blade
-<!-- フォーム -->
-<form action="{{ route('tasks.store') }}" method="POST">
-    @csrf
-    <input type="text" name="title">
-    <button type="submit">作成</button>
-</form>
+**Eager Loadingとリレーションクエリ**
+
+```php
+// Eager Loading + コメント数取得
+$posts = Post::with('tags')->withCount('comments')->get();
+
+// タグで絞り込み
+$posts = Post::whereHas('tags', fn($q) => $q->where('name', $tagName))->get();
 ```
+
+**テストデータ作成（Tinker）** → 詳細は「🏃 実践セクション」のステップ3を参照
 
 ---
 
 ## 🏃 実践: 一緒に作ってみましょう！
 
-ちゃんとできましたか？CRUD機能はWebアプリケーションの基本中の基本です。一緒に手を動かしながら、タスク管理アプリを作成していきましょう。
+ちゃんとできましたか？リレーションはLaravelの強力な機能です。一緒に手を動かしながら、ブログシステムを作成していきましょう。
 
-> 📌 **注意**: ここからは`task-app-sample/`ディレクトリで作業します。自分で作成したコードと比較できるように、別のプロジェクトで進めましょう。
+> 📌 **注意**: ここからは`relation-app-sample/`ディレクトリで作業します。自分で作成したコードと比較できるように、別のプロジェクトで進めましょう。
 
 ---
 
-### 💻 環境準備（実践用プロジェクト）
+### ⚙️ 環境準備（実践用プロジェクト）
 
 まず、**自分で作成する用のプロジェクトを停止**します：
 
 ```bash
-# task-app-practiceディレクトリに移動
-cd ~/laravel-practice/9-5-5_hands-on/task-app-practice
+# relation-app-practiceディレクトリに移動
+cd ~/laravel-practice/9-5-5_hands-on/relation-app-practice
 
 # Sailを停止
 ./vendor/bin/sail down
@@ -367,12 +451,12 @@ docker run --rm \
     -w /var/www/html \
     -e COMPOSER_CACHE_DIR=/tmp/composer_cache \
     laravelsail/php82-composer:latest \
-    composer create-project laravel/laravel:^10.0 task-app-sample
+    composer create-project laravel/laravel:^10.0 relation-app-sample
 ```
 
 ```bash
 # プロジェクトディレクトリに移動
-cd task-app-sample
+cd relation-app-sample
 
 # Laravel Sailのインストール
 docker run --rm \
@@ -398,119 +482,82 @@ docker run --rm \
 # アプリケーションキーの生成
 ./vendor/bin/sail artisan key:generate
 
-# データベースのマイグレーション
-./vendor/bin/sail artisan migrate
+# データベースをリセットしてマイグレーション実行
+./vendor/bin/sail artisan migrate:fresh
 ```
+
+> 💡 `migrate:fresh`を使うことで、前のハンズオンのデータをクリアして新しい状態から始められます。
 
 **✅ ディレクトリ構造の確認**
 
 ```
 ~/laravel-practice/
 └── 9-5-5_hands-on/
-    ├── task-app-practice/     ← 自分で作成した用（停止中）
-    └── task-app-sample/       ← 実践用（今ここ、起動中）
+    ├── relation-app-practice/     ← 自分で作成した用（停止中）
+    └── relation-app-sample/       ← 実践用（今ここ、起動中）
         ├── app/
         ├── database/
-        ├── resources/views/
         ├── routes/
         └── ...
 ```
 
 > 💡 **環境構築が完了！**
-> 
+>
 > ブラウザで `http://localhost` にアクセスして、Laravelのウェルカムページが表示されれば成功です。
-
-> 💡 **ポイント**: タスクのデータは、モデルとマイグレーションを作成した後、ステップ4のtinkerで作成します。
 
 ---
 
-### 💭 実装の思考プロセス
+### 🧠 先輩エンジニアの思考プロセス
 
-CRUDアプリを構築する際、以下の順番で考えると効率的です：
+先輩エンジニアは要件を以下のように構造化し、実装タスクに落とし込みます：
 
-1. **モデル、マイグレーション、コントローラーを一度に作成**：`-mcr`オプションで効率化
-2. **マイグレーションでテーブル構造を定義**：タスクに必要なカラムを設定
-3. **Tinkerでデータ構造を確認**：コントローラーを書く前にデータが取れるか確認
-4. **リソースルートを定義**：7つのルートを一度に設定
-5. **コントローラーにCRUDロジックを実装**：index, create, store, edit, update, destroy
-6. **ビューを作成**：一覧、作成、編集フォーム
+| Step | やること | 説明 |
+|:-----|:---------|:-----|
+| 1 | モデルとマイグレーションを作成 | Post→Comment→Tag→中間テーブルの順で1つずつ |
+| 2 | リレーションを定義 | hasMany, belongsTo, belongsToMany |
+| 3 | Tinkerでテストデータ作成 | 閲覧機能のみなのでTinkerでデータを用意 |
+| 4 | コントローラーでEager Loadingとタグ絞り込みを実装 | with()とwithCount()でN+1問題を防ぐ、whereHas()で絞り込み |
+| 5 | ルーティングを設定 | 一覧(index)と詳細(show)のルートを設定 |
+| 6 | Bladeファイルを配置 | 提供されたBladeファイルを配置 |
 
-> 💡 **重要**: 「画面を作ってから動かす」のではなく、「Tinkerでデータ取得を確認してから画面に繋ぐ」という堅実なバックエンド開発フローを身につけましょう。
-
-CRUDのポイントは「リソースコントローラーとリソースルートで規約に沿った開発をする」ことです。
+> 💡 **ポイント**: このハンズオンでは閲覧機能（index/show）のみを実装します。リレーションの定義とEager Loadingに集中しましょう。
 
 ---
 
 ### 📝 ステップバイステップで実装
 
-#### ステップ1: モデル、マイグレーション、コントローラーを一度に作成する
+#### ステップ1: モデルとマイグレーションを作成する
 
 **何を考えているか**：
-- 「タスク管理に必要なファイルを一度に生成しよう」
-- 「`-mcr`オプションでモデル、マイグレーション、リソースコントローラーを作ろう」
-- 「効率的に開発を始めよう」
+- 「Post, Comment, Tagの3つのモデルが必要だ」
+- 「commentsはpostsの外部キーを持つから、postsを先に作らないと」
+- 「1つずつ作成→編集→migrateの順で進めよう」
 
-ターミナルで以下のコマンドを実行します：
-
-```bash
-sail artisan make:model Task -mcr
-```
-
-**コマンド解説**：
-
-```bash
-sail artisan make:model Task -mcr
-```
-→ `-m`でマイグレーション、`-c`でコントローラー、`-r`でリソースコントローラーを同時に生成します。一度に必要なファイルが作成されます。
+> ⚠️ **重要**: 外部キー制約があるため、**Post → Comment → Tag → post_tag（中間テーブル）**の順番で1つずつ作成・マイグレーションを実行します。まとめて作成するとエラーになる可能性があります。
 
 ---
 
-#### ステップ2: マイグレーションでテーブル構造を定義する
+**(1) Postモデルとマイグレーション**
 
-**何を考えているか**：
-- 「タスクにはタイトル、説明、ステータス、期限が必要だ」
-- 「説明と期限はnullableにしよう」
-- 「ステータスのデフォルト値を'pending'にしよう」
+```bash
+sail artisan make:model Post -m
+```
 
-生成されたマイグレーションファイルを開いて、`up`メソッドを以下のように編集します：
+`database/migrations/xxxx_create_posts_table.php`を編集：
 
 ```php
 public function up(): void
 {
-    Schema::create('tasks', function (Blueprint $table) {
+    Schema::create('posts', function (Blueprint $table) {
         $table->id();
         $table->string('title', 200);
-        $table->text('description')->nullable();
-        $table->string('status', 20)->default('pending');
-        $table->date('due_date')->nullable();
+        $table->text('content');
         $table->timestamps();
     });
 }
 ```
 
-**コードリーディング**：
-
-```php
-$table->string('title', 200);
-```
-→ タイトルを`VARCHAR(200)`で定義します。必須項目です。
-
-```php
-$table->text('description')->nullable();
-```
-→ 説明を`TEXT`型で定義し、`nullable()`でNULLを許可します。簡単なタスクでは説明が不要な場合があります。
-
-```php
-$table->string('status', 20)->default('pending');
-```
-→ ステータスを`VARCHAR(20)`で定義し、デフォルト値を`'pending'`に設定します。新規タスクは自動的に「保留中」になります。
-
-```php
-$table->date('due_date')->nullable();
-```
-→ 期限を`DATE`型で定義し、`nullable()`でNULLを許可します。期限がないタスクもあります。
-
-マイグレーションを実行します：
+マイグレーションを実行：
 
 ```bash
 sail artisan migrate
@@ -518,13 +565,110 @@ sail artisan migrate
 
 ---
 
-#### ステップ3: モデルで属性を設定する
+**(2) Commentモデルとマイグレーション**
+
+```bash
+sail artisan make:model Comment -m
+```
+
+`database/migrations/xxxx_create_comments_table.php`を編集：
+
+```php
+public function up(): void
+{
+    Schema::create('comments', function (Blueprint $table) {
+        $table->id();
+        $table->foreignId('post_id')->constrained()->onDelete('cascade');
+        $table->text('body');
+        $table->timestamps();
+    });
+}
+```
+
+**コードリーディング**：
+
+```php
+$table->foreignId('post_id')->constrained()->onDelete('cascade');
+```
+→ `foreignId`で外部キーを作成します。`constrained()`で`posts`テーブルと関連付け、`onDelete('cascade')`で投稿削除時にコメントも削除されるようにします。
+
+マイグレーションを実行：
+
+```bash
+sail artisan migrate
+```
+
+---
+
+**(3) Tagモデルとマイグレーション**
+
+```bash
+sail artisan make:model Tag -m
+```
+
+`database/migrations/xxxx_create_tags_table.php`を編集：
+
+```php
+public function up(): void
+{
+    Schema::create('tags', function (Blueprint $table) {
+        $table->id();
+        $table->string('name', 50);
+        $table->timestamps();
+    });
+}
+```
+
+マイグレーションを実行：
+
+```bash
+sail artisan migrate
+```
+
+---
+
+**(4) 中間テーブル（post_tag）のマイグレーション**
+
+```bash
+sail artisan make:migration create_post_tag_table
+```
+
+`database/migrations/xxxx_create_post_tag_table.php`を編集：
+
+```php
+public function up(): void
+{
+    Schema::create('post_tag', function (Blueprint $table) {
+        $table->id();
+        $table->foreignId('post_id')->constrained()->onDelete('cascade');
+        $table->foreignId('tag_id')->constrained()->onDelete('cascade');
+    });
+}
+```
+
+**コードリーディング**：
+
+```php
+Schema::create('post_tag', function (Blueprint $table) {
+```
+→ 中間テーブルの命名規則は「単数形をアルファベット順にアンダースコアで繋ぐ」です。post_tagは「post」と「tag」をアルファベット順に繋いでいます。
+
+マイグレーションを実行：
+
+```bash
+sail artisan migrate
+```
+
+---
+
+#### ステップ2: モデルでリレーションを定義する
 
 **何を考えているか**：
-- 「$fillableで一括代入可能な属性を指定しよう」
-- 「$castsで日付型を設定しよう」
+- 「Postは複数のCommentsを持つ（1対多）」
+- 「Postは複数のTagsを持ち、Tagも複数のPostsを持つ（多対多）」
+- 「CommentはPostに属する」
 
-`app/Models/Task.php`を開いて、以下のように編集します：
+**Post.php**（`app/Models/Post.php`）：
 
 ```php
 <?php
@@ -533,161 +677,227 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Task extends Model
+class Post extends Model
 {
     protected $fillable = [
         'title',
-        'description',
-        'status',
-        'due_date',
+        'content',
     ];
 
-    protected $casts = [
-        'due_date' => 'date',
-    ];
+    public function comments()
+    {
+        return $this->hasMany(Comment::class);
+    }
+
+    public function tags()
+    {
+        return $this->belongsToMany(Tag::class);
+    }
 }
 ```
 
 **コードリーディング**：
 
 ```php
-protected $fillable = [
-    'title',
-    'description',
-    'status',
-    'due_date',
-];
+public function comments()
+{
+    return $this->hasMany(Comment::class);
+}
 ```
-→ `$fillable`で一括代入可能な属性を指定します。セキュリティ対策として重要です。
+→ `hasMany`で1対多のリレーションを定義します。「1つの投稿は複数のコメントを持つ」という関係です。
 
 ```php
-protected $casts = [
-    'due_date' => 'date',
-];
+public function tags()
+{
+    return $this->belongsToMany(Tag::class);
+}
 ```
-→ `$casts`で`due_date`を`date`型にキャストします。Carbonインスタンスとして扱えるようになります。
+→ `belongsToMany`で多対多のリレーションを定義します。中間テーブル`post_tag`を介して、投稿とタグが関連付けられます。
 
----
-
-#### ステップ4: Tinkerでデータ構造を確認する
-
-**何を考えているか**：
-- 「コントローラーを書く前に、データが正しく取れるか確認しよう」
-- 「データが取れていないのに画面を作っても動かない」
-
-Tinkerを起動して、データの作成と取得を確認します：
-
-```bash
-sail artisan tinker
-```
+**Comment.php**（`app/Models/Comment.php`）：
 
 ```php
->>> use App\Models\Task;
+<?php
 
-// テストデータを作成
->>> Task::create(['title' => 'テストタスク', 'status' => 'pending']);
+namespace App\Models;
 
-// データが取得できるか確認
->>> Task::all();
+use Illuminate\Database\Eloquent\Model;
 
-// 特定のタスクを取得
->>> Task::find(1);
+class Comment extends Model
+{
+    protected $fillable = [
+        'post_id',
+        'body',
+    ];
 
-// 最新順で取得
->>> Task::latest()->get();
-```
-
-**確認ポイント**：
-- `Task::all()`でデータが取得できるか？
-- `Task::find(1)`で特定のタスクが取得できるか？
-- `Task::latest()->get()`で最新順に並ぶか？
-
-> 💡 **ポイント**: Tinkerでデータが取れることを確認してから、コントローラーとビューを実装します。これが「データが取れていないのに画面を作っても動かない」問題を防ぐ堅実な開発フローです。
-
----
-
-#### ステップ5: リソースルートを定義する
-
-**何を考えているか**：
-- 「CRUDに必要な7つのルートを一度に設定しよう」
-- 「`Route::resource`で簡単に定義できる」
-
-`routes/web.php`を開いて、以下を追加します：
-
-```php
-use App\Http\Controllers\TaskController;
-
-Route::resource('tasks', TaskController::class);
+    public function post()
+    {
+        return $this->belongsTo(Post::class);
+    }
+}
 ```
 
 **コードリーディング**：
 
 ```php
-Route::resource('tasks', TaskController::class);
+public function post()
+{
+    return $this->belongsTo(Post::class);
+}
 ```
-→ リソースルートで以下の7つのルートが一度に定義されます：
-- GET `/tasks` → index()
-- GET `/tasks/create` → create()
-- POST `/tasks` → store()
-- GET `/tasks/{id}` → show()
-- GET `/tasks/{id}/edit` → edit()
-- PUT/PATCH `/tasks/{id}` → update()
-- DELETE `/tasks/{id}` → destroy()
+→ `belongsTo`で逆方向のリレーションを定義します。「コメントは1つの投稿に属する」という関係です。
+
+**Tag.php**（`app/Models/Tag.php`）：
+
+```php
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
+class Tag extends Model
+{
+    protected $fillable = [
+        'name',
+    ];
+
+    public function posts()
+    {
+        return $this->belongsToMany(Post::class);
+    }
+}
+```
 
 ---
 
-#### ステップ6: コントローラーにCRUDロジックを実装する
+#### ステップ3: Tinkerでテストデータを作成する
 
 **何を考えているか**：
-- 「一覧表示、作成、編集、削除のロジックを実装しよう」
-- 「リソースコントローラーの規約に沿って実装しよう」
+- 「このハンズオンは閲覧機能のみだから、データ作成画面がない」
+- 「Tinkerでテストデータを作成し、リレーションが動くか確認しよう」
+- 「データが取れていないのに画面を作っても動かない」
 
-`app/Http/Controllers/TaskController.php`を開いて、以下のように編集します：
+> 💡 **なぜTinkerを使うのか？**: このハンズオンではリレーションの定義に集中するため、データ作成・編集・削除機能は実装しません。代わりにTinkerでテストデータを作成します。
+
+Tinkerを起動します：
+
+```bash
+sail artisan tinker
+```
+
+以下のコマンドを**1行ずつ**実行してください：
+
+```php
+use App\Models\Post;
+use App\Models\Comment;
+use App\Models\Tag;
+
+// タグを作成
+$laravel = Tag::create(['name' => 'Laravel']);
+$php = Tag::create(['name' => 'PHP']);
+$tutorial = Tag::create(['name' => 'チュートリアル']);
+
+// 投稿を作成
+$post1 = Post::create([
+    'title' => 'Laravelのリレーション入門',
+    'content' => 'LaravelのEloquentリレーションについて解説します。',
+]);
+
+$post2 = Post::create([
+    'title' => 'PHPの基礎',
+    'content' => 'PHPの基本的な文法を学びましょう。',
+]);
+
+// タグを紐付け（多対多リレーション）
+$post1->tags()->attach([$laravel->id, $tutorial->id]);
+$post2->tags()->attach([$php->id, $tutorial->id]);
+
+// コメントを作成（1対多リレーション）
+Comment::create(['post_id' => $post1->id, 'body' => 'とても分かりやすい記事でした！']);
+Comment::create(['post_id' => $post1->id, 'body' => 'リレーションの理解が深まりました。']);
+Comment::create(['post_id' => $post2->id, 'body' => 'PHP初心者にも優しい内容ですね。']);
+```
+
+**リレーションが動作するか確認**：
+
+```php
+// 投稿からコメントを取得（1対多）
+$post1->comments;
+$post1->comments->count();
+
+// 投稿からタグを取得（多対多）
+$post1->tags;
+
+// Eager Loadingを確認
+Post::with(['comments', 'tags'])->get();
+
+// コメント数を取得
+Post::withCount('comments')->get();
+```
+
+確認できたらTinkerを終了します：
+
+```php
+exit
+```
+
+**確認ポイント**：
+- `$post1->comments`でコメントが取得できるか？
+- `$post1->tags`でタグが取得できるか？
+- `Post::with(['comments', 'tags'])->get()`でEager Loadingが動くか？
+
+> ✅ **ここまでできたら**: テストデータとリレーションの準備が完了です。次はコントローラーでこのデータを表示します。
+
+---
+
+#### ステップ4: コントローラーでEager Loadingとタグ絞り込みを実装する
+
+**何を考えているか**：
+- 「with()でEager LoadingしてN+1問題を防ごう」
+- 「withCount()でコメント数を効率的に取得しよう」
+- 「whereHas()でタグによる絞り込みを実装しよう」
+
+`PostController`を作成します：
+
+```bash
+sail artisan make:controller PostController
+```
+
+`app/Http/Controllers/PostController.php`を開いて、以下のように編集します：
 
 ```php
 <?php
 
 namespace App\Http\Controllers;
 
-use App\Models\Task;
+use App\Models\Post;
 use Illuminate\Http\Request;
 
-class TaskController extends Controller
+class PostController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $tasks = Task::latest()->get();
-        return view('tasks.index', compact('tasks'));
+        $query = Post::with('tags')->withCount('comments');
+
+        // タグで絞り込み
+        if ($request->has('tag')) {
+            $tagName = $request->tag;
+            $query->whereHas('tags', function ($q) use ($tagName) {
+                $q->where('name', $tagName);
+            });
+        }
+
+        $posts = $query->latest()->get();
+
+        return view('posts.index', ['posts' => $posts]);
     }
 
-    public function create()
+    public function show($id)
     {
-        return view('tasks.create');
-    }
+        $post = Post::with(['comments', 'tags'])->findOrFail($id);
 
-    public function store(Request $request)
-    {
-        Task::create($request->all());
-        return redirect()->route('tasks.index');
-    }
-
-    public function edit($id)
-    {
-        $task = Task::findOrFail($id);
-        return view('tasks.edit', compact('task'));
-    }
-
-    public function update(Request $request, $id)
-    {
-        $task = Task::findOrFail($id);
-        $task->update($request->all());
-        return redirect()->route('tasks.index');
-    }
-
-    public function destroy($id)
-    {
-        Task::findOrFail($id)->delete();
-        return redirect()->route('tasks.index');
+        return view('posts.show', ['post' => $post]);
     }
 }
 ```
@@ -695,110 +905,75 @@ class TaskController extends Controller
 **コードリーディング**：
 
 ```php
-public function index()
-{
-    $tasks = Task::latest()->get();
-    return view('tasks.index', compact('tasks'));
-}
+$query = Post::with('tags')->withCount('comments');
 ```
-→ `index`メソッドで全タスクを最新順で取得し、一覧ページに渡します。`compact('tasks')`は`['tasks' => $tasks]`の省略記法です。
+→ `with('tags')`でタグをEager Loadingします。`withCount('comments')`でコメント数を`comments_count`として取得します。
 
 ```php
-public function create()
-{
-    return view('tasks.create');
+if ($request->has('tag')) {
+    $tagName = $request->tag;
+    $query->whereHas('tags', function ($q) use ($tagName) {
+        $q->where('name', $tagName);
+    });
 }
 ```
-→ `create`メソッドで作成フォームを表示します。
+→ `whereHas()`でリレーション先を条件にフィルタリングします。指定されたタグ名を持つ投稿のみを取得します。
 
 ```php
-public function store(Request $request)
-{
-    Task::create($request->all());
-    return redirect()->route('tasks.index');
-}
+$post = Post::with(['comments', 'tags'])->findOrFail($id);
 ```
-→ `store`メソッドでタスクを作成し、一覧ページにリダイレクトします。`route('tasks.index')`で名前付きルートを使用します。
-
-```php
-public function edit($id)
-{
-    $task = Task::findOrFail($id);
-    return view('tasks.edit', compact('task'));
-}
-```
-→ `edit`メソッドで編集フォームを表示します。既存のタスクデータを渡します。
-
-```php
-public function update(Request $request, $id)
-{
-    $task = Task::findOrFail($id);
-    $task->update($request->all());
-    return redirect()->route('tasks.index');
-}
-```
-→ `update`メソッドでタスクを更新します。
-
-```php
-public function destroy($id)
-{
-    Task::findOrFail($id)->delete();
-    return redirect()->route('tasks.index');
-}
-```
-→ `destroy`メソッドでタスクを削除します。
+→ 詳細ページではコメントとタグの両方をEager Loadingします。`findOrFail($id)`は見つからなければ404エラーを返します。
 
 ---
 
-#### ステップ7: ビューを作成する
+#### ステップ5: ルーティングを設定する
 
 **何を考えているか**：
-- 「一覧ページ、作成フォーム、編集フォームを作ろう」
-- 「フォームには@csrfトークンを必ず追加しよう」
-- 「名前付きルートでURLを生成しよう」
+- 「一覧ページと詳細ページのルートを定義しよう」
 
-`resources/views/tasks/index.blade.php`を作成します：
+`routes/web.php`を開いて、以下のルートを追加します：
 
-```blade
-<h1>タスク一覧</h1>
-<a href="{{ route('tasks.create') }}">新規作成</a>
+```php
+use App\Http\Controllers\PostController;
 
-@foreach ($tasks as $task)
-    <div>
-        <h3>{{ $task->title }}</h3>
-        <p>{{ $task->description }}</p>
-        <a href="{{ route('tasks.edit', $task->id) }}">編集</a>
-        <form action="{{ route('tasks.destroy', $task->id) }}" method="POST">
-            @csrf
-            @method('DELETE')
-            <button type="submit">削除</button>
-        </form>
-    </div>
-@endforeach
+Route::get('/posts', [PostController::class, 'index']);
+Route::get('/posts/{id}', [PostController::class, 'show']);
 ```
 
-`resources/views/tasks/create.blade.php`を作成します：
+---
 
-```blade
-<h1>タスク作成</h1>
-<form action="{{ route('tasks.store') }}" method="POST">
-    @csrf
-    <input type="text" name="title" placeholder="タイトル">
-    <textarea name="description" placeholder="説明"></textarea>
-    <input type="date" name="due_date">
-    <button type="submit">作成</button>
-</form>
+#### ステップ6: Bladeファイルを配置する
+
+**何を考えているか**：
+- 「一覧ページと詳細ページの2画面が必要だ」
+- 「環境準備で提供されているBladeファイルを配置しよう」
+
+`resources/views/posts/`ディレクトリを作成し、2つのBladeファイルを配置します：
+
+```bash
+mkdir -p resources/views/posts
 ```
+
+「⚙️ 環境準備」セクションで提供されているBladeファイルを`resources/views/posts/`に配置します：
+- `index.blade.php` - 投稿一覧
+- `show.blade.php` - 投稿詳細
 
 ---
 
 ### ✨ 完成！
 
-これでCRUD機能を持つタスク管理アプリが完成しました！リソースコントローラーとリソースルートを使って、効率的にCRUDを実装できましたね。
+ブラウザで `http://localhost/posts` にアクセスして、以下を確認しましょう：
+- 投稿一覧が表示される
+- 各投稿にコメント数が表示される
+- 各投稿にタグが表示される
+- タグをクリックすると絞り込みができる
+- 投稿タイトルをクリックすると詳細ページが表示される
+
+これでリレーションを使ったブログシステムが完成しました！Chapter 5で学んだhasMany、belongsToMany、with()、whereHas()を実践できましたね。
 
 **自分で作成したコードと比較してみましょう**：
-- `task-app-practice/`: 自分で作成したプロジェクト
-- `task-app-sample/`: 一緒に作成したプロジェクト
+- `relation-app-practice/`: 自分で作成したプロジェクト
+- `relation-app-sample/`: 一緒に作成したプロジェクト
 
 両方のプロジェクトを見比べて、違いがあれば確認してみてください。
 
@@ -806,25 +981,63 @@ public function destroy($id)
 
 ## 📖 模範解答
 
-> 💡 模範解答ではCSSでスタイリングしていますが、この演習ではCSSの実装は不要です。機能の実装に集中してください。
-
 ### マイグレーションファイル
+
+**postsテーブル**
 
 ```php
 public function up(): void
 {
-    Schema::create('tasks', function (Blueprint $table) {
+    Schema::create('posts', function (Blueprint $table) {
         $table->id();
         $table->string('title', 200);
-        $table->text('description')->nullable();
-        $table->string('status', 20)->default('pending');
-        $table->date('due_date')->nullable();
+        $table->text('content');
         $table->timestamps();
     });
 }
 ```
 
-### Task.php
+**commentsテーブル**
+
+```php
+public function up(): void
+{
+    Schema::create('comments', function (Blueprint $table) {
+        $table->id();
+        $table->foreignId('post_id')->constrained()->onDelete('cascade');
+        $table->text('body');
+        $table->timestamps();
+    });
+}
+```
+
+**tagsテーブル**
+
+```php
+public function up(): void
+{
+    Schema::create('tags', function (Blueprint $table) {
+        $table->id();
+        $table->string('name', 50);
+        $table->timestamps();
+    });
+}
+```
+
+**post_tagテーブル**
+
+```php
+public function up(): void
+{
+    Schema::create('post_tag', function (Blueprint $table) {
+        $table->id();
+        $table->foreignId('post_id')->constrained()->onDelete('cascade');
+        $table->foreignId('tag_id')->constrained()->onDelete('cascade');
+    });
+}
+```
+
+### Post.php
 
 ```php
 <?php
@@ -833,147 +1046,218 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Task extends Model
+class Post extends Model
 {
     protected $fillable = [
         'title',
-        'description',
-        'status',
-        'due_date',
+        'content',
     ];
 
-    protected $casts = [
-        'due_date' => 'date',
-    ];
+    public function comments()
+    {
+        return $this->hasMany(Comment::class);
+    }
+
+    public function tags()
+    {
+        return $this->belongsToMany(Tag::class);
+    }
 }
 ```
 
-### TaskController.php
+### Comment.php
+
+```php
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
+class Comment extends Model
+{
+    protected $fillable = [
+        'post_id',
+        'body',
+    ];
+
+    public function post()
+    {
+        return $this->belongsTo(Post::class);
+    }
+}
+```
+
+### Tag.php
+
+```php
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
+class Tag extends Model
+{
+    protected $fillable = [
+        'name',
+    ];
+
+    public function posts()
+    {
+        return $this->belongsToMany(Post::class);
+    }
+}
+```
+
+### PostController.php
 
 ```php
 <?php
 
 namespace App\Http\Controllers;
 
-use App\Models\Task;
+use App\Models\Post;
 use Illuminate\Http\Request;
 
-class TaskController extends Controller
+class PostController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $tasks = Task::latest()->get();
-        return view('tasks.index', ['tasks' => $tasks]);
+        $query = Post::with('tags')->withCount('comments');
+
+        if ($request->has('tag')) {
+            $tagName = $request->tag;
+            $query->whereHas('tags', function ($q) use ($tagName) {
+                $q->where('name', $tagName);
+            });
+        }
+
+        $posts = $query->latest()->get();
+
+        return view('posts.index', ['posts' => $posts]);
     }
 
-    public function create()
+    public function show($id)
     {
-        return view('tasks.create');
-    }
+        $post = Post::with(['comments', 'tags'])->findOrFail($id);
 
-    public function store(Request $request)
-    {
-        Task::create($request->all());
-        return redirect()->route('tasks.index');
-    }
-
-    public function edit($id)
-    {
-        $task = Task::findOrFail($id);
-        return view('tasks.edit', ['task' => $task]);
-    }
-
-    public function update(Request $request, $id)
-    {
-        $task = Task::findOrFail($id);
-        $task->update($request->all());
-        return redirect()->route('tasks.index');
-    }
-
-    public function destroy($id)
-    {
-        Task::findOrFail($id)->delete();
-        return redirect()->route('tasks.index');
+        return view('posts.show', ['post' => $post]);
     }
 }
 ```
 
-### routes/web.php
+### routes/web.php（追加部分）
 
 ```php
-use App\Http\Controllers\TaskController;
+use App\Http\Controllers\PostController;
 
-Route::resource('tasks', TaskController::class);
+Route::get('/posts', [PostController::class, 'index']);
+Route::get('/posts/{id}', [PostController::class, 'show']);
 ```
 
-### tasks/index.blade.php
+### resources/views/posts/index.blade.php
 
 ```blade
-@extends('layouts.app')
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>投稿一覧</title>
+    <style>
+        body { font-family: sans-serif; margin: 20px; }
+        h1 { color: #333; }
+        .post { border: 1px solid #ddd; padding: 15px; margin-bottom: 15px; border-radius: 5px; }
+        .post h2 { margin: 0 0 10px 0; }
+        .post h2 a { text-decoration: none; color: #007bff; }
+        .meta { color: #666; font-size: 14px; margin-bottom: 10px; }
+        .tags { margin-top: 10px; }
+        .tag { display: inline-block; background: #e9ecef; padding: 3px 8px; border-radius: 3px; margin-right: 5px; font-size: 12px; text-decoration: none; color: #333; }
+        .tag:hover { background: #dee2e6; }
+        .filter { margin-bottom: 20px; padding: 10px; background: #f8f9fa; border-radius: 5px; }
+        .filter a { margin-left: 10px; }
+    </style>
+</head>
+<body>
+    <h1>投稿一覧</h1>
 
-@section('content')
-<div class="container">
-    <h1>タスク一覧</h1>
-    <a href="{{ route('tasks.create') }}" class="btn btn-primary">新規作成</a>
-    
-    <table class="table mt-3">
-        <thead>
-            <tr>
-                <th>タイトル</th>
-                <th>ステータス</th>
-                <th>期限</th>
-                <th>操作</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach ($tasks as $task)
-            <tr>
-                <td>{{ $task->title }}</td>
-                <td>{{ $task->status }}</td>
-                <td>{{ $task->due_date }}</td>
-                <td>
-                    <a href="{{ route('tasks.edit', $task->id) }}">編集</a>
-                    <form action="{{ route('tasks.destroy', $task->id) }}" method="POST" style="display:inline;">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit">削除</button>
-                    </form>
-                </td>
-            </tr>
-            @endforeach
-        </tbody>
-    </table>
-</div>
-@endsection
+    @if(request('tag'))
+        <div class="filter">
+            タグ「{{ request('tag') }}」で絞り込み中
+            <a href="/posts">絞り込み解除</a>
+        </div>
+    @endif
+
+    <p>全{{ count($posts) }}件の投稿があります。</p>
+
+    @foreach ($posts as $post)
+        <div class="post">
+            <h2><a href="/posts/{{ $post->id }}">{{ $post->title }}</a></h2>
+            <div class="meta">
+                コメント: {{ $post->comments_count }}件
+            </div>
+            <div class="tags">
+                @foreach ($post->tags as $tag)
+                    <a href="/posts?tag={{ $tag->name }}" class="tag">{{ $tag->name }}</a>
+                @endforeach
+            </div>
+        </div>
+    @endforeach
+</body>
+</html>
 ```
 
-### tasks/create.blade.php
+### resources/views/posts/show.blade.php
 
 ```blade
-@extends('layouts.app')
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ $post->title }}</title>
+    <style>
+        body { font-family: sans-serif; margin: 20px; }
+        h1 { color: #333; }
+        .content { margin: 20px 0; line-height: 1.8; }
+        .tags { margin: 20px 0; }
+        .tag { display: inline-block; background: #e9ecef; padding: 3px 8px; border-radius: 3px; margin-right: 5px; font-size: 12px; }
+        .comments { margin-top: 30px; }
+        .comment { border: 1px solid #ddd; padding: 10px; margin-bottom: 10px; border-radius: 5px; background: #f8f9fa; }
+        .comment-date { color: #666; font-size: 12px; }
+        .back { margin-top: 20px; }
+        .back a { color: #007bff; }
+    </style>
+</head>
+<body>
+    <h1>{{ $post->title }}</h1>
 
-@section('content')
-<div class="container">
-    <h1>タスク作成</h1>
-    
-    <form action="{{ route('tasks.store') }}" method="POST">
-        @csrf
-        <div class="mb-3">
-            <label>タイトル</label>
-            <input type="text" name="title" class="form-control" required>
-        </div>
-        <div class="mb-3">
-            <label>説明</label>
-            <textarea name="description" class="form-control"></textarea>
-        </div>
-        <div class="mb-3">
-            <label>期限</label>
-            <input type="date" name="due_date" class="form-control">
-        </div>
-        <button type="submit" class="btn btn-primary">作成</button>
-    </form>
-</div>
-@endsection
+    <div class="tags">
+        @foreach ($post->tags as $tag)
+            <span class="tag">{{ $tag->name }}</span>
+        @endforeach
+    </div>
+
+    <div class="content">
+        {{ $post->content }}
+    </div>
+
+    <div class="comments">
+        <h2>コメント（{{ $post->comments->count() }}件）</h2>
+        @forelse ($post->comments as $comment)
+            <div class="comment">
+                <p>{{ $comment->body }}</p>
+                <div class="comment-date">{{ $comment->created_at->format('Y/m/d H:i') }}</div>
+            </div>
+        @empty
+            <p>コメントはまだありません。</p>
+        @endforelse
+    </div>
+
+    <div class="back">
+        <a href="/posts">← 一覧に戻る</a>
+    </div>
+</body>
+</html>
 ```
 
 ---
@@ -985,18 +1269,18 @@ Route::resource('tasks', TaskController::class);
 2つのプロジェクトを切り替えて動作確認する方法：
 
 ```bash
-# task-app-practiceで確認したい場合
-cd ~/laravel-practice/9-5-5_hands-on/task-app-sample
+# relation-app-practiceで確認したい場合
+cd ~/laravel-practice/9-5-5_hands-on/relation-app-sample
 ./vendor/bin/sail down
 
-cd ~/laravel-practice/9-5-5_hands-on/task-app-practice
+cd ~/laravel-practice/9-5-5_hands-on/relation-app-practice
 ./vendor/bin/sail up -d
 
-# task-app-sampleで確認したい場合
-cd ~/laravel-practice/9-5-5_hands-on/task-app-practice
+# relation-app-sampleで確認したい場合
+cd ~/laravel-practice/9-5-5_hands-on/relation-app-practice
 ./vendor/bin/sail down
 
-cd ~/laravel-practice/9-5-5_hands-on/task-app-sample
+cd ~/laravel-practice/9-5-5_hands-on/relation-app-sample
 ./vendor/bin/sail up -d
 ```
 
@@ -1008,9 +1292,10 @@ cd ~/laravel-practice/9-5-5_hands-on/task-app-sample
 
 このハンズオンで、以下のことができるようになりました：
 
-- ✅ リソースコントローラーを使える
-- ✅ フォームからデータを送信できる
-- ✅ CRUD操作を実装できる
+- ✅ 1対多リレーション（hasMany/belongsTo）を定義できる
+- ✅ 多対多リレーション（belongsToMany）を定義できる
+- ✅ Eager Loading（with/withCount）でN+1問題を防げる
+- ✅ whereHas()でリレーションを条件にフィルタリングできる
 
 引き続き、次のセクションも頑張りましょう！
 

@@ -1,19 +1,16 @@
 # Tutorial 9-3-9: データベース操作 ハンズオン演習
 
-## 📝 このセクションの目的
+## 📌 このハンズオンについて
 
 Chapter 3で学んだLaravelのデータベース操作を実際に手を動かして確認します。マイグレーション、シーダー、クエリビルダを使って、データベースを操作しましょう。
 
 > 分からない文法や実装があっても、すぐに答えを見るのではなく、過去の教材を見たり、AIにヒントをもらいながら進めるなど、自身で創意工夫しながら進めてみましょう🔥
 
-**学習のポイント**：
-- マイグレーションファイルを作成できるか
-- シーダーでテストデータを投入できるか
-- クエリビルダでデータを取得・挿入・更新・削除できるか
+> 💡 **このハンズオンのポイント**: マイグレーションでテーブルを作成し、シーダーでテストデータを投入し、クエリビルダでデータを操作する流れを理解することが目的です。
 
 ---
 
-## 📁 ディレクトリ構成
+### ディレクトリ構成
 
 このハンズオンでは、「自分で作成する用」と「解答を確認する用」の2つのプロジェクトを作成します。
 
@@ -46,116 +43,69 @@ Chapter 3で学んだLaravelのデータベース操作を実際に手を動か�
 
 ## 🎯 演習課題：商品管理システムのデータベース構築
 
+**この演習で作るもの**：
+マイグレーション・シーダー・クエリビルダを使って「商品管理システム」の商品一覧機能を作成します。
+
 ### 🖼️ 完成イメージ
 
-<!-- Tinkerでのデータ確認のスクリーンショットをここに配置 -->
-![9-3-9 完成イメージ](images/9-3-9_database_complete.png)
+**商品一覧ページ**
 
-**この演習で作るもの**：
-マイグレーションでテーブルを作成し、シーダーでテストデータを投入し、クエリビルダでデータを操作する「商品管理システム」のデータベースを構築します。
+<img alt="9-3-9_1.png" src="">
 
 ---
 
 ### 📋 要件
 
-#### 1. マイグレーションの作成
+- 商品の一覧が表示できる
+- 商品名・価格・在庫・カテゴリが確認できる
 
-`products`テーブルを作成するマイグレーションを作成してください。
+**productsテーブルのカラム構成**：
 
-**カラム構成**：
-- id, name (VARCHAR 200), price (INTEGER), stock (INTEGER, default 0), category (VARCHAR 50), timestamps
-
-#### 2. シーダーの作成
-
-5件の商品データを挿入するシーダーを作成してください。
-
-#### 3. クエリビルダの実装
-
-`ProductController`に全件取得、1件取得、挿入、更新、削除のメソッドを実装してください。
-
----
-
-### ✅ 完成品の確認方法
-
-**🔧 Tinkerでの確認（推奨）**
-
-この演習ではデータベース操作が主なため、Tinkerで確認します。
-
-```bash
-./vendor/bin/sail artisan tinker
-```
-
-**確認コマンド**:
-```php
-// テーブルが存在するか確認
-Schema::hasTable('products');
-
-// シーダーのデータが入っているか確認
-DB::table('products')->count();
-
-// 全件取得
-DB::table('products')->get();
-```
-
-**正しく実装できていれば**:
-- [ ] `products`テーブルが存在する（`true`が返る）
-- [ ] 5件の商品データが存在する（`5`が返る）
-- [ ] 商品データが正しく取得できる
-
-**🌐 ブラウザでの確認（代替方法）**
-
-- **動作確認URL**: `http://localhost/products`
-- **確認手順**:
-  1. Sailを起動する（`./vendor/bin/sail up -d`）
-  2. ブラウザで `http://localhost/products` にアクセス
-  3. 商品一覧が表示されることを確認
-
-> 📌 **Bladeファイルについて**: バックエンド実装に集中するため、動作確認用のシンプルなBladeファイルを以下に用意しています。
-
-<details>
-<summary>📄 確認用Bladeファイル（クリックで展開）</summary>
-
-`resources/views/products/index.blade.php`:
-
-```blade
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <title>商品一覧</title>
-</head>
-<body>
-    <h1>商品一覧</h1>
-    <table border="1">
-        <tr><th>ID</th><th>商品名</th><th>価格</th><th>在庫</th><th>カテゴリ</th></tr>
-        @foreach ($products as $product)
-            <tr>
-                <td>{{ $product->id }}</td>
-                <td>{{ $product->name }}</td>
-                <td>¥{{ number_format($product->price) }}</td>
-                <td>{{ $product->stock }}</td>
-                <td>{{ $product->category }}</td>
-            </tr>
-        @endforeach
-    </table>
-</body>
-</html>
-```
-
-</details>
+| カラム名 | 型 | 備考 |
+|:---------|:---|:-----|
+| id | BIGINT | 主キー、自動採番 |
+| name | VARCHAR(200) | 商品名 |
+| price | INTEGER | 価格 |
+| stock | INTEGER | 在庫数（デフォルト: 0） |
+| category | VARCHAR(50) | カテゴリ |
+| created_at | TIMESTAMP | 作成日時 |
+| updated_at | TIMESTAMP | 更新日時 |
 
 ---
 
-### 📁 Step 0: 環境を準備する（自分で作成する用）
+### ✅ 完成チェックリスト
+
+- [ ] `/products`にアクセスすると商品一覧が表示される
+- [ ] 5件の商品が表示される
+- [ ] 商品名・価格・在庫・カテゴリが表示される
+
+> 💡 **動作確認**: `http://localhost/products` にアクセス
+
+---
+
+### ✏️ 実装タスク
+
+1. マイグレーションファイルを作成する
+2. マイグレーションを実行する
+3. シーダーを作成・実行する
+4. ProductControllerを作成し、クエリビルダでデータを取得する
+5. ルーティングを設定する
+6. Bladeファイルを配置する
+
+> 💡 Bladeファイルは「⚙️ 環境準備」セクションで提供します。
+
+---
+
+## ⚙️ 環境準備（自分で作成する用）
 
 まず、ハンズオン用のディレクトリを作成し、**自分で作成する用**のプロジェクトを準備します。
 
 > **📌 Dockerが起動していることを確認**
-> 
+>
 > 以下のコマンドを実行する前に、Docker Desktop（またはDocker Engine）が起動していることを確認してください。
 
 > **📌 前のハンズオンのプロジェクトを停止**
-> 
+>
 > 前のハンズオン（9-2-5）のプロジェクトが起動している場合は、先に停止してください。
 > ```bash
 > cd ~/laravel-practice/9-2-5_hands-on/blade-app-sample
@@ -169,7 +119,9 @@ cd ~/laravel-practice
 # ハンズオン用ディレクトリを作成
 mkdir -p 9-3-9_hands-on
 cd 9-3-9_hands-on
+```
 
+```bash
 # Laravel 10.xプロジェクトを作成（自分で作成する用）
 docker run --rm \
     -u "$(id -u):$(id -g)" \
@@ -247,12 +199,67 @@ mysql:
 ```
 
 > 💡 **環境構築が完了！**
-> 
+>
 > ブラウザで `http://localhost` にアクセスして、Laravelのウェルカムページが表示されれば成功です。
 
-> 💡 **ポイント**: このハンズオンでは、シーダーを作成してデータを投入します。実践セクションの「ステップ3」でシーダーの作成方法を学びます。
+---
 
-**ここから先は、自分の力で実装してみましょう！**
+### 📄 提供ファイル
+
+**`resources/views/products/index.blade.php`**
+
+```blade
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>商品一覧</title>
+    <style>
+        body { font-family: sans-serif; margin: 20px; }
+        table { border-collapse: collapse; width: 100%; max-width: 800px; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        th { background-color: #f5f5f5; }
+        h1 { color: #333; }
+    </style>
+</head>
+<body>
+    <h1>商品一覧</h1>
+    <p>全{{ count($products) }}件の商品があります。</p>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>商品名</th>
+                <th>価格</th>
+                <th>在庫</th>
+                <th>カテゴリ</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach ($products as $product)
+                <tr>
+                    <td>{{ $product->id }}</td>
+                    <td>{{ $product->name }}</td>
+                    <td>¥{{ number_format($product->price) }}</td>
+                    <td>{{ $product->stock }}</td>
+                    <td>{{ $product->category }}</td>
+                </tr>
+            @endforeach
+        </tbody>
+    </table>
+</body>
+</html>
+```
+
+---
+
+---
+
+> 🚀 **ここから先は、自分の力で実装してみましょう！**
+
+---
+
+---
 
 ---
 
@@ -284,7 +291,7 @@ Schema::create('products', function (Blueprint $table) {
 
 ---
 
-### 💻 環境準備（実践用プロジェクト）
+### ⚙️ 環境準備（実践用プロジェクト）
 
 まず、**自分で作成する用のプロジェクトを停止**します：
 
@@ -360,15 +367,18 @@ docker run --rm \
 
 ---
 
-### 💭 実装の思考プロセス
+### 🧠 先輩エンジニアの思考プロセス
 
-データベースを構築する際、以下の順番で考えると効率的です：
+先輩エンジニアは要件を以下のように構造化し、実装タスクに落とし込みます：
 
-1. **マイグレーションでテーブルを定義**：テーブル構造をコードで管理
-2. **マイグレーションを実行**：テーブルを作成
-3. **シーダーでテストデータを投入**：開発用データを準備
-4. **クエリビルダでデータ操作**：取得、挿入、更新、削除を実装
-5. **コントローラーでロジックを統合**：データ操作をアプリに組み込む
+| Step | やること | 説明 |
+|:-----|:---------|:-----|
+| 1 | マイグレーションを作成 | テーブル構造をコードで定義 |
+| 2 | マイグレーションを実行 | テーブルを作成 |
+| 3 | シーダーを作成・実行 | テストデータを投入 |
+| 4 | コントローラーを作成し、クエリビルダでデータを取得 | クエリビルダでデータ取得 |
+| 5 | ルーティングを設定 | URLとコントローラーを結びつける |
+| 6 | Bladeファイルを配置 | 画面表示用のビューを作成 |
 
 Laravelのデータベース操作のポイントは「マイグレーションでテーブル構造をバージョン管理し、クエリビルダで安全にデータを操作する」ことです。
 
@@ -460,7 +470,7 @@ sail artisan migrate
 
 ---
 
-#### ステップ3: シーダーを作成する
+#### ステップ3: シーダーを作成・実行する
 
 **何を考えているか**：
 - 「テストデータを投入するシーダーを作ろう」
@@ -473,18 +483,28 @@ sail artisan migrate
 sail artisan make:seeder ProductSeeder
 ```
 
-`database/seeders/ProductSeeder.php`を開いて、`run`メソッドを以下のように編集します：
+`database/seeders/ProductSeeder.php`を開いて、以下のように編集します：
 
 ```php
-public function run(): void
+<?php
+
+namespace Database\Seeders;
+
+use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
+
+class ProductSeeder extends Seeder
 {
-    DB::table('products')->insert([
-        ['name' => 'ノートPC', 'price' => 120000, 'stock' => 10, 'category' => '電子機器', 'created_at' => now(), 'updated_at' => now()],
-        ['name' => 'マウス', 'price' => 2000, 'stock' => 50, 'category' => '電子機器', 'created_at' => now(), 'updated_at' => now()],
-        ['name' => 'キーボード', 'price' => 5000, 'stock' => 30, 'category' => '電子機器', 'created_at' => now(), 'updated_at' => now()],
-        ['name' => 'デスク', 'price' => 25000, 'stock' => 5, 'category' => '家具', 'created_at' => now(), 'updated_at' => now()],
-        ['name' => 'チェア', 'price' => 15000, 'stock' => 8, 'category' => '家具', 'created_at' => now(), 'updated_at' => now()],
-    ]);
+    public function run(): void
+    {
+        DB::table('products')->insert([
+            ['name' => 'ノートPC', 'price' => 120000, 'stock' => 10, 'category' => '電子機器', 'created_at' => now(), 'updated_at' => now()],
+            ['name' => 'マウス', 'price' => 2000, 'stock' => 50, 'category' => '電子機器', 'created_at' => now(), 'updated_at' => now()],
+            ['name' => 'キーボード', 'price' => 5000, 'stock' => 30, 'category' => '電子機器', 'created_at' => now(), 'updated_at' => now()],
+            ['name' => 'デスク', 'price' => 25000, 'stock' => 5, 'category' => '家具', 'created_at' => now(), 'updated_at' => now()],
+            ['name' => 'チェア', 'price' => 15000, 'stock' => 8, 'category' => '家具', 'created_at' => now(), 'updated_at' => now()],
+        ]);
+    }
 }
 ```
 
@@ -520,7 +540,7 @@ sail artisan tinker
 
 ---
 
-#### ステップ4: クエリビルダーでデータを取得する
+#### ステップ4: コントローラーを作成し、クエリビルダでデータを取得する
 
 **何を考えているか**：
 - 「全商品を取得して表示したい」
@@ -572,57 +592,118 @@ return view('products.index', ['products' => $products]);
 
 ---
 
-#### ステップ5: クエリビルダでデータを挿入する
+#### ステップ5: ルーティングを設定する
 
 **何を考えているか**：
-- 「新しい商品を登録したい」
-- 「`insert`メソッドでデータを挿入しよう」
-- 「リクエストからデータを取得しよう」
+- 「URLとコントローラーを結びつけよう」
+- 「`/products`にアクセスしたら商品一覧が表示されるようにしたい」
 
-`ProductController`に`store`メソッドを追加します：
+`routes/web.php`を開いて、以下のルートを追加します：
 
 ```php
-public function store(Request $request)
-{
-    DB::table('products')->insert([
-        'name' => $request->name,
-        'price' => $request->price,
-        'stock' => $request->stock,
-        'category' => $request->category,
-        'created_at' => now(),
-        'updated_at' => now(),
-    ]);
-    return redirect('/products');
-}
+use App\Http\Controllers\ProductController;
+
+Route::get('/products', [ProductController::class, 'index']);
 ```
 
 **コードリーディング**：
 
 ```php
-public function store(Request $request)
+use App\Http\Controllers\ProductController;
 ```
-→ `Request $request`でリクエストデータを受け取ります。
+→ `ProductController`をインポートします。これにより`ProductController::class`でクラスを参照できます。
 
 ```php
-DB::table('products')->insert([
-    'name' => $request->name,
-    'price' => $request->price,
-    'stock' => $request->stock,
-    'category' => $request->category,
-    'created_at' => now(),
-    'updated_at' => now(),
-]);
+Route::get('/products', [ProductController::class, 'index']);
 ```
-→ `insert`メソッドでデータを挿入します。`$request->name`でリクエストからデータを取得します。
+→ `/products`へのGETリクエストを`ProductController`の`index`メソッドにルーティングします。
 
-```php
-return redirect('/products');
+---
+
+#### ステップ6: Bladeファイルを配置する
+
+**何を考えているか**：
+- 「コントローラーからビューにデータを渡している」
+- 「`products.index`というビューを作成しよう」
+
+`resources/views/products/`ディレクトリを作成し、`index.blade.php`を作成します：
+
+```bash
+mkdir -p resources/views/products
 ```
-→ 挿入後、商品一覧ページにリダイレクトします。
+
+`resources/views/products/index.blade.php`を作成し、以下の内容を記述します：
+
+```blade
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>商品一覧</title>
+    <style>
+        body { font-family: sans-serif; margin: 20px; }
+        table { border-collapse: collapse; width: 100%; max-width: 800px; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        th { background-color: #f5f5f5; }
+        h1 { color: #333; }
+    </style>
+</head>
+<body>
+    <h1>商品一覧</h1>
+    <p>全{{ count($products) }}件の商品があります。</p>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>商品名</th>
+                <th>価格</th>
+                <th>在庫</th>
+                <th>カテゴリ</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach ($products as $product)
+                <tr>
+                    <td>{{ $product->id }}</td>
+                    <td>{{ $product->name }}</td>
+                    <td>¥{{ number_format($product->price) }}</td>
+                    <td>{{ $product->stock }}</td>
+                    <td>{{ $product->category }}</td>
+                </tr>
+            @endforeach
+        </tbody>
+    </table>
+</body>
+</html>
+```
+
+**コードリーディング**：
+
+```blade
+{{ count($products) }}
+```
+→ コントローラーから渡された`$products`の件数を表示します。
+
+```blade
+@foreach ($products as $product)
+```
+→ Bladeの`@foreach`ディレクティブで商品を1件ずつループ処理します。
+
+```blade
+{{ $product->name }}
+```
+→ 各商品のプロパティにアクセスして表示します。クエリビルダの結果はオブジェクトなので、`->`でアクセスします。
+
+```blade
+{{ number_format($product->price) }}
+```
+→ `number_format()`で価格をカンマ区切りでフォーマットします。
 
 ---
 
 ### ✨ 完成！
+
+ブラウザで `http://localhost/products` にアクセスして、商品一覧が表示されれば成功です！
 
 これでLaravelのデータベース操作が実践できました！マイグレーション、シーダー、クエリビルダを使って、データベースを構築・操作できましたね。
 
@@ -635,8 +716,6 @@ return redirect('/products');
 ---
 
 ## 📖 模範解答
-
-> 💡 模範解答ではCSSでスタイリングしていますが、この演習ではCSSの実装は不要です。機能の実装に集中してください。
 
 ### マイグレーションファイル
 
@@ -657,39 +736,99 @@ public function up(): void
 ### ProductSeeder.php
 
 ```php
-public function run(): void
+<?php
+
+namespace Database\Seeders;
+
+use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
+
+class ProductSeeder extends Seeder
 {
-    DB::table('products')->insert([
-        ['name' => 'ノートPC', 'price' => 120000, 'stock' => 10, 'category' => '電子機器', 'created_at' => now(), 'updated_at' => now()],
-        ['name' => 'マウス', 'price' => 2000, 'stock' => 50, 'category' => '電子機器', 'created_at' => now(), 'updated_at' => now()],
-        ['name' => 'キーボード', 'price' => 5000, 'stock' => 30, 'category' => '電子機器', 'created_at' => now(), 'updated_at' => now()],
-        ['name' => 'デスク', 'price' => 25000, 'stock' => 5, 'category' => '家具', 'created_at' => now(), 'updated_at' => now()],
-        ['name' => 'チェア', 'price' => 15000, 'stock' => 8, 'category' => '家具', 'created_at' => now(), 'updated_at' => now()],
-    ]);
+    public function run(): void
+    {
+        DB::table('products')->insert([
+            ['name' => 'ノートPC', 'price' => 120000, 'stock' => 10, 'category' => '電子機器', 'created_at' => now(), 'updated_at' => now()],
+            ['name' => 'マウス', 'price' => 2000, 'stock' => 50, 'category' => '電子機器', 'created_at' => now(), 'updated_at' => now()],
+            ['name' => 'キーボード', 'price' => 5000, 'stock' => 30, 'category' => '電子機器', 'created_at' => now(), 'updated_at' => now()],
+            ['name' => 'デスク', 'price' => 25000, 'stock' => 5, 'category' => '家具', 'created_at' => now(), 'updated_at' => now()],
+            ['name' => 'チェア', 'price' => 15000, 'stock' => 8, 'category' => '家具', 'created_at' => now(), 'updated_at' => now()],
+        ]);
+    }
 }
 ```
 
 ### ProductController.php
 
 ```php
-public function index()
-{
-    $products = DB::table('products')->get();
-    return view('products.index', ['products' => $products]);
-}
+<?php
 
-public function store(Request $request)
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+
+class ProductController extends Controller
 {
-    DB::table('products')->insert([
-        'name' => $request->name,
-        'price' => $request->price,
-        'stock' => $request->stock,
-        'category' => $request->category,
-        'created_at' => now(),
-        'updated_at' => now(),
-    ]);
-    return redirect('/products');
+    public function index()
+    {
+        $products = DB::table('products')->get();
+        return view('products.index', ['products' => $products]);
+    }
 }
+```
+
+### routes/web.php（追加部分）
+
+```php
+use App\Http\Controllers\ProductController;
+
+Route::get('/products', [ProductController::class, 'index']);
+```
+
+### resources/views/products/index.blade.php
+
+```blade
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>商品一覧</title>
+    <style>
+        body { font-family: sans-serif; margin: 20px; }
+        table { border-collapse: collapse; width: 100%; max-width: 800px; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        th { background-color: #f5f5f5; }
+        h1 { color: #333; }
+    </style>
+</head>
+<body>
+    <h1>商品一覧</h1>
+    <p>全{{ count($products) }}件の商品があります。</p>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>商品名</th>
+                <th>価格</th>
+                <th>在庫</th>
+                <th>カテゴリ</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach ($products as $product)
+                <tr>
+                    <td>{{ $product->id }}</td>
+                    <td>{{ $product->name }}</td>
+                    <td>¥{{ number_format($product->price) }}</td>
+                    <td>{{ $product->stock }}</td>
+                    <td>{{ $product->category }}</td>
+                </tr>
+            @endforeach
+        </tbody>
+    </table>
+</body>
+</html>
 ```
 
 ---

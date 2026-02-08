@@ -1,6 +1,6 @@
 # Tutorial 9-2-5: Bladeテンプレート - ハンズオン演習
 
-## 📝 このセクションの目的
+## 📌 このハンズオンについて
 
 Chapter 2で学んだBladeテンプレートを実際に手を動かして確認します。**提供されたBladeファイルを読み解き、コントローラーから適切なデータを渡して画面を表示させる**演習を行います。
 
@@ -8,7 +8,7 @@ Chapter 2で学んだBladeテンプレートを実際に手を動かして確認
 
 ---
 
-## 📁 ディレクトリ構成
+### ディレクトリ構成
 
 このハンズオンでは、「自分で作成する用」と「解答を確認する用」の2つのプロジェクトを作成します。
 
@@ -41,114 +41,51 @@ Chapter 2で学んだBladeテンプレートを実際に手を動かして確認
 
 ## 🎯 演習課題：提供されたBladeファイルを動かそう
 
-### 🖼️ 完成イメージ
-
-<!-- 完成画面のスクリーンショットをここに配置 -->
-![9-2-5 完成イメージ](images/9-2-5_products_complete.png)
-
 **この演習で作るもの**：
 提供されたBladeファイルを読み解き、コントローラーから適切なデータを渡して「商品一覧ページ」を表示させます。
 
----
+### 🖼️ 完成イメージ
 
-### 📋 シナリオ
+**商品一覧ページ完成画面**
 
-あなたは、フロントエンドエンジニアから以下のBladeファイルを受け取りました。このファイルを読み解き、コントローラーから適切なデータを渡して、画面を正しく表示させてください。
-
-### 📁 提供されるBladeファイル
-
-以下の内容で`resources/views/products/index.blade.php`を作成してください。
-
-```blade
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <title>{{ $pageTitle }}</title>
-    <style>
-        body { font-family: sans-serif; margin: 20px; }
-        table { border-collapse: collapse; width: 100%; }
-        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
-        th { background-color: #f5f5f5; }
-        .in-stock { color: green; }
-        .out-of-stock { color: red; }
-        .category { background-color: #e0e0e0; padding: 2px 8px; border-radius: 4px; }
-    </style>
-</head>
-<body>
-    <h1>{{ $pageTitle }}</h1>
-    <p>全{{ $products->count() }}件の商品があります。</p>
-
-    <table>
-        <thead>
-            <tr>
-                <th>No.</th>
-                <th>商品名</th>
-                <th>カテゴリ</th>
-                <th>価格</th>
-                <th>在庫状況</th>
-            </tr>
-        </thead>
-        <tbody>
-            @forelse ($products as $product)
-                <tr>
-                    <td>{{ $loop->iteration }}</td>
-                    <td>{{ $product->name }}</td>
-                    <td><span class="category">{{ $product->category }}</span></td>
-                    <td>¥{{ number_format($product->price) }}</td>
-                    <td>
-                        @if ($product->in_stock)
-                            <span class="in-stock">在庫あり</span>
-                        @else
-                            <span class="out-of-stock">在庫なし</span>
-                        @endif
-                    </td>
-                </tr>
-            @empty
-                <tr>
-                    <td colspan="5">商品が登録されていません</td>
-                </tr>
-            @endforelse
-        </tbody>
-    </table>
-
-    @isset($lastUpdated)
-        <p><small>最終更新: {{ $lastUpdated }}</small></p>
-    @endisset
-</body>
-</html>
-```
-
-### 📝 課題
-
-1. 上記のBladeファイルを読み解き、**必要な変数**を特定してください。
-2. `ProductController`を作成し、適切なデータを渡してください。
-3. ルーティングを設定し、ブラウザで表示を確認してください。
+<img alt="9-2-5_1.png" src="">
 
 ---
 
-### ✅ 完成品の確認方法
+### 📋 要件
 
-**🌐 ブラウザでの確認（推奨）**
+フロントエンドエンジニアから提供されたBladeファイルを読み解き、コントローラーから適切なデータを渡して画面を表示させます。
 
-- **動作確認URL**: `http://localhost/products`
-- **確認手順**:
-  1. Sailを起動する（`./vendor/bin/sail up -d`）
-  2. ブラウザで `http://localhost/products` にアクセス
-  3. 以下の項目が表示されることを確認
+- `/products`にアクセスすると、商品一覧ページが表示される
+- 商品データ（名前、カテゴリ、価格、在庫状況）がテーブル形式で表示される
+- 在庫ありは緑色、在庫なしは赤色で表示される
 
-**正しく実装できていれば**:
-- [ ] 「商品一覧」というタイトルが表示される
+---
+
+### ✅ 完成チェックリスト
+
+- [ ] `/products`にアクセスすると「商品一覧」というタイトルが表示される
 - [ ] 「全3件の商品があります」と表示される
 - [ ] 商品がテーブル形式で表示される（No.、商品名、カテゴリ、価格、在庫状況）
 - [ ] 在庫ありの商品は緑色、在庫なしの商品は赤色で表示される
 - [ ] 最終更新日時が表示される
 
-> 📌 **Bladeファイルについて**: この演習ではBladeファイルが提供されています。コントローラーから適切なデータを渡すことに集中してください。
+> 💡 **動作確認**: `http://localhost/products` にアクセス
 
 ---
 
-### 📁 Step 0: 環境を準備する（自分で作成する用）
+### ✏️ 実装タスク
+
+1. Bladeファイルを読み解き、必要な変数を特定する
+2. `ProductController`を作成し、データを渡す
+3. ルーティングを設定する
+4. Bladeファイルを配置する
+
+> 💡 Bladeファイルは「⚙️ 環境準備」セクションで提供します。
+
+---
+
+## ⚙️ 環境準備（自分で作成する用）
 
 まず、ハンズオン用のディレクトリを作成し、**自分で作成する用**のプロジェクトを準備します。
 
@@ -157,10 +94,10 @@ Chapter 2で学んだBladeテンプレートを実際に手を動かして確認
 > 以下のコマンドを実行する前に、Docker Desktop（またはDocker Engine）が起動していることを確認してください。
 
 > **📌 前のハンズオンのプロジェクトを停止**
-> 
-> 前のハンズオン（9-1-7）のプロジェクトが起動している場合は、先に停止してください。
+>
+> 前のハンズオン（9-1-8）のプロジェクトが起動している場合は、先に停止してください。
 > ```bash
-> cd ~/laravel-practice/9-1-7_hands-on/profile-app-sample
+> cd ~/laravel-practice/9-1-8_hands-on/profile-app-sample
 > ./vendor/bin/sail down
 > ```
 
@@ -171,7 +108,9 @@ cd ~/laravel-practice
 # ハンズオン用ディレクトリを作成
 mkdir -p 9-2-5_hands-on
 cd 9-2-5_hands-on
+```
 
+```bash
 # Laravel 10.xプロジェクトを作成（自分で作成する用）
 docker run --rm \
     -u "$(id -u):$(id -g)" \
@@ -249,10 +188,82 @@ mysql:
 ```
 
 > 💡 **環境構築が完了！**
-> 
+>
 > ブラウザで `http://localhost` にアクセスして、Laravelのウェルカムページが表示されれば成功です。
 
-**ここから先は、自分の力で実装してみましょう！**
+---
+
+### 📄 提供ファイル
+
+**`resources/views/products/index.blade.php`**
+
+```blade
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ $pageTitle }}</title>
+    <style>
+        body { font-family: sans-serif; margin: 20px; }
+        table { border-collapse: collapse; width: 100%; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        th { background-color: #f5f5f5; }
+        .in-stock { color: green; }
+        .out-of-stock { color: red; }
+        .category { background-color: #e0e0e0; padding: 2px 8px; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <h1>{{ $pageTitle }}</h1>
+    <p>全{{ $products->count() }}件の商品があります。</p>
+
+    <table>
+        <thead>
+            <tr>
+                <th>No.</th>
+                <th>商品名</th>
+                <th>カテゴリ</th>
+                <th>価格</th>
+                <th>在庫状況</th>
+            </tr>
+        </thead>
+        <tbody>
+            @forelse ($products as $product)
+                <tr>
+                    <td>{{ $loop->iteration }}</td>
+                    <td>{{ $product->name }}</td>
+                    <td><span class="category">{{ $product->category }}</span></td>
+                    <td>¥{{ number_format($product->price) }}</td>
+                    <td>
+                        @if ($product->in_stock)
+                            <span class="in-stock">在庫あり</span>
+                        @else
+                            <span class="out-of-stock">在庫なし</span>
+                        @endif
+                    </td>
+                </tr>
+            @empty
+                <tr>
+                    <td colspan="5">商品が登録されていません</td>
+                </tr>
+            @endforelse
+        </tbody>
+    </table>
+
+    @isset($lastUpdated)
+        <p><small>最終更新: {{ $lastUpdated }}</small></p>
+    @endisset
+</body>
+</html>
+```
+
+---
+
+---
+
+> 🚀 **ここから先は、自分の力で実装してみましょう！**
+
+---
 
 ---
 
@@ -282,7 +293,7 @@ Bladeファイル内で使われている変数を探しましょう。
 
 ---
 
-### 💻 環境準備（実践用プロジェクト）
+### ⚙️ 環境準備（実践用プロジェクト）
 
 まず、**自分で作成する用のプロジェクトを停止**します：
 
@@ -358,15 +369,21 @@ docker run --rm \
 
 ---
 
-### 💭 実装の思考プロセス
+### 🧠 先輩エンジニアの思考プロセス
 
-Bladeファイルを読み解く際は、以下の順番で考えると効率的です：
+先輩エンジニアは要件を以下のように構造化し、実装タスクに落とし込みます：
 
-1. **変数を特定**：`{{ $変数名 }}`を探す
-2. **データ構造を推測**：`$products->count()`ならコレクション、`$product->name`ならオブジェクトのプロパティ
-3. **条件分岐を確認**：`@if`や`@isset`で何がチェックされているか
-4. **コントローラーでデータを準備**：特定した変数を全て渡す
-5. **デバッグで確認**：`@dd()`で渡されているか確認
+| Step | やること | 説明 |
+|:-----|:---------|:-----|
+| 1 | Bladeファイルを読み解く | 変数を特定し、データ構造を推測する |
+| 2 | コントローラーを作成 | Artisanコマンドで生成 |
+| 3 | ルーティングを設定 | URLとコントローラーを結びつける |
+| 4 | Bladeファイルを配置 | 提供されたファイルを配置 |
+
+Bladeを読み解くポイント：
+- `{{ $変数名 }}`で変数を特定
+- `$products->count()`ならコレクション、`$product->name`ならオブジェクトのプロパティ
+- `@if`や`@isset`で条件分岐を確認
 
 ---
 
@@ -491,58 +508,15 @@ mkdir -p resources/views/products
 
 提供されたBladeファイルを`resources/views/products/index.blade.php`として保存します。
 
-> 💡 模範解答のBladeファイルにはCSSでスタイリングされていますが、この演習ではCSSの実装は不要です。コントローラーからのデータの渡し方に集中してください。
-
----
-
-#### ステップ5: ブラウザで確認する
-
-**何を考えているか**：
-- 「ブラウザでアクセスして、正しく表示されるか確認しよう」
-- 「エラーが出たら、@dd()でデバッグしよう」
-
-ブラウザで`http://localhost/products`にアクセスします。
-
-**期待される表示**：
-
-```
-商品一覧
-全3件の商品があります。
-
-┌────┬──────────────────┬──────────┬──────────┬──────────┐
-│No. │商品名            │カテゴリ  │価格      │在庫状況  │
-├────┼──────────────────┼──────────┼──────────┼──────────┤
-│ 1  │ノートパソコン    │電子機器  │¥89,800  │在庫あり  │
-│ 2  │ワイヤレスマウス  │周辺機器  │¥3,980   │在庫あり  │
-│ 3  │USBハブ          │周辺機器  │¥2,480   │在庫なし  │
-└────┴──────────────────┴──────────┴──────────┴──────────┘
-
-最終更新: 2024年1月1日 12:00
-```
-
----
-
-#### ステップ6: デバッグの練習
-
-**何を考えているか**：
-- 「もしエラーが出たら、どうデバッグするか練習しよう」
-
-Bladeファイルの先頭に`@dd()`を追加して、データが渡されているか確認します：
-
-```blade
-@dd($products)
-
-<h1>{{ $pageTitle }}</h1>
-...
-```
-
-これで、`$products`の中身が表示されます。確認後は`@dd()`を削除してください。
-
 ---
 
 ### ✨ 完成！
 
-これでBladeファイルを読み解き、コントローラーから適切なデータを渡す演習ができました！
+ブラウザで `http://localhost/products` にアクセスして、商品一覧が表示されれば完成です！
+
+これでBladeファイルを読み解き、コントローラーから適切なデータを渡す演習ができました。
+
+> 💡 **エラーが出たら**: Bladeファイルの先頭に`@dd($products)`を追加して、データが渡されているか確認しましょう。確認後は削除してください。
 
 **自分で作成したコードと比較してみましょう**：
 - `blade-app-practice/`: 自分で作成したプロジェクト
@@ -601,6 +575,68 @@ class ProductController extends Controller
 use App\Http\Controllers\ProductController;
 
 Route::get('/products', [ProductController::class, 'index']);
+```
+
+### products/index.blade.php
+
+```blade
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ $pageTitle }}</title>
+    <style>
+        body { font-family: sans-serif; margin: 20px; }
+        table { border-collapse: collapse; width: 100%; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        th { background-color: #f5f5f5; }
+        .in-stock { color: green; }
+        .out-of-stock { color: red; }
+        .category { background-color: #e0e0e0; padding: 2px 8px; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <h1>{{ $pageTitle }}</h1>
+    <p>全{{ $products->count() }}件の商品があります。</p>
+
+    <table>
+        <thead>
+            <tr>
+                <th>No.</th>
+                <th>商品名</th>
+                <th>カテゴリ</th>
+                <th>価格</th>
+                <th>在庫状況</th>
+            </tr>
+        </thead>
+        <tbody>
+            @forelse ($products as $product)
+                <tr>
+                    <td>{{ $loop->iteration }}</td>
+                    <td>{{ $product->name }}</td>
+                    <td><span class="category">{{ $product->category }}</span></td>
+                    <td>¥{{ number_format($product->price) }}</td>
+                    <td>
+                        @if ($product->in_stock)
+                            <span class="in-stock">在庫あり</span>
+                        @else
+                            <span class="out-of-stock">在庫なし</span>
+                        @endif
+                    </td>
+                </tr>
+            @empty
+                <tr>
+                    <td colspan="5">商品が登録されていません</td>
+                </tr>
+            @endforelse
+        </tbody>
+    </table>
+
+    @isset($lastUpdated)
+        <p><small>最終更新: {{ $lastUpdated }}</small></p>
+    @endisset
+</body>
+</html>
 ```
 
 ---

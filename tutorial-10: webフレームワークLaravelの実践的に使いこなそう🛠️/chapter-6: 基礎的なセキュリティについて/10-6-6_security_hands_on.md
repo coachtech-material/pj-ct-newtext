@@ -1,14 +1,12 @@
 # Tutorial 10-6-6: Webセキュリティハンズオン
 
-## 🎯 このハンズオンで実践すること
+## 📌 このハンズオンについて
 
 Chapter 6で学んだセキュリティ対策を実際に手を動かして確認します。このハンズオンでは、**CSRF保護**と**XSS対策**に焦点を当てて実装します。
 
 > 分からない文法や実装があっても、すぐに答えを見るのではなく、過去の教材を見たり、AIにヒントをもらいながら進めるなど、自身で創意工夫しながら進めてみましょう🔥
 
----
-
-## 📁 ディレクトリ構成
+### 📁 ディレクトリ構成
 
 このハンズオンでは、「自分で作成する用」と「解答を確認する用」の2つのプロジェクトを作成します。
 
@@ -41,126 +39,78 @@ Chapter 6で学んだセキュリティ対策を実際に手を動かして確�
 
 ---
 
-## 📝 課題：CSRF保護付きお問い合わせフォームを作成しよう
+## 🎯 演習課題：CSRF保護付きお問い合わせフォームを作成しよう
 
 このハンズオンでは、**セキュリティを意識したお問い合わせフォーム**を作成します。
 
 ### 🖼️ 完成イメージ
 
-<!-- お問い合わせフォームと送信完了画面のスクリーンショットをここに配置 -->
-![10-6-6 完成イメージ](images/10-6-6_security_complete.png)
+<details>
+<summary>📸 完成画面を確認する（クリックで展開）</summary>
 
-**この演習で作るもの**：
-CSRF保護とXSS対策を実装した「お問い合わせフォーム」を作成します。
+**お問い合わせフォーム画面**
 
----
+<!-- 撮影内容: http://localhost/contact にアクセスしてフォーム画面を撮影 -->
+<img alt="10-6-6_1.png" src="">
 
-### 📋 要件
+**送信完了画面**
 
-1. **お問い合わせフォームを作成**
-   - 名前、メールアドレス、メッセージを入力
-   - CSRF保護を実装（`@csrf`ディレクティブ）
+<!-- 撮影内容: フォームを送信して完了画面を撮影 -->
+<img alt="10-6-6_2.png" src="">
 
-2. **送信完了画面を作成**
-   - 入力内容を表示
-   - XSS対策を実装（`{{ }}`構文でエスケープ）
-
-3. **ルーティングを設定**
-   - `GET /contact` → フォーム表示
-   - `POST /contact` → 送信処理
+</details>
 
 > 💡 **ポイント**: このハンズオンでは、データベースへの保存は行いません。フォームの送信とセキュリティ対策に集中しましょう。
 
 ---
 
-### ✅ 完成品の確認方法
+### 📋 要件
 
-**🌐 ブラウザでの確認（推奨）**
-
-- **動作確認URL**: `http://localhost/contact`
-- **確認手順**:
-  1. Sailを起動する（`./vendor/bin/sail up -d`）
-  2. ブラウザで `http://localhost/contact` にアクセス
-  3. フォームに入力して送信
-  4. 送信完了画面で入力内容が表示されることを確認
-
-**正しく実装できていれば**:
-- [ ] お問い合わせフォームが表示される
-- [ ] フォーム送信時にCSRFエラーが発生しない
-- [ ] 送信完了画面で入力内容が正しく表示される
-- [ ] XSS攻撃コード（`<script>alert('XSS')</script>`）を入力しても実行されない
-
-**🔧 CSRF保護の確認方法**:
-
-`@csrf`を削除してフォームを送信すると、`419 Page Expired`エラーが表示されます。これはCSRF保護が機能している証拠です。
-
-**🔧 XSS対策の確認方法**:
-
-メッセージ欄に `<script>alert('XSS')</script>` を入力して送信します。送信完了画面でアラートが表示されず、文字列として表示されればOKです。
-
-> 📌 **Bladeファイルについて**: バックエンド実装に集中するため、動作確認用のシンプルなBladeファイルを以下に用意しています。
-
-<details>
-<summary>📄 確認用Bladeファイル（クリックで展開）</summary>
-
-`resources/views/contact/form.blade.php`:
-
-```blade
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <title>お問い合わせ</title>
-</head>
-<body>
-    <h1>お問い合わせフォーム</h1>
-    <form action="/contact" method="POST">
-        @csrf
-        <p><label>名前: <input type="text" name="name"></label></p>
-        <p><label>メール: <input type="email" name="email"></label></p>
-        <p><label>メッセージ: <textarea name="message"></textarea></label></p>
-        <button type="submit">送信</button>
-    </form>
-</body>
-</html>
-```
-
-`resources/views/contact/thanks.blade.php`:
-
-```blade
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <title>送信完了</title>
-</head>
-<body>
-    <h1>お問い合わせありがとうございます</h1>
-    <p>名前: {{ $name }}</p>
-    <p>メール: {{ $email }}</p>
-    <p>メッセージ: {{ $message }}</p>
-    <p><a href="/contact">戻る</a></p>
-</body>
-</html>
-```
-
-</details>
+- お問い合わせフォームが表示できる
+- フォームに名前、メールアドレス、メッセージを入力して送信できる
+- 送信完了画面で入力内容が表示される
+- CSRF保護が有効になっている（不正な送信を防止）
+- XSS対策が施されている（悪意のあるスクリプトが実行されない）
 
 ---
 
-## 🔧 環境準備（自分で作成する用）
+### ✅ 完成チェックリスト
+
+**動作確認URL**: `http://localhost/contact`
+
+- [ ] お問い合わせフォームが表示される
+- [ ] フォームに入力して送信できる
+- [ ] 送信完了画面で入力内容が正しく表示される
+- [ ] `@csrf`を削除して送信すると`419 Page Expired`エラーになる（CSRF保護の確認）
+- [ ] メッセージ欄に`<script>alert('XSS')</script>`を入力しても実行されない（XSS対策の確認）
+
+---
+
+### ✏️ 実装タスク
+
+| # | タスク |
+|:--|:-------|
+| 1 | ContactControllerを作成する |
+| 2 | ビューファイルを作成する（form, thanks） |
+| 3 | ルーティングを設定する |
+
+> 💡 Bladeファイルは「⚙️ 環境準備」セクションの提供ファイルを使用できます。
+
+---
+
+## ⚙️ 環境準備（自分で作成する用）
 
 まず、ハンズオン用のディレクトリを作成し、**自分で作成する用**のプロジェクトを準備します。
 
 > **📌 Dockerが起動していることを確認**
-> 
+>
 > 以下のコマンドを実行する前に、Docker Desktop（またはDocker Engine）が起動していることを確認してください。
 
 > **📌 前のハンズオンのプロジェクトを停止**
-> 
-> 前のハンズオン（10-5-8）のプロジェクトが起動している場合は、先に停止してください。
+>
+> 前のハンズオン（10-5-7）のプロジェクトが起動している場合は、先に停止してください。
 > ```bash
-> cd ~/laravel-practice/10-5-8_hands-on/testing-app-sample
+> cd ~/laravel-practice/10-5-7_hands-on/testing-app-sample
 > ./vendor/bin/sail down
 > ```
 
@@ -248,10 +198,99 @@ mysql:
 ```
 
 > 💡 **環境構築が完了！**
-> 
+>
 > ブラウザで `http://localhost` にアクセスして、Laravelのウェルカムページが表示されれば成功です。
 
-**ここから先は、自分の力で実装してみましょう！**
+### 📄 提供ファイル
+
+**`resources/views/contact/form.blade.php`**
+
+```blade
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>お問い合わせ</title>
+    <style>
+        body { font-family: sans-serif; max-width: 600px; margin: 50px auto; padding: 20px; }
+        h1 { color: #333; }
+        label { display: block; margin-top: 15px; font-weight: bold; }
+        input, textarea { width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ccc; border-radius: 4px; }
+        textarea { height: 150px; }
+        button { margin-top: 20px; padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        .error { color: red; font-size: 14px; }
+    </style>
+</head>
+<body>
+    <h1>お問い合わせ</h1>
+
+    <form method="POST" action="/contact">
+        @csrf
+
+        <label for="name">お名前</label>
+        <input type="text" id="name" name="name" value="{{ old('name') }}">
+        @error('name')
+            <p class="error">{{ $message }}</p>
+        @enderror
+
+        <label for="email">メールアドレス</label>
+        <input type="email" id="email" name="email" value="{{ old('email') }}">
+        @error('email')
+            <p class="error">{{ $message }}</p>
+        @enderror
+
+        <label for="message">メッセージ</label>
+        <textarea id="message" name="message">{{ old('message') }}</textarea>
+        @error('message')
+            <p class="error">{{ $message }}</p>
+        @enderror
+
+        <button type="submit">送信</button>
+    </form>
+</body>
+</html>
+```
+
+**`resources/views/contact/thanks.blade.php`**
+
+```blade
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>送信完了</title>
+    <style>
+        body { font-family: sans-serif; max-width: 600px; margin: 50px auto; padding: 20px; }
+        h1 { color: #28a745; }
+        .info { background: #f8f9fa; padding: 20px; border-radius: 4px; margin-top: 20px; }
+        .info p { margin: 10px 0; }
+        .label { font-weight: bold; color: #666; }
+        a { color: #007bff; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <h1>送信完了</h1>
+    <p>お問い合わせありがとうございます。</p>
+
+    <div class="info">
+        <p><span class="label">お名前：</span>{{ $name }}</p>
+        <p><span class="label">メールアドレス：</span>{{ $email }}</p>
+        <p><span class="label">メッセージ：</span></p>
+        <p>{{ $message }}</p>
+    </div>
+
+    <p style="margin-top: 20px;"><a href="/contact">戻る</a></p>
+</body>
+</html>
+```
+
+---
+
+> 🚀 **ここから先は、自分の力で実装してみましょう！**
 
 ---
 
@@ -403,19 +442,21 @@ mysql:
 
 ### 💭 実装の思考プロセス
 
-セキュリティを意識したフォームを実装する際、以下の順番で考えると効率的です：
+セキュリティを意識したフォームを実装する際、以下の順番で考えると効率的です。
 
-1. **コントローラーを作成**：フォーム表示と送信処理
-2. **ビューを作成**：フォームと完了画面
-3. **CSRF保護を追加**：`@csrf`ディレクティブ
-4. **XSS対策を確認**：`{{ }}`構文でエスケープ
-5. **ルーティングを設定**：GETとPOST
+| Step | やること |
+|:-----|:---------|
+| 1 | ContactControllerを作成する |
+| 2 | ビューファイルを作成する（form, thanks） |
+| 3 | ルーティングを設定する |
+
+> 💡 **ポイント**: Bladeファイルには`@csrf`でCSRF保護、`{{ }}`でXSS対策を実装します。
 
 ---
 
 ### 📝 ステップバイステップで実装
 
-#### ステップ1: コントローラーを作成する
+#### ステップ1: ContactControllerを作成する
 
 **何を考えているか**：
 - 「お問い合わせフォームを表示するメソッドが必要だ」
@@ -435,14 +476,6 @@ sail artisan make:controller ContactController
 | `ContactController` | コントローラー名 |
 
 → `app/Http/Controllers/ContactController.php`が作成されます。
-
----
-
-#### ステップ2: コントローラーにメソッドを追加する
-
-**何を考えているか**：
-- 「フォームを表示するメソッドを作ろう」
-- 「送信処理を行うメソッドを作ろう」
 
 `app/Http/Controllers/ContactController.php`を開いて、以下のように編集します：
 
@@ -497,17 +530,20 @@ class ContactController extends Controller
 
 ---
 
-#### ステップ3: フォームのビューを作成する
+#### ステップ2: ビューファイルを作成する（form, thanks）
 
 **何を考えているか**：
 - 「お問い合わせフォームのビューを作ろう」
 - 「CSRF保護を忘れずに追加しよう」
+- 「送信完了画面ではXSS対策を忘れずに」
 
 まず、ビュー用のディレクトリを作成します：
 
 ```bash
 mkdir -p resources/views/contact
 ```
+
+##### form.blade.php（フォーム画面）
 
 `resources/views/contact/form.blade.php`を作成します：
 
@@ -570,13 +606,7 @@ mkdir -p resources/views/contact
 
 > 💡 **CSRF保護のポイント**: `@csrf`を忘れると、フォーム送信時に「419 Page Expired」エラーが発生します。
 
----
-
-#### ステップ4: 完了画面のビューを作成する
-
-**何を考えているか**：
-- 「送信完了画面を作ろう」
-- 「ユーザー入力を表示するときはXSS対策を忘れずに」
+##### thanks.blade.php（完了画面）
 
 `resources/views/contact/thanks.blade.php`を作成します：
 
@@ -625,7 +655,7 @@ mkdir -p resources/views/contact
 
 ---
 
-#### ステップ5: ルーティングを設定する
+#### ステップ3: ルーティングを設定する
 
 **何を考えているか**：
 - 「フォーム表示用のGETルートが必要だ」
@@ -646,17 +676,6 @@ Route::post('/contact', [ContactController::class, 'submit']);
 |:---|:---|:---|
 | 1 | `Route::get('/contact', ...)` | GETリクエストでフォームを表示 |
 | 2 | `Route::post('/contact', ...)` | POSTリクエストで送信処理 |
-
----
-
-#### ステップ6: 動作確認
-
-ブラウザで `http://localhost/contact` にアクセスして、以下を確認します：
-
-1. **フォームが表示される**
-2. **必須項目を空にして送信** → バリデーションエラーが表示される
-3. **正しく入力して送信** → 完了画面が表示される
-4. **完了画面に入力内容が表示される**
 
 ---
 
@@ -705,6 +724,15 @@ XSS対策が正しく機能しているか確認してみましょう。
 ### ✨ 完成！
 
 これでCSRF保護とXSS対策を実装したお問い合わせフォームが完成しました！
+
+#### 動作確認
+
+ブラウザで `http://localhost/contact` にアクセスして、以下を確認します：
+
+1. **フォームが表示される**
+2. **必須項目を空にして送信** → バリデーションエラーが表示される
+3. **正しく入力して送信** → 完了画面が表示される
+4. **完了画面に入力内容が表示される**
 
 **自分で作成したコードと比較してみましょう**：
 - `security-app-practice/`: 自分で作成したプロジェクト
@@ -907,17 +935,15 @@ resources/views/
 
 ---
 
-## ✨ まとめ
+## 🚀 まとめ
 
 このハンズオンでは、セキュリティを意識したお問い合わせフォームを作成しました。
 
 | Step | 学んだこと |
 |------|-----------|
-| Step 1 | コントローラーの作成 |
-| Step 2 | フォーム表示と送信処理の実装 |
-| Step 3 | `@csrf`によるCSRF保護 |
-| Step 4 | `{{ }}`構文によるXSS対策 |
-| Step 5 | ルーティングの設定 |
+| Step 1 | ContactControllerを作成する |
+| Step 2 | ビューファイルを作成する（CSRF保護・XSS対策を実装） |
+| Step 3 | ルーティングを設定する |
 
 **セキュリティの重要なポイント**:
 

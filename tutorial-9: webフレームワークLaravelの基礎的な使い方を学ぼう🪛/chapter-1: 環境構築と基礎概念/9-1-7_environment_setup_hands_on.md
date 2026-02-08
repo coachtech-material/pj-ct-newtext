@@ -1,10 +1,47 @@
 # Tutorial 9-1-7: 環境構築ハンズオン
 
-## 📝 このセクションの目的
+## 📌 このハンズオンについて
 
 Tutorial 9と10のハンズオンで使用する`laravel-practice`ディレクトリを作成し、Laravel Sailを使った開発環境の構築手順を実践します。
 
 > 💡 **このハンズオンのポイント**: 9-1-2で学んだLaravel Sailの知識を実際に手を動かして確認します。ここで構築する環境は、今後のハンズオンで繰り返し使用します。
+
+---
+
+### 📋 このTutorialのハンズオンについて
+
+Tutorial 9〜10のハンズオンでは、各セクションで「自分で作成する用（practice）」と「解答を確認する用（sample）」の2つのプロジェクトを作成します。
+
+| ディレクトリ | 用途 |
+|:---|:---|
+| `○○-app-practice` | 要件を見て、自分の力で作成する |
+| `○○-app-sample` | 実践セクションで、一緒に手を動かしながら作成する |
+
+> 💡 **ポイント**: 自分で考えて作成したコードと、解答を見ながら作成したコードを比較することで、理解が深まります。
+
+#### ハンズオンSectionの構成
+
+各ハンズオンSectionは以下の構成になっています：
+
+| セクション | 内容 |
+|:---|:---|
+| 🎯 演習課題 | 作るもの、要件、実装タスク、完成チェックリスト |
+| ⚙️ 環境準備 | 自分で作成する用（practice）のセットアップ手順 |
+| 💡 ヒント | 実装のヒント（見なくてもOK） |
+| 🏃 実践セクション | 一緒に作成する用（sample）のステップバイステップ解説 |
+| 📖 模範解答 | コードの模範解答 |
+
+**おすすめの進め方**：
+
+1. まず「🎯 演習課題」を読んで、何を作るか把握する
+2. 「🔧 環境準備」でpracticeプロジェクトをセットアップ
+3. 自分の力で実装してみる（「💡 ヒント」は必要に応じて参照）
+4. 「🏃 実践セクション」を見ながらsampleプロジェクトで一緒に作成
+5. practiceとsampleのコードを比較して理解を深める
+
+> 📌 **このセクション（9-1-7）について**
+>
+> このセクションは環境構築の確認が目的のため、**演習は行いません**。以下の手順をそのままコピペで進めてOKです。次のセクション（9-1-8）から、上記の構成で演習を行います。
 
 ---
 
@@ -21,21 +58,21 @@ Tutorial 9と10のハンズオンで使用する`laravel-practice`ディレク�
 │   ├── profile-app-practice/             ← 自分で作成する用
 │   └── profile-app-sample/               ← 実践で一緒に作成する用
 │
-├── 9-2-4_hands-on/                       ← Bladeハンズオン
+├── 9-2-5_hands-on/                       ← Bladeハンズオン
 │   ├── blade-app-practice/
 │   └── blade-app-sample/
 │
-├── 9-3-5_hands-on/                       ← Eloquentハンズオン
+├── 9-3-9_hands-on/                       ← データベースハンズオン
+│   ├── database-app-practice/
+│   └── database-app-sample/
+│
+├── 9-4-9_hands-on/                       ← Eloquentハンズオン
 │   ├── eloquent-app-practice/
 │   └── eloquent-app-sample/
 │
-├── 9-4-5_hands-on/                       ← ルーティングハンズオン
-│   ├── routing-app-practice/
-│   └── routing-app-sample/
-│
-├── 9-5-5_hands-on/                       ← リレーションハンズオン
-│   ├── relation-app-practice/
-│   └── relation-app-sample/
+├── 9-5-5_hands-on/                       ← CRUDハンズオン
+│   ├── crud-app-practice/
+│   └── crud-app-sample/
 │
 ├── 9-6-5_hands-on/                       ← バリデーションハンズオン
 │   ├── validation-app-practice/
@@ -60,18 +97,18 @@ Tutorial 9と10のハンズオンで使用する`laravel-practice`ディレク�
 
 ---
 
-## 📝 ステップバイステップで環境構築
+## 🏃 実践セクション
 
-### 💭 実装の思考プロセス
+### 🧠 先輩エンジニアの思考プロセス
 
-Laravel Sailで環境を構築する際、以下の順番で進めます：
+先輩エンジニアは、Laravel Sailで環境を構築する際、以下のように実装タスクに落とし込みます：
 
 | 順番 | 作業 | 説明 |
 |------|------|------|
 | Step 1 | ディレクトリ作成 | `laravel-practice`ディレクトリを作成 |
 | Step 2 | プロジェクト作成 | Laravel 10.xプロジェクトを作成 |
 | Step 3 | Sailインストール | Laravel Sailをインストール |
-| Step 4 | 設定ファイル生成 | `docker-compose.yml`を生成 |
+| Step 4 | 設定ファイル生成 | `compose.yaml`を生成 |
 | Step 5 | .env確認 | データベース接続情報を確認 |
 | Step 6 | phpMyAdmin追加 | データベース管理ツールを追加 |
 | Step 7 | Sail起動 | コンテナを起動 |
@@ -81,7 +118,9 @@ Laravel Sailで環境を構築する際、以下の順番で進めます：
 
 ---
 
-### Step 1: laravel-practiceディレクトリを作成する
+### 📝 ステップバイステップで実装
+
+#### Step 1: laravel-practiceディレクトリを作成する
 
 **何を考えているか**：
 - 「Tutorial 9〜10のハンズオン用ディレクトリを作成しよう」
@@ -101,6 +140,9 @@ mkdir -p laravel-practice
 # 作成したディレクトリに移動
 cd laravel-practice
 
+# VSCodeで開く（今後のハンズオンで使い続けます）
+code .
+
 # このハンズオン用のディレクトリを作成
 mkdir -p 9-1-7_hands-on
 cd 9-1-7_hands-on
@@ -115,7 +157,7 @@ cd 9-1-7_hands-on
 
 ---
 
-### Step 2: Laravelプロジェクトを作成する
+#### Step 2: Laravelプロジェクトを作成する
 
 **何を考えているか**：
 - 「Laravel 10.xのプロジェクトを作成しよう」
@@ -148,7 +190,7 @@ docker run --rm \
 
 ---
 
-### Step 3: Laravel Sailをインストールする
+#### Step 3: Laravel Sailをインストールする
 
 **何を考えているか**：
 - 「作成したプロジェクトにLaravel Sailをインストールしよう」
@@ -176,10 +218,10 @@ docker run --rm \
 
 ---
 
-### Step 4: Sailの設定ファイルを生成する
+#### Step 4: Sailの設定ファイルを生成する
 
 **何を考えているか**：
-- 「Sailの設定ファイル（docker-compose.yml）を生成しよう」
+- 「Sailの設定ファイル（compose.yaml）を生成しよう」
 - 「MySQLを使用するように指定しよう」
 
 ```bash
@@ -195,12 +237,20 @@ docker run --rm \
 
 このコマンドを実行すると、以下のファイルが生成されます：
 
-- `docker-compose.yml`: Docker Composeの設定ファイル
+- `compose.yaml`: Docker Composeの設定ファイル
 - `.env`ファイルの更新: データベース接続情報が自動設定される
+
+**VSCodeで開く**
+
+次のステップで設定ファイルを確認・編集するため、VSCodeでプロジェクトを開いておきましょう。
+
+```bash
+code .
+```
 
 ---
 
-### Step 5: .envファイルを確認する
+#### Step 5: .envファイルを確認する
 
 **何を考えているか**：
 - 「データベース接続情報が正しく設定されているか確認しよう」
@@ -223,12 +273,12 @@ DB_PASSWORD=password
 
 ---
 
-### Step 6: phpMyAdminを追加する
+#### Step 6: phpMyAdminを追加する
 
 **何を考えているか**：
 - 「データベースをブラウザで管理できるようにphpMyAdminを追加しよう」
 
-`docker-compose.yml`を開き、`mysql`サービスの後に以下の設定を追加します：
+`compose.yaml`を開き、`mysql`サービスの後に以下の設定を追加します：
 
 ```yaml
     phpmyadmin:
@@ -258,7 +308,7 @@ DB_PASSWORD=password
 
 ---
 
-### Step 7: Sailを起動する
+#### Step 7: Sailを起動する
 
 **何を考えているか**：
 - 「いよいよSailを起動しよう」
@@ -312,7 +362,7 @@ mysql:
 
 ---
 
-### Step 8: エイリアスを設定する（推奨）
+#### Step 8: エイリアスを設定する（推奨）
 
 **何を考えているか**：
 - 「毎回`./vendor/bin/sail`と入力するのは面倒だ」
@@ -348,7 +398,7 @@ sail up -d
 
 ---
 
-### Step 9: アプリケーションキーを生成する
+#### Step 9: アプリケーションキーを生成する
 
 **何を考えているか**：
 - 「Laravelのアプリケーションキーを生成しよう」
@@ -365,7 +415,7 @@ sail up -d
 
 ---
 
-### Step 10: 動作確認
+#### Step 10: 動作確認
 
 **何を考えているか**：
 - 「環境構築が正しく行えたか確認しよう」
@@ -381,6 +431,10 @@ http://localhost
 
 Laravelのウェルカム画面が表示されれば、環境構築は成功です！
 
+**Laravelウェルカムページ**
+
+<img alt="9-1-7_1.png" src="">
+
 **phpMyAdminにアクセス**
 
 次に、phpMyAdminにアクセスして、データベースが正しく作成されているか確認しましょう：
@@ -390,6 +444,10 @@ http://localhost:8080
 ```
 
 phpMyAdminの画面が表示され、`laravel`データベースが確認できればOKです。
+
+**phpMyAdmin画面**
+
+<img alt="9-1-7_2.png" src="">
 
 ---
 
@@ -414,7 +472,7 @@ phpMyAdminの画面が表示され、`laravel`データベースが確認でき�
         ├── .env
         ├── artisan
         ├── composer.json
-        ├── docker-compose.yml
+        ├── compose.yaml
         └── ...
 ```
 
@@ -432,7 +490,7 @@ phpMyAdminの画面が表示され、`laravel`データベースが確認でき�
 | Laravelプロジェクトの作成 | `docker run`コマンドでLaravel 10.xプロジェクトを作成 |
 | Laravel Sailのインストール | `composer require laravel/sail --dev`でSailをインストール |
 | Sailの設定ファイル生成 | `php artisan sail:install --with=mysql`で設定ファイルを生成 |
-| phpMyAdminの追加 | `docker-compose.yml`にphpMyAdminを追加 |
+| phpMyAdminの追加 | `compose.yaml`にphpMyAdminを追加 |
 | Sailの起動 | `sail up -d`でDockerコンテナを起動 |
 | エイリアス設定 | `sail`コマンドを短く使えるように設定 |
 | アプリケーションキー生成 | `sail artisan key:generate`でキーを生成 |

@@ -1,14 +1,16 @@
 # Tutorial 9-6-5: バリデーション - ハンズオン演習
 
-## 📝 このセクションの目的
+## 📌 このハンズオンについて
 
 Chapter 6で学んだバリデーションを実際に手を動かして確認します。フォームリクエストを使って、入力値の検証を実装しましょう。
 
 > 分からない文法や実装があっても、すぐに答えを見るのではなく、過去の教材を見たり、AIにヒントをもらいながら進めるなど、自身で創意工夫しながら進めてみましょう🔥
 
+> 💡 **このハンズオンのポイント**: フォームリクエストでバリデーションロジックをコントローラーから分離し、日本語エラーメッセージを表示することが目的です。
+
 ---
 
-## 📁 ディレクトリ構成
+### ディレクトリ構成
 
 このハンズオンでは、「自分で作成する用」と「解答を確認する用」の2つのプロジェクトを作成します。
 
@@ -41,130 +43,86 @@ Chapter 6で学んだバリデーションを実際に手を動かして確認�
 
 ## 🎯 演習課題：ユーザー登録フォームのバリデーション
 
-### 🖼️ 完成イメージ
-
-<!-- バリデーションエラー表示のスクリーンショットをここに配置 -->
-![9-6-5 完成イメージ](images/9-6-5_validation_complete.png)
-
 **この演習で作るもの**：
 フォームリクエストを使ったバリデーションと日本語エラーメッセージを備えた「ユーザー登録フォーム」を作成します。
+
+### 🖼️ 完成イメージ
+
+**ユーザー登録フォーム（エラー表示）**
+
+<img alt="9-6-5_1.png" src="">
 
 ---
 
 ### 📋 要件
 
-1. `StoreUserRequest`フォームリクエストを作成
-2. 以下のバリデーションルールを設定：
-   - name: 必須、最大50文字
-   - email: 必須、メール形式、ユニーク
-   - password: 必須、最小8文字、確認用と一致
-3. エラーメッセージを日本語化
-4. コントローラーで使用
-5. ビューでエラー表示
+- ユーザー登録フォームが表示される
+- 入力が不正な場合、日本語のエラーメッセージが表示される
+- 正しく入力すると登録が完了する
+
+**バリデーションルール**：
+
+| フィールド | ルール |
+|:-----------|:-------|
+| name | 必須、最大50文字 |
+| email | 必須、メール形式、ユニーク（usersテーブル） |
+| password | 必須、最小8文字、確認用と一致 |
+
+**エラーメッセージ（日本語）**：
+
+| フィールド.ルール | メッセージ |
+|:------------------|:-----------|
+| name.required | 名前は必須です |
+| name.max | 名前は50文字以内で入力してください |
+| email.required | メールアドレスは必須です |
+| email.email | メールアドレスの形式が正しくありません |
+| email.unique | このメールアドレスは既に使用されています |
+| password.required | パスワードは必須です |
+| password.min | パスワードは8文字以上で入力してください |
+| password.confirmed | パスワードが一致しません |
 
 ---
 
-### ✅ 完成品の確認方法
+### ✅ 完成チェックリスト
 
-**🌐 ブラウザでの確認（推奨）**
-
-- **動作確認URL**: `http://localhost/register`
-- **確認手順**:
-  1. Sailを起動する（`./vendor/bin/sail up -d`）
-  2. マイグレーションを実行（`./vendor/bin/sail artisan migrate`）
-  3. ブラウザで `http://localhost/register` にアクセス
-  4. 空のまま送信してエラーメッセージを確認
-
-**正しく実装できていれば**:
-- [ ] 登録フォームが表示される
+- [ ] `/register`にアクセスすると登録フォームが表示される
 - [ ] 空のまま送信すると日本語のエラーメッセージが表示される
 - [ ] 名前が51文字以上だとエラーになる
 - [ ] メール形式が不正だとエラーになる
 - [ ] パスワードが7文字以下だとエラーになる
 - [ ] パスワード確認が一致しないとエラーになる
-- [ ] 正しく入力すると登録成功画面が表示される
+- [ ] 正しく入力すると登録完了画面が表示される
 
-> 📌 **Bladeファイルについて**: バックエンド実装に集中するため、動作確認用のシンプルなBladeファイルを以下に用意しています。
-
-<details>
-<summary>📄 確認用Bladeファイル（クリックで展開）</summary>
-
-`resources/views/register.blade.php`:
-
-```blade
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <title>ユーザー登録</title>
-</head>
-<body>
-    <h1>ユーザー登録</h1>
-
-    @if ($errors->any())
-        <div style="color: red;">
-            <ul>
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
-
-    <form action="{{ route('register.store') }}" method="POST">
-        @csrf
-        <p>
-            <label>名前: <input type="text" name="name" value="{{ old('name') }}"></label>
-        </p>
-        <p>
-            <label>メール: <input type="email" name="email" value="{{ old('email') }}"></label>
-        </p>
-        <p>
-            <label>パスワード: <input type="password" name="password"></label>
-        </p>
-        <p>
-            <label>パスワード（確認）: <input type="password" name="password_confirmation"></label>
-        </p>
-        <button type="submit">登録</button>
-    </form>
-</body>
-</html>
-```
-
-`resources/views/register_success.blade.php`:
-
-```blade
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <title>登録完了</title>
-</head>
-<body>
-    <h1>登録が完了しました！</h1>
-    <p>ご登録ありがとうございます。</p>
-    <a href="{{ route('register.create') }}">戻る</a>
-</body>
-</html>
-```
-
-</details>
+> 💡 **動作確認**: `http://localhost/register` にアクセス
 
 ---
 
-### 📁 Step 0: 環境を準備する（自分で作成する用）
+### ✏️ 実装タスク
+
+1. フォームリクエストを作成する
+2. バリデーションルールを定義する
+3. エラーメッセージを日本語化する
+4. コントローラーを作成する
+5. ルーティングを設定
+6. Bladeファイルを配置
+
+> 💡 Bladeファイルは「⚙️ 環境準備」セクションで提供します。
+
+---
+
+## ⚙️ 環境準備（自分で作成する用）
 
 まず、ハンズオン用のディレクトリを作成し、**自分で作成する用**のプロジェクトを準備します。
 
 > **📌 Dockerが起動していることを確認**
-> 
+>
 > 以下のコマンドを実行する前に、Docker Desktop（またはDocker Engine）が起動していることを確認してください。
 
 > **📌 前のハンズオンのプロジェクトを停止**
-> 
-> 前のハンズオン（9-5-6）のプロジェクトが起動している場合は、先に停止してください。
+>
+> 前のハンズオン（9-5-5）のプロジェクトが起動している場合は、先に停止してください。
 > ```bash
-> cd ~/laravel-practice/9-5-6_hands-on/task-app-sample
+> cd ~/laravel-practice/9-5-5_hands-on/relation-app-sample
 > ./vendor/bin/sail down
 > ```
 
@@ -239,9 +197,11 @@ mysql:
 # アプリケーションキーの生成
 ./vendor/bin/sail artisan key:generate
 
-# データベースのマイグレーション
-./vendor/bin/sail artisan migrate
+# データベースをリセットしてマイグレーション実行
+./vendor/bin/sail artisan migrate:fresh
 ```
+
+> 💡 `migrate:fresh`を使うことで、前のハンズオンのデータをクリアして新しい状態から始められます。
 
 **✅ ディレクトリ構造の確認**
 
@@ -256,20 +216,129 @@ mysql:
 ```
 
 > 💡 **環境構築が完了！**
-> 
+>
 > ブラウザで `http://localhost` にアクセスして、Laravelのウェルカムページが表示されれば成功です。
 
-**ここから先は、自分の力で実装してみましょう！**
+---
+
+### 📄 提供ファイル
+
+**`resources/views/register.blade.php`**（登録フォーム）
+
+```blade
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>ユーザー登録</title>
+    <style>
+        body { font-family: sans-serif; margin: 20px; }
+        h1 { color: #333; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input { padding: 8px; width: 300px; border: 1px solid #ddd; border-radius: 4px; }
+        input.error { border-color: #dc3545; }
+        .error-message { color: #dc3545; font-size: 14px; margin-top: 5px; }
+        button { padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        .error-list { background: #f8d7da; border: 1px solid #f5c6cb; padding: 15px; border-radius: 4px; margin-bottom: 20px; }
+        .error-list ul { margin: 0; padding-left: 20px; }
+        .error-list li { color: #721c24; }
+    </style>
+</head>
+<body>
+    <h1>ユーザー登録</h1>
+
+    @if ($errors->any())
+        <div class="error-list">
+            <ul>
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
+    <form action="{{ route('register.store') }}" method="POST">
+        @csrf
+        <div class="form-group">
+            <label>名前</label>
+            <input type="text" name="name" value="{{ old('name') }}" class="@error('name') error @enderror">
+            @error('name')
+                <p class="error-message">{{ $message }}</p>
+            @enderror
+        </div>
+        <div class="form-group">
+            <label>メールアドレス</label>
+            <input type="email" name="email" value="{{ old('email') }}" class="@error('email') error @enderror">
+            @error('email')
+                <p class="error-message">{{ $message }}</p>
+            @enderror
+        </div>
+        <div class="form-group">
+            <label>パスワード</label>
+            <input type="password" name="password" class="@error('password') error @enderror">
+            @error('password')
+                <p class="error-message">{{ $message }}</p>
+            @enderror
+        </div>
+        <div class="form-group">
+            <label>パスワード（確認）</label>
+            <input type="password" name="password_confirmation">
+        </div>
+        <button type="submit">登録</button>
+    </form>
+</body>
+</html>
+```
+
+**register_success.blade.php**（登録完了）
+
+```blade
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>登録完了</title>
+    <style>
+        body { font-family: sans-serif; margin: 20px; }
+        h1 { color: #28a745; }
+        .success-box { background: #d4edda; border: 1px solid #c3e6cb; padding: 20px; border-radius: 4px; margin-bottom: 20px; }
+        a { color: #007bff; }
+    </style>
+</head>
+<body>
+    <div class="success-box">
+        <h1>登録が完了しました！</h1>
+        <p>ご登録ありがとうございます。</p>
+    </div>
+    <a href="{{ route('register.create') }}">← 登録画面に戻る</a>
+</body>
+</html>
+```
+
+---
+
+---
+
+> 🚀 **ここから先は、自分の力で実装してみましょう！**
+
+---
 
 ---
 
 ## 💡 ヒント
 
 ```bash
+# フォームリクエスト作成
 sail artisan make:request StoreUserRequest
+
+# コントローラー作成
+sail artisan make:controller UserController
 ```
 
 ```php
+// バリデーションルール
 public function rules()
 {
     return [
@@ -278,6 +347,21 @@ public function rules()
         'password' => 'required|min:8|confirmed',
     ];
 }
+
+// 日本語エラーメッセージ
+public function messages()
+{
+    return [
+        'name.required' => '名前は必須です',
+        // ...
+    ];
+}
+```
+
+```php
+// ルーティング
+Route::get('/register', [UserController::class, 'create'])->name('register.create');
+Route::post('/register', [UserController::class, 'store'])->name('register.store');
 ```
 
 ---
@@ -290,7 +374,7 @@ public function rules()
 
 ---
 
-### 💻 環境準備（実践用プロジェクト）
+### ⚙️ 環境準備（実践用プロジェクト）
 
 まず、**自分で作成する用のプロジェクトを停止**します：
 
@@ -346,9 +430,11 @@ docker run --rm \
 # アプリケーションキーの生成
 ./vendor/bin/sail artisan key:generate
 
-# データベースのマイグレーション
-./vendor/bin/sail artisan migrate
+# データベースをリセットしてマイグレーション実行
+./vendor/bin/sail artisan migrate:fresh
 ```
+
+> 💡 `migrate:fresh`を使うことで、前のハンズオンのデータをクリアして新しい状態から始められます。
 
 **✅ ディレクトリ構造の確認**
 
@@ -364,22 +450,25 @@ docker run --rm \
 ```
 
 > 💡 **環境構築が完了！**
-> 
+>
 > ブラウザで `http://localhost` にアクセスして、Laravelのウェルカムページが表示されれば成功です。
 
 ---
 
-### 💭 実装の思考プロセス
+### 🧠 先輩エンジニアの思考プロセス
 
-バリデーションを実装する際、以下の順番で考えると効率的です：
+先輩エンジニアは要件を以下のように構造化し、実装タスクに落とし込みます：
 
-1. **フォームリクエストを作成**：バリデーションロジックを分離
-2. **バリデーションルールを定義**：必須、形式、ユニークなどのルールを設定
-3. **エラーメッセージをカスタマイズ**：日本語でわかりやすく表示
-4. **コントローラーで使用**：フォームリクエストをタイプヒントで指定
-5. **ビューでエラー表示**：@errorディレクティブでエラーを表示
+| Step | やること | 説明 |
+|:-----|:---------|:-----|
+| 1 | フォームリクエスト作成 | バリデーションロジックをコントローラーから分離 |
+| 2 | バリデーションルール定義 | required, email, min, confirmed等 |
+| 3 | エラーメッセージ日本語化 | messagesメソッドで設定 |
+| 4 | コントローラー作成 | フォーム表示（create）と登録処理（store） |
+| 5 | ルーティング設定 | GET/POSTのルートを定義 |
+| 6 | Blade配置 | エラー表示（@error）と入力保持（old） |
 
-バリデーションのポイントは「フォームリクエストでバリデーションロジックを分離し、再利用性を高める」ことです。
+> 💡 **ポイント**: フォームリクエストでバリデーションロジックを分離することで、コントローラーがスッキリし、再利用性も高まります。
 
 ---
 
@@ -480,7 +569,7 @@ public function rules()
 
 ---
 
-#### ステップ3: エラーメッセージをカスタマイズする
+#### ステップ3: エラーメッセージを日本語化する
 
 **何を考えているか**：
 - 「エラーメッセージを日本語で表示したい」
@@ -519,27 +608,54 @@ public function messages()
 
 ---
 
-#### ステップ4: コントローラーで使用する
+#### ステップ4: コントローラーを作成する
 
 **何を考えているか**：
-- 「コントローラーでフォームリクエストを使いたい」
-- 「タイプヒントで指定するだけで自動的にバリデーションされる」
+- 「フォーム表示と登録処理を行うコントローラーが必要だ」
+- 「タイプヒントでフォームリクエストを指定すれば自動バリデーションされる」
 - 「`validated()`で検証済みデータだけを取得しよう」
 
-`UserController`に`store`メソッドを実装します：
+まず、コントローラーを作成します：
+
+```bash
+sail artisan make:controller UserController
+```
+
+`app/Http/Controllers/UserController.php`を開いて、以下のように編集します：
 
 ```php
+<?php
+
+namespace App\Http\Controllers;
+
 use App\Http\Requests\StoreUserRequest;
 use App\Models\User;
 
-public function store(StoreUserRequest $request)
+class UserController extends Controller
 {
-    User::create($request->validated());
-    return redirect('/users');
+    public function create()
+    {
+        return view('register');
+    }
+
+    public function store(StoreUserRequest $request)
+    {
+        User::create($request->validated());
+
+        return view('register_success');
+    }
 }
 ```
 
 **コードリーディング**：
+
+```php
+public function create()
+{
+    return view('register');
+}
+```
+→ GETリクエストで登録フォームを表示します。
 
 ```php
 public function store(StoreUserRequest $request)
@@ -549,58 +665,50 @@ public function store(StoreUserRequest $request)
 ```php
 User::create($request->validated());
 ```
-→ `validated()`で検証済みのデータだけを取得します。不正なデータが混入するのを防ぎます。
+→ `validated()`で検証済みのデータだけを取得して保存します。Laravel 10のUserモデルでは`casts`でパスワードのハッシュ化が設定されているため、`bcrypt()`は不要です。
 
 ---
 
-#### ステップ5: ビューでエラー表示する
+#### ステップ5: ルーティングを設定する
 
 **何を考えているか**：
-- 「バリデーションエラーをユーザーに表示したい」
-- 「@errorディレクティブで簡単に表示できる」
-- 「old()ヘルパーで入力値を保持しよう」
+- 「登録フォーム表示（GET）と登録処理（POST）の2つのルートが必要だ」
+- 「名前付きルートにしてBladeから参照しやすくしよう」
 
-ターミナルで以下のコマンドを実行して、`register.blade.php`ファイルを作成します：
+`routes/web.php`を開いて、以下のルートを追加します：
 
-```bash
-touch resources/views/register.blade.php
-```
+```php
+use App\Http\Controllers\UserController;
 
-`resources/views/register.blade.php`をエディタで開き、以下の内容を記述します：
-
-```blade
-<form action="{{ route('users.store') }}" method="POST">
-    @csrf
-    <div>
-        <label>名前</label>
-        <input type="text" name="name" value="{{ old('name') }}">
-        @error('name')
-            <p class="error">{{ $message }}</p>
-        @enderror
-    </div>
-    <div>
-        <label>メールアドレス</label>
-        <input type="email" name="email" value="{{ old('email') }}">
-        @error('email')
-            <p class="error">{{ $message }}</p>
-        @enderror
-    </div>
-    <div>
-        <label>パスワード</label>
-        <input type="password" name="password">
-        @error('password')
-            <p class="error">{{ $message }}</p>
-        @enderror
-    </div>
-    <div>
-        <label>パスワード（確認）</label>
-        <input type="password" name="password_confirmation">
-    </div>
-    <button type="submit">登録</button>
-</form>
+Route::get('/register', [UserController::class, 'create'])->name('register.create');
+Route::post('/register', [UserController::class, 'store'])->name('register.store');
 ```
 
 **コードリーディング**：
+
+```php
+Route::get('/register', [UserController::class, 'create'])->name('register.create');
+```
+→ `/register`へのGETリクエストで`create`メソッドを呼び出します。`name()`で名前付きルートにします。
+
+```php
+Route::post('/register', [UserController::class, 'store'])->name('register.store');
+```
+→ `/register`へのPOSTリクエストで`store`メソッドを呼び出します。フォーム送信時にこのルートが使われます。
+
+---
+
+#### ステップ6: Bladeファイルを配置する
+
+**何を考えているか**：
+- 「登録フォームと完了画面の2つのビューが必要だ」
+- 「環境準備で提供されているBladeファイルを配置しよう」
+
+「⚙️ 環境準備」セクションで提供されているBladeファイルを`resources/views/`に配置します：
+- `register.blade.php` - 登録フォーム
+- `register_success.blade.php` - 登録完了
+
+**コードリーディング（register.blade.php）**：
 
 ```blade
 value="{{ old('name') }}"
@@ -609,7 +717,7 @@ value="{{ old('name') }}"
 
 ```blade
 @error('name')
-    <p class="error">{{ $message }}</p>
+    <p class="error-message">{{ $message }}</p>
 @enderror
 ```
 → `@error`ディレクティブでエラーメッセージを表示します。`$message`変数にエラーメッセージが格納されます。
@@ -629,8 +737,6 @@ value="{{ old('name') }}"
 ---
 
 ## 📖 模範解答
-
-> 💡 模範解答ではCSSでスタイリングしていますが、この演習ではCSSの実装は不要です。機能の実装に集中してください。
 
 ### StoreUserRequest.php
 
@@ -676,45 +782,132 @@ class StoreUserRequest extends FormRequest
 ### UserController.php
 
 ```php
-public function store(StoreUserRequest $request)
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Http\Requests\StoreUserRequest;
+use App\Models\User;
+
+class UserController extends Controller
 {
-    User::create($request->validated());
-    return redirect('/users');
+    public function create()
+    {
+        return view('register');
+    }
+
+    public function store(StoreUserRequest $request)
+    {
+        User::create($request->validated());
+
+        return view('register_success');
+    }
 }
 ```
 
-### register.blade.php
+> 💡 **なぜbcrypt()がないの？**: Laravel 10のUserモデルでは、`casts`プロパティで`'password' => 'hashed'`が設定されています。そのため、保存時に自動的にハッシュ化されます。
+
+### routes/web.php（追加部分）
+
+```php
+use App\Http\Controllers\UserController;
+
+Route::get('/register', [UserController::class, 'create'])->name('register.create');
+Route::post('/register', [UserController::class, 'store'])->name('register.store');
+```
+
+### resources/views/register.blade.php
 
 ```blade
-<form action="{{ route('users.store') }}" method="POST">
-    @csrf
-    <div>
-        <label>名前</label>
-        <input type="text" name="name" value="{{ old('name') }}">
-        @error('name')
-            <p class="error">{{ $message }}</p>
-        @enderror
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>ユーザー登録</title>
+    <style>
+        body { font-family: sans-serif; margin: 20px; }
+        h1 { color: #333; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input { padding: 8px; width: 300px; border: 1px solid #ddd; border-radius: 4px; }
+        input.error { border-color: #dc3545; }
+        .error-message { color: #dc3545; font-size: 14px; margin-top: 5px; }
+        button { padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        .error-list { background: #f8d7da; border: 1px solid #f5c6cb; padding: 15px; border-radius: 4px; margin-bottom: 20px; }
+        .error-list ul { margin: 0; padding-left: 20px; }
+        .error-list li { color: #721c24; }
+    </style>
+</head>
+<body>
+    <h1>ユーザー登録</h1>
+
+    @if ($errors->any())
+        <div class="error-list">
+            <ul>
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
+    <form action="{{ route('register.store') }}" method="POST">
+        @csrf
+        <div class="form-group">
+            <label>名前</label>
+            <input type="text" name="name" value="{{ old('name') }}" class="@error('name') error @enderror">
+            @error('name')
+                <p class="error-message">{{ $message }}</p>
+            @enderror
+        </div>
+        <div class="form-group">
+            <label>メールアドレス</label>
+            <input type="email" name="email" value="{{ old('email') }}" class="@error('email') error @enderror">
+            @error('email')
+                <p class="error-message">{{ $message }}</p>
+            @enderror
+        </div>
+        <div class="form-group">
+            <label>パスワード</label>
+            <input type="password" name="password" class="@error('password') error @enderror">
+            @error('password')
+                <p class="error-message">{{ $message }}</p>
+            @enderror
+        </div>
+        <div class="form-group">
+            <label>パスワード（確認）</label>
+            <input type="password" name="password_confirmation">
+        </div>
+        <button type="submit">登録</button>
+    </form>
+</body>
+</html>
+```
+
+### resources/views/register_success.blade.php
+
+```blade
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>登録完了</title>
+    <style>
+        body { font-family: sans-serif; margin: 20px; }
+        h1 { color: #28a745; }
+        .success-box { background: #d4edda; border: 1px solid #c3e6cb; padding: 20px; border-radius: 4px; margin-bottom: 20px; }
+        a { color: #007bff; }
+    </style>
+</head>
+<body>
+    <div class="success-box">
+        <h1>登録が完了しました！</h1>
+        <p>ご登録ありがとうございます。</p>
     </div>
-    <div>
-        <label>メールアドレス</label>
-        <input type="email" name="email" value="{{ old('email') }}">
-        @error('email')
-            <p class="error">{{ $message }}</p>
-        @enderror
-    </div>
-    <div>
-        <label>パスワード</label>
-        <input type="password" name="password">
-        @error('password')
-            <p class="error">{{ $message }}</p>
-        @enderror
-    </div>
-    <div>
-        <label>パスワード（確認）</label>
-        <input type="password" name="password_confirmation">
-    </div>
-    <button type="submit">登録</button>
-</form>
+    <a href="{{ route('register.create') }}">← 登録画面に戻る</a>
+</body>
+</html>
 ```
 
 ---

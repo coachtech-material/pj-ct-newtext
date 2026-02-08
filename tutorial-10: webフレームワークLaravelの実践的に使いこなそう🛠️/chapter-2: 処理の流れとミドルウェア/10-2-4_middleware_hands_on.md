@@ -1,27 +1,28 @@
 # Tutorial 10-2-4: ミドルウェア - ハンズオン演習
 
-## 📝 このセクションの目的
+## 📌 このハンズオンについて
 
-Chapter 8で学んだミドルウェアを実際に手を動かして確認します。カスタムミドルウェアを作成して、リクエストの前処理・後処理を実装しましょう。
+Chapter 2で学んだミドルウェアを実際に手を動かして確認します。カスタムミドルウェアを作成して、管理者専用ページへのアクセス制御を実装しましょう。
+
+> 💡 **HTTPライフサイクルについて**: 10-2-3で学んだHTTPライフサイクルの実践（ログを使った可視化）は、Chapter 4「デバッグの重要性」でログの使い方を学んだ後に行います（10-4-6のStep 5）。
 
 > 分からない文法や実装があっても、すぐに答えを見るのではなく、過去の教材を見たり、AIにヒントをもらいながら進めるなど、自身で創意工夫しながら進めてみましょう🔥
 
----
+### 📁 ディレクトリ構成
 
-## 📁 ディレクトリ構成
-
-このハンズオンでは、「自分で作成する用」と「解答を確認する用」の2つのプロジェクトを作成します。
+このハンズオンでは、スターターキットをcloneして使用します。「自分で作成する用」と「解答を確認する用」の2つのプロジェクトを作成します。
 
 ```
 ~/laravel-practice/
 ├── 10-2-4_hands-on/                      ← このハンズオン用のディレクトリ
 │   ├── middleware-app-practice/          ← 要件を見て自分で作成するプロジェクト
 │   │   ├── app/
-│   │   │   └── Http/Middleware/
+│   │   │   └── Http/
+│   │   │       ├── Middleware/
+│   │   │       │   └── CheckAdmin.php   ← 自分で作成
+│   │   │       └── Kernel.php           ← ミドルウェア登録
 │   │   └── ...
 │   └── middleware-app-sample/            ← 実践で一緒に作成するプロジェクト
-│       ├── app/
-│       │   └── Http/Middleware/
 │       └── ...
 └── ...
 ```
@@ -37,98 +38,91 @@ Chapter 8で学んだミドルウェアを実際に手を動かして確認し�
 
 ---
 
-## 🎯 演習課題：管理者専用ページの実装
+## 🎯 演習課題
+
+### この演習で作るもの
+
+カスタムミドルウェアを使って、管理者のみアクセスできる「管理者専用ページ」を保護します。
+
+このハンズオンでは、ミドルウェアの実装に集中できるよう、認証やモデルなどの前提部分が用意された**スターターキット**を使用します。
+
+### スターターキットに含まれるもの
+
+| 項目 | 説明 |
+|:-----|:-----|
+| 認証機能 | Fortify（ログイン・登録・ログアウト） |
+| Userモデル | is_adminカラム（管理者フラグ） |
+| AdminController | 管理者ページ表示用 |
+| シーダー | 管理者ユーザー・一般ユーザー |
+| Blade | welcome, auth/login, auth/register, admin/index |
+
+### あなたが実装するもの
+
+- **CheckAdminミドルウェア**: 管理者かどうかをチェックするミドルウェア
+- **Kernel.php**: ミドルウェアの登録
+- **routes/web.php**: ルートへのミドルウェア適用
 
 ### 🖼️ 完成イメージ
 
-<!-- 管理者ページと403エラーのスクリーンショットをここに配置 -->
-![10-2-4 完成イメージ](images/10-2-4_middleware_complete.png)
-
-**この演習で作るもの**：
-カスタムミドルウェアを使って、管理者のみアクセスできる「管理者専用ページ」を作成します。
-
----
-
-### 📋 要件
-
-1. `CheckAdmin`ミドルウェアを作成
-2. ユーザーが管理者でない場合は403エラーを返す
-3. `/admin`ルートにミドルウェアを適用
-
----
-
-### ✅ 完成品の確認方法
-
-**🌐 ブラウザでの確認（推奨）**
-
-- **動作確認URL**: `http://localhost/admin`
-- **確認手順**:
-  1. Sailを起動する（`./vendor/bin/sail up -d`）
-  2. マイグレーションを実行（`./vendor/bin/sail artisan migrate`）
-  3. Tinkerで管理者ユーザーと一般ユーザーを作成
-  4. ブラウザで `http://localhost/admin` にアクセス
-
-**正しく実装できていれば**:
-- [ ] 管理者ユーザーでログインすると管理者ページが表示される
-- [ ] 一般ユーザーでログインすると403エラーが表示される
-- [ ] 未ログインでアクセスするとログインページにリダイレクトされる
-
-**🔧 Tinkerでテストユーザーを作成**:
-
-```bash
-./vendor/bin/sail artisan tinker
-```
-
-```php
-// 管理者ユーザーを作成
-use App\Models\User;
-User::create(['name' => 'Admin', 'email' => 'admin@example.com', 'password' => bcrypt('password'), 'is_admin' => true]);
-
-// 一般ユーザーを作成
-User::create(['name' => 'User', 'email' => 'user@example.com', 'password' => bcrypt('password'), 'is_admin' => false]);
-```
-
-> 📌 **Bladeファイルについて**: バックエンド実装に集中するため、動作確認用のシンプルなBladeファイルを以下に用意しています。
-
 <details>
-<summary>📄 確認用Bladeファイル（クリックで展開）</summary>
+<summary>📸 完成画面を確認する（クリックで展開）</summary>
 
-`resources/views/admin.blade.php`:
+**管理者でアクセスした場合**
 
-```blade
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <title>管理者ページ</title>
-</head>
-<body>
-    <h1>管理者ページ</h1>
-    <p>こんにちは、{{ auth()->user()->name }} さん（管理者）！</p>
-    <p>このページは管理者のみアクセスできます。</p>
-</body>
-</html>
-```
+<img alt="10-2-4_1.png" src="">
+
+**一般ユーザーでアクセスした場合（403エラー）**
+
+<img alt="10-2-4_2.png" src="">
 
 </details>
 
 ---
 
-### 📁 Step 0: 環境を準備する（自分で作成する用）
+### 📋 要件
 
-まず、ハンズオン用のディレクトリを作成し、**自分で作成する用**のプロジェクトを準備します。
+- 管理者のみがアクセスできる専用ページがある
+- 一般ユーザーがアクセスすると「権限がありません」と表示される
+
+---
+
+### ✅ 完成チェックリスト
+
+- [ ] 管理者ユーザーでログイン → `/admin`にアクセス → 管理者ページが表示される
+- [ ] 一般ユーザーでログイン → `/admin`にアクセス → 403エラーが表示される
+
+> 💡 **動作確認**: ログイン後、`http://localhost/admin` にアクセス
+> - 管理者: admin@example.com / password
+> - 一般: user@example.com / password
+
+---
+
+### ✏️ 実装タスク
+
+1. CheckAdminミドルウェアを作成する
+2. handleメソッドに管理者チェックロジックを実装する
+3. Kernel.phpにミドルウェアを登録する
+4. /adminルートにミドルウェアを適用する
+
+---
+
+## ⚙️ 環境準備（自分で作成する用）
+
+スターターキットをcloneして、**自分で作成する用**のプロジェクトを準備します。
 
 > **📌 Dockerが起動していることを確認**
-> 
+>
 > 以下のコマンドを実行する前に、Docker Desktop（またはDocker Engine）が起動していることを確認してください。
 
 > **📌 前のハンズオンのプロジェクトを停止**
-> 
+>
 > 前のハンズオン（10-1-6）のプロジェクトが起動している場合は、先に停止してください。
 > ```bash
 > cd ~/laravel-practice/10-1-6_hands-on/auth-app-sample
 > ./vendor/bin/sail down
 > ```
+
+### スターターキットのclone
 
 ```bash
 # laravel-practiceディレクトリに移動
@@ -138,37 +132,27 @@ cd ~/laravel-practice
 mkdir -p 10-2-4_hands-on
 cd 10-2-4_hands-on
 
-# Laravel 10.xプロジェクトを作成（自分で作成する用）
-docker run --rm \
-    -u "$(id -u):$(id -g)" \
-    -v "$(pwd):/var/www/html" \
-    -w /var/www/html \
-    -e COMPOSER_CACHE_DIR=/tmp/composer_cache \
-    laravelsail/php82-composer:latest \
-    composer create-project laravel/laravel:^10.0 middleware-app-practice
+# スターターキットをclone（自分で作成する用）
+git clone https://github.com/coachtech-material/laravel-middleware-starter.git middleware-app-practice
 ```
+
+### セットアップ
 
 ```bash
 # プロジェクトディレクトリに移動
 cd middleware-app-practice
 
-# Laravel Sailのインストール
+# 依存関係インストール
 docker run --rm \
     -u "$(id -u):$(id -g)" \
     -v "$(pwd):/var/www/html" \
     -w /var/www/html \
     -e COMPOSER_CACHE_DIR=/tmp/composer_cache \
     laravelsail/php82-composer:latest \
-    composer require laravel/sail --dev
+    composer install
 
-# Sailの設定ファイルを生成
-docker run --rm \
-    -u "$(id -u):$(id -g)" \
-    -v "$(pwd):/var/www/html" \
-    -w /var/www/html \
-    -e COMPOSER_CACHE_DIR=/tmp/composer_cache \
-    laravelsail/php82-composer:latest \
-    php artisan sail:install --with=mysql
+# 環境ファイル作成
+cp .env.example .env
 ```
 
 <details>
@@ -201,255 +185,48 @@ mysql:
 # アプリケーションキーの生成
 ./vendor/bin/sail artisan key:generate
 
-# データベースのマイグレーション
-./vendor/bin/sail artisan migrate
+# マイグレーション・シーダー実行
+./vendor/bin/sail artisan migrate --seed
 ```
 
-**✅ ディレクトリ構造の確認**
+### 動作確認（ミドルウェア実装前）
 
-```
-~/laravel-practice/
-└── 10-2-4_hands-on/
-    └── middleware-app-practice/     ← 自分で作成する用（今ここ）
-        ├── app/
-        │   └── Http/Middleware/
-        └── ...
-```
+1. `http://localhost` にアクセス
+2. `admin@example.com` / `password` でログイン
+3. 「管理者ページにアクセス」をクリック → **表示される**
+4. ログアウト
+5. `user@example.com` / `password` でログイン
+6. 「管理者ページにアクセス」をクリック → **表示される（まだミドルウェアがないため）**
 
-> 💡 **環境構築が完了！**
-> 
-> ブラウザで `http://localhost` にアクセスして、Laravelのウェルカムページが表示されれば成功です。
+**✅ 環境準備が完了しました**
 
-**ここから先は、自分の力で実装してみましょう！**
+---
+
+**🚀 ここから先は、自分の力で実装してみましょう！**
 
 ---
 
 ## 💡 ヒント
 
+**ミドルウェアの作成**:
+
 ```bash
-sail artisan make:middleware CheckAdmin
+./vendor/bin/sail artisan make:middleware CheckAdmin
 ```
+
+**handleメソッドの実装**:
 
 ```php
 public function handle(Request $request, Closure $next)
 {
-    if (!auth()->user()->is_admin) {
+    if (!auth()->check() || !auth()->user()->is_admin) {
         abort(403);
     }
     return $next($request);
 }
 ```
 
----
-
-## 🏃 実践: 一緒に作ってみましょう！
-
-ちゃんとできましたか？ミドルウェアはリクエストの前後に処理を挿入できる強力な機能です。一緒に手を動かしながら、管理者専用ページを実装していきましょう。
-
-> 📌 **注意**: ここからは`middleware-app-sample/`ディレクトリで作業します。自分で作成したコードと比較できるように、別のプロジェクトで進めましょう。
-
----
-
-### 💻 環境準備（実践用プロジェクト）
-
-まず、**自分で作成する用のプロジェクトを停止**します：
-
-```bash
-# middleware-app-practiceディレクトリに移動
-cd ~/laravel-practice/10-2-4_hands-on/middleware-app-practice
-
-# Sailを停止
-./vendor/bin/sail down
-```
-
-次に、**実践用のプロジェクトを作成**します：
-
-```bash
-# ハンズオンディレクトリに移動
-cd ~/laravel-practice/10-2-4_hands-on
-
-# Laravel 10.xプロジェクトを作成（実践用）
-docker run --rm \
-    -u "$(id -u):$(id -g)" \
-    -v "$(pwd):/var/www/html" \
-    -w /var/www/html \
-    -e COMPOSER_CACHE_DIR=/tmp/composer_cache \
-    laravelsail/php82-composer:latest \
-    composer create-project laravel/laravel:^10.0 middleware-app-sample
-```
-
-```bash
-# プロジェクトディレクトリに移動
-cd middleware-app-sample
-
-# Laravel Sailのインストール
-docker run --rm \
-    -u "$(id -u):$(id -g)" \
-    -v "$(pwd):/var/www/html" \
-    -w /var/www/html \
-    -e COMPOSER_CACHE_DIR=/tmp/composer_cache \
-    laravelsail/php82-composer:latest \
-    composer require laravel/sail --dev
-
-# Sailの設定ファイルを生成
-docker run --rm \
-    -u "$(id -u):$(id -g)" \
-    -v "$(pwd):/var/www/html" \
-    -w /var/www/html \
-    -e COMPOSER_CACHE_DIR=/tmp/composer_cache \
-    laravelsail/php82-composer:latest \
-    php artisan sail:install --with=mysql
-```
-
-<details>
-<summary>⚠️ M1/M2/M3 Mac（Apple Silicon）をお使いの方</summary>
-
-Apple Silicon搭載のMacでは、`sail up -d`実行時に以下のエラーが発生することがあります：
-
-```
-no matching manifest for linux/arm64/v8
-```
-
-**解決方法**: `compose.yaml`を開き、mysqlサービスに`platform: 'linux/amd64'`を追加してください。
-
-```yaml
-mysql:
-    image: 'mysql/mysql-server:8.0'
-    platform: 'linux/amd64'  # ← この行を追加
-    ports:
-        ...
-```
-
-編集後、保存してから`sail up -d`を実行してください。
-
-</details>
-
-```bash
-# Sailの起動
-./vendor/bin/sail up -d
-
-# アプリケーションキーの生成
-./vendor/bin/sail artisan key:generate
-
-# データベースのマイグレーション
-./vendor/bin/sail artisan migrate
-```
-
-**✅ ディレクトリ構造の確認**
-
-```
-~/laravel-practice/
-└── 10-2-4_hands-on/
-    ├── middleware-app-practice/     ← 自分で作成した用（停止中）
-    └── middleware-app-sample/       ← 実践用（今ここ、起動中）
-        ├── app/
-        │   └── Http/Middleware/
-        └── ...
-```
-
-> 💡 **環境構築が完了！**
-> 
-> ブラウザで `http://localhost` にアクセスして、Laravelのウェルカムページが表示されれば成功です。
-
----
-
-### 💭 実装の思考プロセス
-
-ミドルウェアを実装する際、以下の順番で考えると効率的です：
-
-1. **カスタムミドルウェアを作成**：Artisanコマンドで生成
-2. **handleメソッドにロジックを実装**：管理者チェックを追加
-3. **ミドルウェアを登録**：Kernel.phpでエイリアスを設定
-4. **ルートに適用**：middleware()でミドルウェアを適用
-5. **テスト**：管理者と一般ユーザーで動作確認
-
-ミドルウェアのポイントは「リクエストの前後に共通処理を挿入し、コードの再利用性を高める」ことです。
-
----
-
-### 📝 ステップバイステップで実装
-
-#### ステップ1: カスタムミドルウェアを作成する
-
-**何を考えているか**：
-- 「管理者かどうかをチェックするミドルウェアが必要だ」
-- 「CheckAdminという名前にしよう」
-- 「Artisanコマンドで簡単に生成できる」
-
-ターミナルで以下のコマンドを実行します：
-
-```bash
-sail artisan make:middleware CheckAdmin
-```
-
-**コマンド解説**：
-
-```bash
-sail artisan make:middleware CheckAdmin
-```
-→ `CheckAdmin`ミドルウェアを生成します。`app/Http/Middleware/CheckAdmin.php`が作成されます。
-
----
-
-#### ステップ2: handleメソッドにロジックを実装する
-
-**何を考えているか**：
-- 「ユーザーがログインしているかチェックしよう」
-- 「管理者フラグをチェックしよう」
-- 「権限がなければ403エラーを返そう」
-
-`app/Http/Middleware/CheckAdmin.php`を開いて、以下のように編集します：
-
-```php
-<?php
-
-namespace App\Http\Middleware;
-
-use Closure;
-use Illuminate\Http\Request;
-
-class CheckAdmin
-{
-    public function handle(Request $request, Closure $next)
-    {
-        if (!auth()->check() || !auth()->user()->is_admin) {
-            abort(403, '管理者権限が必要です');
-        }
-        
-        return $next($request);
-    }
-}
-```
-
-**コードリーディング**：
-
-```php
-public function handle(Request $request, Closure $next)
-```
-→ `handle`メソッドはミドルウェアのエントリーポイントです。`$request`でリクエストを受け取り、`$next`で次の処理に進みます。
-
-```php
-if (!auth()->check() || !auth()->user()->is_admin) {
-    abort(403, '管理者権限が必要です');
-}
-```
-→ `auth()->check()`でログイン状態を確認し、`auth()->user()->is_admin`で管理者フラグをチェックします。条件を満たさない場合、`abort(403)`で403エラーを返します。
-
-```php
-return $next($request);
-```
-→ チェックをパスしたら、`$next($request)`で次の処理（コントローラー）に進みます。ミドルウェアの基本パターンです。
-
----
-
-#### ステップ3: ミドルウェアを登録する
-
-**何を考えているか**：
-- 「ミドルウェアを使えるように登録しよう」
-- 「エイリアスを設定して簡単に使えるようにしよう」
-- 「Kernel.phpで登録する必要がある」
-
-`app/Http/Kernel.php`を開いて、`$middlewareAliases`配列に以下を追加します：
+**Kernel.phpへの登録**:
 
 ```php
 protected $middlewareAliases = [
@@ -458,91 +235,118 @@ protected $middlewareAliases = [
 ];
 ```
 
-**コードリーディング**：
+**ルートへの適用**:
 
 ```php
-'admin' => \App\Http\Middleware\CheckAdmin::class,
+Route::get('/admin', [AdminController::class, 'index'])->middleware('admin');
 ```
-→ `admin`というエイリアスで`CheckAdmin`ミドルウェアを登録します。ルートで`middleware('admin')`と書くだけで使用できます。
 
 ---
 
-#### ステップ4: ルートに適用する
+## 🏃 実践セクション
 
-**何を考えているか**：
-- 「管理者専用ページにミドルウェアを適用しよう」
-- 「`/admin`ルートを作成しよう」
-- 「`middleware('admin')`で簡単に適用できる」
+ちゃんとできましたか？ミドルウェアはリクエストの前後に処理を挿入できる強力な機能です。一緒に手を動かしながら、管理者専用ページを保護していきましょう。
 
-まず、`AdminController`を作成します：
+> 📌 **注意**: ここからは`middleware-app-sample/`ディレクトリで作業します。自分で作成したコードと比較できるように、別のプロジェクトで進めましょう。
+
+### ⚙️ 環境準備（実践用プロジェクト）
+
+まず、**自分で作成する用のプロジェクトを停止**します：
 
 ```bash
-sail artisan make:controller AdminController
+cd ~/laravel-practice/10-2-4_hands-on/middleware-app-practice
+./vendor/bin/sail down
 ```
 
-`app/Http/Controllers/AdminController.php`を開いて、以下のように編集します：
+次に、**実践用のプロジェクトをclone**します：
 
-```php
-<?php
+```bash
+cd ~/laravel-practice/10-2-4_hands-on
 
-namespace App\Http\Controllers;
-
-class AdminController extends Controller
-{
-    public function index()
-    {
-        return view('admin.index');
-    }
-}
+# スターターキットをclone（実践用）
+git clone https://github.com/coachtech-material/laravel-middleware-starter.git middleware-app-sample
 ```
 
-`routes/web.php`を開いて、以下を追加します：
+```bash
+cd middleware-app-sample
 
-```php
-use App\Http\Controllers\AdminController;
+docker run --rm \
+    -u "$(id -u):$(id -g)" \
+    -v "$(pwd):/var/www/html" \
+    -w /var/www/html \
+    -e COMPOSER_CACHE_DIR=/tmp/composer_cache \
+    laravelsail/php82-composer:latest \
+    composer install
 
-Route::get('/admin', [AdminController::class, 'index'])->middleware('admin');
+cp .env.example .env
 ```
 
-**コードリーディング**：
+<details>
+<summary>⚠️ M1/M2/M3 Mac（Apple Silicon）をお使いの方</summary>
 
-```php
-Route::get('/admin', [AdminController::class, 'index'])->middleware('admin');
+Apple Silicon搭載のMacでは、`sail up -d`実行時に以下のエラーが発生することがあります：
+
 ```
-→ `/admin`ルートに`admin`ミドルウェアを適用します。このルートにアクセスすると、まず`CheckAdmin`ミドルウェアが実行され、チェックをパスした場合のみコントローラーが実行されます。
+no matching manifest for linux/arm64/v8
+```
+
+**解決方法**: `compose.yaml`を開き、mysqlサービスに`platform: 'linux/amd64'`を追加してください。
+
+```yaml
+mysql:
+    image: 'mysql/mysql-server:8.0'
+    platform: 'linux/amd64'  # ← この行を追加
+    ports:
+        ...
+```
+
+</details>
+
+```bash
+./vendor/bin/sail up -d
+./vendor/bin/sail artisan key:generate
+./vendor/bin/sail artisan migrate --seed
+```
 
 ---
 
-#### ステップ5: テストする
+### 🧠 先輩エンジニアの思考プロセス
+
+先輩エンジニアは要件を以下のように構造化し、実装タスクに落とし込みます：
+
+| Step | やること | 説明 |
+|:-----|:---------|:-----|
+| 1 | CheckAdminミドルウェアを作成する | `make:middleware`で雛形を生成 |
+| 2 | handleメソッドに管理者チェックロジックを実装する | 管理者チェックと403エラー |
+| 3 | Kernel.phpにミドルウェアを登録する | エイリアスを設定して使いやすく |
+| 4 | /adminルートにミドルウェアを適用する | ルート定義でミドルウェアを指定 |
+
+---
+
+### 📝 ステップバイステップで実装
+
+#### Step 1: CheckAdminミドルウェアを作成する
 
 **何を考えているか**：
-- 「管理者と一般ユーザーで動作を確認しよう」
-- 「管理者はアクセスできて、一般ユーザーは403エラーになるはず」
+- 「管理者かどうかをチェックするミドルウェアが必要だ」
+- 「CheckAdminという名前にしよう」
+- 「Artisanコマンドで簡単に生成できる」
 
-テスト手順：
+```bash
+./vendor/bin/sail artisan make:middleware CheckAdmin
+```
 
-1. **管理者ユーザーでログイン**：`is_admin = 1`のユーザーでログイン
-2. **`/admin`にアクセス**：管理者ページが表示されることを確認
-3. **一般ユーザーでログイン**：`is_admin = 0`のユーザーでログイン
-4. **`/admin`にアクセス**：403エラーが表示されることを確認
-
----
-
-### ✨ 完成！
-
-これでカスタムミドルウェアが実装できました！リクエストの前後に処理を挿入し、管理者専用ページを作成できましたね。
-
-**自分で作成したコードと比較してみましょう**：
-- `middleware-app-practice/`: 自分で作成したプロジェクト
-- `middleware-app-sample/`: 一緒に作成したプロジェクト
-
-両方のプロジェクトを見比べて、違いがあれば確認してみてください。
+> 💡 `app/Http/Middleware/CheckAdmin.php`が生成されます。
 
 ---
 
-## 📖 模範解答
+#### Step 2: handleメソッドに管理者チェックロジックを実装する
 
-### CheckAdmin.php
+**何を考えているか**：
+- 「ログインしていない、または管理者でなければ拒否する」
+- 「権限がなければ403エラーを返そう」
+
+`app/Http/Middleware/CheckAdmin.php`を編集します：
 
 ```php
 <?php
@@ -559,7 +363,116 @@ class CheckAdmin
         if (!auth()->check() || !auth()->user()->is_admin) {
             abort(403, '管理者権限が必要です');
         }
-        
+
+        return $next($request);
+    }
+}
+```
+
+**コードリーディング**：
+
+| コード | 説明 |
+|:-------|:-----|
+| `auth()->check()` | ユーザーがログインしているかを確認 |
+| `auth()->user()->is_admin` | ログインユーザーのis_adminプロパティを取得 |
+| `abort(403, ...)` | 403 Forbiddenエラーを返す |
+| `return $next($request)` | チェックをパスしたら次の処理へ |
+
+---
+
+#### Step 3: Kernel.phpにミドルウェアを登録する
+
+**何を考えているか**：
+- 「ミドルウェアを使えるようにKernel.phpに登録しよう」
+- 「`admin`というエイリアスで簡単に呼び出せるようにしよう」
+
+`app/Http/Kernel.php`の`$middlewareAliases`配列に追加します：
+
+```php
+protected $middlewareAliases = [
+    'auth' => \App\Http\Middleware\Authenticate::class,
+    'auth.basic' => \Illuminate\Auth\Middleware\AuthenticateWithBasicAuth::class,
+    // ... 他のミドルウェア ...
+    'admin' => \App\Http\Middleware\CheckAdmin::class,  // ← 追加
+];
+```
+
+---
+
+#### Step 4: /adminルートにミドルウェアを適用する
+
+**何を考えているか**：
+- 「`/admin`ルートにミドルウェアを適用しよう」
+- 「`middleware('admin')`で簡単に適用できる」
+
+`routes/web.php`を編集します：
+
+```php
+<?php
+
+use App\Http\Controllers\AdminController;
+use Illuminate\Support\Facades\Route;
+
+Route::get('/', function () {
+    return view('welcome');
+});
+
+// 管理者ページ（ミドルウェアを適用）
+Route::get('/admin', [AdminController::class, 'index'])->middleware('admin');
+```
+
+**コードリーディング**：
+
+| コード | 説明 |
+|:-------|:-----|
+| `->middleware('admin')` | `admin`エイリアスで登録したミドルウェアを適用 |
+
+---
+
+### ✨ 完成！
+
+これでカスタムミドルウェアが実装できました。動作を確認しましょう。
+
+#### 動作確認
+
+**管理者でログインして確認**：
+
+1. `http://localhost` にアクセス
+2. `admin@example.com` / `password` でログイン
+3. 「管理者ページにアクセス」をクリック
+
+→ 管理者ページが表示されれば成功です！
+
+**一般ユーザーでログインして確認**：
+
+1. ログアウト
+2. `user@example.com` / `password` でログイン
+3. 「管理者ページにアクセス」をクリック
+
+→ 403エラーが表示されれば成功です！
+
+---
+
+## 📖 模範解答
+
+### app/Http/Middleware/CheckAdmin.php
+
+```php
+<?php
+
+namespace App\Http\Middleware;
+
+use Closure;
+use Illuminate\Http\Request;
+
+class CheckAdmin
+{
+    public function handle(Request $request, Closure $next)
+    {
+        if (!auth()->check() || !auth()->user()->is_admin) {
+            abort(403, '管理者権限が必要です');
+        }
+
         return $next($request);
     }
 }
@@ -577,31 +490,17 @@ protected $middlewareAliases = [
 ### routes/web.php
 
 ```php
+<?php
+
+use App\Http\Controllers\AdminController;
+use Illuminate\Support\Facades\Route;
+
+Route::get('/', function () {
+    return view('welcome');
+});
+
+// 管理者ページ（ミドルウェアを適用）
 Route::get('/admin', [AdminController::class, 'index'])->middleware('admin');
-```
-
----
-
-## 🧪 動作確認の方法
-
-### プロジェクトの切り替え
-
-2つのプロジェクトを切り替えて動作確認する方法：
-
-```bash
-# middleware-app-practiceで確認したい場合
-cd ~/laravel-practice/10-2-4_hands-on/middleware-app-sample
-./vendor/bin/sail down
-
-cd ~/laravel-practice/10-2-4_hands-on/middleware-app-practice
-./vendor/bin/sail up -d
-
-# middleware-app-sampleで確認したい場合
-cd ~/laravel-practice/10-2-4_hands-on/middleware-app-practice
-./vendor/bin/sail down
-
-cd ~/laravel-practice/10-2-4_hands-on/middleware-app-sample
-./vendor/bin/sail up -d
 ```
 
 ---
@@ -613,8 +512,9 @@ cd ~/laravel-practice/10-2-4_hands-on/middleware-app-sample
 このハンズオンで、以下のことができるようになりました：
 
 - ✅ カスタムミドルウェアを作成できる
-- ✅ ミドルウェアでリクエストの前処理を実装できる
-- ✅ ミドルウェアをルートに適用できる
+- ✅ ミドルウェアで権限チェックを実装できる
+- ✅ Kernel.phpにミドルウェアを登録できる
+- ✅ ルートにミドルウェアを適用できる
 
 引き続き、次のセクションも頑張りましょう！
 

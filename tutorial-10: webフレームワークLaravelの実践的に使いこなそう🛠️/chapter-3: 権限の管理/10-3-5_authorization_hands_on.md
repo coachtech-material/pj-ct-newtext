@@ -1,37 +1,26 @@
 # Tutorial 10-3-5: 認可機能 - ハンズオン演習
 
-## 📝 このセクションの目的
+## 📌 このハンズオンについて
 
-Chapter 3で学んだ認可機能を実際に手を動かして確認します。ポリシーを使って、ユーザーごとのアクセス制御を実装しましょう。
+Chapter 3で学んだ認可機能を実際に手を動かして確認します。ポリシーを使って、投稿の作成者のみが編集・削除できるアクセス制御を実装しましょう。
 
-> 分からない文法や実装があっても、すぐに答えを見るのではなく、過去の教材を見たり、AIにヒントをもらいながら進めるなど、自身で創意工夫しながら進めてみましょう🔥
+> 分からない文法や実装があっても、すぐに答えを見るのではなく、過去の教材を見たり、AIにヒントをもらいながら進めるなど、自身で創意工夫しながら進めてみましょう
 
----
-
-## 📁 ディレクトリ構成
+### 📁 ディレクトリ構成
 
 このハンズオンでは、「自分で作成する用」と「解答を確認する用」の2つのプロジェクトを作成します。
 
 ```
 ~/laravel-practice/
-├── 10-3-5_hands-on/                      ← このハンズオン用のディレクトリ
-│   ├── authorization-app-practice/       ← 要件を見て自分で作成するプロジェクト
-│   │   ├── app/
-│   │   │   ├── Http/Controllers/
-│   │   │   └── Policies/
-│   │   └── ...
-│   └── authorization-app-sample/         ← 実践で一緒に作成するプロジェクト
-│       ├── app/
-│       │   ├── Http/Controllers/
-│       │   └── Policies/
-│       └── ...
-└── ...
+└── 10-3-5_hands-on/
+    ├── authorization-app-practice/   ← 要件を見て自分で作成するプロジェクト
+    └── authorization-app-sample/     ← 実践で一緒に作成するプロジェクト
 ```
 
 | ディレクトリ | 用途 | URL |
 |:---|:---|:---|
-| `authorization-app-practice/` | 📋 要件を見て、自分の力で作成する | `http://localhost/posts` |
-| `authorization-app-sample/` | 🏃 実践セクションで、一緒に手を動かしながら作成する | `http://localhost/posts` |
+| `authorization-app-practice/` | 📋 要件を見て、自分の力で作成する | `http://localhost` |
+| `authorization-app-sample/` | 🏃 実践セクションで、一緒に手を動かしながら作成する | `http://localhost` |
 
 > 💡 **なぜ2つに分けるのか？**: 自分で考えて作成したコードと、解答を見ながら作成したコードを比較することで、理解が深まります。
 
@@ -39,134 +28,97 @@ Chapter 3で学んだ認可機能を実際に手を動かして確認します�
 
 ---
 
-## 🎯 演習課題：投稿の編集権限制御
+## 🎯 演習課題
+
+### この演習で作るもの
+
+ポリシーを使って、投稿の作成者のみが編集・削除できる「投稿管理機能」を作成します。
+
+このハンズオンでは、認可機能の実装に集中できるよう、認証やモデルなどの前提部分が用意された**スターターキット**を使用します。
+
+### スターターキットに含まれるもの
+
+| 項目 | 説明 |
+|:-----|:-----|
+| 認証機能 | Fortify（ログイン・登録・ログアウト） |
+| Postモデル | user_idカラム、Userとのリレーション |
+| PostController | index, edit, update, destroy（認可は未実装） |
+| シーダー | 2ユーザー（usera, userb）・各2投稿（計4投稿） |
+| Blade | welcome, auth/login, auth/register, posts/index, posts/edit |
+
+### あなたが実装するもの
+
+- **PostPolicy**: 認可ロジックを定義するポリシークラス
+- **コントローラー**: `$this->authorize()` を追加
+- **Blade**: `@can` ディレクティブを追加
 
 ### 🖼️ 完成イメージ
 
-<!-- 投稿編集画面と403エラーのスクリーンショットをここに配置 -->
-![10-3-5 完成イメージ](images/10-3-5_authorization_complete.png)
-
-**この演習で作るもの**：
-ポリシーを使って、投稿の作成者のみが編集・削除できる「ブログ投稿機能」を作成します。
-
----
-
-### 📋 要件
-
-1. `PostPolicy`を作成
-2. 投稿の作成者のみが編集・削除できるようにする
-3. コントローラーで`authorize()`を使用
-
----
-
-### ✅ 完成品の確認方法
-
-**🌐 ブラウザでの確認（推奨）**
-
-- **動作確認URL**: `http://localhost/posts`
-- **確認手順**:
-  1. Sailを起動する（`./vendor/bin/sail up -d`）
-  2. マイグレーションを実行（`./vendor/bin/sail artisan migrate`）
-  3. Tinkerで2人のユーザーと投稿を作成
-  4. ユーザーAでログインし、自分の投稿を編集
-  5. ユーザーBでログインし、ユーザーAの投稿を編集しようとする
-
-**正しく実装できていれば**:
-- [ ] 投稿一覧が表示される
-- [ ] 自分の投稿は編集・削除できる
-- [ ] 他人の投稿を編集しようとすると403エラーが表示される
-- [ ] 他人の投稿を削除しようとすると403エラーが表示される
-
-**🔧 Tinkerでテストデータを作成**:
-
-```bash
-./vendor/bin/sail artisan tinker
-```
-
-```php
-use App\Models\User;
-use App\Models\Post;
-
-// ユーザーAを作成
-$userA = User::create(['name' => 'UserA', 'email' => 'usera@example.com', 'password' => bcrypt('password')]);
-
-// ユーザーBを作成
-$userB = User::create(['name' => 'UserB', 'email' => 'userb@example.com', 'password' => bcrypt('password')]);
-
-// ユーザーAの投稿を作成
-Post::create(['title' => 'UserAの投稿', 'content' => 'これはUserAの投稿です', 'user_id' => $userA->id]);
-```
-
-> 📌 **Bladeファイルについて**: バックエンド実装に集中するため、動作確認用のシンプルなBladeファイルを以下に用意しています。
-
 <details>
-<summary>📄 確認用Bladeファイル（クリックで展開）</summary>
+<summary>📸 完成画面を確認する（クリックで展開）</summary>
 
-`resources/views/posts/index.blade.php`:
+**ユーザーAでログイン時の投稿一覧（ユーザーAの投稿にのみ「編集」「削除」ボタンが表示される）**
 
-```blade
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <title>投稿一覧</title>
-</head>
-<body>
-    <h1>投稿一覧</h1>
-    <p>ログイン中: {{ auth()->user()->name }}</p>
-    <ul>
-        @foreach ($posts as $post)
-            <li>
-                {{ $post->title }}（投稿者: {{ $post->user->name }}）
-                @can('update', $post)
-                    <a href="/posts/{{ $post->id }}/edit">編集</a>
-                @endcan
-            </li>
-        @endforeach
-    </ul>
-</body>
-</html>
-```
+<img alt="10-3-5_1.png" src="">
 
-`resources/views/posts/edit.blade.php`:
+**ユーザーBでログイン時の投稿一覧（ユーザーBの投稿にのみ「編集」「削除」ボタンが表示される）**
 
-```blade
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <title>投稿編集</title>
-</head>
-<body>
-    <h1>投稿編集</h1>
-    <form action="/posts/{{ $post->id }}" method="POST">
-        @csrf
-        @method('PUT')
-        <p><label>タイトル: <input type="text" name="title" value="{{ $post->title }}"></label></p>
-        <p><label>本文: <textarea name="content">{{ $post->content }}</textarea></label></p>
-        <button type="submit">更新</button>
-    </form>
-</body>
-</html>
-```
+<img alt="10-3-5_2.png" src="">
+
+**他人の投稿を直接編集しようとした場合（403 Forbiddenエラーが表示される）**
+
+<img alt="10-3-5_3.png" src="">
 
 </details>
 
 ---
 
-### 📁 Step 0: 環境を準備する（自分で作成する用）
+### 📋 要件
 
-まず、ハンズオン用のディレクトリを作成し、**自分で作成する用**のプロジェクトを準備します。
+- 自分の投稿のみ編集できる
+- 自分の投稿のみ削除できる
+- 他人の投稿には編集・削除ボタンが表示されない
+- 他人の投稿を直接URL指定で編集・削除しようとすると403エラーになる
+
+---
+
+### ✅ 完成チェックリスト
+
+- [ ] ユーザーAでログインし、ユーザーAの投稿に「編集」「削除」ボタンが表示される
+- [ ] ユーザーAでログイン時、ユーザーBの投稿には「編集」「削除」ボタンが表示されない
+- [ ] ユーザーAでログイン時、ユーザーBの投稿を直接編集（`/posts/3/edit`）しようとすると403エラー
+- [ ] ユーザーBでログインし、同様の動作を確認
+
+> 💡 **動作確認**: `http://localhost` にアクセスしてログイン
+> - ユーザーA: `usera@example.com` / `password`
+> - ユーザーB: `userb@example.com` / `password`
+
+---
+
+### ✏️ 実装タスク
+
+1. PostPolicyを作成する
+2. update/deleteメソッドを実装する
+3. PostControllerで`$this->authorize()`を追加する
+4. Bladeで`@can`ディレクティブを追加する
+
+> 💡 コントローラーとBladeには `// TODO` コメントで実装箇所が示されています。
+
+---
+
+## ⚙️ 環境準備（自分で作成する用）
+
+### プロジェクトのクローン
 
 > **📌 Dockerが起動していることを確認**
-> 
+>
 > 以下のコマンドを実行する前に、Docker Desktop（またはDocker Engine）が起動していることを確認してください。
 
 > **📌 前のハンズオンのプロジェクトを停止**
-> 
-> 前のハンズオン（10-2-5）のプロジェクトが起動している場合は、先に停止してください。
+>
+> 前のハンズオン（10-2-4）のプロジェクトが起動している場合は、先に停止してください。
 > ```bash
-> cd ~/laravel-practice/10-2-5_hands-on/lifecycle-app-sample
+> cd ~/laravel-practice/10-2-4_hands-on/practice
 > ./vendor/bin/sail down
 > ```
 
@@ -178,130 +130,99 @@ cd ~/laravel-practice
 mkdir -p 10-3-5_hands-on
 cd 10-3-5_hands-on
 
-# Laravel 10.xプロジェクトを作成（自分で作成する用）
-docker run --rm \
-    -u "$(id -u):$(id -g)" \
-    -v "$(pwd):/var/www/html" \
-    -w /var/www/html \
-    -e COMPOSER_CACHE_DIR=/tmp/composer_cache \
-    laravelsail/php82-composer:latest \
-    composer create-project laravel/laravel:^10.0 authorization-app-practice
+# スターターキットをクローン（自分で作成する用）
+git clone https://github.com/coachtech-material/laravel-authorization-starter.git authorization-app-practice
 ```
+
+### セットアップ
 
 ```bash
 # プロジェクトディレクトリに移動
 cd authorization-app-practice
 
-# Laravel Sailのインストール
+# パッケージをインストール
 docker run --rm \
     -u "$(id -u):$(id -g)" \
     -v "$(pwd):/var/www/html" \
     -w /var/www/html \
-    -e COMPOSER_CACHE_DIR=/tmp/composer_cache \
     laravelsail/php82-composer:latest \
-    composer require laravel/sail --dev
+    composer install
 
-# Sailの設定ファイルを生成
-docker run --rm \
-    -u "$(id -u):$(id -g)" \
-    -v "$(pwd):/var/www/html" \
-    -w /var/www/html \
-    -e COMPOSER_CACHE_DIR=/tmp/composer_cache \
-    laravelsail/php82-composer:latest \
-    php artisan sail:install --with=mysql
-```
+# 環境ファイルを作成
+cp .env.example .env
 
-<details>
-<summary>⚠️ M1/M2/M3 Mac（Apple Silicon）をお使いの方</summary>
-
-Apple Silicon搭載のMacでは、`sail up -d`実行時に以下のエラーが発生することがあります：
-
-```
-no matching manifest for linux/arm64/v8
-```
-
-**解決方法**: `compose.yaml`を開き、mysqlサービスに`platform: 'linux/amd64'`を追加してください。
-
-```yaml
-mysql:
-    image: 'mysql/mysql-server:8.0'
-    platform: 'linux/amd64'  # ← この行を追加
-    ports:
-        ...
-```
-
-編集後、保存してから`sail up -d`を実行してください。
-
-</details>
-
-```bash
-# Sailの起動
+# Sailを起動
 ./vendor/bin/sail up -d
 
-# アプリケーションキーの生成
+# アプリケーションキーを生成
 ./vendor/bin/sail artisan key:generate
 
-# データベースのマイグレーション
-./vendor/bin/sail artisan migrate
+# データベースのマイグレーションとシーダーを実行
+./vendor/bin/sail artisan migrate --seed
 ```
 
-**✅ ディレクトリ構造の確認**
+> 💡 **MySQLの起動待ち**: 初回起動時は `migrate` で「Connection refused」エラーが出ることがあります。その場合は少し待ってから再実行してください。
 
-```
-~/laravel-practice/
-└── 10-3-5_hands-on/
-    └── authorization-app-practice/     ← 自分で作成する用（今ここ）
-        ├── app/
-        │   ├── Http/Controllers/
-        │   └── Policies/
-        └── ...
-```
+### 動作確認
 
-> 💡 **環境構築が完了！**
-> 
-> ブラウザで `http://localhost` にアクセスして、Laravelのウェルカムページが表示されれば成功です。
+1. ブラウザで `http://localhost` にアクセス
+2. 「ログイン」をクリック
+3. `usera@example.com` / `password` でログイン
+4. 投稿一覧が表示されることを確認（現時点では全ての投稿に編集・削除ボタンが表示される）
 
-> 💡 **ポイント**: 認可機能のテストには、複数のユーザーと投稿データが必要です。実践セクションの「ステップ5: テストする」で、tinkerを使ってテストデータを作成します。
+---
 
-**ここから先は、自分の力で実装してみましょう！**
+> 🚀 **ここから先は、自分の力で実装してみましょう！**
 
 ---
 
 ## 💡 ヒント
 
+**ポリシーの作成コマンド**:
+
 ```bash
 sail artisan make:policy PostPolicy --model=Post
 ```
 
+**ポリシーのメソッド実装**:
+
 ```php
-public function update(User $user, Post $post)
+public function update(User $user, Post $post): bool
 {
     return $user->id === $post->user_id;
 }
+```
 
-// コントローラー
+**コントローラーでの認可**:
+
+```php
 $this->authorize('update', $post);
+```
+
+**Bladeでの認可**:
+
+```blade
+@can('update', $post)
+    <a href="...">編集</a>
+@endcan
 ```
 
 ---
 
-## 🏃 実践: 一緒に作ってみましょう！
+## 🏃 実践セクション
 
-ちゃんとできましたか？認可機能はユーザーごとのアクセス制御を実現する重要な機能です。一緒に手を動かしながら、投稿の編集権限制御を実装していきましょう。
+ちゃんとできましたか？一緒に手を動かしながら、認可機能を実装していきましょう。
 
-> 📌 **注意**: ここからは`authorization-app-sample/`ディレクトリで作業します。自分で作成したコードと比較できるように、別のプロジェクトで進めましょう。
+> 📌 **注意**: ここからは `authorization-app-sample/` ディレクトリで作業します。自分で作成したコードと比較できるように、別のプロジェクトで進めましょう。
 
 ---
 
-### 💻 環境準備（実践用プロジェクト）
+### ⚙️ 環境準備（実践用プロジェクト）
 
 まず、**自分で作成する用のプロジェクトを停止**します：
 
 ```bash
-# authorization-app-practiceディレクトリに移動
 cd ~/laravel-practice/10-3-5_hands-on/authorization-app-practice
-
-# Sailを停止
 ./vendor/bin/sail down
 ```
 
@@ -311,103 +232,47 @@ cd ~/laravel-practice/10-3-5_hands-on/authorization-app-practice
 # ハンズオンディレクトリに移動
 cd ~/laravel-practice/10-3-5_hands-on
 
-# Laravel 10.xプロジェクトを作成（実践用）
-docker run --rm \
-    -u "$(id -u):$(id -g)" \
-    -v "$(pwd):/var/www/html" \
-    -w /var/www/html \
-    -e COMPOSER_CACHE_DIR=/tmp/composer_cache \
-    laravelsail/php82-composer:latest \
-    composer create-project laravel/laravel:^10.0 authorization-app-sample
-```
+# スターターキットをクローン（実践用）
+git clone https://github.com/coachtech-material/laravel-authorization-starter.git authorization-app-sample
 
-```bash
 # プロジェクトディレクトリに移動
 cd authorization-app-sample
 
-# Laravel Sailのインストール
+# パッケージをインストール
 docker run --rm \
     -u "$(id -u):$(id -g)" \
     -v "$(pwd):/var/www/html" \
     -w /var/www/html \
-    -e COMPOSER_CACHE_DIR=/tmp/composer_cache \
     laravelsail/php82-composer:latest \
-    composer require laravel/sail --dev
+    composer install
 
-# Sailの設定ファイルを生成
-docker run --rm \
-    -u "$(id -u):$(id -g)" \
-    -v "$(pwd):/var/www/html" \
-    -w /var/www/html \
-    -e COMPOSER_CACHE_DIR=/tmp/composer_cache \
-    laravelsail/php82-composer:latest \
-    php artisan sail:install --with=mysql
-```
+# 環境ファイルを作成
+cp .env.example .env
 
-<details>
-<summary>⚠️ M1/M2/M3 Mac（Apple Silicon）をお使いの方</summary>
-
-Apple Silicon搭載のMacでは、`sail up -d`実行時に以下のエラーが発生することがあります：
-
-```
-no matching manifest for linux/arm64/v8
-```
-
-**解決方法**: `compose.yaml`を開き、mysqlサービスに`platform: 'linux/amd64'`を追加してください。
-
-```yaml
-mysql:
-    image: 'mysql/mysql-server:8.0'
-    platform: 'linux/amd64'  # ← この行を追加
-    ports:
-        ...
-```
-
-編集後、保存してから`sail up -d`を実行してください。
-
-</details>
-
-```bash
-# Sailの起動
+# Sailを起動
 ./vendor/bin/sail up -d
 
-# アプリケーションキーの生成
+# アプリケーションキーを生成
 ./vendor/bin/sail artisan key:generate
 
-# データベースのマイグレーション
-./vendor/bin/sail artisan migrate
+# データベースのマイグレーションとシーダーを実行
+./vendor/bin/sail artisan migrate --seed
 ```
 
-**✅ ディレクトリ構造の確認**
-
-```
-~/laravel-practice/
-└── 10-3-5_hands-on/
-    ├── authorization-app-practice/     ← 自分で作成した用（停止中）
-    └── authorization-app-sample/       ← 実践用（今ここ、起動中）
-        ├── app/
-        │   ├── Http/Controllers/
-        │   └── Policies/
-        └── ...
-```
-
-> 💡 **環境構築が完了！**
-> 
-> ブラウザで `http://localhost` にアクセスして、Laravelのウェルカムページが表示されれば成功です。
-
-> 💡 **ポイント**: 認可機能のテストには、複数のユーザーと投稿データが必要です。ステップ5でtinkerを使ってテストデータを作成します。
+**動作確認**: `http://localhost` にアクセスして、ログイン画面が表示されることを確認
 
 ---
 
-### 💭 実装の思考プロセス
+### 🧠 先輩エンジニアの思考プロセス
 
-認可機能を実装する際、以下の順番で考えると効率的です：
+先輩エンジニアは要件を以下のように構造化し、実装タスクに落とし込みます：
 
-1. **ポリシーを作成**：Artisanコマンドで生成
-2. **権限チェックロジックを実装**：作成者とユーザーIDを比較
-3. **コントローラーでauthorizeを使用**：権限チェックを実行
-4. **ビューで@canを使用**：権限に応じて表示を切り替え
-5. **テスト**：作成者と他ユーザーで動作確認
+| Step | やること | 説明 |
+|:-----|:---------|:-----|
+| 1 | PostPolicyを作成する | `--model=Post`オプションで基本メソッドを自動生成 |
+| 2 | update/deleteメソッドを実装する | `$user->id === $post->user_id`で作成者かを判定 |
+| 3 | コントローラーで`$this->authorize()`を追加する | 権限がなければ自動で403エラー |
+| 4 | Bladeで`@can`ディレクティブを追加する | 権限がある場合のみボタンを表示 |
 
 認可のポイントは「ポリシーで権限ロジックを集約管理し、再利用性を高める」ことです。
 
@@ -415,12 +280,7 @@ mysql:
 
 ### 📝 ステップバイステップで実装
 
-#### ステップ1: ポリシーを作成する
-
-**何を考えているか**：
-- 「投稿の権限を管理するポリシーが必要だ」
-- 「`--model`オプションでPostモデルと紐付けよう」
-- 「Artisanコマンドで簡単に生成できる」
+#### ステップ1: PostPolicyを作成する
 
 ターミナルで以下のコマンドを実行します：
 
@@ -428,23 +288,21 @@ mysql:
 sail artisan make:policy PostPolicy --model=Post
 ```
 
+`app/Policies/PostPolicy.php` が生成されます。
+
 **コマンド解説**：
 
-```bash
-sail artisan make:policy PostPolicy --model=Post
-```
-→ `PostPolicy`ポリシーを生成します。`--model=Post`でPostモデルと紐付け、基本的なメソッドが自動生成されます。`app/Policies/PostPolicy.php`が作成されます。
+| オプション | 説明 |
+|:-----------|:-----|
+| `make:policy` | ポリシークラスを生成する |
+| `PostPolicy` | 生成するポリシー名 |
+| `--model=Post` | Postモデルと紐付け、基本メソッドを自動生成 |
 
 ---
 
-#### ステップ2: 権限チェックロジックを実装する
+#### ステップ2: update/deleteメソッドを実装する
 
-**何を考えているか**：
-- 「投稿の作成者とログイン中のユーザーIDを比較しよう」
-- 「編集と削除の権限を定義しよう」
-- 「作成者のみがtrueを返すようにしよう」
-
-`app/Policies/PostPolicy.php`を開いて、以下のように編集します：
+`app/Policies/PostPolicy.php` を開いて、以下のように編集します：
 
 ```php
 <?php
@@ -456,12 +314,18 @@ use App\Models\User;
 
 class PostPolicy
 {
-    public function update(User $user, Post $post)
+    /**
+     * 投稿を更新できるか
+     */
+    public function update(User $user, Post $post): bool
     {
         return $user->id === $post->user_id;
     }
 
-    public function delete(User $user, Post $post)
+    /**
+     * 投稿を削除できるか
+     */
+    public function delete(User $user, Post $post): bool
     {
         return $user->id === $post->user_id;
     }
@@ -470,193 +334,125 @@ class PostPolicy
 
 **コードリーディング**：
 
-```php
-public function update(User $user, Post $post)
-{
-    return $user->id === $post->user_id;
-}
-```
-→ `update`メソッドで編集権限を定義します。`$user->id === $post->user_id`でログイン中のユーザーIDと投稿の作成者IDを比較し、一致すれば`true`を返します。
-
-```php
-public function delete(User $user, Post $post)
-{
-    return $user->id === $post->user_id;
-}
-```
-→ `delete`メソッドで削除権限を定義します。同じく作成者のみが削除できるようにします。
+| コード | 説明 |
+|:-------|:-----|
+| `User $user` | 現在ログイン中のユーザー（自動的に渡される） |
+| `Post $post` | 権限チェック対象の投稿 |
+| `$user->id === $post->user_id` | ログインユーザーが投稿の作成者かを判定 |
+| `return true/false` | `true`なら許可、`false`なら拒否 |
 
 ---
 
-#### ステップ3: コントローラーでauthorizeを使用する
+#### ステップ3: コントローラーで`$this->authorize()`を追加する
 
-**何を考えているか**：
-- 「編集、更新、削除の前に権限チェックをしよう」
-- 「`$this->authorize()`で簡単にチェックできる」
-- 「権限がない場合は自動的に403エラーを返す」
+`app/Http/Controllers/PostController.php` を開きます。`// TODO` コメントがある箇所に `$this->authorize()` を追加します。
 
-`app/Http/Controllers/PostController.php`を開いて、以下のように編集します：
+**edit メソッド**（15行目付近）：
 
 ```php
-public function edit($id)
+public function edit(Post $post)
 {
-    $post = Post::findOrFail($id);
     $this->authorize('update', $post);
-    return view('posts.edit', ['post' => $post]);
-}
 
-public function update(Request $request, $id)
+    return view('posts.edit', compact('post'));
+}
+```
+
+**update メソッド**（22行目付近）：
+
+```php
+public function update(Request $request, Post $post)
 {
-    $post = Post::findOrFail($id);
     $this->authorize('update', $post);
-    $post->update($request->all());
-    return redirect('/posts');
-}
 
-public function destroy($id)
+    $validated = $request->validate([
+        'title' => 'required|string|max:255',
+        'content' => 'required|string',
+    ]);
+
+    $post->update($validated);
+
+    return redirect()->route('posts.index');
+}
+```
+
+**destroy メソッド**（35行目付近）：
+
+```php
+public function destroy(Post $post)
 {
-    $post = Post::findOrFail($id);
     $this->authorize('delete', $post);
+
     $post->delete();
-    return redirect('/posts');
+
+    return redirect()->route('posts.index');
 }
 ```
 
 **コードリーディング**：
 
-```php
-$this->authorize('update', $post);
-```
-→ `authorize()`メソッドで権限チェックを実行します。第1引数にアクション名、第2引数にモデルインスタンスを渡します。Laravelが自動的に`PostPolicy`の`update`メソッドを呼び出します。
-
-```php
-$this->authorize('delete', $post);
-```
-→ 削除権限をチェックします。権限がない場合、自動的に403エラーが返されます。
+| コード | 説明 |
+|:-------|:-----|
+| `$this->authorize('update', $post)` | `PostPolicy`の`update`メソッドを呼び出す |
+| 権限がない場合 | 自動的に403 Forbiddenエラーが返される |
+| 権限がある場合 | 次の処理に進む |
 
 ---
 
-#### ステップ4: ビューで@canを使用する
+#### ステップ4: Bladeで`@can`ディレクティブを追加する
 
-**何を考えているか**：
-- 「権限がある場合のみ編集・削除ボタンを表示したい」
-- 「@canディレクティブで簡単に制御できる」
-- 「ユーザーエクスペリエンスを向上させよう」
+`resources/views/posts/index.blade.php` を開きます。`{{-- TODO --}}` コメントがある箇所（50行目付近）を編集します。
 
-`resources/views/posts/index.blade.php`を開いて、以下のように編集します：
+**変更前**：
 
 ```blade
-@foreach ($posts as $post)
-    <div>
-        <h3>{{ $post->title }}</h3>
-        <p>{{ $post->content }}</p>
-        
-        @can('update', $post)
-            <a href="{{ route('posts.edit', $post->id) }}">編集</a>
-        @endcan
-        
-        @can('delete', $post)
-            <form action="{{ route('posts.destroy', $post->id) }}" method="POST">
-                @csrf
-                @method('DELETE')
-                <button type="submit">削除</button>
-            </form>
-        @endcan
-    </div>
-@endforeach
+{{-- TODO: @canディレクティブを追加して、投稿者のみに編集・削除ボタンを表示する --}}
+<a href="{{ route('posts.edit', $post) }}" class="btn-edit">編集</a>
+<form action="{{ route('posts.destroy', $post) }}" method="POST" style="display: inline;">
+    @csrf
+    @method('DELETE')
+    <button type="submit" class="btn-delete">削除</button>
+</form>
 ```
 
-**コードリーディング**：
+**変更後**：
 
 ```blade
 @can('update', $post)
-    <a href="{{ route('posts.edit', $post->id) }}">編集</a>
+    <a href="{{ route('posts.edit', $post) }}" class="btn-edit">編集</a>
 @endcan
-```
-→ `@can`ディレクティブで権限チェックを行います。権限がある場合のみ編集リンクが表示されます。ユーザーに不必要なボタンを見せないことで、UXが向上します。
-
-```blade
 @can('delete', $post)
-    <form action="{{ route('posts.destroy', $post->id) }}" method="POST">
+    <form action="{{ route('posts.destroy', $post) }}" method="POST" style="display: inline;">
         @csrf
         @method('DELETE')
-        <button type="submit">削除</button>
+        <button type="submit" class="btn-delete">削除</button>
     </form>
 @endcan
 ```
-→ 削除権限がある場合のみ削除ボタンが表示されます。
 
----
+**コードリーディング**：
 
-#### ステップ5: テストする
-
-**何を考えているか**：
-- 「作成者と他ユーザーで動作を確認しよう」
-- 「作成者は編集・削除できて、他ユーザーはできないはず」
-
-**テストデータの作成**：
-
-まず、tinkerでテスト用のユーザーと投稿を作成します：
-
-```bash
-sail artisan tinker
-```
-
-```php
->>> use App\Models\User;
->>> use App\Models\Post;
-
-// ユーザーAを作成
->>> $userA = User::create([
-...     'name' => 'ユーザーA',
-...     'email' => 'user_a@example.com',
-...     'password' => bcrypt('password'),
-... ]);
-
-// ユーザーBを作成
->>> $userB = User::create([
-...     'name' => 'ユーザーB',
-...     'email' => 'user_b@example.com',
-...     'password' => bcrypt('password'),
-... ]);
-
-// ユーザーAの投稿を作成
->>> Post::create([
-...     'user_id' => $userA->id,
-...     'title' => 'ユーザーAの投稿',
-...     'content' => 'これはユーザーAが作成した投稿です。',
-... ]);
-
-// ユーザーBの投稿を作成
->>> Post::create([
-...     'user_id' => $userB->id,
-...     'title' => 'ユーザーBの投稿',
-...     'content' => 'これはユーザーBが作成した投稿です。',
-... ]);
-
->>> exit
-```
-
-**テスト手順**：
-
-1. **ユーザーAでログイン**（`user_a@example.com` / `password`）
-2. **ユーザーAの投稿に編集・削除ボタンが表示されることを確認**：作成者なので権限あり
-3. **ユーザーBの投稿には編集・削除ボタンが表示されないことを確認**：他ユーザーの投稿なので権限なし
-4. **ログアウトしてユーザーBでログイン**（`user_b@example.com` / `password`）
-5. **ユーザーAの投稿に編集・削除ボタンが表示されないことを確認**：他ユーザーの投稿なので権限なし
-6. **直接URLでアクセス**（`http://localhost/posts/1/edit`）：403エラーが表示されることを確認
+| コード | 説明 |
+|:-------|:-----|
+| `@can('update', $post)` | `PostPolicy`の`update`メソッドで権限をチェック |
+| `@endcan` | 権限チェックブロックの終了 |
+| 権限がある場合のみ | 内部のHTMLが表示される |
 
 ---
 
 ### ✨ 完成！
 
-これで認可機能が実装できました！ポリシーで権限ロジックを集約管理し、ユーザーごとのアクセス制御を実現できましたね。
+これで認可機能が実装できました！動作確認をしましょう。
 
-**自分で作成したコードと比較してみましょう**：
-- `authorization-app-practice/`: 自分で作成したプロジェクト
-- `authorization-app-sample/`: 一緒に作成したプロジェクト
+**テスト手順**：
 
-両方のプロジェクトを見比べて、違いがあれば確認してみてください。
+1. `http://localhost` にアクセス
+2. `usera@example.com` / `password` でログイン
+3. ユーザーAの投稿にのみ「編集」「削除」ボタンが表示されることを確認
+4. ユーザーBの投稿（ID: 3 or 4）を直接編集しようとする（`http://localhost/posts/3/edit`）
+5. 403エラーが表示されることを確認
+6. ログアウトして `userb@example.com` / `password` でログイン
+7. 同様にユーザーBの投稿にのみボタンが表示されることを確認
 
 ---
 
@@ -664,6 +460,8 @@ sail artisan tinker
 
 ### PostPolicy.php
 
+`app/Policies/PostPolicy.php`
+
 ```php
 <?php
 
@@ -674,87 +472,69 @@ use App\Models\User;
 
 class PostPolicy
 {
-    public function update(User $user, Post $post)
+    public function update(User $user, Post $post): bool
     {
         return $user->id === $post->user_id;
     }
 
-    public function delete(User $user, Post $post)
+    public function delete(User $user, Post $post): bool
     {
         return $user->id === $post->user_id;
     }
 }
 ```
 
-### PostController.php
+### PostController.php（該当部分のみ）
+
+`app/Http/Controllers/PostController.php`
 
 ```php
-public function edit($id)
+public function edit(Post $post)
 {
-    $post = Post::findOrFail($id);
     $this->authorize('update', $post);
-    return view('posts.edit', ['post' => $post]);
+
+    return view('posts.edit', compact('post'));
 }
 
-public function update(Request $request, $id)
+public function update(Request $request, Post $post)
 {
-    $post = Post::findOrFail($id);
     $this->authorize('update', $post);
-    $post->update($request->all());
-    return redirect('/posts');
+
+    $validated = $request->validate([
+        'title' => 'required|string|max:255',
+        'content' => 'required|string',
+    ]);
+
+    $post->update($validated);
+
+    return redirect()->route('posts.index');
 }
 
-public function destroy($id)
+public function destroy(Post $post)
 {
-    $post = Post::findOrFail($id);
     $this->authorize('delete', $post);
+
     $post->delete();
-    return redirect('/posts');
+
+    return redirect()->route('posts.index');
 }
 ```
 
-### posts/index.blade.php
+### posts/index.blade.php（該当部分のみ）
+
+`resources/views/posts/index.blade.php`
 
 ```blade
-@foreach ($posts as $post)
-    <div>
-        <h3>{{ $post->title }}</h3>
-        @can('update', $post)
-            <a href="{{ route('posts.edit', $post->id) }}">編集</a>
-        @endcan
-        @can('delete', $post)
-            <form action="{{ route('posts.destroy', $post->id) }}" method="POST">
-                @csrf
-                @method('DELETE')
-                <button type="submit">削除</button>
-            </form>
-        @endcan
-    </div>
-@endforeach
-```
-
----
-
-## 🧪 動作確認の方法
-
-### プロジェクトの切り替え
-
-2つのプロジェクトを切り替えて動作確認する方法：
-
-```bash
-# authorization-app-practiceで確認したい場合
-cd ~/laravel-practice/10-3-5_hands-on/authorization-app-sample
-./vendor/bin/sail down
-
-cd ~/laravel-practice/10-3-5_hands-on/authorization-app-practice
-./vendor/bin/sail up -d
-
-# authorization-app-sampleで確認したい場合
-cd ~/laravel-practice/10-3-5_hands-on/authorization-app-practice
-./vendor/bin/sail down
-
-cd ~/laravel-practice/10-3-5_hands-on/authorization-app-sample
-./vendor/bin/sail up -d
+@can('update', $post)
+    <a href="{{ route('posts.edit', $post) }}" class="btn-edit">編集</a>
+@endcan
+@can('delete', $post)
+    <form action="{{ route('posts.destroy', $post) }}" method="POST" style="display: inline;">
+        @csrf
+        @method('DELETE')
+        <button type="submit" class="btn-delete">削除</button>
+    </form>
+@endcan
 ```
 
 ---
@@ -766,11 +546,9 @@ cd ~/laravel-practice/10-3-5_hands-on/authorization-app-sample
 このハンズオンで、以下のことができるようになりました：
 
 - ✅ ポリシーを作成して権限ロジックを集約管理できる
-- ✅ コントローラーで`authorize()`を使って権限チェックができる
-- ✅ ビューで`@can`ディレクティブを使って表示を制御できる
+- ✅ コントローラーで`$this->authorize()`を使って権限チェックができる
+- ✅ Bladeで`@can`ディレクティブを使って表示を制御できる
 - ✅ ユーザーごとのアクセス制御を実装できる
-
-引き続き、次のセクションも頑張りましょう！
 
 ### 🛑 Sailの停止
 

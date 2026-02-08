@@ -1,19 +1,16 @@
 # Tutorial 9-4-9: Eloquent ORM - ハンズオン演習
 
-## 📝 このセクションの目的
+## 📌 このハンズオンについて
 
 Chapter 4で学んだEloquent ORMを実際に手を動かして確認します。モデルを使って、オブジェクト指向的にデータベースを操作しましょう。
 
 > 分からない文法や実装があっても、すぐに答えを見るのではなく、過去の教材を見たり、AIにヒントをもらいながら進めるなど、自身で創意工夫しながら進めてみましょう🔥
 
-**学習のポイント**：
-- Eloquentモデルを作成できるか
-- モデルを使ってCRUD操作ができるか
-- リレーションシップを定義できるか
+> 💡 **このハンズオンのポイント**: Eloquentモデルを作成し、CRUD操作を実装することで、オブジェクト指向的なデータベース操作を理解することが目的です。
 
 ---
 
-## 📁 ディレクトリ構成
+### ディレクトリ構成
 
 このハンズオンでは、「自分で作成する用」と「解答を確認する用」の2つのプロジェクトを作成します。
 
@@ -46,127 +43,88 @@ Chapter 4で学んだEloquent ORMを実際に手を動かして確認します�
 
 ## 🎯 演習課題：ブログシステムのモデル作成
 
+**この演習で作るもの**：
+Eloquentモデルを使って「ブログシステム」の投稿一覧機能を作成します。
+
 ### 🖼️ 完成イメージ
 
-<!-- Tinkerでのデータ操作のスクリーンショットをここに配置 -->
-![9-4-9 完成イメージ](images/9-4-9_eloquent_complete.png)
-
-**この演習で作るもの**：
-Eloquentモデルを作成し、CRUD操作とリレーションシップを実装した「ブログシステム」のバックエンドを構築します。
-
----
-
-### 📋 要件
-
-#### 1. Postモデルの作成
-
-`Post`モデルとマイグレーションを同時に作成してください。
-
-**カラム構成**：
-- id, title (VARCHAR 200), content (TEXT), user_id (INTEGER), published_at (DATETIME nullable), timestamps
-
-#### 2. CRUD操作の実装
-
-`PostController`に以下のメソッドを実装してください：
-
-- `index()`: すべての投稿を取得（最新順）
-- `store()`: 新しい投稿を作成
-- `update($id)`: 投稿を更新
-- `destroy($id)`: 投稿を削除
-
-#### 3. リレーションシップの定義
-
-`Post`モデルに`user()`メソッドを追加し、`User`モデルとのリレーションシップを定義してください。
-
----
-
-### ✅ 完成品の確認方法
-
-**🔧 Tinkerでの確認（推奨）**
-
-Eloquentの操作はTinkerで確認するのが最も効果的です。
-
-```bash
-./vendor/bin/sail artisan tinker
-```
-
-**確認コマンド**:
-```php
-// モデルが存在するか確認
-use App\Models\Post;
-
-// 新規作成
-Post::create(['title' => 'テスト', 'content' => '内容', 'user_id' => 1]);
-
-// 全件取得
-Post::all();
-
-// リレーション確認
-Post::first()->user;
-```
-
-**正しく実装できていれば**:
-- [ ] `Post`モデルが存在する
-- [ ] `Post::create()`で新規作成できる
-- [ ] `Post::all()`で全件取得できる
-- [ ] `$post->user`でリレーションが取得できる
-
-**🌐 ブラウザでの確認（代替方法）**
-
-- **動作確認URL**: `http://localhost/posts`
-- **確認手順**:
-  1. Sailを起動する（`./vendor/bin/sail up -d`）
-  2. ブラウザで `http://localhost/posts` にアクセス
-  3. 投稿一覧が表示されることを確認
-
-> 📌 **Bladeファイルについて**: バックエンド実装に集中するため、動作確認用のシンプルなBladeファイルを以下に用意しています。
-
 <details>
-<summary>📄 確認用Bladeファイル（クリックで展開）</summary>
+<summary>📸 完成画面を確認する（クリックで展開）</summary>
 
-`resources/views/posts/index.blade.php`:
+**投稿一覧ページ**
 
-```blade
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <title>投稿一覧</title>
-</head>
-<body>
-    <h1>投稿一覧</h1>
-    <table border="1">
-        <tr><th>ID</th><th>タイトル</th><th>内容</th><th>投稿者</th></tr>
-        @foreach ($posts as $post)
-            <tr>
-                <td>{{ $post->id }}</td>
-                <td>{{ $post->title }}</td>
-                <td>{{ Str::limit($post->content, 50) }}</td>
-                <td>{{ $post->user->name ?? '不明' }}</td>
-            </tr>
-        @endforeach
-    </table>
-</body>
-</html>
-```
+<img alt="9-4-9_1.png" src="">
+
+**投稿作成ページ**
+
+<img alt="9-4-9_2.png" src="">
+
+**投稿編集ページ**
+
+<img alt="9-4-9_3.png" src="">
 
 </details>
 
 ---
 
-### 📁 Step 0: 環境を準備する（自分で作成する用）
+### 📋 要件
+
+- 投稿の一覧が表示できる
+- 新しい投稿を作成できる
+- 投稿を編集できる
+- 投稿を削除できる
+- 公開日時が表示できる
+
+**postsテーブルのカラム構成**：
+
+| カラム名 | 型 | 備考 |
+|:---------|:---|:-----|
+| id | BIGINT | 主キー、自動採番 |
+| title | VARCHAR(200) | タイトル |
+| content | TEXT | 本文 |
+| published_at | DATETIME | 公開日時（nullable） |
+| created_at | TIMESTAMP | 作成日時 |
+| updated_at | TIMESTAMP | 更新日時 |
+
+---
+
+### ✅ 完成チェックリスト
+
+- [ ] `/posts`にアクセスすると投稿一覧が表示される
+- [ ] 「新規作成」から投稿を追加できる
+- [ ] 「編集」から投稿を更新できる
+- [ ] 「削除」で投稿が削除される
+
+> 💡 **動作確認**: `http://localhost/posts` にアクセス
+
+---
+
+### ✏️ 実装タスク
+
+1. Postモデルとマイグレーションを同時作成する
+2. マイグレーションでテーブル構造を定義・実行する
+3. モデルで属性を設定する
+4. コントローラーを作成し、CRUD操作を実装する
+5. ルーティングを設定する（個別ルート定義）
+6. Bladeファイルを配置する
+
+> 💡 Bladeファイルは「⚙️ 環境準備」セクションで提供します。
+
+---
+
+## ⚙️ 環境準備（自分で作成する用）
 
 まず、ハンズオン用のディレクトリを作成し、**自分で作成する用**のプロジェクトを準備します。
 
 > **📌 Dockerが起動していることを確認**
-> 
+>
 > 以下のコマンドを実行する前に、Docker Desktop（またはDocker Engine）が起動していることを確認してください。
 
 > **📌 前のハンズオンのプロジェクトを停止**
-> 
-> 前のハンズオン（9-3-8）のプロジェクトが起動している場合は、先に停止してください。
+>
+> 前のハンズオン（9-3-9）のプロジェクトが起動している場合は、先に停止してください。
 > ```bash
-> cd ~/laravel-practice/9-3-8_hands-on/database-app-sample
+> cd ~/laravel-practice/9-3-9_hands-on/database-app-sample
 > ./vendor/bin/sail down
 > ```
 
@@ -177,7 +135,9 @@ cd ~/laravel-practice
 # ハンズオン用ディレクトリを作成
 mkdir -p 9-4-9_hands-on
 cd 9-4-9_hands-on
+```
 
+```bash
 # Laravel 10.xプロジェクトを作成（自分で作成する用）
 docker run --rm \
     -u "$(id -u):$(id -g)" \
@@ -241,35 +201,11 @@ mysql:
 # アプリケーションキーの生成
 ./vendor/bin/sail artisan key:generate
 
-# データベースのマイグレーション
-./vendor/bin/sail artisan migrate
+# データベースをリセットしてマイグレーション実行
+./vendor/bin/sail artisan migrate:fresh
 ```
 
-**📦 テストユーザーの作成**
-
-投稿を作成するにはユーザーが必要です。`tinker`を使ってテストユーザーを作成します：
-
-```bash
-# tinkerを起動
-sail artisan tinker
-```
-
-```php
-# tinker内で実行
-App\Models\User::create([
-    'name' => 'テストユーザー',
-    'email' => 'test@example.com',
-    'password' => bcrypt('password'),
-]);
-
-# 作成されたユーザーを確認
-App\Models\User::first();
-
-# tinkerを終了
-exit
-```
-
-> 💡 **ポイント**: このユーザーのIDは`1`になります。後で投稿を作成する際に`user_id = 1`として使用します。
+> 💡 `migrate:fresh`を使うことで、前のハンズオンのデータをクリアして新しい状態から始められます。
 
 **✅ ディレクトリ構造の確認**
 
@@ -284,10 +220,149 @@ exit
 ```
 
 > 💡 **環境構築が完了！**
-> 
+>
 > ブラウザで `http://localhost` にアクセスして、Laravelのウェルカムページが表示されれば成功です。
 
-**ここから先は、自分の力で実装してみましょう！**
+> 💡 **テスト投稿の作成について**: 実際に投稿データを作成するのは、Postモデルとマイグレーションを作成した後です。「💡 ヒント」セクションのTinkerコマンドを参考にしてください。
+
+---
+
+### 📄 提供ファイル
+
+**`resources/views/posts/index.blade.php`**（投稿一覧）
+
+```blade
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>投稿一覧</title>
+    <style>
+        body { font-family: sans-serif; margin: 20px; }
+        table { border-collapse: collapse; width: 100%; max-width: 800px; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        th { background-color: #f5f5f5; }
+        h1 { color: #333; }
+        .btn { display: inline-block; padding: 5px 10px; margin: 2px; text-decoration: none; border: 1px solid #333; border-radius: 3px; }
+        .btn-primary { background-color: #007bff; color: white; border-color: #007bff; }
+        .btn-danger { background-color: #dc3545; color: white; border-color: #dc3545; }
+    </style>
+</head>
+<body>
+    <h1>投稿一覧</h1>
+    <p><a href="/posts/create" class="btn btn-primary">新規作成</a></p>
+    <p>全{{ count($posts) }}件の投稿があります。</p>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>タイトル</th>
+                <th>公開日時</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach ($posts as $post)
+                <tr>
+                    <td>{{ $post->id }}</td>
+                    <td>{{ $post->title }}</td>
+                    <td>{{ $post->published_at?->format('Y/m/d H:i') ?? '下書き' }}</td>
+                    <td>
+                        <a href="/posts/{{ $post->id }}/edit" class="btn">編集</a>
+                        <form action="/posts/{{ $post->id }}" method="POST" style="display:inline;">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-danger">削除</button>
+                        </form>
+                    </td>
+                </tr>
+            @endforeach
+        </tbody>
+    </table>
+</body>
+</html>
+```
+
+**create.blade.php**（投稿作成）
+
+```blade
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>投稿作成</title>
+    <style>
+        body { font-family: sans-serif; margin: 20px; }
+        h1 { color: #333; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; }
+        input, textarea { width: 100%; max-width: 400px; padding: 8px; }
+        button { padding: 10px 20px; background-color: #007bff; color: white; border: none; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>投稿作成</h1>
+    <form action="/posts" method="POST">
+        @csrf
+        <div class="form-group">
+            <label>タイトル</label>
+            <input type="text" name="title" required>
+        </div>
+        <div class="form-group">
+            <label>内容</label>
+            <textarea name="content" rows="5"></textarea>
+        </div>
+        <button type="submit">作成</button>
+    </form>
+    <p><a href="/posts">← 一覧に戻る</a></p>
+</body>
+</html>
+```
+
+**edit.blade.php**（投稿編集）
+
+```blade
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>投稿編集</title>
+    <style>
+        body { font-family: sans-serif; margin: 20px; }
+        h1 { color: #333; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; }
+        input, textarea { width: 100%; max-width: 400px; padding: 8px; }
+        button { padding: 10px 20px; background-color: #007bff; color: white; border: none; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>投稿編集</h1>
+    <form action="/posts/{{ $post->id }}" method="POST">
+        @csrf
+        @method('PUT')
+        <div class="form-group">
+            <label>タイトル</label>
+            <input type="text" name="title" value="{{ $post->title }}" required>
+        </div>
+        <div class="form-group">
+            <label>内容</label>
+            <textarea name="content" rows="5">{{ $post->content }}</textarea>
+        </div>
+        <button type="submit">更新</button>
+    </form>
+    <p><a href="/posts">← 一覧に戻る</a></p>
+</body>
+</html>
+```
+
+---
+
+---
+
+> 🚀 **ここから先は、自分の力で実装してみましょう！**
+
+---
 
 ---
 
@@ -295,6 +370,7 @@ exit
 
 ```bash
 sail artisan make:model Post -m
+sail artisan make:controller PostController
 ```
 
 ```php
@@ -306,6 +382,7 @@ $post = Post::find($id);
 Post::create([
     'title' => 'タイトル',
     'content' => '本文',
+    'published_at' => now(),
 ]);
 
 // 更新
@@ -313,12 +390,29 @@ $post->update(['title' => '新しいタイトル']);
 
 // 削除
 $post->delete();
+```
 
-// リレーションシップ
-public function user()
-{
-    return $this->belongsTo(User::class);
-}
+**テストデータ作成（Tinker）**
+
+```bash
+sail artisan tinker
+```
+
+```php
+# Postモデルとマイグレーション作成後に実行
+use App\Models\Post;
+
+Post::create([
+    'title' => 'はじめての投稿',
+    'content' => 'これはテスト投稿です。',
+    'published_at' => now(),
+]);
+
+Post::create([
+    'title' => '2つ目の投稿',
+    'content' => 'Eloquentで作成しました。',
+    'published_at' => now(),
+]);
 ```
 
 ---
@@ -331,7 +425,7 @@ public function user()
 
 ---
 
-### 💻 環境準備（実践用プロジェクト）
+### ⚙️ 環境準備（実践用プロジェクト）
 
 まず、**自分で作成する用のプロジェクトを停止**します：
 
@@ -387,35 +481,11 @@ docker run --rm \
 # アプリケーションキーの生成
 ./vendor/bin/sail artisan key:generate
 
-# データベースのマイグレーション
-./vendor/bin/sail artisan migrate
+# データベースをリセットしてマイグレーション実行
+./vendor/bin/sail artisan migrate:fresh
 ```
 
-**📦 テストユーザーの作成**
-
-投稿を作成するにはユーザーが必要です。`tinker`を使ってテストユーザーを作成します：
-
-```bash
-# tinkerを起動
-sail artisan tinker
-```
-
-```php
-# tinker内で実行
-App\Models\User::create([
-    'name' => 'テストユーザー',
-    'email' => 'test@example.com',
-    'password' => bcrypt('password'),
-]);
-
-# 作成されたユーザーを確認
-App\Models\User::first();
-
-# tinkerを終了
-exit
-```
-
-> 💡 **ポイント**: このユーザーのIDは`1`になります。後で投稿を作成する際に`user_id = 1`として使用します。
+> 💡 `migrate:fresh`を使うことで、前のハンズオンのデータをクリアして新しい状態から始められます。
 
 **✅ ディレクトリ構造の確認**
 
@@ -436,17 +506,20 @@ exit
 
 ---
 
-### 💭 実装の思考プロセス
+### 🧠 先輩エンジニアの思考プロセス
 
-Eloquentを使った開発では、以下の順番で考えると効率的です：
+先輩エンジニアは要件を以下のように構造化し、実装タスクに落とし込みます：
 
-1. **モデルとマイグレーションを同時作成**：一度に両方を生成
-2. **マイグレーションでテーブル構造を定義**：カラムと外部キーを設定
-3. **モデルで属性を設定**：$fillableとリレーションを定義
-4. **コントローラーでCRUD操作を実装**：モデルを使ってデータ操作
-5. **リレーションを活用**：関連データを簡単に取得
+| Step | やること | 説明 |
+|:-----|:---------|:-----|
+| 1 | モデルとマイグレーションを同時作成 | `-m`オプションで一度に両方を生成 |
+| 2 | マイグレーションでテーブル構造を定義・実行 | 必要なカラムを設定 |
+| 3 | モデルで属性を設定 | $fillableと$castsを定義 |
+| 4 | コントローラーでCRUD操作を実装 | index, create, store, edit, update, delete |
+| 5 | ルーティングを設定 | 個別ルートでURLとメソッドを結びつける |
+| 6 | Bladeファイルを配置 | 一覧・作成・編集画面を作成 |
 
-Eloquentのポイントは「モデルを中心に、オブジェクト指向でデータベースを操作する」ことです。
+Eloquentのポイントは「モデルを中心に、オブジェクト指向でデータベースを操作する」ことです。Chapter 4で学んだ`create()`, `update()`, `delete()`を実際に使ってみましょう。
 
 ---
 
@@ -474,11 +547,10 @@ sail artisan make:model Post -m
 
 ---
 
-#### ステップ2: マイグレーションでテーブル構造を定義する
+#### ステップ2: マイグレーションでテーブル構造を定義・実行する
 
 **何を考えているか**：
-- 「投稿テーブルにはタイトル、本文、ユーザーID、公開日が必要だ」
-- 「外部キーでUserテーブルと関連付けよう」
+- 「投稿テーブルにはタイトル、本文、公開日が必要だ」
 - 「公開日はnullableにしよう」
 
 生成されたマイグレーションファイルを開いて、`up`メソッドを以下のように編集します：
@@ -490,7 +562,6 @@ public function up(): void
         $table->id();
         $table->string('title', 200);
         $table->text('content');
-        $table->foreignId('user_id')->constrained()->onDelete('cascade');
         $table->dateTime('published_at')->nullable();
         $table->timestamps();
     });
@@ -504,11 +575,6 @@ $table->string('title', 200);
 $table->text('content');
 ```
 → タイトルは`VARCHAR(200)`、本文は`TEXT`型で定義します。
-
-```php
-$table->foreignId('user_id')->constrained()->onDelete('cascade');
-```
-→ `foreignId`で外部キーを作成します。`constrained()`で`users`テーブルと関連付け、`onDelete('cascade')`でユーザー削除時に投稿も削除されるようにします。
 
 ```php
 $table->dateTime('published_at')->nullable();
@@ -528,7 +594,6 @@ sail artisan migrate
 **何を考えているか**：
 - 「一括代入可能な属性を$fillableで指定しよう」
 - 「日付型の属性を$castsで定義しよう」
-- 「Userモデルとのリレーションを定義しよう」
 
 `app/Models/Post.php`を開いて、以下のように編集します：
 
@@ -544,18 +609,12 @@ class Post extends Model
     protected $fillable = [
         'title',
         'content',
-        'user_id',
         'published_at',
     ];
 
     protected $casts = [
         'published_at' => 'datetime',
     ];
-
-    public function user()
-    {
-        return $this->belongsTo(User::class);
-    }
 }
 ```
 
@@ -565,7 +624,6 @@ class Post extends Model
 protected $fillable = [
     'title',
     'content',
-    'user_id',
     'published_at',
 ];
 ```
@@ -578,22 +636,14 @@ protected $casts = [
 ```
 → `$casts`で属性の型変換を定義します。`published_at`を`datetime`型にキャストし、Carbonインスタンスとして扱えるようにします。
 
-```php
-public function user()
-{
-    return $this->belongsTo(User::class);
-}
-```
-→ `belongsTo`でUserモデルとのリレーションを定義します。「投稿は1人のユーザーに属する」という関係を表します。
-
 ---
 
 #### ステップ4: コントローラーでCRUD操作を実装する
 
 **何を考えているか**：
-- 「全投稿を取得するindexメソッドを作ろう」
-- 「新しい投稿を作成するstoreメソッドを作ろう」
-- 「更新と削除のメソッドも実装しよう」
+- 「Chapter 4で学んだcreate(), update(), delete()を使おう」
+- 「一覧表示、作成フォーム、編集フォームを表示するメソッドが必要だ」
+- 「データ操作のメソッド（store, update, delete）も実装しよう」
 
 `PostController`を作成します：
 
@@ -615,8 +665,13 @@ class PostController extends Controller
 {
     public function index()
     {
-        $posts = Post::with('user')->latest()->get();
+        $posts = Post::latest()->get();
         return view('posts.index', ['posts' => $posts]);
+    }
+
+    public function create()
+    {
+        return view('posts.create');
     }
 
     public function store(Request $request)
@@ -624,10 +679,15 @@ class PostController extends Controller
         Post::create([
             'title' => $request->title,
             'content' => $request->content,
-            'user_id' => 1,
             'published_at' => now(),
         ]);
         return redirect('/posts');
+    }
+
+    public function edit($id)
+    {
+        $post = Post::findOrFail($id);
+        return view('posts.edit', ['post' => $post]);
     }
 
     public function update(Request $request, $id)
@@ -640,7 +700,7 @@ class PostController extends Controller
         return redirect('/posts');
     }
 
-    public function destroy($id)
+    public function delete($id)
     {
         Post::findOrFail($id)->delete();
         return redirect('/posts');
@@ -651,19 +711,35 @@ class PostController extends Controller
 **コードリーディング**：
 
 ```php
-$posts = Post::with('user')->latest()->get();
+$posts = Post::latest()->get();
 ```
-→ `Post::with('user')`でユーザー情報をEager Loadingします。`latest()`で最新順に並び替え、`get()`で全データを取得します。
+→ `Post::latest()`で最新順に並び替え、`get()`で全データを取得します。
+
+```php
+public function create()
+{
+    return view('posts.create');
+}
+```
+→ 作成フォームを表示します。フォームからPOSTで`store`メソッドにデータが送信されます。
 
 ```php
 Post::create([
     'title' => $request->title,
     'content' => $request->content,
-    'user_id' => 1,
     'published_at' => now(),
 ]);
 ```
-→ `Post::create()`で新しい投稿を作成します。`user_id`は固定値`1`を使用しています（認証機能は別途学習します）。
+→ Chapter 4-5で学んだ`create()`で新しい投稿を作成します。`now()`で現在日時を公開日に設定します。
+
+```php
+public function edit($id)
+{
+    $post = Post::findOrFail($id);
+    return view('posts.edit', ['post' => $post]);
+}
+```
+→ 編集フォームを表示します。既存のデータをフォームに表示するために`$post`を渡します。
 
 ```php
 $post = Post::findOrFail($id);
@@ -672,18 +748,133 @@ $post->update([
     'content' => $request->content,
 ]);
 ```
-→ `findOrFail($id)`で投稿を取得し、見つからなければ404エラーを返します。`update()`でデータを更新します。
+→ Chapter 4-6で学んだ`update()`でデータを更新します。`findOrFail($id)`は見つからなければ404エラーを返します。
 
 ```php
 Post::findOrFail($id)->delete();
 ```
-→ 投稿を取得して、`delete()`で削除します。メソッドチェーンで簡潔に書けます。
+→ Chapter 4-6で学んだ`delete()`で削除します。メソッドチェーンで簡潔に書けます。
+
+---
+
+#### ステップ5: ルーティングを設定する
+
+**何を考えているか**：
+- 「CRUD操作に必要なルートを定義しよう」
+- 「GETで画面表示、POSTで作成、PUTで更新、DELETEで削除」
+
+`routes/web.php`を開いて、以下のルートを追加します：
+
+```php
+use App\Http\Controllers\PostController;
+
+Route::get('/posts', [PostController::class, 'index']);
+Route::get('/posts/create', [PostController::class, 'create']);
+Route::post('/posts', [PostController::class, 'store']);
+Route::get('/posts/{id}/edit', [PostController::class, 'edit']);
+Route::put('/posts/{id}', [PostController::class, 'update']);
+Route::delete('/posts/{id}', [PostController::class, 'delete']);
+```
+
+**コードリーディング**：
+
+```php
+Route::get('/posts', [PostController::class, 'index']);
+Route::get('/posts/create', [PostController::class, 'create']);
+```
+→ GETリクエストで画面を表示します。`/posts`で一覧、`/posts/create`で作成フォームを表示します。
+
+```php
+Route::post('/posts', [PostController::class, 'store']);
+```
+→ POSTリクエストでデータを作成します。作成フォームから送信されたデータを`store`メソッドで処理します。
+
+```php
+Route::get('/posts/{id}/edit', [PostController::class, 'edit']);
+Route::put('/posts/{id}', [PostController::class, 'update']);
+```
+→ `{id}`はURLパラメータです。`/posts/1/edit`でID=1の投稿の編集フォームを表示し、PUTリクエストで更新します。
+
+```php
+Route::delete('/posts/{id}', [PostController::class, 'delete']);
+```
+→ DELETEリクエストで削除します。HTMLフォームからは`@method('DELETE')`で送信します。
+
+> 💡 **ポイント**: `Route::resource()`を使えば、これらのルートを1行で定義できます。ここでは個別に定義して、各ルートの役割を理解しましょう。
+
+---
+
+#### ステップ6: Bladeファイルを配置する
+
+**何を考えているか**：
+- 「一覧、作成フォーム、編集フォームの3画面が必要だ」
+- 「環境準備で提供されているBladeファイルを配置しよう」
+
+`resources/views/posts/`ディレクトリを作成し、3つのBladeファイルを配置します：
+
+```bash
+mkdir -p resources/views/posts
+```
+
+「⚙️ 環境準備」セクションで提供されているBladeファイルを`resources/views/posts/`に配置します：
+- `index.blade.php` - 投稿一覧
+- `create.blade.php` - 投稿作成フォーム
+- `edit.blade.php` - 投稿編集フォーム
+
+**コードリーディング**：
+
+```blade
+<form action="/posts" method="POST">
+    @csrf
+    ...
+</form>
+```
+→ `@csrf`はCSRFトークンを生成します。Laravelのセキュリティ機能で、フォーム送信時に必須です。
+
+```blade
+<form action="/posts/{{ $post->id }}" method="POST">
+    @csrf
+    @method('PUT')
+    ...
+</form>
+```
+→ HTMLフォームはGET/POSTしかサポートしないため、`@method('PUT')`でPUTリクエストを擬似的に送信します。
 
 ---
 
 ### ✨ 完成！
 
-これでEloquent ORMを使ったデータベース操作が実践できました！モデル、リレーション、CRUD操作をオブジェクト指向で実装できましたね。
+まず、テストデータを作成します：
+
+```bash
+sail artisan tinker
+```
+
+```php
+use App\Models\Post;
+
+Post::create([
+    'title' => 'はじめての投稿',
+    'content' => 'これはテスト投稿です。',
+    'published_at' => now(),
+]);
+
+Post::create([
+    'title' => '2つ目の投稿',
+    'content' => 'Eloquentで作成しました。',
+    'published_at' => now(),
+]);
+
+exit
+```
+
+ブラウザで `http://localhost/posts` にアクセスして、以下を確認しましょう：
+- 投稿一覧が表示される
+- 「新規作成」から投稿を追加できる
+- 「編集」から投稿を更新できる
+- 「削除」で投稿が削除される
+
+これでEloquent ORMを使ったCRUD操作が実践できました！Chapter 4で学んだ`create()`, `update()`, `delete()`をコントローラーで活用できましたね。
 
 **自分で作成したコードと比較してみましょう**：
 - `eloquent-app-practice/`: 自分で作成したプロジェクト
@@ -695,8 +886,6 @@ Post::findOrFail($id)->delete();
 
 ## 📖 模範解答
 
-> 💡 模範解答ではCSSでスタイリングしていますが、この演習ではCSSの実装は不要です。機能の実装に集中してください。
-
 ### マイグレーションファイル
 
 ```php
@@ -706,7 +895,6 @@ public function up(): void
         $table->id();
         $table->string('title', 200);
         $table->text('content');
-        $table->foreignId('user_id')->constrained()->onDelete('cascade');
         $table->dateTime('published_at')->nullable();
         $table->timestamps();
     });
@@ -727,56 +915,210 @@ class Post extends Model
     protected $fillable = [
         'title',
         'content',
-        'user_id',
         'published_at',
     ];
 
     protected $casts = [
         'published_at' => 'datetime',
     ];
-
-    public function user()
-    {
-        return $this->belongsTo(User::class);
-    }
 }
 ```
 
 ### PostController.php
 
 ```php
-public function index()
-{
-    $posts = Post::with('user')->latest()->get();
-    return view('posts.index', ['posts' => $posts]);
-}
+<?php
 
-public function store(Request $request)
-{
-    Post::create([
-        'title' => $request->title,
-        'content' => $request->content,
-        'user_id' => 1,
-        'published_at' => now(),
-    ]);
-    return redirect('/posts');
-}
+namespace App\Http\Controllers;
 
-public function update(Request $request, $id)
-{
-    $post = Post::findOrFail($id);
-    $post->update([
-        'title' => $request->title,
-        'content' => $request->content,
-    ]);
-    return redirect('/posts');
-}
+use App\Models\Post;
+use Illuminate\Http\Request;
 
-public function destroy($id)
+class PostController extends Controller
 {
-    Post::findOrFail($id)->delete();
-    return redirect('/posts');
+    public function index()
+    {
+        $posts = Post::latest()->get();
+        return view('posts.index', ['posts' => $posts]);
+    }
+
+    public function create()
+    {
+        return view('posts.create');
+    }
+
+    public function store(Request $request)
+    {
+        Post::create([
+            'title' => $request->title,
+            'content' => $request->content,
+            'published_at' => now(),
+        ]);
+        return redirect('/posts');
+    }
+
+    public function edit($id)
+    {
+        $post = Post::findOrFail($id);
+        return view('posts.edit', ['post' => $post]);
+    }
+
+    public function update(Request $request, $id)
+    {
+        $post = Post::findOrFail($id);
+        $post->update([
+            'title' => $request->title,
+            'content' => $request->content,
+        ]);
+        return redirect('/posts');
+    }
+
+    public function delete($id)
+    {
+        Post::findOrFail($id)->delete();
+        return redirect('/posts');
+    }
 }
+```
+
+### routes/web.php（追加部分）
+
+```php
+use App\Http\Controllers\PostController;
+
+Route::get('/posts', [PostController::class, 'index']);
+Route::get('/posts/create', [PostController::class, 'create']);
+Route::post('/posts', [PostController::class, 'store']);
+Route::get('/posts/{id}/edit', [PostController::class, 'edit']);
+Route::put('/posts/{id}', [PostController::class, 'update']);
+Route::delete('/posts/{id}', [PostController::class, 'delete']);
+```
+
+### resources/views/posts/index.blade.php
+
+```blade
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>投稿一覧</title>
+    <style>
+        body { font-family: sans-serif; margin: 20px; }
+        table { border-collapse: collapse; width: 100%; max-width: 800px; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        th { background-color: #f5f5f5; }
+        h1 { color: #333; }
+        .btn { display: inline-block; padding: 5px 10px; margin: 2px; text-decoration: none; border: 1px solid #333; border-radius: 3px; }
+        .btn-primary { background-color: #007bff; color: white; border-color: #007bff; }
+        .btn-danger { background-color: #dc3545; color: white; border-color: #dc3545; }
+    </style>
+</head>
+<body>
+    <h1>投稿一覧</h1>
+    <p><a href="/posts/create" class="btn btn-primary">新規作成</a></p>
+    <p>全{{ count($posts) }}件の投稿があります。</p>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>タイトル</th>
+                <th>公開日時</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach ($posts as $post)
+                <tr>
+                    <td>{{ $post->id }}</td>
+                    <td>{{ $post->title }}</td>
+                    <td>{{ $post->published_at?->format('Y/m/d H:i') ?? '下書き' }}</td>
+                    <td>
+                        <a href="/posts/{{ $post->id }}/edit" class="btn">編集</a>
+                        <form action="/posts/{{ $post->id }}" method="POST" style="display:inline;">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-danger">削除</button>
+                        </form>
+                    </td>
+                </tr>
+            @endforeach
+        </tbody>
+    </table>
+</body>
+</html>
+```
+
+### resources/views/posts/create.blade.php
+
+```blade
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>投稿作成</title>
+    <style>
+        body { font-family: sans-serif; margin: 20px; }
+        h1 { color: #333; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; }
+        input, textarea { width: 100%; max-width: 400px; padding: 8px; }
+        button { padding: 10px 20px; background-color: #007bff; color: white; border: none; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>投稿作成</h1>
+    <form action="/posts" method="POST">
+        @csrf
+        <div class="form-group">
+            <label>タイトル</label>
+            <input type="text" name="title" required>
+        </div>
+        <div class="form-group">
+            <label>内容</label>
+            <textarea name="content" rows="5"></textarea>
+        </div>
+        <button type="submit">作成</button>
+    </form>
+    <p><a href="/posts">← 一覧に戻る</a></p>
+</body>
+</html>
+```
+
+### resources/views/posts/edit.blade.php
+
+```blade
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>投稿編集</title>
+    <style>
+        body { font-family: sans-serif; margin: 20px; }
+        h1 { color: #333; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; }
+        input, textarea { width: 100%; max-width: 400px; padding: 8px; }
+        button { padding: 10px 20px; background-color: #007bff; color: white; border: none; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>投稿編集</h1>
+    <form action="/posts/{{ $post->id }}" method="POST">
+        @csrf
+        @method('PUT')
+        <div class="form-group">
+            <label>タイトル</label>
+            <input type="text" name="title" value="{{ $post->title }}" required>
+        </div>
+        <div class="form-group">
+            <label>内容</label>
+            <textarea name="content" rows="5">{{ $post->content }}</textarea>
+        </div>
+        <button type="submit">更新</button>
+    </form>
+    <p><a href="/posts">← 一覧に戻る</a></p>
+</body>
+</html>
 ```
 
 ---
@@ -812,8 +1154,8 @@ cd ~/laravel-practice/9-4-9_hands-on/eloquent-app-sample
 このハンズオンで、以下のことができるようになりました：
 
 - ✅ Eloquentモデルを作成できる
-- ✅ モデルを使ってCRUD操作ができる
-- ✅ リレーションシップを定義できる
+- ✅ `create()`, `update()`, `delete()`でCRUD操作ができる
+- ✅ コントローラーとルーティングを連携できる
 
 引き続き、次のセクションも頑張りましょう！
 

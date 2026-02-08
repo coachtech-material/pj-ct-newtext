@@ -1,35 +1,25 @@
 # Tutorial 10-4-6: デバッグ - ハンズオン演習
 
-## 📝 このセクションの目的
+## 📌 このハンズオンについて
 
 Chapter 4で学んだデバッグ手法を実際に手を動かして確認します。エラーを特定し、修正する方法をマスターしましょう。
 
-> 分からない文法や実装があっても、すぐに答えを見るのではなく、過去の教材を見たり、AIにヒントをもらいながら進めるなど、自身で創意工夫しながら進めてみましょう🔥
+> 分からない文法や実装があっても、すぐに答えを見るのではなく、過去の教材を見たり、AIにヒントをもらいながら進めるなど、自身で創意工夫しながら進めてみましょう
 
----
-
-## 📁 ディレクトリ構成
+### 📁 ディレクトリ構成
 
 このハンズオンでは、「自分で作成する用」と「解答を確認する用」の2つのプロジェクトを作成します。
 
 ```
 ~/laravel-practice/
-├── 10-4-6_hands-on/                      ← このハンズオン用のディレクトリ
-│   ├── debugging-app-practice/           ← 要件を見て自分で作成するプロジェクト
-│   │   ├── app/
-│   │   │   ├── Http/Controllers/
-│   │   │   └── Models/
-│   │   └── ...
-│   └── debugging-app-sample/             ← 実践で一緒に作成するプロジェクト
-│       ├── app/
-│       │   ├── Http/Controllers/
-│       │   └── Models/
-│       └── ...
+├── 10-4-6_hands-on/
+│   ├── debugging-app-practice/   ← 要件を見て自分で作成するプロジェクト
+│   └── debugging-app-sample/     ← 実践セクションで一緒に作成するプロジェクト
 └── ...
 ```
 
 | ディレクトリ | 用途 | URL |
-|:---|:---|:---|
+|:-------------|:-----|:----|
 | `debugging-app-practice/` | 📋 要件を見て、自分の力で作成する | `http://localhost/users` |
 | `debugging-app-sample/` | 🏃 実践セクションで、一緒に手を動かしながら作成する | `http://localhost/users` |
 
@@ -41,180 +31,118 @@ Chapter 4で学んだデバッグ手法を実際に手を動かして確認し�
 
 ## 🎯 演習課題：エラーを修正しよう
 
-### 🖼️ 完成イメージ
+### この演習で作るもの
 
-<!-- エラー画面と修正後の動作確認のスクリーンショットをここに配置 -->
-![10-4-6 完成イメージ](images/10-4-6_debugging_complete.png)
+バグが含まれたユーザー登録機能をデバッグし、正しく動作するように修正します。
 
-**この演習で作るもの**：
-エラーが含まれたコードをデバッグし、正しく動作する「ユーザー登録機能」に修正します。
+このハンズオンでは、デバッグに集中できるよう、バグが含まれた状態の**スターターキット**を使用します。
 
----
+### スターターキットに含まれるもの
 
-### 📋 要件
-
-以下のコードにあるエラーを見つけて修正してください。
-
-```php
-public function store(Request $request)
-{
-    $user = new User;
-    $user->name = $request->name;
-    $user->email = $request->email;
-    $user->save();
-    
-    return redirect('/users');
-}
-```
-
-**エラー内容**：
-- Mass assignment エラーが発生する
-
----
-
-### ✅ 完成品の確認方法
-
-**🌐 ブラウザでの確認（推奨）**
-
-- **動作確認URL**: `http://localhost/users/create`
-- **確認手順**:
-  1. Sailを起動する（`./vendor/bin/sail up -d`）
-  2. マイグレーションを実行（`./vendor/bin/sail artisan migrate`）
-  3. ブラウザで `http://localhost/users/create` にアクセス
-  4. フォームに入力して送信
-
-**正しく修正できていれば**:
-- [ ] ユーザー登録フォームが表示される
-- [ ] フォーム送信時にMass assignmentエラーが発生しない
-- [ ] ユーザーがデータベースに保存される
-- [ ] ユーザー一覧ページにリダイレクトされる
-
-**🔧 Tinkerでデータ確認**:
-
-```bash
-./vendor/bin/sail artisan tinker
-```
-
-```php
-use App\Models\User;
-User::all();  // 登録したユーザーが表示されればOK
-```
-
-> 📌 **Bladeファイルについて**: バックエンド実装に集中するため、動作確認用のシンプルなBladeファイルを以下に用意しています。
+| 項目 | 説明 |
+|:-----|:-----|
+| Userモデル | ユーザー情報を管理 |
+| UserController | ユーザー登録処理 |
+| Bladeファイル | ユーザー登録フォーム、ユーザー一覧 |
+| ルーティング | `/users`、`/users/create` |
+| マイグレーション | Laravelデフォルトのusersテーブル |
 
 <details>
-<summary>📄 確認用Bladeファイル（クリックで展開）</summary>
+<summary>🖼️ 完成イメージ</summary>
 
-`resources/views/users/create.blade.php`:
+**ユーザー登録フォーム**
 
-```blade
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <title>ユーザー登録</title>
-</head>
-<body>
-    <h1>ユーザー登録</h1>
+<img alt="10-4-6_1.png" src="">
 
-    @if ($errors->any())
-        <div style="color: red;">
-            @foreach ($errors->all() as $error)
-                <p>{{ $error }}</p>
-            @endforeach
-        </div>
-    @endif
+**ユーザー一覧画面（修正後）**
 
-    <form action="/users" method="POST">
-        @csrf
-        <p><label>名前: <input type="text" name="name" value="{{ old('name') }}"></label></p>
-        <p><label>メール: <input type="email" name="email" value="{{ old('email') }}"></label></p>
-        <button type="submit">登録</button>
-    </form>
-</body>
-</html>
-```
-
-`resources/views/users/index.blade.php`:
-
-```blade
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <title>ユーザー一覧</title>
-</head>
-<body>
-    <h1>ユーザー一覧</h1>
-    <ul>
-        @foreach ($users as $user)
-            <li>{{ $user->name }} ({{ $user->email }})</li>
-        @endforeach
-    </ul>
-    <p><a href="/users/create">新規登録</a></p>
-</body>
-</html>
-```
+<img alt="10-4-6_2.png" src="">
 
 </details>
 
+### 📋 要件
+
+ユーザー登録フォームからユーザーを登録しようとすると、エラーが発生してしまいます。エラーを修正して、正常に登録できるようにしてください。
+
+**エラー画面**
+
+<img alt="10-4-6_3.png" src="">
+
+- フォームを送信するとエラーが発生する → 正常に登録できるようにする
+- ユーザー一覧ページに登録したユーザーが表示される
+
+### ✅ 完成チェックリスト
+
+- [ ] `/users/create`にアクセスするとユーザー登録フォームが表示される
+- [ ] フォーム送信時にMass Assignmentエラーが発生しない
+- [ ] ユーザーがデータベースに保存される
+- [ ] `/users`にアクセスすると登録したユーザーが一覧に表示される
+- [ ] （応用）ログにHTTPライフサイクルの流れが記録される（10-2-3の復習）
+
+> 💡 **動作確認**: `http://localhost/users/create` にアクセスしてフォームを送信
+
+### ✏️ 実装タスク
+
+1. エラーメッセージを読んで問題を特定する
+2. `dd()`でリクエストデータを確認する
+3. `Log::info()`で処理の流れを追跡する
+4. `$fillable`を設定してエラーを修正する
+5. （応用）ログ出力をミドルウェアに移動する（10-2-3の復習）
+
 ---
 
-### 📁 Step 0: 環境を準備する（自分で作成する用）
+## ⚙️ 環境準備（自分で作成する用）
 
-まず、ハンズオン用のディレクトリを作成し、**自分で作成する用**のプロジェクトを準備します。
+スターターキットをクローンして環境を構築します。
 
-> **📌 Dockerが起動していることを確認**
-> 
+> 📌 **Dockerが起動していることを確認**
+>
 > 以下のコマンドを実行する前に、Docker Desktop（またはDocker Engine）が起動していることを確認してください。
 
-> **📌 前のハンズオンのプロジェクトを停止**
-> 
-> 前のハンズオン（10-3-6）のプロジェクトが起動している場合は、先に停止してください。
+> 📌 **前のハンズオンのプロジェクトを停止**
+>
+> 前のハンズオン（10-3-5）のプロジェクトが起動している場合は、先に停止してください。
 > ```bash
-> cd ~/laravel-practice/10-3-6_hands-on/authorization-app-sample
+> cd ~/laravel-practice/10-3-5_hands-on/authorization-app-sample
 > ./vendor/bin/sail down
 > ```
 
 ```bash
-# laravel-practiceディレクトリに移動
-cd ~/laravel-practice
-
 # ハンズオン用ディレクトリを作成
+cd ~/laravel-practice
 mkdir -p 10-4-6_hands-on
 cd 10-4-6_hands-on
 
-# Laravel 10.xプロジェクトを作成（自分で作成する用）
-docker run --rm \
-    -u "$(id -u):$(id -g)" \
-    -v "$(pwd):/var/www/html" \
-    -w /var/www/html \
-    -e COMPOSER_CACHE_DIR=/tmp/composer_cache \
-    laravelsail/php82-composer:latest \
-    composer create-project laravel/laravel:^10.0 debugging-app-practice
+# スターターキットをクローン（自分で作成する用）
+git clone https://github.com/coachtech-material/laravel-debugging-starter.git debugging-app-practice
 ```
 
 ```bash
 # プロジェクトディレクトリに移動
 cd debugging-app-practice
 
-# Laravel Sailのインストール
+# Composerパッケージをインストール
 docker run --rm \
     -u "$(id -u):$(id -g)" \
     -v "$(pwd):/var/www/html" \
     -w /var/www/html \
     -e COMPOSER_CACHE_DIR=/tmp/composer_cache \
     laravelsail/php82-composer:latest \
-    composer require laravel/sail --dev
+    composer install
+```
 
-# Sailの設定ファイルを生成
-docker run --rm \
-    -u "$(id -u):$(id -g)" \
-    -v "$(pwd):/var/www/html" \
-    -w /var/www/html \
-    -e COMPOSER_CACHE_DIR=/tmp/composer_cache \
-    laravelsail/php82-composer:latest \
-    php artisan sail:install --with=mysql
+```bash
+# 環境設定ファイルをコピー
+cp .env.example .env
+
+# Sailを起動
+./vendor/bin/sail up -d
+
+# アプリケーションキーを生成
+./vendor/bin/sail artisan key:generate
+
+# データベースのマイグレーション
+./vendor/bin/sail artisan migrate
 ```
 
 <details>
@@ -240,370 +168,467 @@ mysql:
 
 </details>
 
-```bash
-# Sailの起動
-./vendor/bin/sail up -d
+**環境構築が完了したら**、ブラウザで `http://localhost/users/create` にアクセスしてください。フォームを送信するとエラーが発生します。これが今回修正するバグです。
 
-# アプリケーションキーの生成
-./vendor/bin/sail artisan key:generate
-
-# データベースのマイグレーション
-./vendor/bin/sail artisan migrate
-```
-
-**✅ ディレクトリ構造の確認**
-
-```
-~/laravel-practice/
-└── 10-4-6_hands-on/
-    └── debugging-app-practice/     ← 自分で作成する用（今ここ）
-        ├── app/
-        │   ├── Http/Controllers/
-        │   └── Models/
-        └── ...
-```
-
-> 💡 **環境構築が完了！**
-> 
-> ブラウザで `http://localhost` にアクセスして、Laravelのウェルカムページが表示されれば成功です。
-
-> 💡 **ポイント**: このハンズオンでは、Laravelのデフォルトの`users`テーブルを使用します。マイグレーションを実行すれば、テーブルは自動的に作成されます。
-
-**ここから先は、自分の力で実装してみましょう！**
+> 🚀 **ここから先は、自分の力で実装してみましょう！**
 
 ---
 
 ## 💡 ヒント
 
+**問題のコード**
+
+`app/Http/Controllers/UserController.php`
+
 ```php
-// dd()でデバッグ
+public function store(Request $request)
+{
+    $user = User::create([
+        'name' => $request->name,
+        'email' => $request->email,
+        'password' => bcrypt($request->password),
+    ]);
+
+    return redirect('/users');
+}
+```
+
+`app/Models/User.php`
+
+```php
+class User extends Authenticatable
+{
+    use HasApiTokens, HasFactory, Notifiable;
+
+    // $fillable プロパティが設定されていない
+}
+```
+
+**リクエストデータの確認**
+
+```php
 dd($request->all());
+```
 
-// ログ出力
-\Log::info('User created', ['user_id' => $user->id]);
+**ログ出力**
 
-// $fillableの設定
-protected $fillable = ['name', 'email'];
+```php
+\Log::info('User registration attempt', $request->all());
+```
+
+**ログファイルの確認**
+
+```bash
+./vendor/bin/sail artisan tinker
+>>> \Log::info('test');
+>>> exit
+tail -5 storage/logs/laravel.log
+```
+
+**Mass Assignment対策**
+
+```php
+protected $fillable = ['name', 'email', 'password'];
 ```
 
 ---
 
-## 🏃 実践: 一緒に作ってみましょう！
+## 🏃 実践セクション：一緒に作ってみましょう！
 
 ちゃんとできましたか？デバッグは開発において不可欠なスキルです。一緒に手を動かしながら、エラーを特定して修正していきましょう。
 
 > 📌 **注意**: ここからは`debugging-app-sample/`ディレクトリで作業します。自分で作成したコードと比較できるように、別のプロジェクトで進めましょう。
 
----
-
-### 💻 環境準備（実践用プロジェクト）
+### ⚙️ 環境準備（実践用プロジェクト）
 
 まず、**自分で作成する用のプロジェクトを停止**します：
 
 ```bash
-# debugging-app-practiceディレクトリに移動
 cd ~/laravel-practice/10-4-6_hands-on/debugging-app-practice
-
-# Sailを停止
 ./vendor/bin/sail down
 ```
 
 次に、**実践用のプロジェクトを作成**します：
 
 ```bash
-# ハンズオンディレクトリに移動
 cd ~/laravel-practice/10-4-6_hands-on
 
-# Laravel 10.xプロジェクトを作成（実践用）
-docker run --rm \
-    -u "$(id -u):$(id -g)" \
-    -v "$(pwd):/var/www/html" \
-    -w /var/www/html \
-    -e COMPOSER_CACHE_DIR=/tmp/composer_cache \
-    laravelsail/php82-composer:latest \
-    composer create-project laravel/laravel:^10.0 debugging-app-sample
+# スターターキットをクローン（実践用）
+git clone https://github.com/coachtech-material/laravel-debugging-starter.git debugging-app-sample
 ```
 
 ```bash
 # プロジェクトディレクトリに移動
 cd debugging-app-sample
 
-# Laravel Sailのインストール
+# Composerパッケージをインストール
 docker run --rm \
     -u "$(id -u):$(id -g)" \
     -v "$(pwd):/var/www/html" \
     -w /var/www/html \
     -e COMPOSER_CACHE_DIR=/tmp/composer_cache \
     laravelsail/php82-composer:latest \
-    composer require laravel/sail --dev
-
-# Sailの設定ファイルを生成
-docker run --rm \
-    -u "$(id -u):$(id -g)" \
-    -v "$(pwd):/var/www/html" \
-    -w /var/www/html \
-    -e COMPOSER_CACHE_DIR=/tmp/composer_cache \
-    laravelsail/php82-composer:latest \
-    php artisan sail:install --with=mysql
+    composer install
 ```
-
-<details>
-<summary>⚠️ M1/M2/M3 Mac（Apple Silicon）をお使いの方</summary>
-
-Apple Silicon搭載のMacでは、`sail up -d`実行時に以下のエラーが発生することがあります：
-
-```
-no matching manifest for linux/arm64/v8
-```
-
-**解決方法**: `compose.yaml`を開き、mysqlサービスに`platform: 'linux/amd64'`を追加してください。
-
-```yaml
-mysql:
-    image: 'mysql/mysql-server:8.0'
-    platform: 'linux/amd64'  # ← この行を追加
-    ports:
-        ...
-```
-
-編集後、保存してから`sail up -d`を実行してください。
-
-</details>
 
 ```bash
-# Sailの起動
+# 環境設定ファイルをコピー
+cp .env.example .env
+
+# Sailを起動
 ./vendor/bin/sail up -d
 
-# アプリケーションキーの生成
+# アプリケーションキーを生成
 ./vendor/bin/sail artisan key:generate
 
 # データベースのマイグレーション
 ./vendor/bin/sail artisan migrate
 ```
 
-**✅ ディレクトリ構造の確認**
-
-```
-~/laravel-practice/
-└── 10-4-6_hands-on/
-    ├── debugging-app-practice/     ← 自分で作成した用（停止中）
-    └── debugging-app-sample/       ← 実践用（今ここ、起動中）
-        ├── app/
-        │   ├── Http/Controllers/
-        │   └── Models/
-        └── ...
-```
-
-> 💡 **環境構築が完了！**
-> 
-> ブラウザで `http://localhost` にアクセスして、Laravelのウェルカムページが表示されれば成功です。
+**環境構築が完了！** ブラウザで `http://localhost/users/create` にアクセスして、エラーが発生することを確認してください。
 
 ---
 
-### 💭 実装の思考プロセス
+### 🧠 先輩エンジニアの思考プロセス
 
-デバッグを進める際、以下の順番で考えると効率的です：
+先輩エンジニアはデバッグを以下のように進めます：
 
-1. **エラーメッセージを読む**：何が問題かを理解する
-2. **dd()でデータを確認**：変数の中身を調べる
-3. **ログを出力**：処理の流れを追跡する
-4. **原因を特定**：エラーの根本原因を見つける
-5. **修正してテスト**：修正後に動作を確認する
-
-デバッグのポイントは「仮説を立てて検証し、一歩ずつ原因を絞り込む」ことです。
+| Step | やること | 説明 |
+|:-----|:---------|:-----|
+| 1 | エラーメッセージを読んで問題を特定する | エラーの種類と発生場所を確認 |
+| 2 | `dd()`でリクエストデータを確認する | 送信されたデータが正しいか検証 |
+| 3 | `Log::info()`で処理の流れを追跡する | 本番環境でも使えるデバッグ手法 |
+| 4 | `$fillable`を設定してエラーを修正する | Mass Assignment対策を実装 |
+| 5 | （応用）ログ出力をミドルウェアに移動する | 10-2-3の復習：HTTPライフサイクルを可視化 |
 
 ---
 
 ### 📝 ステップバイステップで実装
 
-#### ステップ1: エラーメッセージを読む
+#### ステップ1: エラーメッセージを読んで問題を特定する
 
-**何を考えているか**：
-- 「エラーメッセージには重要な情報が含まれている」
-- 「Mass assignmentエラーということは$fillableが設定されていない」
-- 「まずはエラーの種類を理解しよう」
+ブラウザで `http://localhost/users/create` にアクセスし、フォームに情報を入力して送信します。
 
-エラーメッセージの例：
+**エラー画面が表示されます**
 
 ```
 Illuminate\Database\Eloquent\MassAssignmentException
+
 Add [name] to fillable property to allow mass assignment on [App\Models\User].
 ```
 
-**エラー分析**：
+**エラー分析**
 
-→ このエラーは「Mass Assignment」が原因です。Laravelはセキュリティ対策として、モデルの`$fillable`または`$guarded`で一括代入可能な属性を指定する必要があります。
+| 項目 | 内容 |
+|:-----|:-----|
+| エラーの種類 | `MassAssignmentException` |
+| メッセージ | `Add [name] to fillable property...` |
+| 原因 | `$fillable`に`name`が含まれていない |
+
+このエラーは、Laravelのセキュリティ機能である**Mass Assignment Protection**によるものです。モデルの`$fillable`または`$guarded`で一括代入可能な属性を指定する必要があります。
 
 ---
 
-#### ステップ2: dd()でデータを確認する
+#### ステップ2: `dd()`でリクエストデータを確認する
 
-**何を考えているか**：
-- 「リクエストデータが正しく送られているか確認しよう」
-- 「dd()で処理を停止して変数を調べよう」
-- 「期待する値が含まれているかチェックしよう」
+エラーの原因は分かりましたが、デバッグ手法を練習するために`dd()`を使ってみましょう。
 
-コントローラーに`dd()`を追加します：
+`app/Http/Controllers/UserController.php`を開き、`store()`メソッドに`dd()`を追加します：
 
 ```php
 public function store(Request $request)
 {
     dd($request->all());
-    
-    $user = new User;
-    $user->name = $request->name;
-    $user->email = $request->email;
-    $user->save();
-    
-    return redirect('/users');
-}
-```
 
-**コード解説**：
-
-```php
-dd($request->all());
-```
-→ `dd()`（Dump and Die）でリクエストデータを表示し、処理を停止します。データの中身を確認できます。
-
----
-
-#### ステップ3: ログを出力する
-
-**何を考えているか**：
-- 「処理の流れを追跡したい」
-- 「本番環境でも使えるデバッグ手法が必要だ」
-- 「ログファイルで後から確認できる」
-
-コントローラーにログ出力を追加します：
-
-```php
-public function store(Request $request)
-{
-    \Log::info('User registration attempt', $request->all());
-    
-    $user = new User;
-    $user->name = $request->name;
-    $user->email = $request->email;
-    $user->save();
-    
-    \Log::info('User created successfully', ['user_id' => $user->id]);
-    
-    return redirect('/users');
-}
-```
-
-**コード解説**：
-
-```php
-\Log::info('User registration attempt', $request->all());
-```
-→ `\Log::info()`で情報レベルのログを出力します。第1引数はメッセージ、第2引数はコンテキストデータです。
-
-```php
-\Log::info('User created successfully', ['user_id' => $user->id]);
-```
-→ ユーザー作成後にログを出力します。処理が成功したことを記録します。
-
-ログは`storage/logs/laravel.log`に出力されます。
-
----
-
-#### ステップ4: 原因を特定して修正する
-
-**何を考えているか**：
-- 「Mass assignmentエラーの原因は$fillableが未設定」
-- 「モデルに$fillableを追加しよう」
-- 「セキュアにコードを書き換えよう」
-
-`app/Models/User.php`を開いて、`$fillable`を追加します：
-
-```php
-protected $fillable = ['name', 'email', 'password'];
-```
-
-コントローラーを修正します：
-
-```php
-public function store(Request $request)
-{
-    \Log::info('User registration attempt', $request->all());
-    
     $user = User::create([
         'name' => $request->name,
         'email' => $request->email,
         'password' => bcrypt($request->password),
     ]);
-    
-    \Log::info('User created successfully', ['user_id' => $user->id]);
-    
+
     return redirect('/users');
 }
 ```
 
-**コード解説**：
+**コード解説**
+
+```php
+dd($request->all());
+```
+
+`dd()`（Dump and Die）は、変数の内容を表示して処理を停止します。`$request->all()`でフォームから送信された全データを取得できます。
+
+**ブラウザで確認**
+
+フォームを送信すると、以下のようなデータが表示されます：
+
+```php
+array:4 [
+  "_token" => "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+  "name" => "テストユーザー"
+  "email" => "test@example.com"
+  "password" => "password123"
+]
+```
+
+リクエストデータが正しく送信されていることが確認できました。
+
+> 💡 確認が終わったら、`dd()`の行を削除またはコメントアウトしてください。
+
+---
+
+#### ステップ3: `Log::info()`で処理の流れを追跡する
+
+`dd()`は開発中に便利ですが、本番環境では使えません。`Log::info()`を使ったログ出力も練習しましょう。
+
+`app/Http/Controllers/UserController.php`の`store()`メソッドを修正します：
+
+```php
+public function store(Request $request)
+{
+    \Log::info('User registration attempt', $request->all());
+
+    $user = User::create([
+        'name' => $request->name,
+        'email' => $request->email,
+        'password' => bcrypt($request->password),
+    ]);
+
+    \Log::info('User created successfully', ['user_id' => $user->id]);
+
+    return redirect('/users');
+}
+```
+
+**コード解説**
+
+```php
+\Log::info('User registration attempt', $request->all());
+```
+
+`\Log::info()`で情報レベルのログを出力します。第1引数はメッセージ、第2引数はコンテキストデータ（配列）です。
+
+```php
+\Log::info('User created successfully', ['user_id' => $user->id]);
+```
+
+ユーザー作成後にログを出力します。処理が成功したことを記録します。
+
+**ログの確認方法**
+
+```bash
+tail -10 storage/logs/laravel.log
+```
+
+---
+
+#### ステップ4: `$fillable`を設定してエラーを修正する
+
+いよいよ本題の修正です。`app/Models/User.php`を開き、`$fillable`プロパティを追加します：
+
+```php
+class User extends Authenticatable
+{
+    use HasApiTokens, HasFactory, Notifiable;
+
+    protected $fillable = [
+        'name',
+        'email',
+        'password',
+    ];
+
+    // ... 以下省略
+}
+```
+
+**コード解説**
 
 ```php
 protected $fillable = ['name', 'email', 'password'];
 ```
-→ `$fillable`で一括代入可能な属性を指定します。これによりMass assignmentエラーが解決します。
 
-```php
-$user = User::create([
-    'name' => $request->name,
-    'email' => $request->email,
-    'password' => bcrypt($request->password),
-]);
-```
-→ `User::create()`でユーザーを作成します。`bcrypt()`でパスワードをハッシュ化します。
+`$fillable`で一括代入可能な属性を指定します。これにより、`User::create()`で`name`、`email`、`password`を設定できるようになります。
 
 ---
 
-#### ステップ5: 修正後にテストする
+#### ステップ5（応用）: ログ出力をミドルウェアに移動する
 
-**何を考えているか**：
-- 「修正が正しく動作するか確認しよう」
-- 「ユーザー登録が成功するかテストしよう」
-- 「ログを確認して処理の流れを追跡しよう」
+> 📚 **10-2-3「HTTPライフサイクルの詳細解説」の復習**
+>
+> このステップでは、Chapter 2で学んだHTTPライフサイクルを実際にコードで体験します。ログを使ってリクエストとレスポンスの流れを可視化し、ミドルウェアの「玉ねぎの層」構造を実感しましょう。
 
-テスト手順：
+ステップ3でコントローラーにログを追加しましたが、これには問題があります。
 
-**tinkerでユーザー作成をテスト**：
+**コントローラーにログを書く問題点**
+
+- 全てのコントローラーに同じコードを書く必要がある
+- コードが重複して保守性が下がる
+- 書き忘れが発生しやすい
+
+**解決策：ミドルウェアでログを一元管理**
+
+10-2-3「HTTPライフサイクルの詳細解説」で学んだように、リクエストは以下の流れで処理されます：
+
+```
+リクエスト
+   ↓
+ミドルウェア（リクエスト前処理）
+   ↓
+コントローラー
+   ↓
+ミドルウェア（レスポンス後処理）
+   ↓
+レスポンス
+```
+
+ミドルウェアは**玉ねぎの層**のように重なっています。リクエストは外側から内側へ、レスポンスは内側から外側へ流れます。この特性を活かして、ログ出力をミドルウェアに移動しましょう。
+
+**ミドルウェアを作成**
 
 ```bash
-sail artisan tinker
+./vendor/bin/sail artisan make:middleware LogHttpLifecycle
 ```
+
+**`app/Http/Middleware/LogHttpLifecycle.php`を編集**
 
 ```php
->>> use App\Models\User;
+<?php
 
-// ユーザーを作成（$fillableが正しく設定されていれば成功）
->>> User::create([
-...     'name' => 'テストユーザー',
-...     'email' => 'test@example.com',
-...     'password' => bcrypt('password'),
-... ]);
+namespace App\Http\Middleware;
 
-// ユーザーが作成されたか確認
->>> User::all();
+use Closure;
+use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
 
->>> exit
+class LogHttpLifecycle
+{
+    public function handle(Request $request, Closure $next): Response
+    {
+        // リクエスト受信時（コントローラー実行前）
+        \Log::info('=== Request received ===', [
+            'method' => $request->method(),
+            'url' => $request->url(),
+            'input' => $request->all(),
+        ]);
+
+        // コントローラーを実行
+        $response = $next($request);
+
+        // レスポンス返却時（コントローラー実行後）
+        \Log::info('=== Response sent ===', [
+            'status' => $response->status(),
+        ]);
+
+        return $response;
+    }
+}
 ```
 
-**ログファイルを確認**：
+**コード解説**
+
+```php
+$response = $next($request);
+```
+
+`$next($request)`がコントローラーを実行する部分です。この前後でログを出力することで、HTTPライフサイクルの流れを可視化できます。
+
+| タイミング | 処理内容 |
+|:-----------|:---------|
+| `$next($request)`の前 | リクエスト受信時（コントローラー実行前） |
+| `$next($request)`の後 | レスポンス返却時（コントローラー実行後） |
+
+**Kernel.phpに登録**
+
+`app/Http/Kernel.php`の`$middlewareAliases`に追加します：
+
+```php
+protected $middlewareAliases = [
+    'auth' => \App\Http\Middleware\Authenticate::class,
+    'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
+    // ... 既存のミドルウェア
+    'log.lifecycle' => \App\Http\Middleware\LogHttpLifecycle::class,  // 追加
+];
+```
+
+**ルートにミドルウェアを適用**
+
+`routes/web.php`を修正します：
+
+```php
+Route::middleware('log.lifecycle')->group(function () {
+    Route::get('/users', [UserController::class, 'index'])->name('users.index');
+    Route::get('/users/create', [UserController::class, 'create'])->name('users.create');
+    Route::post('/users', [UserController::class, 'store'])->name('users.store');
+});
+```
+
+**コントローラーのログを削除**
+
+ミドルウェアでログを出力するようになったので、コントローラーのログは削除します：
+
+```php
+public function store(Request $request)
+{
+    // \Log::info() は削除
+
+    $user = User::create([
+        'name' => $request->name,
+        'email' => $request->email,
+        'password' => bcrypt($request->password),
+    ]);
+
+    return redirect('/users');
+}
+```
+
+**動作確認**
+
+ブラウザで `http://localhost/users/create` にアクセスし、フォームを送信します。
 
 ```bash
-# ログの最後の10行を表示
-tail -10 storage/logs/laravel.log
+tail -20 storage/logs/laravel.log
 ```
 
-ログに`User registration attempt`と`User created successfully`が出力されていれば成功です。
+**ログ出力例**
+
+```
+[2026-02-08 12:00:00] local.INFO: === Request received === {"method":"POST","url":"http://localhost/users","input":{"_token":"...","name":"テストユーザー","email":"test@example.com","password":"password123"}}
+[2026-02-08 12:00:01] local.INFO: === Response sent === {"status":302}
+```
+
+HTTPライフサイクルの流れが可視化できました。
+
+- リクエストがミドルウェアに到達 → ログ出力
+- コントローラーが実行される
+- レスポンスがミドルウェアを通過 → ログ出力
+
+**ミドルウェアを使うメリット**
+
+| 観点 | コントローラーに書く | ミドルウェアに書く |
+|:-----|:---------------------|:-------------------|
+| コードの重複 | 各コントローラーに書く必要あり | 1箇所で管理 |
+| 保守性 | 変更時に全コントローラーを修正 | 1ファイルを修正するだけ |
+| 適用範囲 | 個別に適用 | ルートグループで一括適用 |
+| HTTPライフサイクル | リクエスト時のみ | リクエスト/レスポンス両方 |
 
 ---
 
 ### ✨ 完成！
 
-これでデバッグ手法を実践できました！エラーメッセージを読み、dd()とログで原因を特定し、修正できましたね。
+ブラウザで `http://localhost/users/create` にアクセスし、フォームを送信してみましょう。
+
+**確認ポイント**
+
+- [ ] エラーが発生せずにリダイレクトされる
+- [ ] `/users`にアクセスすると、登録したユーザーが表示される
+- [ ] ログファイルに処理の記録が残っている
+
+```bash
+# ログを確認
+tail -10 storage/logs/laravel.log
+```
+
+ログに`User registration attempt`と`User created successfully`が出力されていれば成功です。
 
 **自分で作成したコードと比較してみましょう**：
 - `debugging-app-practice/`: 自分で作成したプロジェクト
@@ -615,59 +640,117 @@ tail -10 storage/logs/laravel.log
 
 ## 📖 模範解答
 
-### 修正後のコード
+### User.php
 
 ```php
-// User.php
-protected $fillable = ['name', 'email', 'password'];
+<?php
 
-// UserController.php
-public function store(Request $request)
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
+
+class User extends Authenticatable
 {
-    // デバッグ用
-    \Log::info('User registration attempt', $request->all());
-    
-    $user = User::create([
-        'name' => $request->name,
-        'email' => $request->email,
-        'password' => bcrypt($request->password),
-    ]);
-    
-    \Log::info('User created successfully', ['user_id' => $user->id]);
-    
-    return redirect('/users');
+    use HasApiTokens, HasFactory, Notifiable;
+
+    protected $fillable = [
+        'name',
+        'email',
+        'password',
+    ];
+
+    protected $hidden = [
+        'password',
+        'remember_token',
+    ];
+
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        'password' => 'hashed',
+    ];
 }
 ```
 
-### デバッグ手順
+### UserController.php
 
-1. `dd($request->all())`でリクエストデータを確認
-2. `\Log::info()`でログ出力
-3. `storage/logs/laravel.log`でログを確認
-4. `$fillable`を設定してMass assignment対策
+```php
+<?php
 
----
+namespace App\Http\Controllers;
 
-## 🧪 動作確認の方法
+use App\Models\User;
+use Illuminate\Http\Request;
 
-### プロジェクトの切り替え
+class UserController extends Controller
+{
+    public function index()
+    {
+        $users = User::all();
 
-2つのプロジェクトを切り替えて動作確認する方法：
+        return view('users.index', compact('users'));
+    }
 
-```bash
-# debugging-app-practiceで確認したい場合
-cd ~/laravel-practice/10-4-6_hands-on/debugging-app-sample
-./vendor/bin/sail down
+    public function create()
+    {
+        return view('users.create');
+    }
 
-cd ~/laravel-practice/10-4-6_hands-on/debugging-app-practice
-./vendor/bin/sail up -d
+    public function store(Request $request)
+    {
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => bcrypt($request->password),
+        ]);
 
-# debugging-app-sampleで確認したい場合
-cd ~/laravel-practice/10-4-6_hands-on/debugging-app-practice
-./vendor/bin/sail down
+        return redirect('/users');
+    }
+}
+```
 
-cd ~/laravel-practice/10-4-6_hands-on/debugging-app-sample
-./vendor/bin/sail up -d
+### LogHttpLifecycle.php（応用）
+
+```php
+<?php
+
+namespace App\Http\Middleware;
+
+use Closure;
+use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
+
+class LogHttpLifecycle
+{
+    public function handle(Request $request, Closure $next): Response
+    {
+        \Log::info('=== Request received ===', [
+            'method' => $request->method(),
+            'url' => $request->url(),
+            'input' => $request->all(),
+        ]);
+
+        $response = $next($request);
+
+        \Log::info('=== Response sent ===', [
+            'status' => $response->status(),
+        ]);
+
+        return $response;
+    }
+}
+```
+
+### routes/web.php（応用）
+
+```php
+Route::middleware('log.lifecycle')->group(function () {
+    Route::get('/users', [UserController::class, 'index'])->name('users.index');
+    Route::get('/users/create', [UserController::class, 'create'])->name('users.create');
+    Route::post('/users', [UserController::class, 'store'])->name('users.store');
+});
 ```
 
 ---
@@ -680,8 +763,9 @@ cd ~/laravel-practice/10-4-6_hands-on/debugging-app-sample
 
 - ✅ エラーメッセージを読んで問題を理解できる
 - ✅ `dd()`でデータを確認してデバッグできる
-- ✅ `\Log::info()`でログを出力して処理を追跡できる
-- ✅ Mass assignmentエラーを修正できる
+- ✅ `Log::info()`でログを出力して処理を追跡できる
+- ✅ Mass Assignmentエラーを修正できる
+- ✅（応用）ミドルウェアでログを一元管理し、HTTPライフサイクルを可視化できる（10-2-3の復習）
 
 引き続き、次のセクションも頑張りましょう！
 
