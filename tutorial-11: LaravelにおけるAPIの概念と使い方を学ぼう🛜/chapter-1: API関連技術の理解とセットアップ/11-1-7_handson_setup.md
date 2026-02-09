@@ -1,16 +1,12 @@
 # Tutorial 11-1-7: ハンズオン - API開発環境の構築と疎通確認
 
-## 🎯 このハンズオンで学ぶこと
+## 📌 このハンズオンについて
 
-- API開発専用のプロジェクトをセットアップする
-- Thunder Clientを使って「Hello World」レベルの通信を確認する
-- APIが正常に動作することを確認する
+Chapter 1で学んだAPI開発の基礎知識を実際に手を動かして確認します。スターターキットを使って環境を構築し、Thunder Clientで疎通確認を行いましょう。
 
 > 分からない文法や実装があっても、すぐに答えを見るのではなく、過去の教材を見たり、AIにヒントをもらいながら進めるなど、自身で創意工夫しながら進めてみましょう🔥
 
----
-
-## 📁 ディレクトリ構成
+### 📁 ディレクトリ構成
 
 このハンズオンでは、「自分で作成する用」と「解答を確認する用」の2つのプロジェクトを作成します。
 
@@ -33,11 +29,15 @@
 
 ---
 
-## 🛠️ 事前準備
+## 🎯 演習課題：API疎通確認
+
+### この演習で作るもの
+
+API開発専用のプロジェクトをセットアップし、「Hello World」レベルの疎通確認を行います。
 
 このハンズオンでは、**Tutorial 11専用のスターターキット**を使用します。
 
-スターターキットには以下が含まれています:
+### スターターキットに含まれるもの
 
 | 項目 | 内容 |
 |------|------|
@@ -48,17 +48,27 @@
 
 > 💡 **ポイント**: このスターターキットを使うことで、環境構築に時間を取られることなく、API開発の本質的な学習に集中できます。
 
+### 📋 要件
+
+- `/api/hello`にGETリクエストを送ると、JSONレスポンスが返ってくる
+- Thunder Clientでリクエスト送信・レスポンス確認ができる
+
+### ✅ 完成チェックリスト
+
+- [ ] `http://localhost/api/hello`にGETリクエストを送信できる
+- [ ] ステータスコード`200 OK`が返ってくる
+- [ ] `{"message": "Hello, API!"}`というJSONが返ってくる
+
+> 💡 **動作確認**: Thunder ClientでGETリクエストを送信
+
+### ✏️ 実装タスク
+
+1. `routes/api.php`に疎通確認用のAPIを作成する
+2. Thunder Clientで動作確認する
+
 ---
 
-## 📋 要件
-
-1. スターターキットをクローンして環境を構築する
-2. `routes/api.php`に疎通確認用のAPIを作成する
-3. Thunder Clientで動作確認する
-
----
-
-## 🔧 環境準備（自分で作成する用）
+## ⚙️ 環境準備（自分で作成する用）
 
 まず、ハンズオン用のディレクトリを作成し、**自分で作成する用**のプロジェクトを準備します。
 
@@ -82,44 +92,43 @@ git clone https://github.com/coachtech-material/laravel-api-starter.git api-setu
 cd api-setup-practice
 ```
 
-| 部分 | 説明 |
-|------|------|
-| `git clone` | リポジトリをコピーする |
-| `https://github.com/...` | スターターキットのURL |
-| `api-setup-practice` | プロジェクトのディレクトリ名 |
+### Step 3: Composerパッケージをインストール
 
-### Step 3: 環境変数ファイルを作成
+```bash
+docker run --rm \
+    -u "$(id -u):$(id -g)" \
+    -v "$(pwd):/var/www/html" \
+    -w /var/www/html \
+    -e COMPOSER_CACHE_DIR=/tmp/composer_cache \
+    laravelsail/php82-composer:latest \
+    composer install
+```
+
+### Step 4: 環境変数ファイルを作成
 
 ```bash
 cp .env.example .env
 ```
 
-### Step 4: Docker環境を起動
+### Step 5: Docker環境を起動
 
 ```bash
 ./vendor/bin/sail up -d
 ```
 
-| 部分 | 説明 |
-|------|------|
-| `./vendor/bin/sail` | Laravel Sailコマンド |
-| `up` | コンテナを起動 |
-| `-d` | バックグラウンドで実行 |
-
-> 💡 **ポイント**: 初回起動時は、Dockerイメージのダウンロードに時間がかかる場合があります。
-
-### Step 5: データベースの準備
+### Step 6: アプリケーションキーを生成
 
 ```bash
-sail artisan migrate:fresh --seed
+./vendor/bin/sail artisan key:generate
 ```
 
-| 部分 | 説明 |
-|------|------|
-| `migrate:fresh` | テーブルを再作成 |
-| `--seed` | シーダーを実行（テストユーザーとサンプルタスクを作成） |
+### Step 7: データベースの準備
 
-### Step 6: セットアップ完了の確認
+```bash
+./vendor/bin/sail artisan migrate:fresh --seed
+```
+
+### Step 8: セットアップ完了の確認
 
 ブラウザで `http://localhost` にアクセスし、Laravelのウェルカムページが表示されることを確認します。
 
@@ -154,7 +163,7 @@ Route::get('/hello', function () {
 
 ---
 
-## 🏃 実践: 一緒に作ってみましょう！
+## 🏃 実践セクション：一緒に作ってみましょう！
 
 ちゃんとできましたか？API開発環境の構築は、API開発の第一歩です。一緒に手を動かしながら、疎通確認用のAPIを作成していきましょう。
 
@@ -162,7 +171,7 @@ Route::get('/hello', function () {
 
 ---
 
-### 💻 環境準備（実践用プロジェクト）
+### ⚙️ 環境準備（実践用プロジェクト）
 
 ### Step 1: 自分で作成したプロジェクトを停止
 
@@ -185,25 +194,43 @@ git clone https://github.com/coachtech-material/laravel-api-starter.git api-setu
 cd api-setup-sample
 ```
 
-### Step 3: 環境変数ファイルを作成
+### Step 3: Composerパッケージをインストール
+
+```bash
+docker run --rm \
+    -u "$(id -u):$(id -g)" \
+    -v "$(pwd):/var/www/html" \
+    -w /var/www/html \
+    -e COMPOSER_CACHE_DIR=/tmp/composer_cache \
+    laravelsail/php82-composer:latest \
+    composer install
+```
+
+### Step 4: 環境変数ファイルを作成
 
 ```bash
 cp .env.example .env
 ```
 
-### Step 4: Docker環境を起動
+### Step 5: Docker環境を起動
 
 ```bash
 ./vendor/bin/sail up -d
 ```
 
-### Step 5: データベースの準備
+### Step 6: アプリケーションキーを生成
 
 ```bash
-sail artisan migrate:fresh --seed
+./vendor/bin/sail artisan key:generate
 ```
 
-### Step 6: セットアップ完了の確認
+### Step 7: データベースの準備
+
+```bash
+./vendor/bin/sail artisan migrate:fresh --seed
+```
+
+### Step 8: セットアップ完了の確認
 
 ブラウザで `http://localhost` にアクセスし、Laravelのウェルカムページが表示されることを確認します。
 
@@ -221,20 +248,20 @@ sail artisan migrate:fresh --seed
 
 ---
 
-### 💭 実装の思考プロセス
+### 🧠 先輩エンジニアの思考プロセス
 
-API開発環境を構築する際、以下の順番で考えると効率的です：
+先輩エンジニアは要件を以下のように構造化し、実装タスクに落とし込みます：
 
-1. **プロジェクトをセットアップ**：スターターキットをクローン
-2. **環境を起動**：Dockerコンテナを起動
-3. **疎通確認用APIを作成**：シンプルなエンドポイントを作成
-4. **動作確認**：Thunder Clientでリクエストを送信
+| Step | やること | 説明 |
+|:-----|:---------|:-----|
+| 1 | `routes/api.php`に疎通確認用のAPIを作成する | GETリクエストでJSONを返すシンプルなエンドポイント |
+| 2 | Thunder Clientで動作確認する | ステータスコードとレスポンスを確認 |
 
 ---
 
 ### 📝 ステップバイステップで実装
 
-#### ステップ1: api.phpを編集
+#### ステップ1: routes/api.phpに疎通確認用のAPIを作成する
 
 **何を考えているか**：
 - 「疎通確認用のシンプルなAPIを作成しよう」
@@ -254,11 +281,7 @@ Route::get('/hello', function () {
 });
 ```
 
----
-
-#### ステップ2: コードリーディング
-
-**`Route::get('/hello', function () { ... })`**
+**コードリーディング**
 
 ```php
 Route::get('/hello', function () {
@@ -270,10 +293,6 @@ Route::get('/hello', function () {
 | `'/hello'` | URLパス（`/api/hello`になる） |
 | `function () { ... }` | リクエストを処理するクロージャ |
 
----
-
-**`return response()->json(['message' => 'Hello, API!'])`**
-
 ```php
 return response()->json(['message' => 'Hello, API!']);
 ```
@@ -284,21 +303,11 @@ return response()->json(['message' => 'Hello, API!']);
 | `->json()` | JSON形式でレスポンスを返す |
 | `['message' => 'Hello, API!']` | レスポンスのデータ |
 
----
-
-#### ステップ3: APIのURLについて
-
-**何を考えているか**：
-- 「`routes/api.php`に定義したルートは、自動的に`/api`プレフィックスが付く」
-
-| 定義 | 実際のURL |
-|------|----------|
-| `/hello` | `http://localhost/api/hello` |
-| `/tasks` | `http://localhost/api/tasks` |
+> 💡 **ポイント**: `routes/api.php`に定義したルートは、自動的に`/api`プレフィックスが付きます。`/hello`と定義すると、実際のURLは`http://localhost/api/hello`になります。
 
 ---
 
-#### ステップ4: Thunder Clientで動作確認
+#### ステップ2: Thunder Clientで動作確認する
 
 **何を考えているか**：
 - 「APIが正常に動作するか確認しよう」
@@ -310,9 +319,7 @@ return response()->json(['message' => 'Hello, API!']);
 4. URL: `http://localhost/api/hello`
 5. 「Send」ボタンをクリック
 
----
-
-#### ステップ5: レスポンスを確認
+**レスポンスを確認**
 
 以下のJSONレスポンスが返ってくることを確認します。
 
@@ -326,7 +333,11 @@ return response()->json(['message' => 'Hello, API!']);
 
 ---
 
-### ✅ 成功の確認ポイント
+### ✨ 完成！
+
+これでAPI開発環境の構築と疎通確認が完了しました！
+
+**確認ポイント**
 
 | 確認項目 | 期待値 |
 |----------|--------|
@@ -334,17 +345,27 @@ return response()->json(['message' => 'Hello, API!']);
 | Content-Type | application/json |
 | レスポンスボディ | `{"message": "Hello, API!"}` |
 
----
-
-### ✨ 完成！
-
-これでAPI開発環境の構築と疎通確認が完了しました！
-
 **自分で作成したプロジェクトと比較してみましょう**：
 - `api-setup-practice/routes/api.php`: 自分で作成したコード
 - `api-setup-sample/routes/api.php`: 一緒に作成したコード
 
 両方のファイルを比較して、実装内容を確認してみてください。
+
+---
+
+## 📖 模範解答
+
+### routes/api.php
+
+```php
+<?php
+
+use Illuminate\Support\Facades\Route;
+
+Route::get('/hello', function () {
+    return response()->json(['message' => 'Hello, API!']);
+});
+```
 
 ---
 
@@ -408,15 +429,14 @@ sail logs
 
 ---
 
-## ✨ まとめ
+## 🚀 まとめ
 
 このハンズオンでは、API開発環境の構築と疎通確認を行いました。
 
 | Step | 学んだこと |
 |------|-----------|
-| Step 1 | スターターキットのセットアップ |
-| Step 2 | 疎通確認用APIの作成 |
-| Step 3 | Thunder Clientでの動作確認 |
+| 1 | `routes/api.php`に疎通確認用のAPIを作成する |
+| 2 | Thunder Clientで動作確認する |
 
 **確認できたこと**:
 

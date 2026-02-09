@@ -1,16 +1,12 @@
 # Tutorial 11-2-8: ハンズオン - タスク管理APIのCRUD実装
 
-## 🎯 このハンズオンで学ぶこと
+## 📌 このハンズオンについて
 
-- タスクリソースのCRUD操作を実装する
-- Thunder Clientで各操作のステータスコードとレスポンスを確認する
-- バリデーションエラーと404エラーの挙動を確認する
+Chapter 2で学んだCRUD操作を実際に手を動かして確認します。タスク管理APIを実装し、Thunder Clientで各操作のステータスコードとレスポンスを確認しましょう。
 
 > 分からない文法や実装があっても、すぐに答えを見るのではなく、過去の教材を見たり、AIにヒントをもらいながら進めるなど、自身で創意工夫しながら進めてみましょう🔥
 
----
-
-## 📁 ディレクトリ構成
+### 📁 ディレクトリ構成
 
 このハンズオンでは、「自分で作成する用」と「解答を確認する用」の2つのプロジェクトを作成します。
 
@@ -37,19 +33,35 @@
 
 ---
 
-## 🛠️ 事前準備
+## 🎯 演習課題：タスク管理APIのCRUD実装
+
+### この演習で作るもの
+
+タスク管理APIのCRUD操作を実装します。
 
 このハンズオンでは、**Tutorial 11専用のスターターキット**を使用します。
 
 > 💡 **ポイント**: Chapter 1のハンズオン（11-1-7）とは別のプロジェクトを作成します。
 
----
+### スターターキットに含まれるもの
 
-## 📋 要件
+| 項目 | 内容 |
+|------|------|
+| Laravel | 10.x |
+| データベース | `users`テーブル、`tasks`テーブル（マイグレーション済み） |
+| 初期データ | テスト用ユーザー（ID: 1）、サンプルタスク5件がシーダーで作成済み |
+| Taskモデル | `$fillable`設定済み |
+| 認証 | なし（認証機能は含まれていません） |
 
-1. `TaskController`を作成し、CRUD操作を実装する
-2. `routes/api.php`にルーティングを設定する
-3. Thunder Clientで各操作の動作確認を行う
+### 📋 要件
+
+- タスク一覧を取得できる
+- 新しいタスクを作成できる
+- タスクの詳細を取得できる
+- タスクを更新できる
+- タスクを削除できる
+- バリデーションエラー時に適切なエラーレスポンスが返る
+- 存在しないタスクにアクセスすると404エラーが返る
 
 **実装するAPI**:
 
@@ -61,9 +73,28 @@
 | PUT | /api/tasks/{id} | 更新 | 200 / 404 / 422 |
 | DELETE | /api/tasks/{id} | 削除 | 204 / 404 |
 
+### ✅ 完成チェックリスト
+
+- [ ] `GET /api/tasks`でタスク一覧が取得できる（200）
+- [ ] `POST /api/tasks`でタスクを作成できる（201）
+- [ ] `GET /api/tasks/{id}`でタスク詳細が取得できる（200）
+- [ ] `PUT /api/tasks/{id}`でタスクを更新できる（200）
+- [ ] `DELETE /api/tasks/{id}`でタスクを削除できる（204）
+- [ ] バリデーションエラー時に422が返る
+- [ ] 存在しないタスクにアクセスすると404が返る
+
+> 💡 **動作確認**: Thunder Clientで各エンドポイントにリクエストを送信
+
+### ✏️ 実装タスク
+
+1. TaskControllerを作成する
+2. CRUDメソッドを実装する
+3. ルーティングを設定する
+4. Thunder Clientで動作確認する
+
 ---
 
-## 🔧 環境準備（自分で作成する用）
+## ⚙️ 環境準備（自分で作成する用）
 
 まず、ハンズオン用のディレクトリを作成し、**自分で作成する用**のプロジェクトを準備します。
 
@@ -87,25 +118,43 @@ git clone https://github.com/coachtech-material/laravel-api-starter.git task-cru
 cd task-crud-practice
 ```
 
-### Step 3: 環境変数ファイルを作成
+### Step 3: Composerパッケージをインストール
+
+```bash
+docker run --rm \
+    -u "$(id -u):$(id -g)" \
+    -v "$(pwd):/var/www/html" \
+    -w /var/www/html \
+    -e COMPOSER_CACHE_DIR=/tmp/composer_cache \
+    laravelsail/php82-composer:latest \
+    composer install
+```
+
+### Step 4: 環境変数ファイルを作成
 
 ```bash
 cp .env.example .env
 ```
 
-### Step 4: Docker環境を起動
+### Step 5: Docker環境を起動
 
 ```bash
 ./vendor/bin/sail up -d
 ```
 
-### Step 5: データベースの準備
+### Step 6: アプリケーションキーを生成
 
 ```bash
-sail artisan migrate:fresh --seed
+./vendor/bin/sail artisan key:generate
 ```
 
-### Step 6: セットアップ完了の確認
+### Step 7: データベースの準備
+
+```bash
+./vendor/bin/sail artisan migrate:fresh --seed
+```
+
+### Step 8: セットアップ完了の確認
 
 ブラウザで `http://localhost` にアクセスし、Laravelのウェルカムページが表示されることを確認します。
 
@@ -155,7 +204,7 @@ Route::apiResource('tasks', TaskController::class);
 
 ---
 
-## 🏃 実践: 一緒に作ってみましょう！
+## 🏃 実践セクション：一緒に作ってみましょう！
 
 ちゃんとできましたか？タスク管理APIのCRUD実装は、API開発の基本です。一緒に手を動かしながら、各メソッドを実装していきましょう。
 
@@ -163,7 +212,7 @@ Route::apiResource('tasks', TaskController::class);
 
 ---
 
-### 💻 環境準備（実践用プロジェクト）
+### ⚙️ 環境準備（実践用プロジェクト）
 
 ### Step 1: 自分で作成したプロジェクトを停止
 
@@ -186,25 +235,43 @@ git clone https://github.com/coachtech-material/laravel-api-starter.git task-cru
 cd task-crud-sample
 ```
 
-### Step 3: 環境変数ファイルを作成
+### Step 3: Composerパッケージをインストール
+
+```bash
+docker run --rm \
+    -u "$(id -u):$(id -g)" \
+    -v "$(pwd):/var/www/html" \
+    -w /var/www/html \
+    -e COMPOSER_CACHE_DIR=/tmp/composer_cache \
+    laravelsail/php82-composer:latest \
+    composer install
+```
+
+### Step 4: 環境変数ファイルを作成
 
 ```bash
 cp .env.example .env
 ```
 
-### Step 4: Docker環境を起動
+### Step 5: Docker環境を起動
 
 ```bash
 ./vendor/bin/sail up -d
 ```
 
-### Step 5: データベースの準備
+### Step 6: アプリケーションキーを生成
 
 ```bash
-sail artisan migrate:fresh --seed
+./vendor/bin/sail artisan key:generate
 ```
 
-### Step 6: セットアップ完了の確認
+### Step 7: データベースの準備
+
+```bash
+./vendor/bin/sail artisan migrate:fresh --seed
+```
+
+### Step 8: セットアップ完了の確認
 
 ブラウザで `http://localhost` にアクセスし、Laravelのウェルカムページが表示されることを確認します。
 
@@ -222,20 +289,22 @@ sail artisan migrate:fresh --seed
 
 ---
 
-### 💭 実装の思考プロセス
+### 🧠 先輩エンジニアの思考プロセス
 
-CRUD APIを実装する際、以下の順番で考えると効率的です：
+先輩エンジニアは要件を以下のように構造化し、実装タスクに落とし込みます：
 
-1. **コントローラーを作成**：`make:controller`コマンドで雛形を生成
-2. **各メソッドを実装**：index → store → show → update → destroy
-3. **ルーティングを設定**：`apiResource`で一括登録
-4. **動作確認**：Thunder Clientで各操作をテスト
+| Step | やること | 説明 |
+|:-----|:---------|:-----|
+| 1 | TaskControllerを作成する | `make:controller`コマンドで雛形を生成 |
+| 2 | CRUDメソッドを実装する | index → store → show → update → destroy |
+| 3 | ルーティングを設定する | `apiResource`で一括登録 |
+| 4 | Thunder Clientで動作確認する | 各操作のステータスコードを確認 |
 
 ---
 
 ### 📝 ステップバイステップで実装
 
-#### ステップ1: コントローラーを作成
+#### ステップ1: TaskControllerを作成する
 
 **何を考えているか**：
 - 「APIリソース用のコントローラーを作成しよう」
@@ -265,7 +334,7 @@ sail artisan make:controller TaskController --api
 
 ---
 
-#### ステップ2: CRUDメソッドを実装
+#### ステップ2: CRUDメソッドを実装する
 
 **何を考えているか**：
 - 「各メソッドでどんな処理をするか考えよう」
@@ -385,7 +454,7 @@ class TaskController extends Controller
 
 ---
 
-#### ステップ3: コードリーディング
+**コードリーディング**
 
 **indexメソッド**
 
@@ -470,6 +539,44 @@ public function show(string $id)
 
 ---
 
+**updateメソッド**
+
+```php
+public function update(Request $request, string $id)
+{
+    $task = Task::find($id);
+
+    if (!$task) {
+        return response()->json([
+            'message' => 'タスクが見つかりません'
+        ], 404);
+    }
+
+    $validated = $request->validate([
+        'title' => 'required|string|max:255',
+        'description' => 'nullable|string',
+        'status' => 'required|in:pending,in_progress,completed',
+    ]);
+
+    $task->update($validated);
+
+    return response()->json([
+        'message' => 'タスクを更新しました',
+        'data' => $task
+    ], 200);
+}
+```
+
+| 行 | コード | 説明 |
+|:---|:---|:---|
+| 1 | `$task = Task::find($id);` | IDでタスクを検索 |
+| 2 | `if (!$task)` | タスクが見つからない場合は404 |
+| 3 | `$request->validate([...])` | バリデーションを実行 |
+| 4 | `$task->update($validated)` | タスクを更新 |
+| 5 | `200` | ステータスコード（OK） |
+
+---
+
 **destroyメソッド**
 
 ```php
@@ -497,7 +604,7 @@ public function destroy(string $id)
 
 ---
 
-#### ステップ4: ルーティングを設定
+#### ステップ3: ルーティングを設定する
 
 **何を考えているか**：
 - 「`apiResource`で一括登録しよう」
@@ -530,7 +637,7 @@ Route::apiResource('tasks', TaskController::class);
 
 ---
 
-#### ステップ5: Thunder Clientで動作確認
+#### ステップ4: Thunder Clientで動作確認する
 
 **何を考えているか**：
 - 「各操作が正しく動作するか確認しよう」
@@ -614,7 +721,7 @@ Route::apiResource('tasks', TaskController::class);
 
 ---
 
-#### ステップ6: エラーケースの確認
+**エラーケースの確認**
 
 **バリデーションエラー（422）**:
 - メソッド: `POST`
@@ -720,17 +827,128 @@ sail logs
 
 ---
 
-## ✨ まとめ
+## 📖 模範解答
+
+### TaskController.php
+
+```php
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Task;
+use Illuminate\Http\Request;
+
+class TaskController extends Controller
+{
+    public function index()
+    {
+        $tasks = Task::all();
+
+        return response()->json([
+            'data' => $tasks
+        ], 200);
+    }
+
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
+        ]);
+
+        $task = Task::create([
+            'user_id' => 1,
+            'title' => $validated['title'],
+            'description' => $validated['description'] ?? null,
+            'status' => 'pending',
+        ]);
+
+        return response()->json([
+            'message' => 'タスクを作成しました',
+            'data' => $task
+        ], 201);
+    }
+
+    public function show(string $id)
+    {
+        $task = Task::find($id);
+
+        if (!$task) {
+            return response()->json([
+                'message' => 'タスクが見つかりません'
+            ], 404);
+        }
+
+        return response()->json([
+            'data' => $task
+        ], 200);
+    }
+
+    public function update(Request $request, string $id)
+    {
+        $task = Task::find($id);
+
+        if (!$task) {
+            return response()->json([
+                'message' => 'タスクが見つかりません'
+            ], 404);
+        }
+
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'status' => 'required|in:pending,in_progress,completed',
+        ]);
+
+        $task->update($validated);
+
+        return response()->json([
+            'message' => 'タスクを更新しました',
+            'data' => $task
+        ], 200);
+    }
+
+    public function destroy(string $id)
+    {
+        $task = Task::find($id);
+
+        if (!$task) {
+            return response()->json([
+                'message' => 'タスクが見つかりません'
+            ], 404);
+        }
+
+        $task->delete();
+
+        return response()->json(null, 204);
+    }
+}
+```
+
+### routes/api.php
+
+```php
+<?php
+
+use App\Http\Controllers\TaskController;
+use Illuminate\Support\Facades\Route;
+
+Route::apiResource('tasks', TaskController::class);
+```
+
+---
+
+## 🚀 まとめ
 
 このハンズオンでは、タスク管理APIのCRUD操作を実装しました。
 
 | Step | 学んだこと |
 |------|-----------|
-| Step 1 | コントローラーの作成 |
-| Step 2 | CRUDメソッドの実装 |
-| Step 3 | ルーティングの設定 |
-| Step 4 | Thunder Clientでの動作確認 |
-| Step 5 | エラーケースの確認 |
+| 1 | TaskControllerを作成する |
+| 2 | CRUDメソッドを実装する |
+| 3 | ルーティングを設定する |
+| 4 | Thunder Clientで動作確認する |
 
 **実装したAPI**:
 
