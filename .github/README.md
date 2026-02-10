@@ -8,6 +8,7 @@
 - [実行方法](#実行方法)
 - [前提条件](#前提条件)
 - [教材の構造](#教材の構造)
+- [画像リンクのS3置換](#画像リンクのs3置換)
 - [API仕様](#api仕様)
 - [トラブルシューティング](#トラブルシューティング)
 
@@ -41,6 +42,14 @@ flowchart TD
   - Staging環境：`staging`ブランチでのみ実行可能
   - 本番環境：`main`ブランチでのみ実行可能
 - 📝 **将来の拡張**：pushによる自動化も検討中ですが、安全性を優先して一旦保留しています
+
+### replace-image-links-staging.yml
+
+教材Markdown内の **`src=""`（空）の img タグ** を検出し、`alt` 属性の値をファイル名として `image/` ディレクトリから画像をS3にアップロードし、`src` をS3の公開URLに置換するワークフローです。置換後は変更をコミットしてPRを自動作成します。
+
+- ⚠️ **手動実行のみ**：`workflow_dispatch` で実行
+- 📂 **対象**：`staging` ブランチの `curriculums/` 配下の `.md` ファイル
+- 🔗 **PR**：変更がある場合のみ、`staging` 向けのPRが自動作成されます
 
 ## 実行方法
 
@@ -148,6 +157,45 @@ curriculums/
 ```
 
 この場合、セクションの本文は`introduction.md`のMarkdownコンテンツになります。
+
+## 画像リンクのS3置換
+
+「**画像リンクをS3 URLに置換（staging）**」ワークフローは、教材Markdown内の画像参照をGitHub依存からS3の公開URLに置き換えるために使用します。
+
+### 対象となる img タグ
+
+- `src=""` または `src=''` の **空の src** を持つ img タグのみが対象です
+- 各タグには **`alt` 属性が必須** です。`alt` の値が `image/` 配下のファイル名として扱われます
+- 1ファイル内に複数の対象 img タグがある場合、**すべて** 変換されます
+
+### 必要な設定
+
+#### GitHub Secrets（画像置換ワークフロー用）
+
+| Secret名               | 説明                    | 必須 |
+| ---------------------- | ----------------------- | ---- |
+| `AWS_ACCESS_KEY_ID`    | AWS認証用アクセスキーID | ✅   |
+| `AWS_SECRET_ACCESS_KEY`| AWS認証用シークレット   | ✅   |
+
+#### GitHub Variables（リポジトリ変数）
+
+| Variable名           | 説明                     | 必須 |
+| -------------------- | ------------------------ | ---- |
+| `AWS_REGION`         | S3バケットのリージョン   | ✅   |
+| `S3_BUCKET`          | 画像をアップロードするS3バケット名 | ✅   |
+| `S3_PUBLIC_BASE_URL` | 画像の公開URLのベース（例: `https://xxx.cloudfront.net`） | ✅   |
+
+### 実行手順
+
+1. GitHubリポジトリの「Actions」タブを開く
+2. 左サイドバーから「**画像リンクをS3 URLに置換（staging）**」を選択
+3. 「Run workflow」をクリックし、ブランチが `staging` であることを確認して実行
+4. 変更がある場合、`chore/replace-image-links-*` ブランチが作成され、`staging` 向けのPRが自動作成されます
+
+### ディレクトリ・ファイルの前提
+
+- 画像ファイルはリポジトリ直下の **`image/`** ディレクトリに配置します
+- Markdown内の `alt` の値（例: `screenshot.png`）と、`image/screenshot.png` のファイル名が一致している必要があります
 
 ## API仕様
 
@@ -302,6 +350,18 @@ flowchart TD
 - タイトルに特殊文字や空白が含まれていないか確認
 - LMS側で既存の教材タイトルと一致しているか確認
 
+#### 7. 画像リンク置換で「S3_BUCKET, S3_PUBLIC_BASE_URL, AWS_REGION が必要です」
+
+**原因：** 画像置換ワークフロー用のリポジトリ変数（Variables）が未設定
+
+**対処法：** Settings → Secrets and variables → Actions の **Variables** タブで `AWS_REGION`・`S3_BUCKET`・`S3_PUBLIC_BASE_URL` を設定する。AWS認証には **Secrets** の `AWS_ACCESS_KEY_ID` と `AWS_SECRET_ACCESS_KEY` が必要。
+
+#### 8. 画像リンク置換で「alt属性なし」または「画像ファイルが見つかりません」
+
+**原因：** 対象の img タグに `alt` が無い、または `alt` の値と同名のファイルが `image/` に無い
+
+**対処法：** 該当Markdown内の img タグに `alt="ファイル名"` を付け、リポジトリ直下の `image/` にそのファイル名の画像を配置する。
+
 ### ログの確認方法
 
 1. GitHubリポジトリの「Actions」タブを開く
@@ -347,6 +407,9 @@ env:
 
 ## 関連ファイル
 
-- **Staging環境用ワークフローファイル**: `.github/workflows/sync-curriculums-staging.yml`
-- **本番環境用ワークフローファイル**: `.github/workflows/sync-curriculums-production.yml`
-- **スクリプト**: `.github/scripts/sync-curriculums.js`
+| 種別     | ファイル | 説明 |
+| -------- | -------- | ----- |
+| ワークフロー | `.github/workflows/sync-curriculums-staging.yml` | 教材をStaging環境に登録・更新 |
+| ワークフロー | `.github/workflows/replace-image-links-staging.yml` | 教材内の画像リンクをS3 URLに置換しPR作成 |
+| スクリプト | `.github/scripts/sync-curriculums.js` | 教材データ収集・API送信 |
+| スクリプト | `.github/scripts/replace-image-links.js` | 空 src の img タグ検出・S3アップロード・置換 |

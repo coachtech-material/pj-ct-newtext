@@ -1,0 +1,74 @@
+name: 画像リンクをS3 URLに置換（staging）
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  replace-image-links:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: リポジトリを取得
+        uses: actions/checkout@v4
+        with:
+          ref: staging
+
+      - name: Node.js環境をセットアップ
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: AWS CLIの認証設定
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ vars.AWS_REGION }}
+        run: |
+          aws configure set aws_access_key_id "$AWS_ACCESS_KEY_ID"
+          aws configure set aws_secret_access_key "$AWS_SECRET_ACCESS_KEY"
+          aws configure set region "$AWS_REGION"
+
+      - name: 画像リンクの置換スクリプトを実行
+        env:
+          AWS_REGION: ${{ vars.AWS_REGION }}
+          S3_BUCKET: ${{ vars.S3_BUCKET }}
+          S3_PUBLIC_BASE_URL: ${{ vars.S3_PUBLIC_BASE_URL }}
+        run: node .github/scripts/replace-image-links.js
+
+      - name: 変更の確認とPR作成
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [ -z "$(git diff --name-only)" ]; then
+            echo "変更なし。PRは作成しません。"
+            exit 0
+          fi
+
+          CHANGED_FILES=$(git diff --name-only | wc -l | tr -d ' ')
+          BRANCH_NAME="chore/replace-image-links-$(date +%Y%m%d%H%M%S)"
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout -b "$BRANCH_NAME"
+          git add curriculums/
+          git commit -m "GitHub画像リンクをS3 URLに置換"
+          git push origin "$BRANCH_NAME"
+
+          PR_URL=$(gh pr create \
+            --base staging \
+            --head "$BRANCH_NAME" \
+            --title "GitHub画像リンクをS3 URLに置換" \
+            --body "## 概要
+          - 教材Markdown内のGitHub画像リンクをS3 URLに置換しました
+          - 対象ファイル数: ${CHANGED_FILES}
+          - 画像はimage/ディレクトリからS3にアップロード済みです
+
+          ## 注意事項
+          - 画像はimage/配下のファイルをS3にアップロードしたものです
+          - srcのみ変更しており、altや他の属性は変更していません")
+
+          echo "PR作成完了: $PR_URL"
