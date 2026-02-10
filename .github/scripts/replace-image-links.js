@@ -5,6 +5,9 @@ const { execSync } = require('child_process');
 const CURRICULUMS_DIR = path.join(process.cwd(), 'curriculums');
 const IMAGE_DIR = path.join(process.cwd(), 'image');
 
+/** S3 バケット内のアップロード先ディレクトリ（プレフィックス） */
+const S3_UPLOAD_PREFIX = 'curriculums/images';
+
 const S3_BUCKET = process.env.S3_BUCKET;
 const S3_PUBLIC_BASE_URL = process.env.S3_PUBLIC_BASE_URL;
 const AWS_REGION = process.env.AWS_REGION;
@@ -59,7 +62,8 @@ function findEmptySrcImgTags(content) {
  * 画像ファイルを S3 にアップロードし、公開 URL を返す
  */
 function uploadToS3(localPath, filename) {
-  const s3Uri = `s3://${S3_BUCKET}/${filename}`;
+  const s3Key = `${S3_UPLOAD_PREFIX}/${filename}`;
+  const s3Uri = `s3://${S3_BUCKET}/${s3Key}`;
 
   try {
     execSync(`aws s3 cp "${localPath}" "${s3Uri}" --region "${AWS_REGION}"`, {
@@ -72,7 +76,7 @@ function uploadToS3(localPath, filename) {
   }
 
   const baseUrl = S3_PUBLIC_BASE_URL.replace(/\/+$/, '');
-  return `${baseUrl}/${filename}`;
+  return `${baseUrl}/${s3Key}`;
 }
 
 function main() {
