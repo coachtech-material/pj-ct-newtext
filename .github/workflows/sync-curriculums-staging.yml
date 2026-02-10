@@ -1,4 +1,4 @@
-name: 教材をStaging環境に登録・更新
+name: 教材を登録・更新（staging）
 
 on:
   workflow_dispatch:
