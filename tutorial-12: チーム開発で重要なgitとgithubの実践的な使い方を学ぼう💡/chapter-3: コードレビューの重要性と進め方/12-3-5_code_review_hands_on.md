@@ -1,340 +1,258 @@
-# Tutorial 12-3-5: コードレビュー - ハンズオン演習
+# Tutorial 12-3-5: ハンズオン - コードレビュー演習
 
-## 📝 このセクションの目的
+## 📌 このハンズオンについて
 
-Chapter 3で学んだコードレビューを実際に手を動かして確認します。レビュアーとレビュイーの両方の立場を体験しましょう。
+Chapter 3で学んだコードレビューを実際に手を動かして確認します。12-2-4で作成したPull Requestに対してレビューを行い、修正してマージするまでの流れを実践しましょう。
 
 > 分からない文法や実装があっても、すぐに答えを見るのではなく、過去の教材を見たり、AIにヒントをもらいながら進めるなど、自身で創意工夫しながら進めてみましょう🔥
 
----
+> ⚠️ **前提条件**: このハンズオンを始める前に、**12-2-4（GitHub連携演習）** を完了し、Pull Requestを作成した状態にしておいてください。
 
-## 📁 ディレクトリ構成
+### 📁 ディレクトリ構成
 
-このハンズオンでは、「自分で作成する用」と「解答を確認する用」の2つのディレクトリを作成します。
+12-2-4で作成したリポジトリをそのまま使用します。
 
 ```
 ~/git-practice/
-├── 12-3-5_hands-on/                      ← このハンズオン用のディレクトリ
-│   ├── code-review-practice/             ← 要件を見て自分で修正するディレクトリ
-│   │   └── UserController.php
-│   └── code-review-sample/               ← 実践で一緒に修正するディレクトリ
-│       └── UserController.php
-└── ...
+└── 12-2-4_hands-on/
+    ├── github-collab-practice/              ← 12-2-4で自分で作成したリポジトリ
+    │   └── UserController.php
+    └── github-collab-sample/                ← 12-2-4で一緒に作成したリポジトリ
+        └── UserController.php
 ```
 
-| ディレクトリ | 用途 |
-|:---|:---|
-| `code-review-practice/` | 📋 要件を見て、自分の力でコードを修正する |
-| `code-review-sample/` | 🏃 実践セクションで、一緒に手を動かしながら修正する |
-
-> 💡 **なぜ2つに分けるのか？**: 自分で考えて修正したコードと、解答を見ながら修正したコードを比較することで、理解が深まります。
+> 💡 **ポイント**: 新しいリポジトリは作成しません。12-2-4で作成したPull Requestに対してレビューを行います。
 
 ---
 
 ## 🎯 演習課題：コードレビューを実践しよう
 
+### この演習で作るもの
+
+12-2-4で作成したPull Requestに対してレビューコメントを追加し、問題点を修正してマージする「コードレビューワークフロー」を実践します。
+
 ### 🖼️ 完成イメージ
 
-<!-- レビュー前後のコード比較のスクリーンショットをここに配置 -->
-![12-3-5 完成イメージ](images/12-3-5_code_review_complete.png)
+<details>
+<summary>📸 完成画面を確認する（クリックで展開）</summary>
 
-**この演習で作るもの**：
-問題のあるコードをレビューし、改善点を指摘し、修正する「コードレビュー」を実践します。
+**レビューコメント**
 
----
+<img alt="12-3-5_1.png" src="">
 
-### 📋 要件
+**マージ完了**
 
-1. 以下のコードをレビューして、改善点を指摘してください
-2. 指摘に基づいてコードを修正してください
+<img alt="12-3-5_2.png" src="">
 
----
+</details>
 
-### ✅ 完成品の確認方法
+### 📋 ユースケース
 
-**🔧 コードの確認**
+あなたはチーム開発に参加しています。チームメイトから「ユーザー登録機能を実装しました。レビューをお願いします」とPull Requestが届きました。
 
-- **確認方法**: 修正後のコードを模範解答と比較
-- **確認手順**:
-  1. レビューコメントを文書化
-  2. コードを修正
-  3. 模範解答と比較
+- コードを読んで問題点を見つけたい
+- 建設的なフィードバックを提供したい
+- 修正が完了したらマージしたい
 
-**正しく実装できていれば**:
+このレビュー作業を実践してみましょう。
+
+> 💡 **ポイント**: 今回は自分で作成したPRを自分でレビューしますが、実際のチーム開発では別のメンバーがレビューを担当します。
+
+### ✅ 完成チェックリスト
+
+- [ ] PRにレビューコメントが追加されている
 - [ ] バリデーションが追加されている
-- [ ] エラーハンドリングが追加されている
-- [ ] N+1問題が解決されている
-- [ ] セキュリティ上の問題が修正されている
-- [ ] コードの可読性が向上している
+- [ ] パスワードがハッシュ化されている
+- [ ] 修正コミットがプッシュされている
+- [ ] PRがマージされている
 
-**レビューコメントの例**:
+> 💡 **動作確認**: GitHubリポジトリの「Pull requests」タブでPRのステータスを確認
 
-```markdown
-## レビューコメント
+### ✏️ 実装タスク
 
-### 1. バリデーションがない
-- 場所: store()メソッド
-- 問題: 入力値のバリデーションが行われていない
-- 提案: FormRequestまたはvalidate()を使用
-
-### 2. N+1問題
-- 場所: index()メソッド
-- 問題: User::all()ではリレーションが遅延読み込みされる
-- 提案: with()でEager Loadingを使用
-```
+1. PRのコードを読んで問題点を特定する
+2. レビューコメントを作成する
+3. コードを修正してプッシュする
+4. PRをマージする
 
 ---
 
-## 🔧 環境準備（自分で作成する用）
+## ⚙️ 環境準備（自分で作成する用）
 
-まず、ハンズオン用のディレクトリを作成し、**自分で作成する用**のディレクトリを準備します。
+12-2-4で作成したリポジトリに移動します。
 
 ```bash
-# git-practiceディレクトリに移動（なければ作成）
-mkdir -p ~/git-practice
-cd ~/git-practice
-
-# ハンズオン用ディレクトリを作成
-mkdir -p 12-3-5_hands-on
-cd 12-3-5_hands-on
-
-# 自分で作成する用のディレクトリを作成
-mkdir code-review-practice
-cd code-review-practice
+cd ~/git-practice/12-2-4_hands-on/github-collab-practice
 ```
 
-**レビュー対象のコードを作成**します。以下の内容で`UserController.php`を作成してください：
+**確認**: Pull Requestが作成されていることを確認
 
-```php
-<?php
+```bash
+# 現在のブランチを確認
+git branch
 
-namespace App\Http\Controllers;
-
-use App\Models\User;
-use Illuminate\Http\Request;
-
-class UserController extends Controller
-{
-    public function index()
-    {
-        $users = User::all();
-        return view('users.index', ['users' => $users]);
-    }
-
-    public function store(Request $request)
-    {
-        $user = new User;
-        $user->name = $request->name;
-        $user->email = $request->email;
-        $user->password = $request->password;
-        $user->save();
-        
-        return redirect('/users');
-    }
-}
-```
-
-**✅ ディレクトリ構造の確認**
-
-```
-~/git-practice/
-└── 12-3-5_hands-on/
-    └── code-review-practice/     ← 自分で作成する用（今ここ）
-        └── UserController.php
+# mainブランチに切り替え
+git switch main
 ```
 
 > 💡 **環境構築が完了！**
-> 
-> このコードをレビューして、問題点を見つけ、修正してみましょう。
+>
+> GitHubでPull Requestが「Open」状態になっていることを確認してください。
 
 **ここから先は、自分の力でレビュー・修正してみましょう！**
 
 ---
 
-## 💡 レビュー対象のコード
+## 💡 ヒント
 
-```php
-<?php
+**レビューの観点**:
+- バリデーションはあるか？
+- パスワードは安全に保存されているか？
+- パフォーマンスの問題はないか？
 
-namespace App\Http\Controllers;
-
-use App\Models\User;
-use Illuminate\Http\Request;
-
-class UserController extends Controller
-{
-    public function index()
-    {
-        $users = User::all();
-        return view('users.index', ['users' => $users]);
-    }
-
-    public function store(Request $request)
-    {
-        $user = new User;
-        $user->name = $request->name;
-        $user->email = $request->email;
-        $user->password = $request->password;
-        $user->save();
-        
-        return redirect('/users');
-    }
-}
-```
-
----
-
-## 🏃 実践: 一緒に作ってみましょう！
-
-ちゃんとできましたか？コードレビューはコード品質を向上させる重要なプロセスです。一緒に手を動かしながら、レビューの観点と修正方法を学んでいきましょう。
-
-> 📌 **注意**: ここからは`code-review-sample/`ディレクトリで作業します。自分で作成したコードと比較できるように、別のディレクトリで進めましょう。
-
----
-
-### 💻 環境準備（実践用ディレクトリ）
-
-**実践用のディレクトリを作成**します：
+**修正後のコミット**:
 
 ```bash
-# ハンズオンディレクトリに移動
-cd ~/git-practice/12-3-5_hands-on
-
-# 実践用のディレクトリを作成
-mkdir code-review-sample
-cd code-review-sample
-```
-
-**レビュー対象のコードを作成**します。以下の内容で`UserController.php`を作成してください：
-
-```php
-<?php
-
-namespace App\Http\Controllers;
-
-use App\Models\User;
-use Illuminate\Http\Request;
-
-class UserController extends Controller
-{
-    public function index()
-    {
-        $users = User::all();
-        return view('users.index', ['users' => $users]);
-    }
-
-    public function store(Request $request)
-    {
-        $user = new User;
-        $user->name = $request->name;
-        $user->email = $request->email;
-        $user->password = $request->password;
-        $user->save();
-        
-        return redirect('/users');
-    }
-}
-```
-
-**✅ ディレクトリ構造の確認**
-
-```
-~/git-practice/
-└── 12-3-5_hands-on/
-    ├── code-review-practice/     ← 自分で作成した用
-    │   └── UserController.php
-    └── code-review-sample/       ← 実践用（今ここ）
-        └── UserController.php
+git switch feature/issue-1-add-user-registration
+# コードを修正
+git add UserController.php
+git commit -m "Fix review comments: Add validation and hash password"
+git push origin feature/issue-1-add-user-registration
 ```
 
 ---
 
-### 💭 実装の思考プロセス
+## 🏃 実践セクション：一緒に作ってみましょう！
 
-コードレビューを進める際、以下の観点で考えると効率的です：
+ちゃんとできましたか？コードレビューはコード品質を向上させる重要なプロセスです。一緒に手を動かしながら、レビューの流れを実践していきましょう。
 
-1. **セキュリティ**：脆弱性がないか
-2. **パフォーマンス**：効率的な処理か
-3. **可読性**：読みやすいコードか
-4. **ベストプラクティス**：規約に従っているか
+> 📌 **注意**: ここからは`github-collab-sample/`ディレクトリで作業します。
+
+---
+
+### ⚙️ 環境準備（実践用プロジェクト）
+
+12-2-4で作成した実践用リポジトリに移動します。
+
+```bash
+cd ~/git-practice/12-2-4_hands-on/github-collab-sample
+
+# mainブランチに切り替え
+git switch main
+```
+
+**確認**: GitHubでPull Requestが「Open」状態になっていることを確認
+
+---
+
+### 🧠 先輩エンジニアの思考プロセス
+
+先輩エンジニアは要件を以下のように構造化し、実装タスクに落とし込みます：
+
+| Step | やること | 担当 | 説明 |
+|:-----|:---------|:-----|:-----|
+| 1 | PRのコードを読んで問題点を特定する | レビュアー | セキュリティ・パフォーマンス観点で問題を洗い出す |
+| 2 | レビューコメントを作成する | レビュアー | 問題点と改善提案をまとめる |
+| 3 | コードを修正してプッシュする | レビュイー | レビューに基づいてコードを改善 |
+| 4 | PRをマージする | レビュアー | 修正完了後にmainブランチに統合 |
+
+> 💡 **ポイント**: 今回は練習のため一人二役ですが、実際のチーム開発ではレビュアーとレビュイー（PR作成者）は別の人が担当します。
 
 ---
 
 ### 📝 ステップバイステップで実装
 
-#### ステップ1: コードを読んで理解する
+#### ステップ1: PRのコードを読んで問題点を特定する
 
 **何を考えているか**：
-- 「このコードは何をしているのか？」
-- 「ユーザーの一覧表示と登録機能を実装している」
+- 「このコードにはセキュリティ上の問題がないか？」
+- 「パフォーマンスの問題がないか？」
+- 「ベストプラクティスに従っているか？」
 
-まずはコード全体を読んで、何をしているかを理解します。このコードはユーザーの一覧表示と登録機能を実装しています。
+GitHubでPull Requestを開き、「Files changed」タブでコードを確認します。
 
----
-
-#### ステップ2: セキュリティの観点でレビューする
-
-**何を考えているか**：
-- 「セキュリティの問題はないか？」
-- 「バリデーションはあるか？」
-- 「パスワードは安全に保存されているか？」
-
-セキュリティの観点で問題を探します。このコードには以下の問題があります：
+**問題点を洗い出す**:
 
 | 問題 | 説明 | リスク |
 |:---|:---|:---|
 | **バリデーションがない** | 不正なデータが登録される可能性 | 高 |
 | **パスワードがハッシュ化されていない** | 平文で保存される危険 | 高 |
-| **Mass assignmentの脆弱性** | 予期しないフィールドが更新される可能性 | 中 |
+| **User::all()** | 全件取得はメモリを圧迫する可能性 | 中 |
 
 ---
 
-#### ステップ3: パフォーマンスの観点でレビューする
-
-**何を考えているか**：
-- 「パフォーマンスの問題はないか？」
-- 「大量のデータがあった場合どうなるか？」
-
-パフォーマンスの観点で問題を探します：
-
-| 問題 | 説明 | リスク |
-|:---|:---|:---|
-| **User::all()** | 全件取得はメモリを圧迫する | 中 |
-| **ページネーションがない** | 大量のユーザーがいると表示が遅くなる | 中 |
-
----
-
-#### ステップ4: 具体的な改善提案をする
+#### ステップ2: レビューコメントを作成する
 
 **何を考えているか**：
 - 「問題を指摘するだけでなく、解決策を提案しよう」
 - 「建設的なフィードバックを心がけよう」
 
-問題を指摘するだけでなく、具体的な改善方法を提案します。
+GitHubのPull Requestページで「Files changed」タブを開き、問題のある行の「+」ボタンをクリックしてコメントを追加します。
 
-**レビューコメント例**：
+> 💡 **どの行を選択するか？**: 問題のある行の「+」ボタンをクリックします。複数行にまたがる場合は、「+」ボタンをドラッグして範囲選択できます。
+
+**コメント1: バリデーションについて**
+
+`$user->name = $request->name;` の行を選択してコメント：
 
 ```
-【指摘1】バリデーションを追加してください。
-- 名前は必須、最大50文字
-- メールアドレスは必須、メール形式、ユニーク
-- パスワードは必須、最小8文字
-
-【指摘2】パスワードをハッシュ化してください。
-bcrypt()またはHash::make()を使用してください。
-
-【指摘3】$fillableを設定して、create()メソッドを使用してください。
-
-【指摘4】User::all()をpaginate()に変更してください。
+バリデーションを追加してください。
+現在、入力値のバリデーションが行われていません。
+`$request->validate()`を使用して、以下のルールを追加することを推奨します：
+- name: 必須、最大50文字
+- email: 必須、メール形式、ユニーク
+- password: 必須、最小8文字
 ```
+
+「Add single comment」をクリックしてコメントを追加します。
+
+**コメント2: パスワードについて**
+
+`$user->password = $request->password;` の行を選択してコメント：
+
+```
+パスワードをハッシュ化してください。
+パスワードが平文で保存されています。セキュリティ上の重大な問題です。
+`Hash::make()`を使用してハッシュ化してください。
+```
+
+「Add single comment」をクリックしてコメントを追加します。
+
+**コメント3: パフォーマンスについて**
+
+`$users = User::all();` の行を選択してコメント：
+
+```
+User::all()をpaginate()に変更を検討してください。
+ユーザー数が増えた場合、全件取得はパフォーマンスに影響します。
+`User::paginate(20)`への変更を推奨します。
+```
+
+「Add single comment」をクリックしてコメントを追加します。
+
+**コードリーディング**
+
+| 用語 | 説明 |
+|------|------|
+| Files changed | 変更されたファイルの差分を表示するタブ |
+| + ボタン | 行番号の左に表示される。クリックでコメント入力欄が開く |
+| Add single comment | コメントを即座に送信 |
 
 ---
 
-#### ステップ5: コードを修正する
+#### ステップ3: コードを修正してプッシュする
+
+> 📌 **役割の切り替え**: ここからはレビュイー（PR作成者）としての作業です。実際のチーム開発では、レビューコメントを受けたPR作成者が修正を行います。
 
 **何を考えているか**：
 - 「レビューコメントに基づいてコードを修正しよう」
-- 「セキュリティ問題を解決しよう」
+- 「セキュリティの問題を最優先で解決しよう」
+
+ターミナルでfeatureブランチに切り替え、コードを修正します：
+
+```bash
+git switch feature/issue-1-add-user-registration
+```
 
 `UserController.php`を以下のように修正します：
 
@@ -360,7 +278,7 @@ class UserController extends Controller
         $validated = $request->validate([
             'name' => 'required|max:50',
             'email' => 'required|email|unique:users',
-            'password' => 'required|min:8|confirmed',
+            'password' => 'required|min:8',
         ]);
 
         User::create([
@@ -368,14 +286,21 @@ class UserController extends Controller
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
         ]);
-        
-        return redirect()->route('users.index')
-            ->with('success', 'ユーザーを作成しました');
+
+        return redirect('/users');
     }
 }
 ```
 
-**修正内容の解説**：
+修正内容をコミットしてプッシュします：
+
+```bash
+git add UserController.php
+git commit -m "Fix review comments: Add validation and hash password"
+git push origin feature/issue-1-add-user-registration
+```
+
+**コードリーディング**
 
 | 修正箇所 | 修正前 | 修正後 | 理由 |
 |:---|:---|:---|:---|
@@ -383,49 +308,110 @@ class UserController extends Controller
 | バリデーション | なし | `$request->validate()` | セキュリティ向上 |
 | パスワード | `$request->password` | `Hash::make()` | セキュリティ向上 |
 | 登録方法 | `new User` + `save()` | `User::create()` | ベストプラクティス |
-| リダイレクト | `redirect('/users')` | `redirect()->route()` | 保守性向上 |
+
+> 💡 **補足**: バリデーションは本来、FormRequestクラスに分離するのが理想的です。コントローラをシンプルに保ち、バリデーションルールを再利用しやすくなります。今回は簡易的に`$request->validate()`を使用しています。
+
+---
+
+#### ステップ4: PRをマージする
+
+> 📌 **役割の切り替え**: ここからはレビュアーとしての作業に戻ります。修正内容を確認し、問題なければマージします。
+
+**何を考えているか**：
+- 「修正が完了したのでマージしよう」
+- 「Issueも自動的にクローズされる」
+
+GitHubでPull Requestを開き、修正コミットが反映されていることを確認します。
+
+**修正コミットの確認方法**:
+
+1. PRページの「Commits」タブをクリック
+2. 新しいコミット（`Fix review comments: ...`）が追加されていることを確認
+3. 「Files changed」タブで、バリデーションやパスワードハッシュ化が追加されていることを確認
+
+**マージ手順**:
+
+1. 「Conversation」タブをクリックしてPRのメイン画面に戻る
+2. 「Merge pull request」ボタンをクリック
+3. 「Confirm merge」をクリック
+4. 「Delete branch」をクリックしてブランチを削除
+
+**Issueのクローズ確認**:
+
+1. 「Issues」タブをクリック
+2. Issue #1 が「Closed」になっていることを確認
+
+> 💡 **ポイント**: PRに`Closes #1`と書いていたため、マージ時にIssueが自動的にクローズされます。
+
+**コードリーディング**
+
+| 操作 | 説明 |
+|------|------|
+| Merge pull request | PRの変更をmainブランチに統合 |
+| Delete branch | マージ済みのブランチを削除して整理 |
+
+マージ後、ローカルでも同期します：
+
+```bash
+git switch main
+git pull origin main
+git branch -d feature/issue-1-add-user-registration
+```
 
 ---
 
 ### ✨ 完成！
 
-これでコードレビューが実践できました！セキュリティの観点で問題を発見し、具体的な改善提案をするスキルが身につきましたね。
+これでコードレビューが実践できました！問題点の発見から修正、マージまでの一連の流れを体験できましたね。
+
+**確認ポイント**
+
+| 確認項目 | 期待値 |
+|----------|--------|
+| Pull requests タブ | PRがMerged状態 |
+| Issues タブ | Issue #1 がClosed状態 |
+| mainブランチ | 修正後のコードが反映されている |
 
 **自分で修正したコードと比較してみましょう**：
-- `code-review-practice/UserController.php`: 自分で修正したコード
-- `code-review-sample/UserController.php`: 一緒に修正したコード
+- `github-collab-practice/`: 自分でレビュー・修正したリポジトリ
+- `github-collab-sample/`: 一緒にレビュー・修正したリポジトリ
 
-両方のファイルを比較して、修正内容を確認してみてください。
+両方のGitHubリポジトリを開いて、レビューコメントや修正内容を比較してみてください。
 
 ---
 
-## 📖 レビューコメント例
+## 📖 模範解答
 
-### 指摘1: バリデーションがない
+### レビューコメント
+
+**コメント1**: `$user->name = $request->name;` の行に対して
 
 ```
 バリデーションを追加してください。
-- 名前は必須、最大50文字
-- メールアドレスは必須、メール形式、ユニーク
-- パスワードは必須、最小8文字
+現在、入力値のバリデーションが行われていません。
+`$request->validate()`を使用して、以下のルールを追加することを推奨します：
+- name: 必須、最大50文字
+- email: 必須、メール形式、ユニーク
+- password: 必須、最小8文字
 ```
 
-### 指摘2: パスワードがハッシュ化されていない
+**コメント2**: `$user->password = $request->password;` の行に対して
 
 ```
 パスワードをハッシュ化してください。
-bcrypt()またはHash::make()を使用してください。
+パスワードが平文で保存されています。セキュリティ上の重大な問題です。
+`Hash::make()`を使用してハッシュ化してください。
 ```
 
-### 指摘3: Mass assignmentの脆弱性
+**コメント3**: `$users = User::all();` の行に対して
 
 ```
-$fillableを設定して、create()メソッドを使用してください。
+User::all()をpaginate()に変更を検討してください。
+ユーザー数が増えた場合、全件取得はパフォーマンスに影響します。
+`User::paginate(20)`への変更を推奨します。
 ```
 
----
-
-## 📖 修正後のコード
+### 修正後のコード
 
 ```php
 <?php
@@ -449,7 +435,7 @@ class UserController extends Controller
         $validated = $request->validate([
             'name' => 'required|max:50',
             'email' => 'required|email|unique:users',
-            'password' => 'required|min:8|confirmed',
+            'password' => 'required|min:8',
         ]);
 
         User::create([
@@ -457,31 +443,28 @@ class UserController extends Controller
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
         ]);
-        
-        return redirect()->route('users.index')
-            ->with('success', 'ユーザーを作成しました');
+
+        return redirect('/users');
     }
 }
 ```
 
-```php
-// User.php（モデル）
-protected $fillable = [
-    'name',
-    'email',
-    'password',
-];
+### コミット・プッシュ
+
+```bash
+git add UserController.php
+git commit -m "Fix review comments: Add validation and hash password"
+git push origin feature/issue-1-add-user-registration
 ```
 
 ---
 
-## 🎓 レビューのポイント
+## 🎓 レビューのチェックリスト
 
 ### セキュリティ
 
 - [ ] バリデーションが実装されているか
 - [ ] パスワードがハッシュ化されているか
-- [ ] Mass assignmentの脆弱性がないか
 - [ ] SQLインジェクション対策がされているか
 
 ### パフォーマンス
@@ -493,14 +476,12 @@ protected $fillable = [
 ### 可読性
 
 - [ ] 変数名が適切か
-- [ ] コメントが適切か
 - [ ] コードが整理されているか
 
 ### ベストプラクティス
 
 - [ ] Laravelの規約に従っているか
 - [ ] DRY原則が守られているか
-- [ ] エラーハンドリングが適切か
 
 ---
 
@@ -510,11 +491,20 @@ protected $fillable = [
 
 このハンズオンで、以下のことができるようになりました：
 
-- ✅ コードをセキュリティの観点でレビューできる
-- ✅ パフォーマンスの問題を発見できる
-- ✅ 具体的な改善提案ができる
-- ✅ レビューコメントに基づいてコードを修正できる
+| Step | 学んだこと |
+|------|-----------|
+| 1 | PRのコードを読んで問題点を特定する |
+| 2 | レビューコメントを作成する |
+| 3 | コードを修正してプッシュする |
+| 4 | PRをマージする |
 
-引き続き、次のセクションも頑張りましょう！
+**確認できたこと**:
+
+- ✅ セキュリティの観点でコードをレビューできる
+- ✅ 建設的なフィードバックを提供できる
+- ✅ レビューコメントに基づいてコードを修正できる
+- ✅ PRをマージしてIssueをクローズできる
+
+これでTutorial 12「チーム開発で重要なGitとGitHubの実践的な使い方」は完了です。お疲れ様でした！
 
 ---

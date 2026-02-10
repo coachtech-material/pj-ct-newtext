@@ -1,14 +1,12 @@
-# Tutorial 12-1-5: Gitワークフロー - ハンズオン演習
+# Tutorial 12-1-5: ハンズオン - Gitワークフロー演習
 
-## 📝 このセクションの目的
+## 📌 このハンズオンについて
 
 Chapter 1で学んだGitワークフローを実際に手を動かして確認します。ブランチ戦略、マージ、コンフリクト解決を実践しましょう。
 
 > 分からない文法や実装があっても、すぐに答えを見るのではなく、過去の教材を見たり、AIにヒントをもらいながら進めるなど、自身で創意工夫しながら進めてみましょう🔥
 
----
-
-## 📁 ディレクトリ構成
+### 📁 ディレクトリ構成
 
 このハンズオンでは、「自分で作成する用」と「解答を確認する用」の2つのリポジトリを作成します。
 
@@ -33,55 +31,64 @@ Chapter 1で学んだGitワークフローを実際に手を動かして確認�
 
 ## 🎯 演習課題：機能開発ブランチでの作業
 
-### 🖼️ 完成イメージ
+### この演習で作るもの
 
-<!-- Gitログとブランチグラフのスクリーンショットをここに配置 -->
-![12-1-5 完成イメージ](images/12-1-5_git_workflow_complete.png)
-
-**この演習で作るもの**：
 ブランチを作成し、機能開発を行い、マージする「Gitワークフロー」を実践します。
 
----
+### 🖼️ 完成イメージ
 
-### 📋 要件
+**Gitログとブランチグラフ**
 
-1. `main`ブランチから`feature/user-profile`ブランチを作成
-2. `profile.html`を作成してコミット
-3. `main`ブランチにマージ
-4. コンフリクトが発生した場合は解決
+<img alt="12-1-5_1.png" src="">
 
----
+### 📋 ユースケース
 
-### ✅ 完成品の確認方法
+あなたはチーム開発に参加しています。新しく「ユーザープロフィールページ」の機能を担当することになりました。
 
-**🔧 コマンドラインでの確認**
+- 他のメンバーの作業に影響を与えずに開発を進めたい
+- 機能が完成したら、本番コード（main）に統合したい
+- 統合後は、作業用のブランチを整理したい
 
-- **確認コマンド**: `git log --oneline --graph --all`
-- **確認手順**:
-  1. ブランチ一覧を確認（`git branch`）
-  2. コミット履歴を確認（`git log --oneline`）
-  3. ファイルが存在することを確認（`ls -la`）
+このワークフローを実践してみましょう。
 
-**正しく実装できていれば**:
+### ✅ 完成チェックリスト
+
 - [ ] `feature/user-profile`ブランチが作成されている
 - [ ] `profile.html`がコミットされている
 - [ ] `main`ブランチにマージされている
 - [ ] コミット履歴が正しく表示される
 
-**確認結果の例**:
+> 💡 **動作確認**: `git log --oneline --graph --all` を実行
 
-```bash
-$ git log --oneline --graph --all
-*   abc1234 (HEAD -> main) Merge branch 'feature/user-profile'
-|\
-| * def5678 (feature/user-profile) Add user profile page
-|/
-* 1234567 Initial commit
+### ✏️ 実装タスク
+
+1. `feature/user-profile`ブランチを作成する
+2. `profile.html`を作成・コミットする
+3. mainブランチにマージする
+4. 使用済みブランチを削除する
+
+**作成するファイル**
+
+`profile.html`
+
+```html
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>プロフィール</title>
+</head>
+<body>
+    <h1>ユーザープロフィール</h1>
+    <p>名前: 山田太郎</p>
+    <p>メール: yamada@example.com</p>
+</body>
+</html>
 ```
 
 ---
 
-## 🔧 環境準備（自分で作成する用）
+## ⚙️ 環境準備（自分で作成する用）
 
 まず、ハンズオン用のディレクトリを作成し、**自分で作成する用**のリポジトリを準備します。
 
@@ -100,9 +107,12 @@ cd git-workflow-practice
 
 # Gitリポジトリを初期化
 git init
-
-# mainブランチに切り替え（Git 2.28以降）
 git branch -M main
+
+# 初期コミットを作成（mainブランチを確立）
+echo "# Git Workflow Practice" > README.md
+git add README.md
+git commit -m "Initial commit"
 ```
 
 **✅ ディレクトリ構造の確認**
@@ -115,7 +125,7 @@ git branch -M main
 ```
 
 > 💡 **環境構築が完了！**
-> 
+>
 > `git status`を実行して、Gitリポジトリが初期化されていることを確認してください。
 
 **ここから先は、自分の力で実装してみましょう！**
@@ -126,14 +136,14 @@ git branch -M main
 
 ```bash
 # ブランチ作成
-git checkout -b feature/user-profile
+git switch -c feature/user-profile
 
 # ファイル作成・コミット
 git add profile.html
 git commit -m "Add user profile page"
 
 # mainブランチに切り替え
-git checkout main
+git switch main
 
 # マージ
 git merge feature/user-profile
@@ -141,7 +151,7 @@ git merge feature/user-profile
 
 ---
 
-## 🏃 実践: 一緒に作ってみましょう！
+## 🏃 実践セクション：一緒に作ってみましょう！
 
 ちゃんとできましたか？Gitワークフローはチーム開発において不可欠なスキルです。一緒に手を動かしながら、ブランチ戦略を実践していきましょう。
 
@@ -149,7 +159,7 @@ git merge feature/user-profile
 
 ---
 
-### 💻 環境準備（実践用リポジトリ）
+### ⚙️ 環境準備（実践用プロジェクト）
 
 **実践用のリポジトリを作成**します：
 
@@ -163,9 +173,12 @@ cd git-workflow-sample
 
 # Gitリポジトリを初期化
 git init
-
-# mainブランチに切り替え
 git branch -M main
+
+# 初期コミットを作成（mainブランチを確立）
+echo "# Git Workflow Sample" > README.md
+git add README.md
+git commit -m "Initial commit"
 ```
 
 **✅ ディレクトリ構造の確認**
@@ -180,23 +193,22 @@ git branch -M main
 
 ---
 
-### 💭 実装の思考プロセス
+### 🧠 先輩エンジニアの思考プロセス
 
-Gitワークフローを進める際、以下の順番で考えると効率的です：
+先輩エンジニアは要件を以下のように構造化し、実装タスクに落とし込みます：
 
-1. **機能ブランチを作成**：mainから分岐して作業
-2. **ファイルを作成・編集**：機能を実装
-3. **変更をコミット**：意味のある単位で保存
-4. **mainブランチにマージ**：機能を統合
-5. **使用済みブランチを削除**：整理して終了
-
-Gitワークフローのポイントは「ブランチで機能を分離し、安全に開発を進める」ことです。
+| Step | やること | 説明 |
+|:-----|:---------|:-----|
+| 1 | `feature/user-profile`ブランチを作成する | mainから分岐して作業環境を用意 |
+| 2 | `profile.html`を作成・コミットする | 機能を実装してコミット |
+| 3 | mainブランチにマージする | 機能をmainに統合 |
+| 4 | 使用済みブランチを削除する | 不要になったブランチを整理 |
 
 ---
 
 ### 📝 ステップバイステップで実装
 
-#### ステップ1: 機能ブランチを作成する
+#### ステップ1: `feature/user-profile`ブランチを作成する
 
 **何を考えているか**：
 - 「新しい機能を開発するためのブランチが必要だ」
@@ -206,15 +218,15 @@ Gitワークフローのポイントは「ブランチで機能を分離し、�
 ターミナルで以下のコマンドを実行します：
 
 ```bash
-git checkout -b feature/user-profile
+git switch -c feature/user-profile
 ```
 
-**コマンド解説**：
+**コードリーディング**
 
-```bash
-git checkout -b feature/user-profile
-```
-→ `git checkout -b`で新しいブランチを作成し、同時にそのブランチに切り替えます。`feature/user-profile`という名前で、ユーザープロフィール機能を開発するブランチであることがわかります。
+| 部分 | 説明 |
+|------|------|
+| `git switch -c` | 新しいブランチを作成し、同時に切り替える |
+| `feature/user-profile` | ブランチ名（機能ブランチであることがわかる命名） |
 
 現在のブランチを確認するには：
 
@@ -224,7 +236,7 @@ git branch
 
 ---
 
-#### ステップ2: ファイルを作成・編集する
+#### ステップ2: `profile.html`を作成・コミットする
 
 **何を考えているか**：
 - 「ユーザープロフィールページを作成しよう」
@@ -247,19 +259,6 @@ git branch
 </html>
 ```
 
-**コード解説**：
-
-→ シンプルなHTMLファイルでユーザープロフィールを表示します。実際の開発では、このように機能を少しずつ実装していきます。
-
----
-
-#### ステップ3: 変更をコミットする
-
-**何を考えているか**：
-- 「作成したファイルをGitに追加しよう」
-- 「意味のあるコミットメッセージを書こう」
-- 「英語で簡潔に説明しよう」
-
 ターミナルで以下のコマンドを実行します：
 
 ```bash
@@ -267,17 +266,12 @@ git add profile.html
 git commit -m "Add user profile page"
 ```
 
-**コマンド解説**：
+**コードリーディング**
 
-```bash
-git add profile.html
-```
-→ `git add`でファイルをステージングエリアに追加します。コミットする変更を準備します。
-
-```bash
-git commit -m "Add user profile page"
-```
-→ `git commit`で変更をコミットします。`-m`オプションでコミットメッセージを指定します。メッセージは「何をしたか」を簡潔に表現します。
+| コマンド | 説明 |
+|----------|------|
+| `git add profile.html` | ファイルをステージングエリアに追加 |
+| `git commit -m "..."` | コミットを作成（メッセージは「何をしたか」を簡潔に） |
 
 コミット履歴を確認するには：
 
@@ -287,7 +281,7 @@ git log --oneline
 
 ---
 
-#### ステップ4: mainブランチにマージする
+#### ステップ3: mainブランチにマージする
 
 **何を考えているか**：
 - 「機能開発が完了したのでmainに統合しよう」
@@ -297,21 +291,16 @@ git log --oneline
 ターミナルで以下のコマンドを実行します：
 
 ```bash
-git checkout main
+git switch main
 git merge feature/user-profile
 ```
 
-**コマンド解説**：
+**コードリーディング**
 
-```bash
-git checkout main
-```
-→ `git checkout`でmainブランチに切り替えます。マージ先のブランチに移動します。
-
-```bash
-git merge feature/user-profile
-```
-→ `git merge`で`feature/user-profile`ブランチの変更をmainブランチに統合します。コンフリクトがなければ、自動的にマージされます。
+| コマンド | 説明 |
+|----------|------|
+| `git switch main` | mainブランチに切り替え |
+| `git merge feature/user-profile` | featureブランチの変更をmainに統合 |
 
 マージ後の状態を確認するには：
 
@@ -321,7 +310,7 @@ git log --oneline --graph
 
 ---
 
-#### ステップ5: 使用済みブランチを削除する
+#### ステップ4: 使用済みブランチを削除する
 
 **何を考えているか**：
 - 「マージが完了したブランチは不要だ」
@@ -334,12 +323,12 @@ git log --oneline --graph
 git branch -d feature/user-profile
 ```
 
-**コマンド解説**：
+**コードリーディング**
 
-```bash
-git branch -d feature/user-profile
-```
-→ `git branch -d`でブランチを削除します。`-d`オプションはマージ済みのブランチのみ削除できる安全な削除です。マージされていない場合はエラーが出ます。
+| 部分 | 説明 |
+|------|------|
+| `git branch -d` | マージ済みのブランチを安全に削除 |
+| `-d` | マージされていない場合はエラー（安全策） |
 
 ブランチ一覧を確認するには：
 
@@ -392,6 +381,14 @@ git commit -m "Resolve merge conflict"
 
 これでGitワークフローが実践できました！ブランチで機能を分離し、マージで統合する流れを理解できましたね。
 
+**確認ポイント**
+
+| 確認項目 | 期待値 |
+|----------|--------|
+| `git branch` | mainブランチのみ表示される |
+| `git log --oneline` | マージコミットが表示される |
+| `ls` | profile.htmlが存在する |
+
 **自分で作成したリポジトリと比較してみましょう**：
 - `git-workflow-practice/`: 自分で作成したリポジトリ
 - `git-workflow-sample/`: 一緒に作成したリポジトリ
@@ -402,13 +399,13 @@ git commit -m "Resolve merge conflict"
 
 ## 📖 模範解答
 
-### 手順１: ブランチ作成
+### ブランチ作成
 
 ```bash
-git checkout -b feature/user-profile
+git switch -c feature/user-profile
 ```
 
-### 手順2: ファイル作成
+### ファイル作成
 
 ```html
 <!-- profile.html -->
@@ -426,21 +423,21 @@ git checkout -b feature/user-profile
 </html>
 ```
 
-### 手順3: コミット
+### コミット
 
 ```bash
 git add profile.html
 git commit -m "Add user profile page"
 ```
 
-### 手順4: mainブランチにマージ
+### mainブランチにマージ
 
 ```bash
-git checkout main
+git switch main
 git merge feature/user-profile
 ```
 
-### 手順5: ブランチ削除
+### ブランチ削除
 
 ```bash
 git branch -d feature/user-profile
@@ -454,12 +451,21 @@ git branch -d feature/user-profile
 
 このハンズオンで、以下のことができるようになりました：
 
+| Step | 学んだこと |
+|------|-----------|
+| 1 | `feature/user-profile`ブランチを作成する |
+| 2 | `profile.html`を作成・コミットする |
+| 3 | mainブランチにマージする |
+| 4 | 使用済みブランチを削除する |
+
+**確認できたこと**:
+
 - ✅ 機能ブランチを作成できる
 - ✅ ブランチで作業してコミットできる
 - ✅ mainブランチにマージできる
 - ✅ コンフリクトを解決できる
 - ✅ 使用済みブランチを削除できる
 
-引き続き、次のセクションも頑張りましょう！
+次のChapter 2では、イシュー駆動開発について学びます。
 
 ---

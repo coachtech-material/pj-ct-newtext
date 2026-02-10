@@ -1,14 +1,14 @@
-# Tutorial 12-2-4: GitHub連携 - ハンズオン演習
+# Tutorial 12-2-4: ハンズオン - GitHub連携演習
 
-## 📝 このセクションの目的
+## 📌 このハンズオンについて
 
-Chapter 2で学んだGitHub連携を実際に手を動かして確認します。Issue、Pull Request、レビューのワークフローを実践しましょう。
+Chapter 2で学んだGitHub連携を実際に手を動かして確認します。Issue、Pull Request のワークフローを実践しましょう。
 
 > 分からない文法や実装があっても、すぐに答えを見るのではなく、過去の教材を見たり、AIにヒントをもらいながら進めるなど、自身で創意工夫しながら進めてみましょう🔥
 
----
+> ⚠️ **重要**: このハンズオンで作成するリポジトリとPull Requestは、**12-3-5（コードレビューハンズオン）** でも使用します。マージせずにそのまま残しておいてください。
 
-## 📁 ディレクトリ構成
+### 📁 ディレクトリ構成
 
 このハンズオンでは、「自分で作成する用」と「解答を確認する用」の2つのリポジトリを作成します。
 
@@ -16,9 +16,9 @@ Chapter 2で学んだGitHub連携を実際に手を動かして確認します�
 ~/git-practice/
 ├── 12-2-4_hands-on/                         ← このハンズオン用のディレクトリ
 │   ├── github-collab-practice/              ← 要件を見て自分で作成するリポジトリ
-│   │   └── contact.html
+│   │   └── UserController.php
 │   └── github-collab-sample/                ← 実践で一緒に作成するリポジトリ
-│       └── contact.html
+│       └── UserController.php
 └── ...
 ```
 
@@ -35,57 +35,92 @@ Chapter 2で学んだGitHub連携を実際に手を動かして確認します�
 
 ## 🎯 演習課題：Pull Requestを作成しよう
 
-### 🖼️ 完成イメージ
+### この演習で作るもの
 
-<!-- GitHubのIssueとPull Request画面のスクリーンショットをここに配置 -->
-![12-2-4 完成イメージ](images/12-2-4_github_collaboration_complete.png)
-
-**この演習で作るもの**：
 Issueを作成し、ブランチで開発し、Pull Requestを作成する「GitHubコラボレーションワークフロー」を実践します。
 
----
+### 🖼️ 完成イメージ
 
-### 📋 要件
+<details>
+<summary>📸 完成画面を確認する（クリックで展開）</summary>
 
-1. GitHubでIssueを作成
-2. Issueに対応するブランチを作成
-3. 機能を実装してコミット
-4. Pull Requestを作成
-5. レビューコメントを追加
+**GitHub Issue**
 
----
+<img alt="12-2-4_1.png" src="">
 
-### ✅ 完成品の確認方法
+**GitHub Pull Request**
 
-**🌐 GitHubでの確認**
+<img alt="12-2-4_2.png" src="">
 
-- **確認場所**: GitHubリポジトリの「Issues」タブと「Pull requests」タブ
-- **確認手順**:
-  1. GitHubリポジトリにアクセス
-  2. 「Issues」タブでIssueが作成されていることを確認
-  3. 「Pull requests」タブでPRが作成されていることを確認
-  4. PRにレビューコメントが追加されていることを確認
+</details>
 
-**正しく実装できていれば**:
+### 📋 ユースケース
+
+あなたはチーム開発に参加しています。「ユーザー登録機能の追加」という機能を担当することになりました。
+
+- タスクをIssueとして登録し、チームで共有したい
+- Issue番号をブランチ名やコミットに含めて、作業を紐づけたい
+- 開発が完了したらPull Requestを作成し、レビューを依頼したい
+
+このワークフローを実践してみましょう。
+
+> 💡 **ポイント**: 今回作成するコードには意図的に「改善すべき点」が含まれています。これは次の12-3-5（コードレビューハンズオン）でレビューの練習に使うためです。
+
+### ✅ 完成チェックリスト
+
 - [ ] Issueが作成されている
-- [ ] Issueに対応するブランチが作成されている
+- [ ] Issue番号を含むブランチが作成されている
+- [ ] `UserController.php`がコミットされている
 - [ ] Pull Requestが作成されている
-- [ ] PRにレビューコメントが追加されている
-- [ ] PRのDescriptionにIssue番号がリンクされている
+- [ ] PRの説明に`Closes #1`が含まれている
 
-**🔧 コマンドラインでの確認**:
+> 💡 **動作確認**: GitHubリポジトリの「Issues」タブと「Pull requests」タブを確認
 
-```bash
-# リモートブランチの確認
-git branch -r
+### ✏️ 実装タスク
 
-# プッシュ済みコミットの確認
-git log --oneline origin/main
+1. GitHubでIssueを作成する
+2. `feature/issue-1-add-user-registration`ブランチを作成する
+3. `UserController.php`を作成・コミット・プッシュする
+4. Pull Requestを作成する
+
+**作成するファイル**
+
+`UserController.php`
+
+```php
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\User;
+use Illuminate\Http\Request;
+
+class UserController extends Controller
+{
+    public function index()
+    {
+        $users = User::all();
+        return view('users.index', ['users' => $users]);
+    }
+
+    public function store(Request $request)
+    {
+        $user = new User;
+        $user->name = $request->name;
+        $user->email = $request->email;
+        $user->password = $request->password;
+        $user->save();
+
+        return redirect('/users');
+    }
+}
 ```
 
+> ⚠️ **注意**: このコードには意図的に問題点が含まれています。12-3-5でレビューの練習をするため、そのままコミットしてください。
+
 ---
 
-## 🔧 環境準備（自分で作成する用）
+## ⚙️ 環境準備（自分で作成する用）
 
 まず、ハンズオン用のディレクトリを作成し、**自分で作成する用**のリポジトリを準備します。
 
@@ -106,11 +141,9 @@ cd github-collab-practice
 
 # Gitリポジトリを初期化
 git init
-
-# mainブランチに切り替え
 git branch -M main
 
-# 初期ファイルを作成してコミット（GitHubにプッシュするため）
+# 初期ファイルを作成してコミット
 echo "# GitHub Collaboration Practice" > README.md
 git add README.md
 git commit -m "Initial commit"
@@ -144,7 +177,7 @@ git push -u origin main
 ```
 
 > 💡 **環境構築が完了！**
-> 
+>
 > GitHubでリポジトリが作成され、README.mdがプッシュされていることを確認してください。
 
 **ここから先は、自分の力で実装してみましょう！**
@@ -155,17 +188,17 @@ git push -u origin main
 
 ```bash
 # Issueに対応するブランチ作成
-git checkout -b feature/issue-1-add-contact-form
+git switch -c feature/issue-1-add-user-registration
 
 # 実装後
-git add .
-git commit -m "Fix #1: Add contact form"
-git push origin feature/issue-1-add-contact-form
+git add UserController.php
+git commit -m "Add #1: Add user registration feature"
+git push origin feature/issue-1-add-user-registration
 ```
 
 ---
 
-## 🏃 実践: 一緒に作ってみましょう！
+## 🏃 実践セクション：一緒に作ってみましょう！
 
 ちゃんとできましたか？GitHubコラボレーションはチーム開発の基本です。一緒に手を動かしながら、IssueからPull Requestまでのワークフローを実践していきましょう。
 
@@ -173,7 +206,7 @@ git push origin feature/issue-1-add-contact-form
 
 ---
 
-### 💻 環境準備（実践用リポジトリ）
+### ⚙️ 環境準備（実践用プロジェクト）
 
 ### Step 1: ローカルリポジトリを作成
 
@@ -187,8 +220,6 @@ cd github-collab-sample
 
 # Gitリポジトリを初期化
 git init
-
-# mainブランチに切り替え
 git branch -M main
 
 # 初期ファイルを作成してコミット
@@ -227,15 +258,16 @@ git push -u origin main
 
 ---
 
-### 💭 実装の思考プロセス
+### 🧠 先輩エンジニアの思考プロセス
 
-GitHubコラボレーションを進める際、以下の順番で考えると効率的です：
+先輩エンジニアは要件を以下のように構造化し、実装タスクに落とし込みます：
 
-1. **Issueでタスクを管理**：何をするかを明確にする
-2. **ブランチを作成**：Issue番号を含めて紐付ける
-3. **機能を実装**：Issueの要件に従う
-4. **Pull Requestを作成**：レビューを依頼する
-5. **レビュー・マージ**：チームで確認して統合
+| Step | やること | 説明 |
+|:-----|:---------|:-----|
+| 1 | GitHubでIssueを作成する | タスクを明確にしてチームで共有 |
+| 2 | `feature/issue-1-add-user-registration`ブランチを作成する | Issue番号を含めて紐づけ |
+| 3 | `UserController.php`を作成・コミット・プッシュする | Issueの要件に従って実装 |
+| 4 | Pull Requestを作成する | レビューを依頼 |
 
 ---
 
@@ -249,27 +281,32 @@ GitHubコラボレーションを進める際、以下の順番で考えると�
 
 GitHubでリポジトリを開き、「Issues」タブ → 「New issue」をクリックします。
 
-**タイトル**: お問い合わせフォームの追加
+**タイトル**: ユーザー登録機能の追加
 
 **本文**:
+
 ```
 ## 概要
-お問い合わせフォームを追加する
+ユーザー登録機能を追加する
 
 ## 要件
-- [ ] contact.htmlを作成
-- [ ] 名前、メール、メッセージの入力欄
-- [ ] 送信ボタン
-
-## 期限
-2024-12-20
+- [ ] UserController.phpを作成
+- [ ] ユーザー一覧表示機能（index）
+- [ ] ユーザー登録機能（store）
 ```
 
 「Submit new issue」をクリックしてIssueを作成します。
 
+**コードリーディング**
+
+| 部分 | 説明 |
+|------|------|
+| `## 概要` | Markdownの見出し記法 |
+| `- [ ]` | チェックボックス（タスクリスト） |
+
 ---
 
-#### ステップ2: Issueに対応するブランチを作成する
+#### ステップ2: `feature/issue-1-add-user-registration`ブランチを作成する
 
 **何を考えているか**：
 - 「Issue番号をブランチ名に含めよう」
@@ -278,130 +315,111 @@ GitHubでリポジトリを開き、「Issues」タブ → 「New issue」をク
 ターミナルで以下のコマンドを実行します：
 
 ```bash
-git checkout -b feature/issue-1-add-contact-form
+git switch -c feature/issue-1-add-user-registration
 ```
 
-**コマンド解説**：
+**コードリーディング**
 
-```bash
-git checkout -b feature/issue-1-add-contact-form
-```
-→ `feature/issue-1-`という接頭辞で、Issue #1に対応するブランチであることがわかります。
+| 部分 | 説明 |
+|------|------|
+| `git switch -c` | 新しいブランチを作成し、同時に切り替える |
+| `feature/issue-1-...` | Issue #1に対応するブランチであることがわかる命名 |
 
 ---
 
-#### ステップ3: 機能を実装する
+#### ステップ3: `UserController.php`を作成・コミット・プッシュする
 
 **何を考えているか**：
 - 「Issueの要件に従って機能を実装しよう」
-- 「お問い合わせフォームを作成しよう」
+- 「コミットメッセージにIssue番号を含めよう」
 
-`contact.html`を作成します：
+`UserController.php`を作成します：
 
-```html
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <title>お問い合わせ</title>
-</head>
-<body>
-    <h1>お問い合わせ</h1>
-    <form>
-        <div>
-            <label>名前</label>
-            <input type="text" name="name" required>
-        </div>
-        <div>
-            <label>メールアドレス</label>
-            <input type="email" name="email" required>
-        </div>
-        <div>
-            <label>メッセージ</label>
-            <textarea name="message" required></textarea>
-        </div>
-        <button type="submit">送信</button>
-    </form>
-</body>
-</html>
+```php
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\User;
+use Illuminate\Http\Request;
+
+class UserController extends Controller
+{
+    public function index()
+    {
+        $users = User::all();
+        return view('users.index', ['users' => $users]);
+    }
+
+    public function store(Request $request)
+    {
+        $user = new User;
+        $user->name = $request->name;
+        $user->email = $request->email;
+        $user->password = $request->password;
+        $user->save();
+
+        return redirect('/users');
+    }
+}
 ```
 
----
-
-#### ステップ4: コミット・プッシュする
-
-**何を考えているか**：
-- 「コミットメッセージにIssue番号を含めよう」
-- 「`Fix #1`を含めると、マージ時に自動的にIssueがクローズされる」
+> ⚠️ **注意**: このコードには意図的に問題点が含まれています。12-3-5でレビューの練習をするため、そのままコミットしてください。
 
 ターミナルで以下のコマンドを実行します：
 
 ```bash
-git add contact.html
-git commit -m "Fix #1: Add contact form"
-git push origin feature/issue-1-add-contact-form
+git add UserController.php
+git commit -m "Add #1: Add user registration feature"
+git push origin feature/issue-1-add-user-registration
 ```
 
-**コマンド解説**：
+**コードリーディング**
 
-```bash
-git commit -m "Fix #1: Add contact form"
-```
-→ `Fix #1`を含めることで、このコミットがIssue #1に対応していることがわかります。Pull Requestがマージされると、自動的にIssue #1がクローズされます。
+| コマンド | 説明 |
+|----------|------|
+| `git commit -m "Add #1: ..."` | Issue #1に紐づくコミット |
+| `git push origin ...` | featureブランチをリモートにプッシュ |
 
 ---
 
-#### ステップ5: Pull Requestを作成する
+#### ステップ4: Pull Requestを作成する
 
 **何を考えているか**：
 - 「GitHubでPull Requestを作成しよう」
 - 「変更内容を明確に説明しよう」
-- 「レビューを依頼しよう」
+- 「`Closes #1`でIssueと紐づけよう」
 
 GitHubでリポジトリを開くと、「Compare & pull request」ボタンが表示されます。クリックして、以下の内容でPull Requestを作成します。
 
-**タイトル**: お問い合わせフォームの追加
+**タイトル**: ユーザー登録機能の追加
 
 **本文**:
+
 ```
 ## 概要
-Issue #1 に対応して、お問い合わせフォームを追加しました。
+Issue #1 に対応して、ユーザー登録機能を追加しました。
 
 ## 変更内容
-- contact.htmlを作成
-- 名前、メール、メッセージの入力欄を実装
-- 送信ボタンを追加
+- UserController.phpを作成
+- ユーザー一覧表示機能（index）を実装
+- ユーザー登録機能（store）を実装
 
 ## 確認方法
-contact.htmlをブラウザで開いて、フォームが正しく表示されることを確認してください。
+コードレビューをお願いします。
 
 Closes #1
 ```
 
 「Create pull request」をクリックします。
 
----
+**コードリーディング**
 
-#### ステップ6: レビューコメントを追加する
+| 部分 | 説明 |
+|------|------|
+| `Closes #1` | PRがマージされると、Issue #1が自動的にクローズされる |
 
-**何を考えているか**：
-- 「コードをレビューしてコメントを追加しよう」
-- 「良い点や改善点をフィードバックしよう」
-
-Pull Requestの「Files changed」タブで、コードの特定の行にコメントを追加できます。
-
-**承認コメント例**:
-```
-LGTM! 👍
-お問い合わせフォームが正しく実装されています。
-```
-
-**修正依頼コメント例**:
-```
-フォームにバリデーションを追加してください。
-- 名前は必須
-- メールアドレスは正しい形式
-```
+> ⚠️ **重要**: このPull Requestは**マージせずにそのまま残してください**。12-3-5（コードレビューハンズオン）でレビューの練習に使用します。
 
 ---
 
@@ -409,112 +427,107 @@ LGTM! 👍
 
 これでGitHubコラボレーションが実践できました！IssueからPull Requestまでのワークフローを理解できましたね。
 
+**確認ポイント**
+
+| 確認項目 | 期待値 |
+|----------|--------|
+| Issues タブ | Issue #1 が作成されている |
+| Pull requests タブ | PRが作成されている（Open状態） |
+| PRの説明 | `Closes #1` が含まれている |
+
 **自分で作成したリポジトリと比較してみましょう**：
 - `github-collab-practice/`: 自分で作成したリポジトリ
 - `github-collab-sample/`: 一緒に作成したリポジトリ
 
 両方のGitHubリポジトリを開いて、IssueやPull Requestを比較してみてください。
 
+> ⚠️ **重要**: Pull Requestは**マージしないでください**。12-3-5（コードレビューハンズオン）でこのPRに対してレビューの練習を行います。
+
 ---
 
 ## 📖 模範解答
 
-### 手順１: GitHubでIssue作成
+### Issue作成
 
-**タイトル**: お問い合わせフォームの追加
+**タイトル**: ユーザー登録機能の追加
 
 **本文**:
+
 ```
 ## 概要
-お問い合わせフォームを追加する
+ユーザー登録機能を追加する
 
 ## 要件
-- [ ] contact.htmlを作成
-- [ ] 名前、メール、メッセージの入力欄
-- [ ] 送信ボタン
-
-## 期限
-2024-12-20
+- [ ] UserController.phpを作成
+- [ ] ユーザー一覧表示機能（index）
+- [ ] ユーザー登録機能（store）
 ```
 
-### 手順2: ブランチ作成
+### ブランチ作成
 
 ```bash
-git checkout -b feature/issue-1-add-contact-form
+git switch -c feature/issue-1-add-user-registration
 ```
 
-### 手順3: ファイル作成
+### ファイル作成
 
-```html
-<!-- contact.html -->
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <title>お問い合わせ</title>
-</head>
-<body>
-    <h1>お問い合わせ</h1>
-    <form>
-        <div>
-            <label>名前</label>
-            <input type="text" name="name" required>
-        </div>
-        <div>
-            <label>メールアドレス</label>
-            <input type="email" name="email" required>
-        </div>
-        <div>
-            <label>メッセージ</label>
-            <textarea name="message" required></textarea>
-        </div>
-        <button type="submit">送信</button>
-    </form>
-</body>
-</html>
+```php
+// UserController.php
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\User;
+use Illuminate\Http\Request;
+
+class UserController extends Controller
+{
+    public function index()
+    {
+        $users = User::all();
+        return view('users.index', ['users' => $users]);
+    }
+
+    public function store(Request $request)
+    {
+        $user = new User;
+        $user->name = $request->name;
+        $user->email = $request->email;
+        $user->password = $request->password;
+        $user->save();
+
+        return redirect('/users');
+    }
+}
 ```
 
-### 手順4: コミット・プッシュ
+### コミット・プッシュ
 
 ```bash
-git add contact.html
-git commit -m "Fix #1: Add contact form"
-git push origin feature/issue-1-add-contact-form
+git add UserController.php
+git commit -m "Add #1: Add user registration feature"
+git push origin feature/issue-1-add-user-registration
 ```
 
-### 手順5: Pull Request作成
+### Pull Request作成
 
-**タイトル**: お問い合わせフォームの追加
+**タイトル**: ユーザー登録機能の追加
 
 **本文**:
+
 ```
 ## 概要
-Issue #1 に対応して、お問い合わせフォームを追加しました。
+Issue #1 に対応して、ユーザー登録機能を追加しました。
 
 ## 変更内容
-- contact.htmlを作成
-- 名前、メール、メッセージの入力欄を実装
-- 送信ボタンを追加
+- UserController.phpを作成
+- ユーザー一覧表示機能（index）を実装
+- ユーザー登録機能（store）を実装
 
 ## 確認方法
-contact.htmlをブラウザで開いて、フォームが正しく表示されることを確認してください。
+コードレビューをお願いします。
 
 Closes #1
-```
-
-### 手順6: レビューコメント例
-
-**承認コメント**:
-```
-LGTM! 👍
-お問い合わせフォームが正しく実装されています。
-```
-
-**修正依頼コメント**:
-```
-フォームにバリデーションを追加してください。
-- 名前は必須
-- メールアドレスは正しい形式
 ```
 
 ---
@@ -525,12 +538,22 @@ LGTM! 👍
 
 このハンズオンで、以下のことができるようになりました：
 
+| Step | 学んだこと |
+|------|-----------|
+| 1 | GitHubでIssueを作成する |
+| 2 | `feature/issue-1-add-user-registration`ブランチを作成する |
+| 3 | `UserController.php`を作成・コミット・プッシュする |
+| 4 | Pull Requestを作成する |
+
+**確認できたこと**:
+
 - ✅ GitHubでIssueを作成できる
-- ✅ Issueに対応するブランチを作成できる
+- ✅ Issue番号を含むブランチを作成できる
 - ✅ コミットメッセージでIssueを参照できる
 - ✅ Pull Requestを作成できる
-- ✅ レビューコメントを追加できる
 
-引き続き、次のセクションも頑張りましょう！
+> 💡 **次のステップ**: 12-3-5（コードレビューハンズオン）で、このPRに対してレビューの練習を行います。PRはマージせずにそのまま残しておいてください。
+
+次のChapter 3では、コードレビューの重要性と進め方について学びます。
 
 ---
