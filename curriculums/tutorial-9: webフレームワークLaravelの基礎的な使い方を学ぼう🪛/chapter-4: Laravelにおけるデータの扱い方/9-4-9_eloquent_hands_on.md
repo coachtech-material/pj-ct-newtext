@@ -53,15 +53,15 @@ Eloquentモデルを使って「ブログシステム」の投稿一覧機能を
 
 **投稿一覧ページ**
 
-<img alt="9-4-9_1.png" src="">
+<img alt="9-4-9_1.png" src="https://s3.ap-northeast-1.amazonaws.com/coachtech-lms-bucket-dev/curriculums/images/9-4-9_1.png">
 
 **投稿作成ページ**
 
-<img alt="9-4-9_2.png" src="">
+<img alt="9-4-9_2.png" src="https://s3.ap-northeast-1.amazonaws.com/coachtech-lms-bucket-dev/curriculums/images/9-4-9_2.png">
 
 **投稿編集ページ**
 
-<img alt="9-4-9_3.png" src="">
+<img alt="9-4-9_3.png" src="https://s3.ap-northeast-1.amazonaws.com/coachtech-lms-bucket-dev/curriculums/images/9-4-9_3.png">
 
 </details>
 

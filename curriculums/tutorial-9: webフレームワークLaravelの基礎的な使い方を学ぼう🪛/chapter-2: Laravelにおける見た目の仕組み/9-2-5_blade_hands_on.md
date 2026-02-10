@@ -48,7 +48,7 @@ Chapter 2で学んだBladeテンプレートを実際に手を動かして確認
 
 **商品一覧ページ完成画面**
 
-<img alt="9-2-5_1.png" src="">
+<img alt="9-2-5_1.png" src="https://s3.ap-northeast-1.amazonaws.com/coachtech-lms-bucket-dev/curriculums/images/9-2-5_1.png">
 
 ---
 

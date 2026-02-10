@@ -69,11 +69,11 @@ Chapter 2で学んだミドルウェアを実際に手を動かして確認し�
 
 **管理者でアクセスした場合**
 
-<img alt="10-2-4_1.png" src="">
+<img alt="10-2-4_1.png" src="https://s3.ap-northeast-1.amazonaws.com/coachtech-lms-bucket-dev/curriculums/images/10-2-4_1.png">
 
 **一般ユーザーでアクセスした場合（403エラー）**
 
-<img alt="10-2-4_2.png" src="">
+<img alt="10-2-4_2.png" src="https://s3.ap-northeast-1.amazonaws.com/coachtech-lms-bucket-dev/curriculums/images/10-2-4_2.png">
 
 </details>
 

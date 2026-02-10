@@ -433,7 +433,7 @@ Laravelのウェルカム画面が表示されれば、環境構築は成功で�
 
 **Laravelウェルカムページ**
 
-<img alt="9-1-7_1.png" src="">
+<img alt="9-1-7_1.png" src="https://s3.ap-northeast-1.amazonaws.com/coachtech-lms-bucket-dev/curriculums/images/9-1-7_1.png">
 
 **phpMyAdminにアクセス**
 
@@ -447,7 +447,7 @@ phpMyAdminの画面が表示され、`laravel`データベースが確認でき�
 
 **phpMyAdmin画面**
 
-<img alt="9-1-7_2.png" src="">
+<img alt="9-1-7_2.png" src="https://s3.ap-northeast-1.amazonaws.com/coachtech-lms-bucket-dev/curriculums/images/9-1-7_2.png">
 
 ---
 

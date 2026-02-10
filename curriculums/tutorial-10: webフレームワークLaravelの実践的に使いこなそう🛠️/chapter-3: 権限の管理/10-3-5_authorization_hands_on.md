@@ -59,15 +59,15 @@ Chapter 3で学んだ認可機能を実際に手を動かして確認します�
 
 **ユーザーAでログイン時の投稿一覧（ユーザーAの投稿にのみ「編集」「削除」ボタンが表示される）**
 
-<img alt="10-3-5_1.png" src="">
+<img alt="10-3-5_1.png" src="https://s3.ap-northeast-1.amazonaws.com/coachtech-lms-bucket-dev/curriculums/images/10-3-5_1.png">
 
 **ユーザーBでログイン時の投稿一覧（ユーザーBの投稿にのみ「編集」「削除」ボタンが表示される）**
 
-<img alt="10-3-5_2.png" src="">
+<img alt="10-3-5_2.png" src="https://s3.ap-northeast-1.amazonaws.com/coachtech-lms-bucket-dev/curriculums/images/10-3-5_2.png">
 
 **他人の投稿を直接編集しようとした場合（403 Forbiddenエラーが表示される）**
 
-<img alt="10-3-5_3.png" src="">
+<img alt="10-3-5_3.png" src="https://s3.ap-northeast-1.amazonaws.com/coachtech-lms-bucket-dev/curriculums/images/10-3-5_3.png">
 
 </details>
 

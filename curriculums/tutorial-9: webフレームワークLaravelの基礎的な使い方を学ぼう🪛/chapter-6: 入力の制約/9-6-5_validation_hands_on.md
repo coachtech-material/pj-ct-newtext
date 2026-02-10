@@ -50,7 +50,7 @@ Chapter 6で学んだバリデーションを実際に手を動かして確認�
 
 **ユーザー登録フォーム（エラー表示）**
 
-<img alt="9-6-5_1.png" src="">
+<img alt="9-6-5_1.png" src="https://s3.ap-northeast-1.amazonaws.com/coachtech-lms-bucket-dev/curriculums/images/9-6-5_1.png">
 
 ---
 
