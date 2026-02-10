@@ -51,6 +51,14 @@ flowchart TD
 - 📂 **対象**：`staging` ブランチの `curriculums/` 配下の `.md` ファイル
 - 🔗 **PR**：変更がある場合のみ、`staging` 向けのPRが自動作成されます
 
+### replace-image-links-main.yml
+
+上記と同じ画像リンク置換処理を **`main`** ブランチ向けに実行するワークフローです。
+
+- ⚠️ **手動実行のみ**：`workflow_dispatch` で実行
+- 📂 **対象**：`main` ブランチの `curriculums/` 配下の `.md` ファイル
+- 🔗 **PR**：変更がある場合のみ、`main` 向けのPR用ブランチが push されます
+
 ## 実行方法
 
 ### 1. GitHub上での手動実行
@@ -160,7 +168,7 @@ curriculums/
 
 ## 画像リンクのS3置換
 
-「**画像リンクをS3 URLに置換（staging）**」ワークフローは、教材Markdown内の画像参照をGitHub依存からS3の公開URLに置き換えるために使用します。
+「**画像リンクをS3 URLに置換（staging）**」および「**画像リンクをS3 URLに置換（main）**」ワークフローは、教材Markdown内の画像参照をGitHub依存からS3の公開URLに置き換えるために使用します。
 
 ### 対象となる img タグ
 
@@ -188,9 +196,9 @@ curriculums/
 ### 実行手順
 
 1. GitHubリポジトリの「Actions」タブを開く
-2. 左サイドバーから「**画像リンクをS3 URLに置換（staging）**」を選択
-3. 「Run workflow」をクリックし、ブランチが `staging` であることを確認して実行
-4. 変更がある場合、`chore/replace-image-links-*` ブランチが作成され、`staging` 向けのPRが自動作成されます
+2. **staging 用**：左サイドバーから「**画像リンクをS3 URLに置換（staging）**」を選択し、「Run workflow」で実行（ブランチは `staging`）
+3. **main 用**：左サイドバーから「**画像リンクをS3 URLに置換（main）**」を選択し、「Run workflow」で実行（ブランチは `main`）
+4. 変更がある場合、`chore/replace-image-links-*` ブランチが作成され、それぞれ `staging` 向け・`main` 向けのPRを手動で作成できます
 
 ### ディレクトリ・ファイルの前提
 
@@ -410,6 +418,7 @@ env:
 | 種別     | ファイル | 説明 |
 | -------- | -------- | ----- |
 | ワークフロー | `.github/workflows/sync-curriculums-staging.yml` | 教材をStaging環境に登録・更新 |
-| ワークフロー | `.github/workflows/replace-image-links-staging.yml` | 教材内の画像リンクをS3 URLに置換しPR作成 |
+| ワークフロー | `.github/workflows/replace-image-links-staging.yml` | 教材内の画像リンクをS3 URLに置換（staging） |
+| ワークフロー | `.github/workflows/replace-image-links-main.yml` | 教材内の画像リンクをS3 URLに置換（main） |
 | スクリプト | `.github/scripts/sync-curriculums.js` | 教材データ収集・API送信 |
 | スクリプト | `.github/scripts/replace-image-links.js` | 空 src の img タグ検出・S3アップロード・置換 |

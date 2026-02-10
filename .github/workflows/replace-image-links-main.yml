@@ -1,4 +1,4 @@
-name: 画像リンクをS3 URLに置換（staging）
+name: 画像リンクをS3 URLに置換（main）
 
 on:
   workflow_dispatch:
@@ -14,7 +14,7 @@ jobs:
       - name: リポジトリを取得
         uses: actions/checkout@v4
         with:
-          ref: staging
+          ref: main
 
       - name: Node.js環境をセットアップ
         uses: actions/setup-node@v4
