@@ -1,6 +1,6 @@
 # Tutorial 5-1-7: HTMLの基礎 - ハンズオン演習
 
-## 📝 このセクションの目的
+## 📌 このハンズオンについて
 
 Chapter 1で学んだHTMLの基礎知識を実際に手を動かして確認します。要件に従って、自分の力でHTMLファイルを作成してみましょう。
 
@@ -37,41 +37,15 @@ Chapter 1で学んだHTMLの基礎知識を実際に手を動かして確認し�
 
 ## 🎯 演習課題：自己紹介ページを作成しよう
 
-### 課題の概要
+### この演習で作るもの
 
 あなた自身の自己紹介ページを作成してください。このページには、以下の要素を含める必要があります。
 
----
+### 🖼️ 完成イメージ
 
-### 📁 Step 0: 環境を準備する
+**自己紹介ページ**
 
-まず、ハンズオン用のディレクトリを作成します。ターミナルで以下のコマンドを実行してください。
-
-```bash
-# ホームディレクトリに移動
-cd ~
-
-# HTML練習用ディレクトリを作成（既に存在する場合はスキップされます）
-mkdir -p html-practice
-
-# ハンズオン用ディレクトリを作成
-mkdir -p html-practice/5-1-7_hands-on/self-introduction-practice
-mkdir -p html-practice/5-1-7_hands-on/self-introduction-sample
-
-# 自分で作成する用のディレクトリに移動
-cd html-practice/5-1-7_hands-on/self-introduction-practice
-
-# VSCodeでプロジェクトを開く
-code .
-```
-
-**コマンド解説**：
-
-| コマンド | 説明 |
-|:---|:---|
-| `mkdir -p` | ディレクトリを作成します。`-p`オプションで、親ディレクトリも一緒に作成します |
-| `cd` | ディレクトリを移動します |
-| `code .` | 現在のディレクトリをVSCodeで開きます |
+<img alt="5-1-7_1.png" src="">
 
 ---
 
@@ -123,12 +97,53 @@ code .
 - `<form>`タグでフォームを作成（`action="/submit"` `method="POST"`）
 - 以下の入力フィールドを含める：
   - お名前：`<input type="text">`でテキスト入力欄
-  - メールアドレス：`<input type="email">`でメール入力欄
-  - お問い合わせ種別：`<select>`でドロップダウン（選択肢は3つ以上）
+  - お問い合わせ種別：`<select>`でドロップダウン（「一般的なお問い合わせ」「ご意見・ご要望」の2つ）
   - お問い合わせ内容：`<textarea>`で複数行テキスト入力欄
   - 送信ボタン：`<button type="submit">`で送信ボタン
 - 各入力フィールドには`<label>`タグを関連付ける
-- お名前、メールアドレス、お問い合わせ内容には`required`属性を付ける
+- お名前、お問い合わせ内容には`required`属性を付ける
+
+> 💡 **動作確認**: VSCodeで`self-introduction.html`を右クリック →「Finderで表示する」→ ファイルをダブルクリックしてブラウザで開く
+
+---
+
+## ⚙️ 環境準備（自分で作成する用）
+
+まず、ハンズオン用のディレクトリを作成し、**自分で作成する用**のプロジェクトを準備します。
+
+ターミナルで以下のコマンドを実行してください。
+
+```bash
+# ホームディレクトリに移動
+cd ~
+
+# HTML練習用ディレクトリを作成（既に存在する場合はスキップされます）
+mkdir -p html-practice
+
+# ハンズオン用ディレクトリを作成
+mkdir -p html-practice/5-1-7_hands-on/self-introduction-practice
+mkdir -p html-practice/5-1-7_hands-on/self-introduction-sample
+
+# 自分で作成する用のディレクトリに移動
+cd html-practice/5-1-7_hands-on/self-introduction-practice
+
+# HTMLファイルを作成
+touch self-introduction.html
+
+# VSCodeでプロジェクトを開く
+code .
+```
+
+**コマンド解説**：
+
+| コマンド | 説明 |
+|:---|:---|
+| `mkdir -p` | ディレクトリを作成します。`-p`オプションで、親ディレクトリも一緒に作成します |
+| `cd` | ディレクトリを移動します |
+| `touch` | 空のファイルを作成します |
+| `code .` | 現在のディレクトリをVSCodeで開きます |
+
+> 🚀 **ここから先は、自分の力で実装してみましょう！**
 
 ---
 
@@ -225,31 +240,17 @@ code .
 
 ---
 
-## 🏃 実践: 一緒に作ってみましょう！
+## 🏃 実践
 
 ちゃんとできましたか？もし詰まってしまった方や、実装の流れを確認したい方のために、一緒に手を動かしながら作っていきましょう。
 
 > 📌 **注意**: ここからは`self-introduction-sample/`ディレクトリで作業します。自分で作成したコードと比較できるように、別のディレクトリで進めましょう。
 
-### 💭 実装の思考プロセス
-
-HTMLファイルを作成する際、いきなり全部を書こうとせず、以下の順番で段階的に作っていくと効率的です：
-
-1. **まず骨組みを作る**：HTML5の基本構造を書く
-2. **タイトルを決める**：`<head>`内に必要な情報を記述
-3. **大きな構造から作る**：メインタイトル（`<h1>`）を配置
-4. **セクションごとに追加**：プロフィール → 好きなもの → 目標 → リンク → 画像の順に作成
-5. **最後に確認**：ブラウザで表示して、意図通りに表示されているかチェック
-
-この順番で作ることで、「どこまでできているか」が明確になり、エラーが出ても原因を特定しやすくなります。
-
 ---
 
-### 📝 ステップバイステップで実装
+### ⚙️ 環境準備（実践用プロジェクト）
 
-#### ステップ1: 作業ディレクトリに移動し、HTMLファイルを作成する
-
-まず、実践用のディレクトリに移動します。ターミナルで以下のコマンドを実行してください。
+**実践用のディレクトリ**に移動します。
 
 ```bash
 # 実践用ディレクトリに移動
@@ -259,33 +260,80 @@ cd ~/html-practice/5-1-7_hands-on/self-introduction-sample
 code .
 ```
 
-次に、`self-introduction.html`という名前のファイルを作成します。ターミナルで以下のコマンドを実行してください。
+`self-introduction.html`という名前のファイルを作成します。
 
 ```bash
 touch self-introduction.html
 ```
 
-VSCodeのエクスプローラーに`self-introduction.html`が表示されるので、クリックして開いてください。HTML5の基本構造を書きます。
+---
+
+### 🧠 先輩エンジニアの思考プロセス
+
+先輩エンジニアは要件を以下のように構造化し、実装タスクに落とし込みます：
+
+| Step | やること | 説明 |
+|:-----|:---------|:-----|
+| 1 | HTML5の基本構造を書く | まず骨組みを作る |
+| 2 | タイトルを設定する | `<head>`内に必要な情報を記述 |
+| 3 | メインタイトルを追加する | 大きな構造（`<h1>`）から作る |
+| 4 | プロフィールセクションを追加する | 見出しと段落で情報を表示 |
+| 5 | 好きなものセクションを追加する | 順序なしリスト（`<ul>`）を使う |
+| 6 | 目標セクションを追加する | 順序付きリスト（`<ol>`）を使う |
+| 7 | リンクセクションを追加する | `<a>`タグでリンクを作成 |
+| 8 | 画像セクションを追加する | `<img>`タグで画像を表示 |
+| 9 | お問い合わせフォームを追加する | `<form>`と各種入力要素を使う |
+| 10 | ブラウザで確認する | 意図通りに表示されるかチェック |
+
+この順番で作ることで、「どこまでできているか」が明確になり、エラーが出ても原因を特定しやすくなります。
+
+---
+
+### 📝 ステップバイステップで実装
+
+#### ステップ1: HTML5の基本構造を書く
+
+VSCodeのエクスプローラーに`self-introduction.html`が表示されるので、クリックして開いてください。
 
 **何を考えているか**：
 - 「まずはHTMLの土台を作ろう」
-- 「DOCTYPE宣言、html、head、bodyの4つが基本だったな」
-- 「日本語のページだから、lang属性は"ja"にしよう」
+- 「VSCodeのEmmet機能を使えば、一瞬で雛形が作れるな」
+
+**Emmetで雛形を生成**：
+
+ファイルの1行目に `!` と入力し、`Tab`キーを押してください。
+
+```
+! + Tab
+```
+
+すると、以下のようなHTML5の雛形が自動生成されます：
 
 ```html
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title></title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
 </head>
 <body>
-    
+
 </body>
 </html>
 ```
 
-**コードリーディング（1行ずつ解説）**：
+> 💡 **Emmetとは？**: VSCodeに標準搭載されている機能で、短い記法からHTMLやCSSのコードを自動生成できます。`!`はHTML5の雛形を生成するショートカットです。
+
+**日本語ページ用に修正**：
+
+`lang="en"`を`lang="ja"`に変更します：
+
+```html
+<html lang="ja">
+```
+
+**コードリーディング（生成されたコードの解説）**：
 
 ```html
 <!DOCTYPE html>
@@ -308,9 +356,14 @@ VSCodeのエクスプローラーに`self-introduction.html`が表示される�
 → 文字コードをUTF-8に設定します。これがないと日本語が文字化けする可能性があります。
 
 ```html
-    <title></title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 ```
-→ ブラウザのタブに表示されるタイトルを設定します。後で内容を書きます。
+→ スマートフォンやタブレットでの表示を最適化するための設定です。レスポンシブデザインに必要な記述です。
+
+```html
+    <title>Document</title>
+```
+→ ブラウザのタブに表示されるタイトルを設定します。次のステップで変更します。
 
 ```html
 </head>
@@ -319,7 +372,7 @@ VSCodeのエクスプローラーに`self-introduction.html`が表示される�
 
 ```html
 <body>
-    
+
 </body>
 ```
 → 実際にブラウザに表示される内容を書く部分です。ここにコンテンツを追加していきます。
@@ -566,15 +619,10 @@ VSCodeのエクスプローラーに`self-introduction.html`が表示される�
             <input type="text" id="contact-name" name="name" required>
         </div>
         <div>
-            <label for="contact-email">メールアドレス:</label>
-            <input type="email" id="contact-email" name="email" required>
-        </div>
-        <div>
             <label for="contact-category">お問い合わせ種別:</label>
             <select id="contact-category" name="category">
                 <option value="">-- 選択してください --</option>
                 <option value="general">一般的なお問い合わせ</option>
-                <option value="support">技術サポート</option>
                 <option value="feedback">ご意見・ご要望</option>
             </select>
         </div>
@@ -629,7 +677,15 @@ VSCodeのエクスプローラーに`self-introduction.html`が表示される�
 - 「ファイルを保存して、ブラウザで開いてみよう」
 - 「意図通りに表示されているか確認しよう」
 
-ファイルを保存したら、ブラウザで`~/html-practice/5-1-7_hands-on/self-introduction-sample/self-introduction.html`を開いて、以下を確認します：
+ファイルを保存したら、ブラウザで開いて確認します。
+
+**ブラウザでファイルを開く方法**：
+
+1. VSCodeのエクスプローラーで`self-introduction.html`を右クリック
+2. 「Finderで表示する」を選択（Finderでファイルの場所が開きます）
+3. Finderで`self-introduction.html`をダブルクリック
+
+ブラウザが起動し、作成したHTMLページが表示されます。以下を確認しましょう：
 
 - タイトルがブラウザのタブに表示されているか
 - 見出しが正しい階層で表示されているか
@@ -650,39 +706,6 @@ VSCodeのエクスプローラーに`self-introduction.html`が表示される�
 
 ---
 
-## ✅ 完成イメージ
-
-完成すると、以下のような構造のページになります：
-
-```
-自己紹介
-├── プロフィール
-│   ├── 名前: 山田太郎
-│   ├── 年齢: 25歳
-│   ├── 出身地: 東京都
-│   └── 趣味: プログラミング、読書
-├── 好きなもの
-│   ├── ラーメン
-│   ├── カレー
-│   └── 寿司
-├── 今年の目標
-│   ├── 1. Laravelをマスターする
-│   ├── 2. 毎日コードを書く
-│   └── 3. ポートフォリオを作成する
-├── リンク
-│   └── 私のGitHub（新しいタブで開く）
-├── 好きな風景
-│   └── [画像が表示される]
-└── お問い合わせ
-    ├── お名前: [テキスト入力欄]
-    ├── メールアドレス: [メール入力欄]
-    ├── お問い合わせ種別: [ドロップダウン]
-    ├── お問い合わせ内容: [テキストエリア]
-    └── [送信ボタン]
-```
-
----
-
 ## 📖 模範解答
 
 自分で実装してから、以下の模範解答を確認してください。
@@ -694,6 +717,7 @@ VSCodeのエクスプローラーに`self-introduction.html`が表示される�
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>自己紹介 - 山田太郎</title>
 </head>
 <body>
@@ -739,15 +763,10 @@ VSCodeのエクスプローラーに`self-introduction.html`が表示される�
             <input type="text" id="contact-name" name="name" required>
         </div>
         <div>
-            <label for="contact-email">メールアドレス:</label>
-            <input type="email" id="contact-email" name="email" required>
-        </div>
-        <div>
             <label for="contact-category">お問い合わせ種別:</label>
             <select id="contact-category" name="category">
                 <option value="">-- 選択してください --</option>
                 <option value="general">一般的なお問い合わせ</option>
-                <option value="support">技術サポート</option>
                 <option value="feedback">ご意見・ご要望</option>
             </select>
         </div>

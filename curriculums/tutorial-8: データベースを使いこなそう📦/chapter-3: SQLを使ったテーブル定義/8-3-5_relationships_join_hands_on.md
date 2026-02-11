@@ -1,10 +1,8 @@
 # Tutorial 8-3-5: リレーションシップとJOIN - ハンズオン演習
 
-## 📝 このセクションの目的
+## 📌 このハンズオンについて
 
 Chapter 3で学んだリレーションシップとJOINを実際に手を動かして確認します。複数のテーブルを結合して、関連するデータを取得する方法をマスターしましょう。
-
-> 📌 **使用するデータベース**：このハンズオンでは、引き続き`practice_db`データベースを使用します。phpMyAdminで`practice_db`を選択してから、演習を始めてください。
 
 > 分からない文法や実装があっても、すぐに答えを見るのではなく、過去の教材を見たり、AIにヒントをもらいながら進めるなど、自身で創意工夫しながら進めてみましょう🔥
 
@@ -79,7 +77,8 @@ INSERT INTO products (product_name, price) VALUES
 ('ノートPC', 120000),
 ('マウス', 2000),
 ('キーボード', 5000),
-('モニター', 30000);
+('モニター', 30000),
+('ヘッドフォン', 8000);
 ```
 
 **orders**:
@@ -97,12 +96,49 @@ INSERT INTO orders (customer_id, product_id, quantity) VALUES
 以下のクエリを作成して実行してください：
 
 1. **すべての注文情報を取得**（顧客名、商品名、数量、注文日を表示）
-
 2. **田中太郎さんの注文履歴を取得**（商品名と数量を表示）
-
 3. **ノートPCを購入した顧客の一覧を取得**（顧客名を表示）
-
 4. **注文されていない商品を取得**（LEFT JOINを使用）
+
+### ✏️ 実装タスク
+
+1. テーブルを作成する
+2. データを挿入する
+3. すべての注文情報を取得する
+4. 田中太郎さんの注文履歴を取得する
+5. ノートPCを購入した顧客を取得する
+6. 注文されていない商品を取得する
+
+### ✅ 完成チェックリスト
+
+- [ ] 3つのテーブル（customers, products, orders）が作成された
+- [ ] サンプルデータが挿入された
+- [ ] INNER JOINで顧客名・商品名を含む注文情報が取得できた
+- [ ] WHERE句で特定の顧客・商品に絞り込めた
+- [ ] LEFT JOINで注文されていない商品が取得できた
+
+> 💡 **動作確認**: 各クエリの実行結果を確認しましょう
+
+---
+
+## ⚙️ 環境準備
+
+8-2-1で作成したDocker環境を使用します。
+
+**Docker環境の起動**：
+
+```bash
+cd ~/mysql-practice
+docker compose up -d
+```
+
+**phpMyAdminにアクセス**：
+
+ブラウザで `http://localhost:8080` を開き、phpMyAdminの左ペインで **`practice_db`** を選択してください。
+
+> 📌 **重要**: このハンズオンでは`practice_db`データベースを使用します。必ず`practice_db`を選択してから演習を始めてください。
+
+> 🚀 **ここから先は、自分の力で実装してみましょう！**
 
 ---
 
@@ -152,31 +188,37 @@ WHERE orders.order_id IS NULL;
 
 ---
 
-## 🏃 実践: 一緒に作ってみましょう！
+## 🏃 実践
 
 ちゃんとできましたか？リレーションシップとJOINはデータベースの最も重要な機能の一つです。一緒に手を動かしながら、ECサイトの注文管理システムを構築していきましょう。
 
-### 💭 実装の思考プロセス
+### 🧠 先輩エンジニアの思考プロセス
 
-ECサイトの注文管理システムを構築する際、以下の順番で考えると効率的です：
+先輩エンジニアは要件を以下のように構造化し、実装タスクに落とし込みます：
 
-1. **テーブル間の関係を理解**：顧客、商品、注文の3つのエンティティとその関係
-2. **外部キーで関係を構築**：ordersテーブルにcustomer_idとproduct_id
-3. **INNER JOINで関連データを取得**：注文情報と顧客・商品情報を結合
-4. **LEFT JOINで全データを取得**：注文がない商品も含めて取得
+| Step | やること | 説明 |
+|:-----|:---------|:-----|
+| 1 | テーブルを作成する | 親テーブル（customers, products）→ 子テーブル（orders）の順で作成 |
+| 2 | データを挿入する | 親テーブルから先にデータを入れる（外部キー制約のため） |
+| 3 | すべての注文情報を取得する | `INNER JOIN`で3テーブルを結合し、IDを名前に変換 |
+| 4 | 田中太郎さんの注文履歴を取得する | JOIN + `WHERE`で特定顧客に絞り込み |
+| 5 | ノートPCを購入した顧客を取得する | JOIN + `WHERE`で特定商品に絞り込み |
+| 6 | 注文されていない商品を取得する | `LEFT JOIN` + `IS NULL`で未注文商品を抽出 |
 
-JOINのポイントは「どのカラムでテーブルを結合するかを明確にする」ことです。
+ポイントは「どのカラムでテーブルを結合するかを明確にする」ことです。`ON`句の結合条件を正しく指定することがJOINの鍵です。
 
 ---
 
 ### 📝 ステップバイステップで実装
 
-#### ステップ1: テーブルを作成する【要件1に対応】
+#### ステップ1: テーブルを作成する
 
 **何を考えているか**：
 - 「顧客テーブルと商品テーブルを先に作ろう」
 - 「注文テーブルは外部キーで他のテーブルを参照しよう」
 - 「外部キー制約でデータの整合性を保とう」
+
+`practice_db`を選択した状態で、「SQL」タブに以下を入力して実行します。
 
 まず、customersテーブルを作成します：
 
@@ -188,26 +230,6 @@ CREATE TABLE customers (
     phone VARCHAR(20)
 );
 ```
-
-**コードリーディング**：
-
-```sql
-CREATE TABLE customers (
-```
-→ customersテーブルを作成します。
-
-```sql
-    customer_id INT PRIMARY KEY AUTO_INCREMENT,
-```
-→ 顧客IDを主キーとして定義し、自動採番します。
-
-```sql
-    name VARCHAR(100) NOT NULL,
-    email VARCHAR(150) UNIQUE NOT NULL,
-    phone VARCHAR(20)
-);
-```
-→ 顧客名、メール、電話番号を定義します。メールは重複不可にします。
 
 次に、productsテーブルを作成します：
 
@@ -249,14 +271,14 @@ CREATE TABLE orders (
 
 ---
 
-#### ステップ2: データを挿入する【要件2に対応】
+#### ステップ2: データを挿入する
 
 **何を考えているか**：
 - 「親テーブル（customers, products）から先にデータを入れよう」
 - 「外部キー制約があるので、順番が重要」
 - 「テストデータを複数件挿入しよう」
 
-データを挿入します：
+「SQL」タブで以下を実行します：
 
 ```sql
 -- 顧客データを挿入
@@ -270,7 +292,8 @@ INSERT INTO products (product_name, price) VALUES
 ('ノートPC', 120000),
 ('マウス', 2000),
 ('キーボード', 5000),
-('モニター', 30000);
+('モニター', 30000),
+('ヘッドフォン', 8000);
 
 -- 注文データを挿入
 INSERT INTO orders (customer_id, product_id, quantity) VALUES
@@ -294,21 +317,23 @@ INSERT INTO customers (name, email, phone) VALUES
 INSERT INTO orders (customer_id, product_id, quantity) VALUES
 (1, 1, 1),  -- 田中太郎がノートPCを1台注文
 ```
-→ ordersテーブルに注文データを挿入します。`customer_id`に1、`product_id`に1を指定することで、外部キー制約により、存在する顧客と商品を参照します。
+→ ordersテーブルに注文データを挿入します。`customer_id`に1、`product_id`に1を指定することで、田中太郎さんがノートPCを注文したことを表現します。
+
+> 💡 **ポイント**: 「ヘッドフォン」（product_id: 5）は注文データに含まれていません。ステップ6で、この商品をLEFT JOINで検出します。
 
 ---
 
-#### ステップ3: すべての注文情報を取得する【要件3-1に対応】
+#### ステップ3: すべての注文情報を取得する
 
 **何を考えているか**：
 - 「注文情報だけではIDしかわからない」
 - 「顧客名や商品名も一緒に表示したい」
 - 「INNER JOINでテーブルを結合しよう」
 
-すべての注文情報を取得します：
+「SQL」タブで以下を実行します：
 
 ```sql
-SELECT 
+SELECT
     customers.name,
     products.product_name,
     orders.quantity,
@@ -321,7 +346,7 @@ INNER JOIN products ON orders.product_id = products.product_id;
 **コードリーディング**：
 
 ```sql
-SELECT 
+SELECT
     customers.name,
     products.product_name,
     orders.quantity,
@@ -346,16 +371,16 @@ INNER JOIN products ON orders.product_id = products.product_id;
 
 ---
 
-#### ステップ4: 田中太郎さんの注文履歴を取得する【要件3-2に対応】
+#### ステップ4: 田中太郎さんの注文履歴を取得する
 
 **何を考えているか**：
 - 「特定の顧客の注文だけを抽出したい」
 - 「JOINした後にWHERE句で絞り込もう」
 
-田中太郎さんの注文履歴を取得します：
+「SQL」タブで以下を実行します：
 
 ```sql
-SELECT 
+SELECT
     products.product_name,
     orders.quantity
 FROM orders
@@ -373,16 +398,16 @@ WHERE customers.name = '田中太郎';
 
 ---
 
-#### ステップ5: ノートPCを購入した顧客の一覧を取得する【要件3-3に対応】
+#### ステップ5: ノートPCを購入した顧客を取得する
 
 **何を考えているか**：
 - 「特定の商品を購入した顧客を知りたい」
 - 「商品名で絞り込もう」
 
-ノートPCを購入した顧客の一覧を取得します：
+「SQL」タブで以下を実行します：
 
 ```sql
-SELECT 
+SELECT
     customers.name
 FROM orders
 INNER JOIN customers ON orders.customer_id = customers.customer_id
@@ -399,17 +424,17 @@ WHERE products.product_name = 'ノートPC';
 
 ---
 
-#### ステップ6: 注文されていない商品を取得する【要件3-4に対応】
+#### ステップ6: 注文されていない商品を取得する
 
 **何を考えているか**：
 - 「注文がない商品も表示したい」
 - 「LEFT JOINを使うと左側のテーブルの全データが取得される」
 - 「注文がない場合はorder_idがNULLになる」
 
-注文されていない商品を取得します：
+「SQL」タブで以下を実行します：
 
 ```sql
-SELECT 
+SELECT
     products.product_name
 FROM products
 LEFT JOIN orders ON products.product_id = orders.product_id
@@ -427,49 +452,47 @@ LEFT JOIN orders ON products.product_id = orders.product_id
 ```sql
 WHERE orders.order_id IS NULL;
 ```
-→ `order_id`がNULLのレコード、つまり注文がない商品だけを抽出します。
+→ `order_id`がNULLのレコード、つまり注文がない商品だけを抽出します。サンプルデータでは「ヘッドフォン」が該当します。
 
 ---
 
 ### ✨ 完成！
 
-これでECサイトの注文管理システムが完成しました！リレーションシップ、外部キー、INNER JOIN、LEFT JOINを実践できましたね。
+これでECサイトの注文管理システムが完成しました！
 
----
+各クエリの実行結果を確認しましょう：
 
-## ✅ 完成イメージ
-
-### クエリ1: すべての注文情報
+**クエリ1: すべての注文情報**
 
 | name | product_name | quantity | order_date |
 |------|--------------|----------|------------|
-| 田中太郎 | ノートPC | 1 | 2024-12-15 10:00:00 |
-| 田中太郎 | マウス | 2 | 2024-12-15 10:00:00 |
-| 佐藤花子 | キーボード | 1 | 2024-12-15 10:00:00 |
-| 鈴木一郎 | ノートPC | 1 | 2024-12-15 10:00:00 |
-| 鈴木一郎 | モニター | 2 | 2024-12-15 10:00:00 |
+| 田中太郎 | ノートPC | 1 | （実行時の日時） |
+| 田中太郎 | マウス | 2 | （実行時の日時） |
+| 佐藤花子 | キーボード | 1 | （実行時の日時） |
+| 鈴木一郎 | ノートPC | 1 | （実行時の日時） |
+| 鈴木一郎 | モニター | 2 | （実行時の日時） |
 
-### クエリ2: 田中太郎さんの注文履歴
+**クエリ2: 田中太郎さんの注文履歴**
 
 | product_name | quantity |
 |--------------|----------|
 | ノートPC | 1 |
 | マウス | 2 |
 
-### クエリ3: ノートPCを購入した顧客の一覧
+**クエリ3: ノートPCを購入した顧客**
 
 | name |
 |------|
 | 田中太郎 |
 | 鈴木一郎 |
 
-### クエリ4: 注文されていない商品
+**クエリ4: 注文されていない商品**
 
 | product_name |
 |--------------|
-| キーボード |
+| ヘッドフォン |
 
-> 💡 **注意**：クエリ4の結果は、サンプルデータでは「キーボード」が佐藤花子さんに注文されているため、実際には空の結果になります。もし結果を確認したい場合は、キーボードの注文データを削除してから実行してください。
+→ すべてのクエリが上記の結果と一致していれば成功です！
 
 ---
 
@@ -480,21 +503,20 @@ WHERE orders.order_id IS NULL;
 ### クエリ1: すべての注文情報を取得
 
 ```sql
-SELECT 
+SELECT
     customers.name,
     products.product_name,
     orders.quantity,
     orders.order_date
 FROM orders
 INNER JOIN customers ON orders.customer_id = customers.customer_id
-INNER JOIN products ON orders.product_id = products.product_id
-ORDER BY orders.order_date;
+INNER JOIN products ON orders.product_id = products.product_id;
 ```
 
 ### クエリ2: 田中太郎さんの注文履歴を取得
 
 ```sql
-SELECT 
+SELECT
     products.product_name,
     orders.quantity
 FROM orders
@@ -506,7 +528,7 @@ WHERE customers.name = '田中太郎';
 ### クエリ3: ノートPCを購入した顧客の一覧を取得
 
 ```sql
-SELECT 
+SELECT
     customers.name
 FROM orders
 INNER JOIN customers ON orders.customer_id = customers.customer_id
@@ -517,7 +539,7 @@ WHERE products.product_name = 'ノートPC';
 ### クエリ4: 注文されていない商品を取得
 
 ```sql
-SELECT 
+SELECT
     products.product_name
 FROM products
 LEFT JOIN orders ON products.product_id = orders.product_id
@@ -580,18 +602,14 @@ WHERE orders.order_id IS NULL;
 - ✅ LEFT JOINで全データを取得できる
 - ✅ 複数テーブルを結合できる
 
-引き続き、次のセクションも頑張りましょう！
-
----
-
-## 🧹 後片付け（任意）
+### 🧹 後片付け（任意）
 
 このハンズオンで作成した`customers`、`products`、`orders`テーブルは、`practice_db`データベース内に作成されています。これらは演習専用のテーブルで、Chapter 4以降では使用しません。
 
 phpMyAdminのテーブル一覧を整理したい場合は、以下のSQLでテーブルを削除できます。ただし、削除すると元に戻せないので、注意してください。
 
 ```sql
--- 外部キー制約があるため、順番に削除する必要があります
+-- 外部キー制約があるため、子テーブルから順番に削除します
 DROP TABLE orders;
 DROP TABLE customers;
 DROP TABLE products;

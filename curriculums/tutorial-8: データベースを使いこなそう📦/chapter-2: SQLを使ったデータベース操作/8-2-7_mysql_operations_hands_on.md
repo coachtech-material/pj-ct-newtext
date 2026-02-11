@@ -1,8 +1,8 @@
 # Tutorial 8-2-7: MySQL基本操作 - ハンズオン演習
 
-## 📝 このセクションの目的
+## 📌 このハンズオンについて
 
-Chapter 2で学んだMySQL基本操作を実際に手を動かして確認します。phpMyAdminを使って、テーブルの作成からデータの挿入・取得・更新・削除まで一連の操作を行いましょう。
+Chapter 2で学んだMySQL基本操作を実際に手を動かして確認します。phpMyAdminを使って、テーブルの作成からデータの挿入・取得・更新・削除まで一連のCRUD操作を行いましょう。
 
 > 分からない文法や実装があっても、すぐに答えを見るのではなく、過去の教材を見たり、AIにヒントをもらいながら進めるなど、自身で創意工夫しながら進めてみましょう🔥
 
@@ -78,6 +78,46 @@ Chapter 2で学んだMySQL基本操作を実際に手を動かして確認しま
 
 「ドキュメント作成」タスクを削除してください。
 
+### ✏️ 実装タスク
+
+1. データベースを作成する
+2. テーブルを作成する
+3. データを挿入する
+4. データを取得する
+5. データを更新する
+6. データを削除する
+
+### ✅ 完成チェックリスト
+
+- [ ] phpMyAdminでtask_managementデータベースが表示される
+- [ ] `SELECT * FROM tasks;` で5件のデータが表示される
+- [ ] WHERE句で条件を指定してデータを絞り込めた
+- [ ] UPDATE後、対象タスクのステータスが変更されている
+- [ ] DELETE後、対象タスクが削除されている
+
+> 💡 **動作確認**: 各SQL実行後に `SELECT * FROM tasks;` で結果を確認しましょう
+
+---
+
+## ⚙️ 環境準備
+
+8-2-1で作成したDocker環境を使用します。
+
+**Docker環境の起動**：
+
+```bash
+cd ~/mysql-practice
+docker compose up -d
+```
+
+**phpMyAdminにアクセス**：
+
+ブラウザで `http://localhost:8080` を開き、phpMyAdminが表示されることを確認してください。
+
+> 💡 **ポイント**: phpMyAdminの「SQL」タブでSQL文を入力・実行します。
+
+> 🚀 **ここから先は、自分の力で実装してみましょう！**
+
 ---
 
 ## 💡 ヒント
@@ -86,7 +126,9 @@ Chapter 2で学んだMySQL基本操作を実際に手を動かして確認しま
 
 ### ヒント1: データベースの作成
 
-phpMyAdminの左側メニューから「新規作成」をクリックし、データベース名を入力して「作成」をクリック。
+```sql
+CREATE DATABASE task_management CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+```
 
 ### ヒント2: テーブルの作成
 
@@ -109,49 +151,46 @@ INSERT INTO tasks (title, status, priority, due_date) VALUES
 ('データベース設計', '完了', 1, '2024-12-10');
 ```
 
-### ヒント4: データの取得
+### ヒント4: WHERE句の使い方
 
 ```sql
--- すべてのタスクを取得
-SELECT * FROM tasks;
-
--- ステータスが「未着手」のタスクのみ
+-- 条件付き検索
 SELECT * FROM tasks WHERE status = '未着手';
 
--- 優先度順に並び替え
+-- 並び替え
 SELECT * FROM tasks ORDER BY priority ASC;
 ```
 
-### ヒント5: データの更新
+### ヒント5: データの更新・削除
 
 ```sql
-UPDATE tasks SET status = '完了' WHERE title = 'API開発';
-```
+-- 更新
+UPDATE tasks SET status = '完了' WHERE task_id = 2;
 
-### ヒント6: データの削除
-
-```sql
-DELETE FROM tasks WHERE title = 'ドキュメント作成';
+-- 削除
+DELETE FROM tasks WHERE task_id = 4;
 ```
 
 ---
 
-## 🏃 実践: 一緒に作ってみましょう！
+## 🏃 実践
 
 ちゃんとできましたか？MySQLの基本操作はWebアプリケーション開発の基礎です。一緒に手を動かしながら、タスク管理システムのデータベースを構築していきましょう。
 
-### 💭 実装の思考プロセス
+### 🧠 先輩エンジニアの思考プロセス
 
-タスク管理システムのデータベースを構築する際、以下の順番で考えると効率的です：
+先輩エンジニアは要件を以下のように構造化し、実装タスクに落とし込みます：
 
-1. **データベースを作成**：まずは器（データベース）を用意
-2. **テーブルを設計・作成**：データを格納する構造を定義
-3. **データを挿入**：INSERT文で初期データを登録
-4. **データを検索**：SELECT文でデータを取得・確認
-5. **データを更新**：UPDATE文でデータを変更
-6. **データを削除**：DELETE文で不要なデータを削除
+| Step | やること | 説明 |
+|:-----|:---------|:-----|
+| 1 | データベースを作成する | `CREATE DATABASE`でデータの入れ物を用意 |
+| 2 | テーブルを作成する | `CREATE TABLE`でカラム・データ型・制約を定義 |
+| 3 | データを挿入する | `INSERT INTO`で初期データを登録 |
+| 4 | データを取得する | `SELECT`で条件付き検索・並び替え |
+| 5 | データを更新する | `UPDATE`でデータを変更（WHERE必須） |
+| 6 | データを削除する | `DELETE`でデータを削除（WHERE必須） |
 
-CRUD操作のポイントは「各操作の役割とSQL文の構造を理解する」ことです。
+ポイントは「CRUD操作の各SQL文の構造を理解する」ことです。特にUPDATE/DELETEでは`WHERE`句を忘れると全データに影響するので注意が必要です。
 
 ---
 
@@ -164,24 +203,20 @@ CRUD操作のポイントは「各操作の役割とSQL文の構造を理解す�
 - 「プロジェクトごとにデータベースを分けよう」
 - 「文字コードはutf8mb4で統一しよう」
 
-まず、データベースを作成します：
+phpMyAdminの「SQL」タブで、以下のSQLを実行します：
 
 ```sql
-CREATE DATABASE task_management CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE task_management;
+CREATE DATABASE task_management CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
 ```
+
+実行後、phpMyAdminの左ペインに`task_management`が表示されます。クリックして選択してください。
 
 **コードリーディング**：
 
 ```sql
-CREATE DATABASE task_management CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE DATABASE task_management CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
 ```
-→ `CREATE DATABASE`文でデータベースを作成します。`CHARACTER SET utf8mb4`で文字コードを指定し、絵文字なども扱えるようにします。`COLLATE utf8mb4_unicode_ci`は文字列の比較方法を指定します。
-
-```sql
-USE task_management;
-```
-→ `USE`文で作成したデータベースを選択します。これ以降のSQL文はこのデータベースに対して実行されます。
+→ `CREATE DATABASE`文でデータベースを作成します。`CHARACTER SET utf8mb4`で文字コードを指定し、絵文字なども扱えるようにします。`COLLATE utf8mb4_general_ci`は文字列の比較方法を指定します。
 
 ---
 
@@ -192,227 +227,9 @@ USE task_management;
 - 「ID、タイトル、ステータス、優先度、期限を管理しよう」
 - 「主キーはAUTO_INCREMENTで自動採番しよう」
 
-次に、tasksテーブルを作成します：
+`task_management`データベースを選択した状態で、「SQL」タブに以下を入力して実行します：
 
 ```sql
-CREATE TABLE tasks (
-    task_id INT PRIMARY KEY AUTO_INCREMENT,
-    title VARCHAR(200) NOT NULL,
-    status VARCHAR(50) DEFAULT '未着手',
-    priority INT DEFAULT 3,
-    due_date DATE
-);
-```
-
-**コードリーディング**：
-
-```sql
-CREATE TABLE tasks (
-```
-→ `CREATE TABLE`文でtasksテーブルを作成します。
-
-```sql
-    task_id INT PRIMARY KEY AUTO_INCREMENT,
-```
-→ タスクIDを主キーとして定義し、自動採番します。データを挿入するたびに1, 2, 3...と番号が振られます。
-
-```sql
-    title VARCHAR(200) NOT NULL,
-```
-→ タスクのタイトルを必須項目として定義します。
-
-```sql
-    status VARCHAR(50) DEFAULT '未着手',
-```
-→ ステータスを定義し、`DEFAULT '未着手'`でデフォルト値を設定します。値を指定しない場合、自動的に「未着手」が設定されます。
-
-```sql
-    priority INT DEFAULT 3,
-```
-→ 優先度を整数で定義し、デフォルトを3（低）に設定します。
-
-```sql
-    due_date DATE
-);
-```
-→ 期限をDATE型で定義します。任意項目なので、NULLを許可します。
-
----
-
-#### ステップ3: データを挿入する
-
-**何を考えているか**：
-- 「テストデータを複数件挿入しよう」
-- 「カラム名を指定して、値を順番に渡そう」
-- 「複数行を一度に挿入できる」
-
-次に、データを挿入します：
-
-```sql
-INSERT INTO tasks (title, status, priority, due_date) VALUES
-('データベース設計', '完了', 1, '2024-12-10'),
-('API開発', '進行中', 1, '2024-12-20'),
-('テスト作成', '未着手', 2, '2024-12-25'),
-('ドキュメント作成', '未着手', 3, '2024-12-30'),
-('デプロイ準備', '未着手', 2, '2025-01-05');
-```
-
-**コードリーディング**：
-
-```sql
-INSERT INTO tasks (title, status, priority, due_date) VALUES
-```
-→ `INSERT INTO`文でtasksテーブルにデータを挿入します。括弧内にカラム名を指定し、`VALUES`以降に値を指定します。
-
-```sql
-('データベース設計', '完了', 1, '2024-12-10'),
-```
-→ 1行目のデータを挿入します。カラムの順番に合わせて値を指定します。`task_id`はAUTO_INCREMENTなので、指定する必要がありません。
-
-```sql
-('API開発', '進行中', 1, '2024-12-20'),
-...
-```
-→ カンマで区切って複数行を一度に挿入できます。最後の行のみセミコロンで終わります。
-
----
-
-#### ステップ4: データを検索する
-
-**何を考えているか**：
-- 「全データを取得して確認しよう」
-- 「条件を指定して絞り込み検索しよう」
-- 「並び替えや件数制限も試そう」
-
-次に、データを検索します：
-
-```sql
--- 全データを取得
-SELECT * FROM tasks;
-
--- 優先度が1のタスクを取得
-SELECT * FROM tasks WHERE priority = 1;
-
--- 未着手のタスクを期限順に並べ替え
-SELECT * FROM tasks WHERE status = '未着手' ORDER BY due_date ASC;
-```
-
-**コードリーディング**：
-
-```sql
-SELECT * FROM tasks;
-```
-→ `SELECT`文でデータを取得します。`*`は全カラムを意味します。`FROM tasks`でtasksテーブルからデータを取得します。
-
-```sql
-SELECT * FROM tasks WHERE priority = 1;
-```
-→ `WHERE`句で条件を指定します。`priority = 1`で優先度が1のタスクのみを取得します。
-
-```sql
-SELECT * FROM tasks WHERE status = '未着手' ORDER BY due_date ASC;
-```
-→ `ORDER BY`句で並び替えを指定します。`due_date ASC`で期限の昇順（古い順）に並べ替えます。`DESC`を使うと降順になります。
-
----
-
-#### ステップ5: データを更新する
-
-**何を考えているか**：
-- 「特定のタスクのステータスを変更しよう」
-- 「WHERE句で更新対象を特定しよう」
-- 「WHEREを忘れると全データが更新されるので注意」
-
-次に、データを更新します：
-
-```sql
--- task_idで2のタスクを完了に変更
-UPDATE tasks SET status = '完了' WHERE task_id = 2;
-
--- task_idで3のタスクのステータスと優先度を変更
-UPDATE tasks SET status = '進行中', priority = 1 WHERE task_id = 3;
-```
-
-**コードリーディング**：
-
-```sql
-UPDATE tasks SET status = '完了' WHERE task_id = 2;
-```
-→ `UPDATE`文でデータを更新します。`SET`以降に更新するカラムと値を指定します。`WHERE task_id = 2`でtask_idで2のレコードのみを更新します。
-
-```sql
-UPDATE tasks SET status = '進行中', priority = 1 WHERE task_id = 3;
-```
-→ 複数のカラムを同時に更新する場合、カンマで区切って指定します。
-
----
-
-#### ステップ6: データを削除する
-
-**何を考えているか**：
-- 「不要なタスクを削除しよう」
-- 「WHERE句で削除対象を特定しよう」
-- 「削除は復元できないので慎重に」
-
-最後に、データを削除します：
-
-```sql
--- task_idで4のタスクを削除
-DELETE FROM tasks WHERE task_id = 4;
-```
-
-**コードリーディング**：
-
-```sql
-DELETE FROM tasks WHERE task_id = 4;
-```
-→ `DELETE FROM`文でデータを削除します。`WHERE task_id = 4`でtask_idで4のレコードのみを削除します。**重要**：`WHERE`句を忘れると、テーブル内の全データが削除されてしまうので注意が必要です。
-
----
-
-### ✨ 完成！
-
-これでタスク管理システムのデータベース構築とCRUD操作が完成しました！CREATE、INSERT、SELECT、UPDATE、DELETEの各SQL文を実践できましたね。
-
----
-
-## ✅ 完成イメージ
-
-### 初期データ挿入後
-
-| task_id | title | status | priority | due_date |
-|---------|-------|--------|----------|----------|
-| 1 | データベース設計 | 完了 | 1 | 2024-12-10 |
-| 2 | API開発 | 進行中 | 1 | 2024-12-20 |
-| 3 | テスト作成 | 未着手 | 2 | 2024-12-25 |
-| 4 | ドキュメント作成 | 未着手 | 3 | 2024-12-30 |
-| 5 | デプロイ準備 | 未着手 | 2 | 2025-01-05 |
-
-### 更新・削除後
-
-| task_id | title | status | priority | due_date |
-|---------|-------|--------|----------|----------|
-| 1 | データベース設計 | 完了 | 1 | 2024-12-10 |
-| 2 | API開発 | 完了 | 1 | 2024-12-20 |
-| 3 | テスト作成 | 進行中 | 1 | 2024-12-25 |
-| 5 | デプロイ準備 | 未着手 | 2 | 2025-01-05 |
-
----
-
-## 📖 模範解答
-
-自分で実装してから、以下の模範解答を確認してください。
-
-### 1. データベースとテーブルの作成
-
-```sql
--- データベースの作成
-CREATE DATABASE task_management;
-
--- データベースの選択
-USE task_management;
-
--- テーブルの作成
 CREATE TABLE tasks (
     task_id INT PRIMARY KEY AUTO_INCREMENT,
     title VARCHAR(200) NOT NULL,
@@ -424,7 +241,48 @@ CREATE TABLE tasks (
 );
 ```
 
-### 2. データの挿入
+**コードリーディング**：
+
+```sql
+task_id INT PRIMARY KEY AUTO_INCREMENT,
+```
+→ タスクIDを主キーとして定義し、自動採番します。データを挿入するたびに1, 2, 3...と番号が振られます。
+
+```sql
+title VARCHAR(200) NOT NULL,
+```
+→ タスクのタイトルを必須項目として定義します。
+
+```sql
+description TEXT,
+```
+→ 詳細説明をTEXT型で定義します。長い文章を格納できます。NULL許可なので、省略可能です。
+
+```sql
+status ENUM('未着手', '進行中', '完了') DEFAULT '未着手',
+```
+→ `ENUM`型でステータスを3つの値に制限します。`DEFAULT '未着手'`で、値を指定しない場合は自動的に「未着手」が設定されます。
+
+```sql
+priority INT DEFAULT 3,
+```
+→ 優先度を整数で定義し、デフォルトを3（低）に設定します。
+
+```sql
+created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+```
+→ 作成日時を定義し、`DEFAULT CURRENT_TIMESTAMP`でデータ挿入時の日時が自動的に設定されます。
+
+---
+
+#### ステップ3: データを挿入する
+
+**何を考えているか**：
+- 「テストデータを複数件挿入しよう」
+- 「カラム名を指定して、値を順番に渡そう」
+- 「複数行を一度に挿入できる」
+
+「SQL」タブで以下を実行します：
 
 ```sql
 INSERT INTO tasks (title, status, priority, due_date) VALUES
@@ -435,7 +293,182 @@ INSERT INTO tasks (title, status, priority, due_date) VALUES
 ('デプロイ準備', '未着手', 2, '2025-01-05');
 ```
 
-### 3. データの取得
+**コードリーディング**：
+
+```sql
+INSERT INTO tasks (title, status, priority, due_date) VALUES
+```
+→ `INSERT INTO`文でtasksテーブルにデータを挿入します。括弧内にカラム名を指定し、`VALUES`以降に値を指定します。`task_id`はAUTO_INCREMENT、`description`はNULL許可、`created_at`はDEFAULT値があるため、指定する必要がありません。
+
+```sql
+('データベース設計', '完了', 1, '2024-12-10'),
+('API開発', '進行中', 1, '2024-12-20'),
+```
+→ カンマで区切って複数行を一度に挿入できます。最後の行のみセミコロンで終わります。
+
+挿入後、`SELECT * FROM tasks;` を実行して、5件のデータが挿入されたことを確認しましょう。
+
+---
+
+#### ステップ4: データを取得する
+
+**何を考えているか**：
+- 「全データを取得して確認しよう」
+- 「条件を指定して絞り込み検索しよう」
+- 「並び替えも試そう」
+
+「SQL」タブで以下のSQLをそれぞれ実行します：
+
+```sql
+-- すべてのタスクを取得
+SELECT * FROM tasks;
+
+-- ステータスが「未着手」のタスクのみ取得
+SELECT * FROM tasks WHERE status = '未着手';
+
+-- 優先度が1（高）のタスクのみ取得
+SELECT * FROM tasks WHERE priority = 1;
+
+-- 優先度の高い順に並び替えて取得
+SELECT * FROM tasks ORDER BY priority ASC;
+```
+
+**コードリーディング**：
+
+```sql
+SELECT * FROM tasks;
+```
+→ `SELECT`文でデータを取得します。`*`は全カラムを意味します。
+
+```sql
+SELECT * FROM tasks WHERE status = '未着手';
+```
+→ `WHERE`句で条件を指定します。ステータスが「未着手」のタスクのみを取得します。
+
+```sql
+SELECT * FROM tasks ORDER BY priority ASC;
+```
+→ `ORDER BY`句で並び替えを指定します。`priority ASC`で優先度の昇順（数値が小さい=優先度が高い順）に並べ替えます。`DESC`を使うと降順になります。
+
+---
+
+#### ステップ5: データを更新する
+
+**何を考えているか**：
+- 「特定のタスクのステータスを変更しよう」
+- 「WHERE句で更新対象を特定しよう」
+- 「WHEREを忘れると全データが更新されるので注意」
+
+「SQL」タブで以下のSQLをそれぞれ実行します：
+
+```sql
+-- 「API開発」（task_id: 2）のステータスを「完了」に変更
+UPDATE tasks SET status = '完了' WHERE task_id = 2;
+
+-- 「テスト作成」（task_id: 3）のステータスと優先度を変更
+UPDATE tasks SET status = '進行中', priority = 1 WHERE task_id = 3;
+```
+
+実行後、`SELECT * FROM tasks;` で変更が反映されていることを確認しましょう。
+
+**コードリーディング**：
+
+```sql
+UPDATE tasks SET status = '完了' WHERE task_id = 2;
+```
+→ `UPDATE`文でデータを更新します。`SET`以降に更新するカラムと値を指定します。`WHERE task_id = 2`で対象レコードを特定します。
+
+```sql
+UPDATE tasks SET status = '進行中', priority = 1 WHERE task_id = 3;
+```
+→ 複数のカラムを同時に更新する場合、カンマで区切って指定します。
+
+> ⚠️ **注意**: `WHERE`句を忘れると、テーブル内の**全レコード**が更新されてしまいます。UPDATE文を実行する前に、必ず`WHERE`句を確認しましょう。
+
+---
+
+#### ステップ6: データを削除する
+
+**何を考えているか**：
+- 「不要なタスクを削除しよう」
+- 「WHERE句で削除対象を特定しよう」
+- 「削除は復元できないので慎重に」
+
+「SQL」タブで以下のSQLを実行します：
+
+```sql
+-- 「ドキュメント作成」（task_id: 4）を削除
+DELETE FROM tasks WHERE task_id = 4;
+```
+
+**コードリーディング**：
+
+```sql
+DELETE FROM tasks WHERE task_id = 4;
+```
+→ `DELETE FROM`文でデータを削除します。`WHERE task_id = 4`で対象レコードを特定します。
+
+> ⚠️ **注意**: `WHERE`句を忘れると、テーブル内の**全データ**が削除されてしまいます。DELETE文を実行する前に、`SELECT`文で対象データを確認してから削除すると安全です。
+
+---
+
+### ✨ 完成！
+
+これでタスク管理システムのデータベース構築とCRUD操作が完成しました！
+
+最後に `SELECT * FROM tasks;` を実行して、以下の結果になっていることを確認しましょう：
+
+**最終データ確認**：
+
+| task_id | title | status | priority | due_date |
+|---------|-------|--------|----------|----------|
+| 1 | データベース設計 | 完了 | 1 | 2024-12-10 |
+| 2 | API開発 | 完了 | 1 | 2024-12-20 |
+| 3 | テスト作成 | 進行中 | 1 | 2024-12-25 |
+| 5 | デプロイ準備 | 未着手 | 2 | 2025-01-05 |
+
+→ 「API開発」が「完了」に、「テスト作成」が「進行中」（優先度1）に変更され、「ドキュメント作成」（task_id: 4）が削除されていれば成功です！
+
+---
+
+## 📖 模範解答
+
+自分で実装してから、以下の模範解答を確認してください。
+
+### 1. データベースの作成
+
+```sql
+CREATE DATABASE task_management CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+```
+
+> 📌 phpMyAdminの左ペインで`task_management`をクリックして選択してから、以下を実行してください。
+
+### 2. テーブルの作成
+
+```sql
+CREATE TABLE tasks (
+    task_id INT PRIMARY KEY AUTO_INCREMENT,
+    title VARCHAR(200) NOT NULL,
+    description TEXT,
+    status ENUM('未着手', '進行中', '完了') DEFAULT '未着手',
+    priority INT DEFAULT 3,
+    due_date DATE,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+### 3. データの挿入
+
+```sql
+INSERT INTO tasks (title, status, priority, due_date) VALUES
+('データベース設計', '完了', 1, '2024-12-10'),
+('API開発', '進行中', 1, '2024-12-20'),
+('テスト作成', '未着手', 2, '2024-12-25'),
+('ドキュメント作成', '未着手', 3, '2024-12-30'),
+('デプロイ準備', '未着手', 2, '2025-01-05');
+```
+
+### 4. データの取得
 
 ```sql
 -- すべてのタスクを取得
@@ -451,24 +484,22 @@ SELECT * FROM tasks WHERE priority = 1;
 SELECT * FROM tasks ORDER BY priority ASC;
 ```
 
-### 4. データの更新
+### 5. データの更新
 
 ```sql
 -- 「API開発」のステータスを「完了」に変更
-UPDATE tasks SET status = '完了' WHERE title = 'API開発';
+UPDATE tasks SET status = '完了' WHERE task_id = 2;
 
 -- 「テスト作成」のステータスと優先度を変更
-UPDATE tasks SET status = '進行中', priority = 1 WHERE title = 'テスト作成';
+UPDATE tasks SET status = '進行中', priority = 1 WHERE task_id = 3;
 ```
 
-### 5. データの削除
+### 6. データの削除
 
 ```sql
 -- 「ドキュメント作成」タスクを削除
-DELETE FROM tasks WHERE title = 'ドキュメント作成';
+DELETE FROM tasks WHERE task_id = 4;
 ```
-
----
 
 ---
 
@@ -481,7 +512,7 @@ DELETE FROM tasks WHERE title = 'ドキュメント作成';
 UPDATE tasks SET status = '完了';
 
 -- ✅ 正しい
-UPDATE tasks SET status = '完了' WHERE title = 'API開発';
+UPDATE tasks SET status = '完了' WHERE task_id = 2;
 ```
 
 ### 間違い2: シングルクォートの忘れ
@@ -503,6 +534,7 @@ SELECT * FROM tasks WHERE titel = 'API開発';
 -- ✅ 正しい
 SELECT * FROM tasks WHERE title = 'API開発';
 ```
+
 ---
 
 ## 🚀 まとめ
@@ -517,11 +549,7 @@ SELECT * FROM tasks WHERE title = 'API開発';
 - ✅ UPDATE文でデータを更新できる
 - ✅ DELETE文でデータを削除できる
 
-引き続き、次のセクションも頑張りましょう！
-
----
-
-## 🧹 後片付け（任意）
+### 🧹 後片付け（任意）
 
 このハンズオンで作成した`task_management`データベースは、演習専用のデータベースです。次のChapter以降では使用しません。
 

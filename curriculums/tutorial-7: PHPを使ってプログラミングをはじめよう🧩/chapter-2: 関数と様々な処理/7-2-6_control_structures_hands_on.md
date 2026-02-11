@@ -1,20 +1,18 @@
 # Tutorial 7-2-6: 制御構文 - ハンズオン演習
 
-## 📝 このセクションの目的
+## 📌 このハンズオンについて
 
-Chapter 2で学んだ制御構文（if文、switch文、for文、while文）を実際に手を動かして確認します。条件分岐とループ処理を使った実践的なプログラムを作成しましょう。
+Chapter 2で学んだ制御構文（関数、if文、foreachループ）を実際に手を動かして確認します。条件分岐とループ処理を使った実践的なプログラムを作成しましょう。
 
 > 分からない文法や実装があっても、すぐに答えを見るのではなく、過去の教材を見たり、AIにヒントをもらいながら進めるなど、自身で創意工夫しながら進めてみましょう🔥
 
 **学習のポイント**：
-- if文で条件分岐ができるか
-- switch文を適切に使えるか
-- for文でループ処理ができるか
-- while文を正しく使えるか
+- 関数を定義して呼び出せるか
+- if/elseifで条件分岐ができるか
+- foreachで配列をループできるか
+- 配列関数（count()など）を使えるか
 
----
-
-## 📁 ディレクトリ構成
+### 📁 ディレクトリ構成
 
 このハンズオンでは、「自分で作成する用」と「解答を確認する用」の2つのディレクトリを作成します。
 
@@ -27,7 +25,7 @@ Tutorial 6で作成した`php-practice`ディレクトリ内の`src/`フォル�
 │       └── default.conf
 ├── src/
 │   ├── index.php                         ← Tutorial 6で作成済み
-│   ├── 7-1-5_hands-on/                   ← Tutorial 7-1-5のハンズオン
+│   ├── 7-1-6_hands-on/                   ← Tutorial 7-1-6のハンズオン
 │   │   ├── practice/
 │   │   └── sample/
 │   └── 7-2-6_hands-on/                   ← このハンズオン用のディレクトリ
@@ -53,46 +51,9 @@ Tutorial 6で作成した`php-practice`ディレクトリ内の`src/`フォル�
 
 学生の成績を判定するプログラムを作成してください。点数に応じて評価を表示し、複数の学生の成績を一覧表示します。
 
----
+### 🖼️ 完成イメージ
 
-### 📁 Step 0: 環境を準備する
-
-まず、ハンズオン用のディレクトリを作成します。ターミナルで以下のコマンドを実行してください。
-
-```bash
-# php-practiceディレクトリに移動
-cd ~/php-practice
-
-# ハンズオン用ディレクトリを作成
-mkdir -p src/7-2-6_hands-on/practice
-mkdir -p src/7-2-6_hands-on/sample
-
-# 自分で作成する用のディレクトリに移動
-cd src/7-2-6_hands-on/practice
-
-# VSCodeでphp-practiceプロジェクト全体を開く
-code ~/php-practice
-```
-
-**コマンド解説**：
-
-| コマンド | 説明 |
-|:---|:---|
-| `cd ~/php-practice` | php-practiceディレクトリに移動します |
-| `mkdir -p` | ディレクトリを作成します。`-p`オプションで、親ディレクトリも一緒に作成します |
-| `code ~/php-practice` | php-practiceディレクトリ全体をVSCodeで開きます |
-
-**Docker環境の起動**：
-
-```bash
-# php-practiceディレクトリでDocker環境を起動
-cd ~/php-practice
-docker compose up -d
-```
-
-> 📌 **確認**: ブラウザで`http://localhost:8000`にアクセスして、「Hello from Docker!」が表示されることを確認してください。
-
----
+<img alt="7-2-6_1.png" src="">
 
 ### 📋 要件
 
@@ -114,7 +75,7 @@ $students = [
 
 #### 2. 成績判定ロジック
 
-点数に応じて、以下の評価を返す処理を実装してください：
+点数に応じて、以下の評価を返す**関数**を実装してください：
 
 | 点数 | 評価 | 判定 |
 |------|------|------|
@@ -137,16 +98,69 @@ $students = [
    - 不合格者数（60点未満）
    - 平均点
 
-3. **HTMLテーブル**：
-   - 成績を表形式で見やすく表示
-
 #### 4. 使用する制御構文
 
-- **if文**：点数に応じた評価の判定
-- **for文**：学生データのループ処理
-- **条件演算子**：合格/不合格の判定
+- **関数**：点数を受け取り評価を返す
+- **if/elseif文**：点数に応じた評価の判定
+- **foreachループ**：学生データのループ処理
 
-**動作確認URL**: `http://localhost:8000/7-2-6_hands-on/practice/grade_calculator.php`
+> 💡 **動作確認**: `http://localhost:8000/7-2-6_hands-on/practice/grade_calculator.php` にアクセス
+
+### ✏️ 実装タスク
+
+1. 学生データを配列で定義する
+2. 評価判定関数を作る
+3. 全員の成績をループで処理する
+4. 統計情報を表示する
+
+### ✅ 完成チェックリスト
+
+- [ ] 5人の学生の成績が表示される
+- [ ] 各学生に評価（A〜F）が正しく付いている
+- [ ] 合格者数が4人、不合格者数が1人と表示される
+- [ ] 平均点が75.6点と表示される
+
+---
+
+## ⚙️ 環境準備（自分で作成する用）
+
+まず、ハンズオン用のディレクトリを作成します。ターミナルで以下のコマンドを実行してください。
+
+```bash
+# php-practiceディレクトリに移動
+cd ~/php-practice
+
+# ハンズオン用ディレクトリを作成
+mkdir -p src/7-2-6_hands-on/practice
+mkdir -p src/7-2-6_hands-on/sample
+
+# 自分で作成する用のファイルを作成
+touch src/7-2-6_hands-on/practice/grade_calculator.php
+
+# VSCodeでphp-practiceプロジェクト全体を開く
+code ~/php-practice
+```
+
+**コマンド解説**：
+
+| コマンド | 説明 |
+|:---|:---|
+| `cd ~/php-practice` | php-practiceディレクトリに移動します |
+| `mkdir -p` | ディレクトリを作成します。`-p`オプションで、親ディレクトリも一緒に作成します |
+| `touch` | 空のファイルを作成します |
+| `code ~/php-practice` | php-practiceディレクトリ全体をVSCodeで開きます |
+
+**Docker環境の起動**：
+
+```bash
+# php-practiceディレクトリでDocker環境を起動
+cd ~/php-practice
+docker compose up -d
+```
+
+> 📌 **確認**: ブラウザで`http://localhost:8000`にアクセスして、「Hello from Docker!」が表示されることを確認してください。
+
+> 🚀 **ここから先は、自分の力で実装してみましょう！**
 
 ---
 
@@ -205,36 +219,15 @@ $average = $total_score / count($students);
 
 ---
 
-## 🏃 実践: 一緒に作ってみましょう！
+## 🏃 実践
 
 ちゃんとできましたか？制御構文はif文とループが基本です。一緒に手を動かしながら、成績判定プログラムを作っていきましょう。
 
 > 📌 **注意**: ここからは`sample/`ディレクトリで作業します。自分で作成したコードと比較できるように、別のディレクトリで進めましょう。
 
-### 💭 実装の思考プロセス
+### ⚙️ 環境準備（実践用プロジェクト）
 
-成績判定プログラムを作る際、以下の順番で考えると効率的です：
-
-1. **学生データを配列で定義**：複数の学生の名前と点数を格納
-2. **評価判定ロジックを作る**：if文で点数に応じて評価を返す
-3. **ループで全員の成績を処理**：foreachで配列をループ
-4. **統計情報を計算**：合格者数、不合格者数、平均点を計算
-5. **結果を表示**：echoで見やすく出力
-
-制御構文のポイントは「条件分岐」と「繰り返し」を組み合わせることです。
-
----
-
-### 📝 ステップバイステップで実装
-
-#### ステップ1: 実践用ディレクトリに移動し、PHPファイルを作成する
-
-**何を考えているか**：
-- 「`sample/`ディレクトリに`grade_calculator.php`を作ろう」
-- 「複数の学生のデータをまとめて管理したい」
-- 「連想配列を使って名前と点数をペアにしよう」
-
-まず、ターミナルで以下のコマンドを実行して、実践用ディレクトリに移動します：
+ターミナルで以下のコマンドを実行して、実践用のファイルを作成します：
 
 ```bash
 # 実践用ディレクトリに移動
@@ -257,7 +250,7 @@ VSCodeのエクスプローラーで`src/7-2-6_hands-on/sample/grade_calculator.
 │       └── default.conf
 ├── src/
 │   ├── index.php
-│   ├── 7-1-5_hands-on/
+│   ├── 7-1-6_hands-on/
 │   │   ├── practice/
 │   │   └── sample/
 │   └── 7-2-6_hands-on/
@@ -267,6 +260,29 @@ VSCodeのエクスプローラーで`src/7-2-6_hands-on/sample/grade_calculator.
 │           └── grade_calculator.php    ← これから一緒に作成するファイル
 └── docker-compose.yml
 ```
+
+### 🧠 先輩エンジニアの思考プロセス
+
+先輩エンジニアは要件を以下のように構造化し、実装タスクに落とし込みます：
+
+| Step | やること | 説明 |
+|:-----|:---------|:-----|
+| 1 | 学生データを配列で定義する | 連想配列で名前と点数をペアにして管理 |
+| 2 | 評価判定関数を作る | if/elseifで点数に応じた評価を返す |
+| 3 | 全員の成績をループで処理する | foreachで配列をループし、統計を集計 |
+| 4 | 統計情報を表示する | 平均点・合格者数を計算して出力 |
+
+制御構文のポイントは「条件分岐」と「繰り返し」を組み合わせることです。
+
+---
+
+### 📝 ステップバイステップで実装
+
+#### ステップ1: 学生データを配列で定義する
+
+**何を考えているか**：
+- 「複数の学生のデータをまとめて管理したい」
+- 「連想配列を使って名前と点数をペアにしよう」
 
 `src/7-2-6_hands-on/sample/grade_calculator.php`ファイルに、学生データを定義します：
 
@@ -392,17 +408,17 @@ foreach ($students as $student) {
     $name = $student["name"];
     $score = $student["score"];
     $grade = getGrade($score);
-    
+
     // 合格・不合格のカウント
     if ($score >= 60) {
         $pass_count++;
     } else {
         $fail_count++;
     }
-    
+
     // 合計点の集計
     $total_score += $score;
-    
+
     // 結果の表示
     echo "{$name}: {$score}点 - 評価{$grade}<br>";
 }
@@ -488,22 +504,16 @@ echo "平均点: " . number_format($average, 1) . "点<br>";
 
 ---
 
-#### ステップ5: ブラウザで確認する
+### ✨ 完成！
 
-**何を考えているか**：
-- 「ファイルを保存してブラウザで開こう」
-- 「意図通りに表示されているか確認しよう」
+これで成績判定プログラムが完成しました！
+
+ファイルを保存して、ブラウザで確認しましょう。
 
 1. ファイルを保存します
 2. Docker環境が起動していることを確認します（`docker compose up -d`）
 3. ブラウザで`http://localhost:8000/7-2-6_hands-on/sample/grade_calculator.php`を開きます
 4. 成績一覧と統計情報が表示されることを確認します
-
----
-
-### ✨ 完成！
-
-これで成績判定プログラムが完成しました！if文、foreachループ、関数の使い方を実践できましたね。
 
 **自分で作成したコードと比較してみましょう**：
 - `practice/grade_calculator.php`: 自分で作成したコード
@@ -511,26 +521,11 @@ echo "平均点: " . number_format($average, 1) . "点<br>";
 
 両方のファイルを見比べて、違いがあれば確認してみてください。
 
----
+**作業が終わったらコンテナを停止**:
 
-## ✅ 完成イメージ
-
-完成すると、以下のような表示になります：
-
-```
-成績判定システム
-
-【個別成績】
-田中太郎: 85点 - 評価B（良好）
-佐藤花子: 92点 - 評価A（優秀）
-鈴木一郎: 78点 - 評価C（普通）
-高橋美咲: 65点 - 評価D（要努力）
-伊藤健太: 58点 - 評価F（不合格）
-
-【統計情報】
-合格者数: 4人
-不合格者数: 1人
-平均点: 75.6点
+```bash
+cd ~/php-practice
+docker compose down
 ```
 
 ---
@@ -538,6 +533,8 @@ echo "平均点: " . number_format($average, 1) . "点<br>";
 ## 📖 模範解答
 
 自分で実装してから、以下の模範解答を確認してください。
+
+> 💡 模範解答では、見た目を整えるためにHTML/CSSを適用しています。PHPのロジック部分に注目して確認しましょう。
 
 ### grade_calculator.php
 
@@ -609,7 +606,7 @@ echo "平均点: " . number_format($average, 1) . "点<br>";
 <body>
     <div class="container">
         <h1>成績判定システム</h1>
-        
+
         <?php
         // 学生データの定義
         $students = [
@@ -619,7 +616,7 @@ echo "平均点: " . number_format($average, 1) . "点<br>";
             ["name" => "高橋美咲", "score" => 65],
             ["name" => "伊藤健太", "score" => 58],
         ];
-        
+
         // 成績判定関数
         function getGrade($score) {
             if ($score >= 90) {
@@ -634,24 +631,24 @@ echo "平均点: " . number_format($average, 1) . "点<br>";
                 return ["grade" => "F", "status" => "不合格"];
             }
         }
-        
+
         // 統計情報の初期化
         $pass_count = 0;
         $fail_count = 0;
         $total_score = 0;
-        
+
         // 個別成績の表示
         echo "<h2>【個別成績】</h2>";
         echo "<table>";
         echo "<tr><th>名前</th><th>点数</th><th>評価</th><th>判定</th></tr>";
-        
+
         foreach ($students as $student) {
             $name = $student["name"];
             $score = $student["score"];
             $result = getGrade($score);
             $grade = $result["grade"];
             $status = $result["status"];
-            
+
             // 統計情報の集計
             $total_score += $score;
             if ($score >= 60) {
@@ -659,7 +656,7 @@ echo "平均点: " . number_format($average, 1) . "点<br>";
             } else {
                 $fail_count++;
             }
-            
+
             // テーブル行の表示
             echo "<tr>";
             echo "<td>{$name}</td>";
@@ -668,12 +665,12 @@ echo "平均点: " . number_format($average, 1) . "点<br>";
             echo "<td>{$status}</td>";
             echo "</tr>";
         }
-        
+
         echo "</table>";
-        
+
         // 平均点の計算
         $average = $total_score / count($students);
-        
+
         // 統計情報の表示
         echo "<h2>【統計情報】</h2>";
         echo "<div class='stats'>";
@@ -686,8 +683,6 @@ echo "平均点: " . number_format($average, 1) . "点<br>";
 </body>
 </html>
 ```
-
----
 
 ---
 
@@ -750,31 +745,16 @@ foreach ($students as $student) {
 
 ---
 
-## 🧪 動作確認の方法
-
-### Docker環境で実行
-
-Tutorial 6で構築したDocker環境を使用します。
-
-1. Docker環境を起動（`cd ~/php-practice && docker compose up -d`）
-2. ブラウザで以下のURLにアクセス：
-   - 自分で作成したコード: `http://localhost:8000/7-2-6_hands-on/practice/grade_calculator.php`
-   - 一緒に作成したコード: `http://localhost:8000/7-2-6_hands-on/sample/grade_calculator.php`
-
-> 💡 **ヒント**: ファイルを保存すると、ブラウザをリロードするだけで変更が反映されます。
-
----
-
 ## 🚀 まとめ
 
 **ハンズオンお疲れ様でした！**
 
 このハンズオンで、以下のことができるようになりました：
 
-- ✅ if文で条件分岐ができる
-- ✅ switch文を適切に使える
-- ✅ for文でループ処理ができる
-- ✅ while文を正しく使える
+- ✅ 関数を定義して呼び出せる
+- ✅ if/elseifで条件分岐ができる
+- ✅ foreachで配列をループできる
+- ✅ 配列関数（count()など）を使える
 
 引き続き、次のセクションも頑張りましょう！
 

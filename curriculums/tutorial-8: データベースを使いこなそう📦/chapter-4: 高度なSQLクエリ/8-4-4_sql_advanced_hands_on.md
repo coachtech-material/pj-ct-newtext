@@ -1,36 +1,24 @@
-# Tutorial 8-4-4: SQL応用操作 - ハンズオン演習
+# 8-4-4: SQL応用操作 - ハンズオン演習
 
-## 📝 このセクションの目的
+## 📌 このハンズオンについて
 
-Chapter 4で学んだSQL応用操作を実際に手を動かして確認します。WHERE句、ORDER BY句、集計関数、サブクエリを使って、複雑なデータ分析を行いましょう。
-
-> 📌 **使用するデータベース**：このハンズオンでは、新しいデータベース`sales_analysis`を作成して進めます。まず、phpMyAdminで以下のSQLを実行してデータベースを作成し、そのデータベースを選択してから演習を始めてください。
->
-> ```sql
-> CREATE DATABASE sales_analysis;
-> ```
+Chapter 4で学んだSQL応用操作を実際に手を動かして確認します。WHERE句、ORDER BY句、集計関数、サブクエリを使って、売上データの分析を行いましょう。
 
 > 分からない文法や実装があっても、すぐに答えを見るのではなく、過去の教材を見たり、AIにヒントをもらいながら進めるなど、自身で創意工夫しながら進めてみましょう🔥
 
-**学習のポイント**：
-- WHERE句で複雑な条件を指定できるか
-- ORDER BY句で並び替えができるか
-- 集計関数（COUNT、SUM、AVG、MAX、MIN）を使えるか
-- サブクエリを活用できるか
-
 ---
 
-## 🎯 演習課題：売上分析システム
+## 🎯 演習課題
 
-### 課題の概要
+### この演習で行うこと
 
-売上データを分析するクエリを作成してください。集計関数やサブクエリを使って、様々な角度から売上を分析します。
+売上データを管理するデータベースとテーブルを作成し、集計関数やサブクエリを使って、様々な角度から売上を分析するクエリを作成します。
 
 ### 📋 要件
 
-#### 1. テーブルの作成とデータ挿入
+#### テーブル構成
 
-**salesテーブル**:
+新しいデータベース`sales_analysis`を作成し、以下の`sales`テーブルを作成します：
 
 ```sql
 CREATE TABLE sales (
@@ -55,25 +43,61 @@ INSERT INTO sales (product_name, category, price, quantity, sale_date) VALUES
 ('デスク', '家具', 25000, 1, '2024-12-06');
 ```
 
-#### 2. クエリの作成
+#### 作成するクエリ
 
-以下のクエリを作成して実行してください：
+以下の分析クエリを作成してください：
 
 1. **売上合計金額を計算**（price × quantity の合計）
-
-2. **カテゴリ別の売上合計を計算**
-
-3. **最も売上が高い商品を取得**
-
+2. **カテゴリ別の売上合計を計算**（売上が高い順に表示）
+3. **最も売上が高い商品を取得**（商品ごとの売上を集計）
 4. **売上が10万円以上の取引を取得**
-
 5. **12月3日以降の売上を日付順に取得**
+6. **平均以上の売上がある取引を取得**（サブクエリを使用）
+7. **各カテゴリの商品数を集計**（重複を除いた商品種類数と総数量）
 
-6. **平均売上金額を計算**
+### ✅ 完成チェックリスト
 
-7. **平均以上の売上がある取引を取得**（サブクエリを使用）
+- [ ] `sales_analysis`データベースが作成された
+- [ ] `sales`テーブルに10件のデータが挿入された
+- [ ] 7つの分析クエリがすべて正しい結果を返す
 
-8. **各カテゴリの商品数を集計**
+> 💡 **動作確認**: phpMyAdmin（`http://localhost:8080`）の「SQL」タブでクエリを実行
+
+### ✏️ 実装タスク
+
+1. データベースとテーブルを作成する
+2. 売上合計金額を計算する
+3. カテゴリ別の売上合計を計算する
+4. 最も売上が高い商品を取得する
+5. 売上が10万円以上の取引を取得する
+6. 12月3日以降の売上を日付順に取得する
+7. 平均以上の売上がある取引を取得する
+8. 各カテゴリの商品数を集計する
+
+---
+
+## ⚙️ 環境準備
+
+Chapter 2のハンズオン（8-2-7）で構築したDocker環境を使用します。
+
+**1. Docker環境を起動する**
+
+```bash
+cd ~/mysql-practice
+docker compose up -d
+```
+
+**2. phpMyAdminにアクセスする**
+
+ブラウザで `http://localhost:8080` にアクセスし、以下の情報でログインします：
+
+| 項目 | 値 |
+|:-----|:---|
+| サーバ | db |
+| ユーザー名 | root |
+| パスワード | rootpassword |
+
+> 🚀 **ここから先は、自分の力で実装してみましょう！**
 
 ---
 
@@ -81,21 +105,21 @@ INSERT INTO sales (product_name, category, price, quantity, sale_date) VALUES
 
 詰まったときは、以下のヒントを参考にしてください。
 
-### ヒント1: 売上金額の計算
+<details>
+<summary>ヒント1: 売上金額の計算（SUM）</summary>
+
+`price * quantity`で1件の売上金額を計算し、`SUM`関数で合計できます。
 
 ```sql
-SELECT product_name, (price * quantity) AS total
-FROM sales;
+SELECT SUM(price * quantity) AS total_sales FROM sales;
 ```
 
-### ヒント2: 集計関数
+</details>
 
-```sql
-SELECT SUM(price * quantity) AS total_sales
-FROM sales;
-```
+<details>
+<summary>ヒント2: グループ化（GROUP BY）</summary>
 
-### ヒント3: GROUP BY
+`GROUP BY`でカテゴリや商品名ごとにグループ化し、集計関数を適用できます。
 
 ```sql
 SELECT category, SUM(price * quantity) AS total
@@ -103,56 +127,94 @@ FROM sales
 GROUP BY category;
 ```
 
-### ヒント4: ORDER BY と LIMIT
+</details>
+
+<details>
+<summary>ヒント3: 並び替えと件数制限（ORDER BY + LIMIT）</summary>
+
+`ORDER BY ... DESC`で降順に並べ替え、`LIMIT 1`で上位1件に絞り込めます。
+
+</details>
+
+<details>
+<summary>ヒント4: 条件指定（WHERE）</summary>
+
+`WHERE`句で計算式や日付を条件に指定できます。
 
 ```sql
-SELECT product_name, (price * quantity) AS total
-FROM sales
-ORDER BY total DESC
-LIMIT 1;
+WHERE (price * quantity) >= 100000
+WHERE sale_date >= '2024-12-03'
 ```
 
-### ヒント5: サブクエリ
+</details>
+
+<details>
+<summary>ヒント5: サブクエリ</summary>
+
+`WHERE`句の条件に、別の`SELECT`文の結果を使えます。サブクエリは`()`で囲みます。
 
 ```sql
-SELECT *
-FROM sales
 WHERE (price * quantity) > (
-    SELECT AVG(price * quantity)
-    FROM sales
-);
+    SELECT AVG(price * quantity) FROM sales
+)
 ```
+
+</details>
+
+<details>
+<summary>ヒント6: 重複を除いたカウント（COUNT DISTINCT）</summary>
+
+`COUNT(DISTINCT カラム名)`で、重複を除いたユニークな値の数をカウントできます。
+
+</details>
 
 ---
 
-## 🏃 実践: 一緒に作ってみましょう！
+## 🏃 実践
 
-ちゃんとできましたか？SQL応用操作はデータ分析の強力なツールです。一緒に手を動かしながら、売上分析システムを構築していきましょう。
+ちゃんとできましたか？一緒に手を動かしながら、売上分析クエリを作成していきましょう。
 
-### 💭 実装の思考プロセス
+### ⚙️ 実践用環境
 
-売上分析システムを構築する際、以下の順番で考えると効率的です：
+phpMyAdminにログインし、画面上部の「SQL」タブをクリックしてSQLを実行できる状態にしてください。
 
-1. **テーブルを作成してデータを準備**：分析対象のデータを用意
-2. **集計関数で合計を計算**：SUMで売上合計を取得
-3. **GROUP BYでカテゴリ別に集計**：カテゴリごとの売上を分析
-4. **ORDER BYで並び替え**：売上が高い順に表示
-5. **サブクエリで複雑な条件を指定**：平均以上の売上を抽出
+### 🧠 先輩エンジニアの思考プロセス
 
-SQL応用操作のポイントは「集計関数とGROUP BYを組み合わせて、多角的にデータを分析する」ことです。
+先輩エンジニアは要件を以下のように構造化し、実装タスクに落とし込みます：
+
+| Step | やること | 説明 |
+|:-----|:---------|:-----|
+| 1 | データベースとテーブルを作成する | 分析対象の売上データを準備する |
+| 2 | 売上合計金額を計算する | SUM関数でprice × quantityの合計を算出 |
+| 3 | カテゴリ別の売上合計を計算する | GROUP BYでカテゴリごとに集計 |
+| 4 | 最も売上が高い商品を取得する | GROUP BY + ORDER BY DESC + LIMIT 1 |
+| 5 | 売上が10万円以上の取引を取得する | WHERE句で計算式を条件に指定 |
+| 6 | 12月3日以降の売上を日付順に取得する | WHERE句で日付を条件に指定 |
+| 7 | 平均以上の売上がある取引を取得する | サブクエリでAVGを計算し条件に使用 |
+| 8 | 各カテゴリの商品数を集計する | COUNT(DISTINCT)で重複を除いて集計 |
+
+SQL応用操作のポイントは「**集計関数とGROUP BYを組み合わせて、多角的にデータを分析する**」ことです。
 
 ---
 
 ### 📝 ステップバイステップで実装
 
-#### ステップ1: テーブルを作成してデータを挿入する
+#### ステップ1: データベースとテーブルを作成する
 
 **何を考えているか**：
-- 「売上データを管理するテーブルを作ろう」
-- 「商品名、カテゴリ、価格、数量、売上日を管理しよう」
+- 「分析用のデータベースを新しく作ろう」
+- 「売上データを管理するテーブルを定義しよう」
 - 「テストデータを複数件挿入しよう」
 
-まず、salesテーブルを作成してデータを挿入します：
+まず、データベースを作成します：
+
+```sql
+CREATE DATABASE sales_analysis DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+```
+
+> 📌 phpMyAdminの左ペインで`sales_analysis`をクリックして選択してから、以下を実行してください。
+
+次に、salesテーブルを作成してデータを挿入します：
 
 ```sql
 CREATE TABLE sales (
@@ -166,11 +228,15 @@ CREATE TABLE sales (
 
 INSERT INTO sales (product_name, category, price, quantity, sale_date) VALUES
 ('ノートPC', '電子機器', 120000, 2, '2024-12-01'),
-('マウス', '電子機器', 2000, 5, '2024-12-02'),
-('キーボード', '電子機器', 5000, 3, '2024-12-03'),
-('モニター', '電子機器', 30000, 5, '2024-12-04'),
-('デスク', '家具', 50000, 2, '2024-12-05'),
-('チェア', '家具', 30000, 3, '2024-12-06');
+('マウス', '電子機器', 2000, 10, '2024-12-01'),
+('キーボード', '電子機器', 5000, 5, '2024-12-02'),
+('モニター', '電子機器', 30000, 3, '2024-12-02'),
+('デスク', '家具', 25000, 2, '2024-12-03'),
+('チェア', '家具', 15000, 4, '2024-12-03'),
+('本棚', '家具', 10000, 3, '2024-12-04'),
+('ノートPC', '電子機器', 120000, 1, '2024-12-05'),
+('マウス', '電子機器', 2000, 15, '2024-12-05'),
+('デスク', '家具', 25000, 1, '2024-12-06');
 ```
 
 **コードリーディング**：
@@ -189,14 +255,14 @@ CREATE TABLE sales (
     sale_date DATE NOT NULL
 );
 ```
-→ 商品名、カテゴリ、価格、数量、売上日を定義します。すべて必須項目とします。
+→ 商品名、カテゴリ、単価、数量、売上日を定義します。すべてNOT NULLで必須項目とします。
 
 ```sql
 INSERT INTO sales (product_name, category, price, quantity, sale_date) VALUES
 ('ノートPC', '電子機器', 120000, 2, '2024-12-01'),
 ...
 ```
-→ テストデータを複数件挿入します。カンマで区切って一度に複数行を挿入できます。
+→ 10件のテストデータを挿入します。同じ商品が異なる日に売れたケースも含んでいます（ノートPC、マウス、デスクは2回登場）。
 
 ---
 
@@ -204,10 +270,8 @@ INSERT INTO sales (product_name, category, price, quantity, sale_date) VALUES
 
 **何を考えているか**：
 - 「全売上の合計金額を知りたい」
-- 「価格×数量を計算して、SUMで合計しよう」
-- 「SUM関数を使うと簡単に集計できる」
-
-売上合計金額を計算します：
+- 「各取引の売上は price × quantity で計算できる」
+- 「SUM関数で全体を合計しよう」
 
 ```sql
 SELECT SUM(price * quantity) AS total_sales FROM sales;
@@ -218,21 +282,19 @@ SELECT SUM(price * quantity) AS total_sales FROM sales;
 ```sql
 SELECT SUM(price * quantity) AS total_sales FROM sales;
 ```
-→ `SUM`関数で合計金額を計算します。`price * quantity`で各売上の金額を計算し、`SUM`で全体を合計します。`AS total_sales`で別名を付けて、結果をわかりやすくします。
+→ `price * quantity`で各取引の売上金額を計算し、`SUM`関数で全体を合計します。`AS total_sales`で結果に別名を付けて、わかりやすくしています。
 
 ---
 
 #### ステップ3: カテゴリ別の売上合計を計算する
 
 **何を考えているか**：
-- 「カテゴリごとの売上を知りたい」
+- 「カテゴリごとの売上を比較したい」
 - 「GROUP BYでカテゴリごとにグループ化しよう」
 - 「売上が高い順に並べ替えよう」
 
-カテゴリ別の売上合計を計算します：
-
 ```sql
-SELECT 
+SELECT
     category,
     SUM(price * quantity) AS total
 FROM sales
@@ -243,36 +305,34 @@ ORDER BY total DESC;
 **コードリーディング**：
 
 ```sql
-SELECT 
+SELECT
     category,
     SUM(price * quantity) AS total
 ```
-→ カテゴリと合計金額を取得します。
+→ カテゴリと、そのカテゴリの売上合計を取得します。
 
 ```sql
 FROM sales
 GROUP BY category
 ```
-→ `GROUP BY category`でカテゴリごとにグループ化します。集計関数を使用する場合、`GROUP BY`が必要です。
+→ `GROUP BY category`でカテゴリごとにグループ化します。集計関数はグループ単位で計算されます。
 
 ```sql
 ORDER BY total DESC;
 ```
-→ `ORDER BY total DESC`で合計金額の降順（高い順）に並べ替えます。`DESC`は降順、`ASC`は昇順を意味します。
+→ 売上合計の降順（高い順）に並べ替えます。
 
 ---
 
 #### ステップ4: 最も売上が高い商品を取得する
 
 **何を考えているか**：
-- 「商品ごとの売上を集計しよう」
-- 「売上が高い順に並べて、上位1件だけ取得しよう」
-- 「LIMIT 1で上位1件に絞り込もう」
-
-最も売上が高い商品を取得します：
+- 「商品ごとの売上を集計したい」
+- 「同じ商品が複数回売れているので、GROUP BYで集計しよう」
+- 「売上が高い順に並べて、LIMIT 1で1件だけ取得しよう」
 
 ```sql
-SELECT 
+SELECT
     product_name,
     SUM(price * quantity) AS total
 FROM sales
@@ -286,31 +346,25 @@ LIMIT 1;
 ```sql
 GROUP BY product_name
 ```
-→ 商品ごとにグループ化します。
+→ 商品名ごとにグループ化します。「ノートPC」が2回登場しても、1つのグループにまとめられます。
 
 ```sql
 ORDER BY total DESC
-```
-→ 合計金額の降順に並べ替えます。
-
-```sql
 LIMIT 1;
 ```
-→ `LIMIT 1`で上位1件のみを取得します。これにより、最も売上が高い商品だけを取得できます。
+→ 合計金額の降順に並べ替え、`LIMIT 1`で上位1件のみを取得します。これにより、最も売上が高い商品だけを取得できます。
 
 ---
 
 #### ステップ5: 売上が10万円以上の取引を取得する
 
 **何を考えているか**：
-- 「高額の取引だけを抽出したい」
-- 「WHERE句で金額の条件を指定しよう」
-- 「計算式を条件に使える」
-
-売上が10万円以上の取引を取得します：
+- 「高額取引だけを抽出したい」
+- 「WHERE句で計算式を条件に指定できる」
+- 「結果も金額順に並べよう」
 
 ```sql
-SELECT 
+SELECT
     product_name,
     (price * quantity) AS total,
     sale_date
@@ -322,18 +376,9 @@ ORDER BY total DESC;
 **コードリーディング**：
 
 ```sql
-SELECT 
-    product_name,
-    (price * quantity) AS total,
-    sale_date
-```
-→ 商品名、売上金額（価格×数量）、売上日を取得します。`AS total`で計算結果に別名を付けます。
-
-```sql
-FROM sales
 WHERE (price * quantity) >= 100000
 ```
-→ `WHERE`句で条件を指定します。`(price * quantity)`の計算結果が10万円以上のレコードだけを抽出します。計算式は括弧で囲むと明確になります。
+→ `WHERE`句で計算式を条件に指定します。各取引の`price * quantity`が10万円以上のレコードだけを抽出します。
 
 ```sql
 ORDER BY total DESC;
@@ -347,12 +392,10 @@ ORDER BY total DESC;
 **何を考えているか**：
 - 「特定の日付以降のデータを抽出したい」
 - 「WHERE句で日付の比較をしよう」
-- 「日付順に並べ替えよう」
-
-12月3日以降の売上を日付順に取得します：
+- 「日付順に並べ替えて時系列で確認しよう」
 
 ```sql
-SELECT 
+SELECT
     product_name,
     category,
     (price * quantity) AS total,
@@ -365,68 +408,36 @@ ORDER BY sale_date;
 **コードリーディング**：
 
 ```sql
-SELECT 
-    product_name,
-    category,
-    (price * quantity) AS total,
-    sale_date
-```
-→ 商品名、カテゴリ、売上金額、売上日を取得します。
-
-```sql
-FROM sales
 WHERE sale_date >= '2024-12-03'
 ```
-→ `WHERE`句で日付の条件を指定します。`>=`は「以上」を意味し、2024年12月3日以降のデータを抽出します。日付は`'YYYY-MM-DD'`形式の文字列で指定します。
+→ `WHERE`句で日付の条件を指定します。日付は`'YYYY-MM-DD'`形式の文字列で指定します。`>=`は「以上」を意味するので、2024年12月3日当日も含みます。
 
 ```sql
 ORDER BY sale_date;
 ```
-→ 日付の昇順（古い順）に並べ替えます。`ASC`は省略可能で、デフォルトで昇順になります。
+→ 日付の昇順（古い順）に並べ替えます。`ASC`はデフォルトなので省略できます。
 
 ---
 
-#### ステップ7: 平均売上金額を計算する
+#### ステップ7: 平均以上の売上がある取引を取得する
 
 **何を考えているか**：
-- 「全取引の平均売上を知りたい」
-- 「AVG関数で平均を計算しよう」
-- 「この値は後でサブクエリでも使える」
+- 「まず平均売上金額を知りたい」
+- 「その平均を条件にして、平均以上の取引を抽出したい」
+- 「サブクエリを使えば、1つのクエリで実現できる」
 
-平均売上金額を計算します：
+まず、平均売上金額を確認してみましょう：
 
 ```sql
-SELECT AVG(price * quantity) AS average_sales
-FROM sales;
+SELECT AVG(price * quantity) AS average_sales FROM sales;
 ```
 
-**コードリーディング**：
+→ 結果: **69000.0000**
+
+この平均値を条件にして、平均以上の取引を取得します：
 
 ```sql
-SELECT AVG(price * quantity) AS average_sales
-```
-→ `AVG`関数で平均値を計算します。`price * quantity`で各取引の売上金額を計算し、その平均を取得します。
-
-```sql
-FROM sales;
-```
-→ salesテーブルの全データを対象にします。
-
-> 💡 **ポイント**：`AVG`関数の結果は小数になることがあります。必要に応じて`ROUND`関数で丸めることもできます。
-
----
-
-#### ステップ8: 平均以上の売上がある取引を取得する（サブクエリ）
-
-**何を考えているか**：
-- 「平均売上を計算して、それ以上の取引を抽出したい」
-- 「サブクエリで平均値を計算しよう」
-- 「WHERE句の条件にサブクエリを使おう」
-
-平均以上の売上がある取引を取得します：
-
-```sql
-SELECT 
+SELECT
     product_name,
     (price * quantity) AS total,
     sale_date
@@ -441,42 +452,26 @@ ORDER BY total DESC;
 **コードリーディング**：
 
 ```sql
-SELECT 
-    product_name,
-    (price * quantity) AS total,
-    sale_date
-FROM sales
-```
-→ 商品名、売上金額、売上日を取得します。
-
-```sql
 WHERE (price * quantity) > (
     SELECT AVG(price * quantity)
     FROM sales
 )
 ```
-→ `WHERE`句の条件にサブクエリを使用します。サブクエリ`(SELECT AVG(price * quantity) FROM sales)`が先に実行され、平均値が計算されます。その平均値より大きい売上の取引だけが抽出されます。
+→ `WHERE`句の条件にサブクエリを使用しています。サブクエリ`(SELECT AVG(price * quantity) FROM sales)`が**先に実行**され、平均値（69000）が計算されます。その結果が外側のクエリの条件として使われ、平均より大きい売上の取引だけが抽出されます。
 
-```sql
-ORDER BY total DESC;
-```
-→ 売上金額の降順（高い順）に並べ替えます。
-
-> 💡 **サブクエリのポイント**：サブクエリは括弧`()`で囲む必要があります。サブクエリが先に実行され、その結果が外側のクエリの条件として使われます。
+> 💡 **サブクエリのポイント**：サブクエリは`()`で囲む必要があります。内側のクエリが先に実行され、その結果を外側のクエリが利用します。
 
 ---
 
-#### ステップ9: 各カテゴリの商品数を集計する
+#### ステップ8: 各カテゴリの商品数を集計する
 
 **何を考えているか**：
 - 「カテゴリごとの商品種類数を知りたい」
-- 「COUNT関数で件数を数えよう」
-- 「DISTINCTで重複を除いてユニークな商品名を数えよう」
-
-各カテゴリの商品数を集計します：
+- 「同じ商品が複数回登場するので、DISTINCTで重複を除こう」
+- 「販売数量の合計も一緒に取得しよう」
 
 ```sql
-SELECT 
+SELECT
     category,
     COUNT(DISTINCT product_name) AS product_count,
     SUM(quantity) AS total_quantity
@@ -485,14 +480,6 @@ GROUP BY category;
 ```
 
 **コードリーディング**：
-
-```sql
-SELECT 
-    category,
-    COUNT(DISTINCT product_name) AS product_count,
-    SUM(quantity) AS total_quantity
-```
-→ カテゴリ、商品種類数、総数量を取得します。
 
 ```sql
 COUNT(DISTINCT product_name) AS product_count
@@ -505,51 +492,46 @@ SUM(quantity) AS total_quantity
 → `SUM`関数で数量の合計を計算します。
 
 ```sql
-FROM sales
 GROUP BY category;
 ```
-→ `GROUP BY category`でカテゴリごとにグループ化します。集計関数は各グループに対して実行されます。
+→ `GROUP BY category`でカテゴリごとにグループ化し、各グループに対して集計関数が実行されます。
 
 ---
 
 ### ✨ 完成！
 
-これで売上分析システムが完成しました！集計関数、GROUP BY、ORDER BY、LIMIT、HAVING、サブクエリを実践できましたね。
+すべてのクエリが正しく実行できましたか？以下の結果と比較して確認してみましょう。
 
----
-
-## ✅ 完成イメージ
-
-### クエリ1: 売上合計金額
+**クエリ1: 売上合計金額**
 
 | total_sales |
-|-------------|
-| 725000 |
+|:------------|
+| 690000 |
 
-### クエリ2: カテゴリ別の売上合計
+**クエリ2: カテゴリ別の売上合計**
 
 | category | total |
-|----------|-------|
-| 電子機器 | 535000 |
-| 家具 | 190000 |
+|:---------|:------|
+| 電子機器 | 525000 |
+| 家具 | 165000 |
 
-### クエリ3: 最も売上が高い商品
+**クエリ3: 最も売上が高い商品**
 
 | product_name | total |
-|--------------|-------|
+|:-------------|:------|
 | ノートPC | 360000 |
 
-### クエリ4: 売上が10万円以上の取引
+**クエリ4: 売上が10万円以上の取引**
 
 | product_name | total | sale_date |
-|--------------|-------|------------|
+|:-------------|:------|:----------|
 | ノートPC | 240000 | 2024-12-01 |
 | ノートPC | 120000 | 2024-12-05 |
 
-### クエリ5: 12月3日以降の売上
+**クエリ5: 12月3日以降の売上**
 
 | product_name | category | total | sale_date |
-|--------------|----------|-------|------------|
+|:-------------|:---------|:------|:----------|
 | デスク | 家具 | 50000 | 2024-12-03 |
 | チェア | 家具 | 60000 | 2024-12-03 |
 | 本棚 | 家具 | 30000 | 2024-12-04 |
@@ -557,26 +539,20 @@ GROUP BY category;
 | マウス | 電子機器 | 30000 | 2024-12-05 |
 | デスク | 家具 | 25000 | 2024-12-06 |
 
-### クエリ6: 平均売上金額
-
-| average_sales |
-|---------------|
-| 72500.0000 |
-
-### クエリ7: 平均以上の売上がある取引
+**クエリ6: 平均以上の売上がある取引**
 
 | product_name | total | sale_date |
-|--------------|-------|------------|
+|:-------------|:------|:----------|
 | ノートPC | 240000 | 2024-12-01 |
 | ノートPC | 120000 | 2024-12-05 |
 | モニター | 90000 | 2024-12-02 |
 
-### クエリ8: 各カテゴリの商品数
+**クエリ7: 各カテゴリの商品数**
 
 | category | product_count | total_quantity |
-|----------|---------------|----------------|
+|:---------|:--------------|:---------------|
 | 電子機器 | 4 | 36 |
-| 家具 | 3 | 12 |
+| 家具 | 3 | 10 |
 
 ---
 
@@ -584,17 +560,47 @@ GROUP BY category;
 
 自分で実装してから、以下の模範解答を確認してください。
 
+### データベースとテーブルの作成
+
+```sql
+CREATE DATABASE sales_analysis DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+```
+
+> 📌 phpMyAdminの左ペインで`sales_analysis`をクリックして選択してから、以下を実行してください。
+
+```sql
+CREATE TABLE sales (
+    sale_id INT PRIMARY KEY AUTO_INCREMENT,
+    product_name VARCHAR(100) NOT NULL,
+    category VARCHAR(50) NOT NULL,
+    price INT NOT NULL,
+    quantity INT NOT NULL,
+    sale_date DATE NOT NULL
+);
+
+INSERT INTO sales (product_name, category, price, quantity, sale_date) VALUES
+('ノートPC', '電子機器', 120000, 2, '2024-12-01'),
+('マウス', '電子機器', 2000, 10, '2024-12-01'),
+('キーボード', '電子機器', 5000, 5, '2024-12-02'),
+('モニター', '電子機器', 30000, 3, '2024-12-02'),
+('デスク', '家具', 25000, 2, '2024-12-03'),
+('チェア', '家具', 15000, 4, '2024-12-03'),
+('本棚', '家具', 10000, 3, '2024-12-04'),
+('ノートPC', '電子機器', 120000, 1, '2024-12-05'),
+('マウス', '電子機器', 2000, 15, '2024-12-05'),
+('デスク', '家具', 25000, 1, '2024-12-06');
+```
+
 ### クエリ1: 売上合計金額を計算
 
 ```sql
-SELECT SUM(price * quantity) AS total_sales
-FROM sales;
+SELECT SUM(price * quantity) AS total_sales FROM sales;
 ```
 
 ### クエリ2: カテゴリ別の売上合計を計算
 
 ```sql
-SELECT 
+SELECT
     category,
     SUM(price * quantity) AS total
 FROM sales
@@ -605,7 +611,7 @@ ORDER BY total DESC;
 ### クエリ3: 最も売上が高い商品を取得
 
 ```sql
-SELECT 
+SELECT
     product_name,
     SUM(price * quantity) AS total
 FROM sales
@@ -617,7 +623,7 @@ LIMIT 1;
 ### クエリ4: 売上が10万円以上の取引を取得
 
 ```sql
-SELECT 
+SELECT
     product_name,
     (price * quantity) AS total,
     sale_date
@@ -629,7 +635,7 @@ ORDER BY total DESC;
 ### クエリ5: 12月3日以降の売上を日付順に取得
 
 ```sql
-SELECT 
+SELECT
     product_name,
     category,
     (price * quantity) AS total,
@@ -639,17 +645,10 @@ WHERE sale_date >= '2024-12-03'
 ORDER BY sale_date;
 ```
 
-### クエリ6: 平均売上金額を計算
+### クエリ6: 平均以上の売上がある取引を取得（サブクエリ）
 
 ```sql
-SELECT AVG(price * quantity) AS average_sales
-FROM sales;
-```
-
-### クエリ7: 平均以上の売上がある取引を取得（サブクエリ）
-
-```sql
-SELECT 
+SELECT
     product_name,
     (price * quantity) AS total,
     sale_date
@@ -661,10 +660,10 @@ WHERE (price * quantity) > (
 ORDER BY total DESC;
 ```
 
-### クエリ8: 各カテゴリの商品数を集計
+### クエリ7: 各カテゴリの商品数を集計
 
 ```sql
-SELECT 
+SELECT
     category,
     COUNT(DISTINCT product_name) AS product_count,
     SUM(quantity) AS total_quantity
@@ -674,82 +673,25 @@ GROUP BY category;
 
 ---
 
----
-
-## 🔍 よくある間違い
-
-### 間違い1: GROUP BYなしで集計関数を使用
-
-```sql
--- ❌ 間違い
-SELECT category, SUM(price * quantity)
-FROM sales;
-
--- ✅ 正しい
-SELECT category, SUM(price * quantity)
-FROM sales
-GROUP BY category;
-```
-
-### 間違い2: WHEREとHAVINGの混同
-
-```sql
--- ❌ 間違い（集計後の条件はHAVINGを使う）
-SELECT category, SUM(price * quantity) AS total
-FROM sales
-WHERE total > 100000
-GROUP BY category;
-
--- ✅ 正しい
-SELECT category, SUM(price * quantity) AS total
-FROM sales
-GROUP BY category
-HAVING total > 100000;
-```
-
-### 間違い3: サブクエリのカッコ忘れ
-
-```sql
--- ❌ 間違い
-WHERE (price * quantity) > SELECT AVG(price * quantity) FROM sales
-
--- ✅ 正しい
-WHERE (price * quantity) > (SELECT AVG(price * quantity) FROM sales)
-```
-
----
-
-## 📊 集計関数の使い分け
-
-| 関数 | 用途 | 例 |
-|------|------|-----|
-| COUNT() | 件数を数える | 注文件数 |
-| SUM() | 合計を計算 | 売上合計 |
-| AVG() | 平均を計算 | 平均単価 |
-| MAX() | 最大値を取得 | 最高売上 |
-| MIN() | 最小値を取得 | 最低価格 |
----
-
 ## 🚀 まとめ
 
 **ハンズオンお疲れ様でした！**
 
-このハンズオンで、以下のことができるようになりました：
+このハンズオンで、以下のSQL応用操作を実践できました：
 
-- ✅ WHERE句で複雑な条件を指定できる
-- ✅ ORDER BY句で並び替えができる
-- ✅ 集計関数（COUNT、SUM、AVG、MAX、MIN）を使える
-- ✅ サブクエリを活用できる
+- ✅ `SUM`関数で合計金額を計算できた
+- ✅ `GROUP BY`でカテゴリ別・商品別に集計できた
+- ✅ `ORDER BY`と`LIMIT`で並び替えと件数制限ができた
+- ✅ `WHERE`句で計算式や日付を条件に指定できた
+- ✅ `AVG`関数で平均値を計算できた
+- ✅ サブクエリを使って動的な条件指定ができた
+- ✅ `COUNT(DISTINCT)`で重複を除いた集計ができた
 
 これでTutorial 8の学習は完了です！お疲れ様でした！
 
----
+### 🧹 後片付け（任意）
 
-## 🧹 後片付け（任意）
-
-このハンズオンで作成した`sales_analysis`データベースは、演習専用のデータベースです。
-
-phpMyAdminの左ペインを整理したい場合は、以下のSQLでデータベースを削除できます。ただし、削除すると元に戻せないので、注意してください。
+このハンズオンで作成した`sales_analysis`データベースは、演習専用のデータベースです。phpMyAdminの左ペインを整理したい場合は、以下のSQLで削除できます：
 
 ```sql
 DROP DATABASE sales_analysis;
@@ -758,7 +700,7 @@ DROP DATABASE sales_analysis;
 > 💡 **Tutorial 8で作成したデータベースのまとめ**：
 > - `practice_db`：Chapter 2・3・4で使用したメインのデータベース
 > - `task_management`：Chapter 2のハンズオンで作成
-> - `sales_analysis`：Chapter 4のハンズオンで作成
+> - `sales_analysis`：Chapter 4のハンズオンで作成（このハンズオン）
 >
 > これらはすべて演習用なので、学習が終わったら削除しても構いません。
 

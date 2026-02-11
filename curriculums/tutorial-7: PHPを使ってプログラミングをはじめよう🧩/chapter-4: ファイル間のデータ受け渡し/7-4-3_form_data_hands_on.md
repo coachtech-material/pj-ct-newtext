@@ -1,6 +1,6 @@
 # Tutorial 7-4-3: フォームとデータ受け渡し - ハンズオン演習
 
-## 📝 このセクションの目的
+## 📌 このハンズオンについて
 
 Chapter 4で学んだフォームデータの受け取りとPHPファイル間のデータ受け渡しを実際に手を動かして確認します。入力→確認→完了の3ステップで動作するユーザー登録フォームを作成しましょう。
 
@@ -12,9 +12,7 @@ Chapter 4で学んだフォームデータの受け取りとPHPファイル間�
 - 複数のPHPファイル間でデータを受け渡せるか
 - `htmlspecialchars`でセキュリティ対策ができるか
 
----
-
-## 📁 ディレクトリ構成
+### 📁 ディレクトリ構成
 
 このハンズオンでは、「自分で作成する用」と「解答を確認する用」の2つのディレクトリを作成します。
 
@@ -27,7 +25,7 @@ Tutorial 6で作成した`php-practice`ディレクトリ内の`src/`フォル�
 │       └── default.conf
 ├── src/
 │   ├── index.php                         ← Tutorial 6で作成済み
-│   ├── 7-1-5_hands-on/                   ← Tutorial 7-1-5のハンズオン
+│   ├── 7-1-6_hands-on/                   ← Tutorial 7-1-6のハンズオン
 │   ├── 7-2-6_hands-on/                   ← Tutorial 7-2-6のハンズオン
 │   ├── 7-3-4_hands-on/                   ← Tutorial 7-3-4のハンズオン
 │   └── 7-4-3_hands-on/                   ← このハンズオン用のディレクトリ
@@ -57,46 +55,24 @@ Tutorial 6で作成した`php-practice`ディレクトリ内の`src/`フォル�
 
 入力→確認→完了の3ステップで動作するユーザー登録フォームを作成してください。3つのPHPファイルを連携させて、データを受け渡します。
 
----
+### 🖼️ 完成イメージ
 
-### 📁 Step 0: 環境を準備する
+<details>
+<summary>📸 完成画面を確認する（クリックで展開）</summary>
 
-まず、ハンズオン用のディレクトリを作成します。ターミナルで以下のコマンドを実行してください。
+**入力画面（input.php）**
 
-```bash
-# php-practiceディレクトリに移動
-cd ~/php-practice
+<img alt="7-4-3_1.png" src="">
 
-# ハンズオン用ディレクトリを作成
-mkdir -p src/7-4-3_hands-on/practice
-mkdir -p src/7-4-3_hands-on/sample
+**確認画面（confirm.php）**
 
-# 自分で作成する用のディレクトリに移動
-cd src/7-4-3_hands-on/practice
+<img alt="7-4-3_2.png" src="">
 
-# VSCodeでphp-practiceプロジェクト全体を開く
-code ~/php-practice
-```
+**完了画面（complete.php）**
 
-**コマンド解説**：
+<img alt="7-4-3_3.png" src="">
 
-| コマンド | 説明 |
-|:---|:---|
-| `cd ~/php-practice` | php-practiceディレクトリに移動します |
-| `mkdir -p` | ディレクトリを作成します。`-p`オプションで、親ディレクトリも一緒に作成します |
-| `code ~/php-practice` | php-practiceディレクトリ全体をVSCodeで開きます |
-
-**Docker環境の起動**：
-
-```bash
-# php-practiceディレクトリでDocker環境を起動
-cd ~/php-practice
-docker compose up -d
-```
-
-> 📌 **確認**: ブラウザで`http://localhost:8000`にアクセスして、「Hello from Docker!」が表示されることを確認してください。
-
----
+</details>
 
 ### 📋 要件
 
@@ -128,7 +104,105 @@ docker compose up -d
 - 登録完了メッセージ
 - 入力された名前を使った挨拶
 
-**動作確認URL**: `http://localhost:8000/7-4-3_hands-on/practice/input.php`
+#### 4. 表示フォーマット
+
+**入力画面**：
+```
+ユーザー登録（1/3）入力
+
+お名前：[            ]
+メールアドレス：[            ]
+年齢：[  ]
+
+[確認画面へ]
+```
+
+**確認画面**：
+```
+ユーザー登録（2/3）確認
+
+以下の内容で登録します。よろしいですか？
+
+| お名前         | 田中太郎           |
+| メールアドレス | tanaka@example.com |
+| 年齢           | 25歳               |
+
+[戻る] [登録する]
+```
+
+**完了画面**：
+```
+ユーザー登録（3/3）完了
+
+田中太郎さん、登録が完了しました！
+確認メールを tanaka@example.com に送信しました。
+
+最初に戻る
+```
+
+#### 5. セキュリティ要件
+
+- ユーザー入力を表示する際は、必ず`htmlspecialchars`でエスケープ処理を行うこと
+
+### ✏️ 実装タスク
+
+1. 入力画面（input.php）を作成する
+2. 確認画面（confirm.php）を作成する
+3. 完了画面（complete.php）を作成する
+
+### ✅ 完成チェックリスト
+
+- [ ] 入力画面でお名前・メールアドレス・年齢を入力できる
+- [ ] 確認画面に入力内容が正しく表示される
+- [ ] 「戻る」ボタンで入力画面に戻れる
+- [ ] 「登録する」ボタンで完了画面に遷移する
+- [ ] 完了画面に名前とメールアドレスが表示される
+
+> 💡 **動作確認**: `http://localhost:8000/7-4-3_hands-on/practice/input.php` にアクセス
+
+---
+
+## ⚙️ 環境準備（自分で作成する用）
+
+まず、ハンズオン用のディレクトリを作成します。ターミナルで以下のコマンドを実行してください。
+
+```bash
+# php-practiceディレクトリに移動
+cd ~/php-practice
+
+# ハンズオン用ディレクトリを作成
+mkdir -p src/7-4-3_hands-on/practice
+mkdir -p src/7-4-3_hands-on/sample
+
+# 自分で作成する用のファイルを作成
+touch src/7-4-3_hands-on/practice/input.php
+touch src/7-4-3_hands-on/practice/confirm.php
+touch src/7-4-3_hands-on/practice/complete.php
+
+# VSCodeでphp-practiceプロジェクト全体を開く
+code ~/php-practice
+```
+
+**コマンド解説**：
+
+| コマンド | 説明 |
+|:---|:---|
+| `cd ~/php-practice` | php-practiceディレクトリに移動します |
+| `mkdir -p` | ディレクトリを作成します。`-p`オプションで、親ディレクトリも一緒に作成します |
+| `touch` | 空のファイルを作成します |
+| `code ~/php-practice` | php-practiceディレクトリ全体をVSCodeで開きます |
+
+**Docker環境の起動**：
+
+```bash
+# php-practiceディレクトリでDocker環境を起動
+cd ~/php-practice
+docker compose up -d
+```
+
+> 📌 **確認**: ブラウザで`http://localhost:8000`にアクセスして、「Hello from Docker!」が表示されることを確認してください。
+
+> 🚀 **ここから先は、自分の力で実装してみましょう！**
 
 ---
 
@@ -171,35 +245,15 @@ echo htmlspecialchars($name, ENT_QUOTES, 'UTF-8');
 
 ---
 
-## 🏃 実践: 一緒に作ってみましょう！
+## 🏃 実践
 
 ちゃんとできましたか？フォームとデータ受け渡しはWebアプリケーションの基本です。一緒に手を動かしながら、ユーザー登録フォームを作っていきましょう。
 
 > 📌 **注意**: ここからは`sample/`ディレクトリで作業します。自分で作成したコードと比較できるように、別のディレクトリで進めましょう。
 
-### 💭 実装の思考プロセス
+### ⚙️ 環境準備（実践用プロジェクト）
 
-ユーザー登録フォームを作る際、以下の順番で考えると効率的です：
-
-1. **入力画面を作る**：フォームを作成し、確認画面にデータを送信
-2. **確認画面を作る**：受け取ったデータを表示し、完了画面に渡す
-3. **完了画面を作る**：登録完了メッセージを表示
-
-ポイントは「データの流れ」を意識することです。入力画面→確認画面→完了画面と、データがどう渡されるかを考えましょう。
-
----
-
-### 📝 ステップバイステップで実装
-
-#### Step 1: 実践用ディレクトリに移動し、入力画面を作成する
-
-**何を考えているか**：
-- 「`sample/`ディレクトリにファイルを作ろう」
-- 「ユーザーに名前、メールアドレス、年齢を入力してもらおう」
-- 「送信先は確認画面（`confirm.php`）にしよう」
-- 「`method="post"`でデータを送信しよう」
-
-まず、ターミナルで以下のコマンドを実行して、実践用ディレクトリに移動します：
+ターミナルで以下のコマンドを実行して、実践用のファイルを作成します：
 
 ```bash
 # 実践用ディレクトリに移動
@@ -222,7 +276,7 @@ VSCodeのエクスプローラーで`src/7-4-3_hands-on/sample/input.php`を開�
 │       └── default.conf
 ├── src/
 │   ├── index.php
-│   ├── 7-1-5_hands-on/
+│   ├── 7-1-6_hands-on/
 │   ├── 7-2-6_hands-on/
 │   ├── 7-3-4_hands-on/
 │   └── 7-4-3_hands-on/
@@ -236,6 +290,29 @@ VSCodeのエクスプローラーで`src/7-4-3_hands-on/sample/input.php`を開�
 │           └── complete.php
 └── docker-compose.yml
 ```
+
+### 🧠 先輩エンジニアの思考プロセス
+
+先輩エンジニアは要件を以下のように構造化し、実装タスクに落とし込みます：
+
+| Step | やること | 説明 |
+|:-----|:---------|:-----|
+| 1 | 入力画面（input.php）を作成する | フォームを作り、`method="post"`で確認画面にデータを送信 |
+| 2 | 確認画面（confirm.php）を作成する | `$_POST`でデータを受け取り、`hidden`フィールドで完了画面に渡す |
+| 3 | 完了画面（complete.php）を作成する | `$_POST`でデータを受け取り、登録完了メッセージを表示 |
+
+ポイントは「データの流れ」を意識することです。入力画面→確認画面→完了画面と、データがどう渡されるかを考えましょう。
+
+---
+
+### 📝 ステップバイステップで実装
+
+#### ステップ1: 入力画面（input.php）を作成する
+
+**何を考えているか**：
+- 「ユーザーに名前、メールアドレス、年齢を入力してもらおう」
+- 「送信先は確認画面（`confirm.php`）にしよう」
+- 「`method="post"`でデータを送信しよう」
 
 `src/7-4-3_hands-on/sample/input.php`ファイルに、以下の内容を記述します：
 
@@ -291,7 +368,7 @@ VSCodeのエクスプローラーで`src/7-4-3_hands-on/sample/input.php`を開�
 
 ---
 
-#### Step 2: 確認画面を作成する
+#### ステップ2: 確認画面（confirm.php）を作成する
 
 **何を考えているか**：
 - 「入力画面から`$_POST`でデータを受け取ろう」
@@ -317,7 +394,7 @@ $age = $_POST["age"];
 <body>
     <h1>ユーザー登録（2/3）確認</h1>
     <p>以下の内容で登録します。よろしいですか？</p>
-    
+
     <table border="1">
         <tr>
             <th>お名前</th>
@@ -332,14 +409,14 @@ $age = $_POST["age"];
             <td><?php echo htmlspecialchars($age, ENT_QUOTES, 'UTF-8'); ?>歳</td>
         </tr>
     </table>
-    
+
     <!-- 確認画面から完了画面へデータを渡すためのフォーム -->
     <form action="complete.php" method="post">
         <!-- hidden属性で、データを隠して送信 -->
         <input type="hidden" name="name" value="<?php echo htmlspecialchars($name, ENT_QUOTES, 'UTF-8'); ?>">
         <input type="hidden" name="email" value="<?php echo htmlspecialchars($email, ENT_QUOTES, 'UTF-8'); ?>">
         <input type="hidden" name="age" value="<?php echo htmlspecialchars($age, ENT_QUOTES, 'UTF-8'); ?>">
-        
+
         <p>
             <button type="button" onclick="history.back()">戻る</button>
             <button type="submit">登録する</button>
@@ -373,7 +450,7 @@ $name = $_POST["name"];
 
 ---
 
-#### Step 3: 完了画面を作成する
+#### ステップ3: 完了画面（complete.php）を作成する
 
 **何を考えているか**：
 - 「確認画面から`$_POST`でデータを受け取ろう」
@@ -426,22 +503,19 @@ $name = $_POST["name"];
 
 ---
 
-#### Step 4: ブラウザで確認する
+### ✨ 完成！
 
-**何を考えているか**：
-- 「ファイルを保存してブラウザで開こう」
-- 「入力→確認→完了の流れを確認しよう」
+これでユーザー登録フォームが完成しました！3つのPHPファイルが連携して、データを受け渡しながら動作します。
+
+ファイルを保存して、ブラウザで確認しましょう。
 
 1. ファイルを保存します
 2. Docker環境が起動していることを確認します（`docker compose up -d`）
 3. ブラウザで`http://localhost:8000/7-4-3_hands-on/sample/input.php`を開きます
-4. 入力→確認→完了の流れを確認します
-
----
-
-### ✨ 完成！
-
-これでユーザー登録フォームが完成しました！3つのPHPファイルが連携して、データを受け渡しながら動作します。
+4. 入力→確認→完了の流れを確認します：
+   - 入力画面で名前・メールアドレス・年齢を入力
+   - 確認画面で入力内容が正しく表示される
+   - 完了画面に名前とメールアドレスが表示される
 
 **自分で作成したコードと比較してみましょう**：
 - `practice/input.php`, `practice/confirm.php`, `practice/complete.php`: 自分で作成したコード
@@ -449,44 +523,11 @@ $name = $_POST["name"];
 
 両方のファイルを見比べて、違いがあれば確認してみてください。
 
----
+**作業が終わったらコンテナを停止**:
 
-## ✅ 完成イメージ
-
-完成すると、以下のような流れで動作します：
-
-**入力画面（input.php）**
-```
-ユーザー登録（1/3）入力
-
-お名前：[田中太郎        ]
-メールアドレス：[tanaka@example.com]
-年齢：[25]
-
-[確認画面へ]
-```
-
-**確認画面（confirm.php）**
-```
-ユーザー登録（2/3）確認
-
-以下の内容で登録します。よろしいですか？
-
-| お名前         | 田中太郎           |
-| メールアドレス | tanaka@example.com |
-| 年齢           | 25歳               |
-
-[戻る] [登録する]
-```
-
-**完了画面（complete.php）**
-```
-ユーザー登録（3/3）完了
-
-田中太郎さん、登録が完了しました！
-確認メールを tanaka@example.com に送信しました。
-
-最初に戻る
+```bash
+cd ~/php-practice
+docker compose down
 ```
 
 ---
@@ -494,6 +535,8 @@ $name = $_POST["name"];
 ## 📖 模範解答
 
 自分で実装してから、以下の模範解答を確認してください。
+
+> 💡 模範解答では、見た目を整えるためにHTML/CSSを適用しています。PHPのロジック部分に注目して確認しましょう。
 
 ### input.php
 
@@ -563,23 +606,23 @@ $name = $_POST["name"];
     <div class="container">
         <p class="step">ステップ 1/3</p>
         <h1>ユーザー登録</h1>
-        
+
         <form action="confirm.php" method="post">
             <div class="form-group">
                 <label for="name">お名前</label>
                 <input type="text" id="name" name="name" required>
             </div>
-            
+
             <div class="form-group">
                 <label for="email">メールアドレス</label>
                 <input type="email" id="email" name="email" required>
             </div>
-            
+
             <div class="form-group">
                 <label for="age">年齢</label>
                 <input type="number" id="age" name="age" min="0" max="120" required>
             </div>
-            
+
             <button type="submit">確認画面へ</button>
         </form>
     </div>
@@ -668,9 +711,9 @@ $age = $_POST["age"];
     <div class="container">
         <p class="step">ステップ 2/3</p>
         <h1>入力内容の確認</h1>
-        
+
         <p>以下の内容で登録します。よろしいですか？</p>
-        
+
         <table>
             <tr>
                 <th>お名前</th>
@@ -685,12 +728,12 @@ $age = $_POST["age"];
                 <td><?php echo htmlspecialchars($age, ENT_QUOTES, 'UTF-8'); ?>歳</td>
             </tr>
         </table>
-        
+
         <form action="complete.php" method="post">
             <input type="hidden" name="name" value="<?php echo htmlspecialchars($name, ENT_QUOTES, 'UTF-8'); ?>">
             <input type="hidden" name="email" value="<?php echo htmlspecialchars($email, ENT_QUOTES, 'UTF-8'); ?>">
             <input type="hidden" name="age" value="<?php echo htmlspecialchars($age, ENT_QUOTES, 'UTF-8'); ?>">
-            
+
             <div class="buttons">
                 <button type="button" class="btn-back" onclick="history.back()">戻る</button>
                 <button type="submit" class="btn-submit">登録する</button>
@@ -771,20 +814,20 @@ $age = $_POST["age"];
     <div class="container">
         <p class="step">ステップ 3/3</p>
         <h1>登録完了</h1>
-        
+
         <div class="success-icon">✓</div>
-        
+
         <p class="message">
             <strong><?php echo htmlspecialchars($name, ENT_QUOTES, 'UTF-8'); ?></strong>さん、<br>
             登録が完了しました！
         </p>
-        
+
         <div class="email-info">
             確認メールを<br>
             <strong><?php echo htmlspecialchars($email, ENT_QUOTES, 'UTF-8'); ?></strong><br>
             に送信しました。
         </div>
-        
+
         <a href="input.php">最初に戻る</a>
     </div>
 </body>
@@ -836,21 +879,6 @@ echo htmlspecialchars($_POST["name"], ENT_QUOTES, 'UTF-8');
 // ✅ 正しい
 <form action="confirm.php" method="post">
 ```
-
----
-
-## 🧪 動作確認の方法
-
-### Docker環境で実行
-
-Tutorial 6で構築したDocker環境を使用します。
-
-1. Docker環境を起動（`cd ~/php-practice && docker compose up -d`）
-2. ブラウザで以下のURLにアクセス：
-   - 自分で作成したコード: `http://localhost:8000/7-4-3_hands-on/practice/input.php`
-   - 一緒に作成したコード: `http://localhost:8000/7-4-3_hands-on/sample/input.php`
-
-> 💡 **ヒント**: ファイルを保存すると、ブラウザをリロードするだけで変更が反映されます。
 
 ---
 

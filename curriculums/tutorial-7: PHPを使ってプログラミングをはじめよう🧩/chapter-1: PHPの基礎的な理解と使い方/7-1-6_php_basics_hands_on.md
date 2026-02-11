@@ -1,6 +1,6 @@
 # Tutorial 7-1-6: PHPの基礎 - ハンズオン演習
 
-## 📝 このセクションの目的
+## 📌 このハンズオンについて
 
 Chapter 1で学んだPHPの基礎知識を実際に手を動かして確認します。変数、データ型、演算子、文字列操作を使った簡単なプログラムを作成しましょう。
 
@@ -12,9 +12,7 @@ Chapter 1で学んだPHPの基礎知識を実際に手を動かして確認し�
 - 文字列の連結や展開ができるか
 - 演算子を適切に使えるか
 
----
-
-## 📁 ディレクトリ構成
+### 📁 ディレクトリ構成
 
 このハンズオンでは、「自分で作成する用」と「解答を確認する用」の2つのディレクトリを作成します。
 
@@ -50,46 +48,9 @@ Tutorial 6で作成した`php-practice`ディレクトリ内の`src/`フォル�
 
 オンラインショップの商品価格を計算するプログラムを作成してください。商品の価格、数量、消費税率を使って、合計金額を計算します。
 
----
+### 🖼️ 完成イメージ
 
-### 📁 Step 0: 環境を準備する
-
-まず、ハンズオン用のディレクトリを作成します。ターミナルで以下のコマンドを実行してください。
-
-```bash
-# php-practiceディレクトリに移動
-cd ~/php-practice
-
-# ハンズオン用ディレクトリを作成
-mkdir -p src/7-1-6_hands-on/practice
-mkdir -p src/7-1-6_hands-on/sample
-
-# 自分で作成する用のディレクトリに移動
-cd src/7-1-6_hands-on/practice
-
-# VSCodeでphp-practiceプロジェクト全体を開く
-code ~/php-practice
-```
-
-**コマンド解説**：
-
-| コマンド | 説明 |
-|:---|:---|
-| `cd ~/php-practice` | php-practiceディレクトリに移動します |
-| `mkdir -p` | ディレクトリを作成します。`-p`オプションで、親ディレクトリも一緒に作成します |
-| `code ~/php-practice` | php-practiceディレクトリ全体をVSCodeで開きます |
-
-**Docker環境の起動**：
-
-```bash
-# php-practiceディレクトリでDocker環境を起動
-cd ~/php-practice
-docker compose up -d
-```
-
-> 📌 **確認**: ブラウザで`http://localhost:8000`にアクセスして、「Hello from Docker!」が表示されることを確認してください。
-
----
+<img alt="7-1-6_1.png" src="">
 
 ### 📋 要件
 
@@ -140,7 +101,61 @@ $total = ...;
 - HTMLの`<br>`タグを使って改行
 - 変数を文字列に埋め込んで表示
 
-**動作確認URL**: `http://localhost:8000/7-1-6_hands-on/practice/price_calculator.php`
+> 💡 **動作確認**: `http://localhost:8000/7-1-6_hands-on/practice/price_calculator.php` にアクセス
+
+### ✏️ 実装タスク
+
+1. PHPファイルを作成・変数を定義する
+2. 計算を実行する（小計・消費税額・合計）
+3. 結果を表示する（`number_format()`で金額をフォーマット）
+
+### ✅ 完成チェックリスト
+
+- [ ] 商品名、単価、数量、消費税率が表示される
+- [ ] 金額がカンマ区切りで表示される（例: 80,000円）
+- [ ] 合計金額が正しく計算される（176,000円）
+
+---
+
+## ⚙️ 環境準備（自分で作成する用）
+
+まず、ハンズオン用のディレクトリを作成します。ターミナルで以下のコマンドを実行してください。
+
+```bash
+# php-practiceディレクトリに移動
+cd ~/php-practice
+
+# ハンズオン用ディレクトリを作成
+mkdir -p src/7-1-6_hands-on/practice
+mkdir -p src/7-1-6_hands-on/sample
+
+# 自分で作成する用のファイルを作成
+touch src/7-1-6_hands-on/practice/price_calculator.php
+
+# VSCodeでphp-practiceプロジェクト全体を開く
+code ~/php-practice
+```
+
+**コマンド解説**：
+
+| コマンド | 説明 |
+|:---|:---|
+| `cd ~/php-practice` | php-practiceディレクトリに移動します |
+| `mkdir -p` | ディレクトリを作成します。`-p`オプションで、親ディレクトリも一緒に作成します |
+| `touch` | 空のファイルを作成します |
+| `code ~/php-practice` | php-practiceディレクトリ全体をVSCodeで開きます |
+
+**Docker環境の起動**：
+
+```bash
+# php-practiceディレクトリでDocker環境を起動
+cd ~/php-practice
+docker compose up -d
+```
+
+> 📌 **確認**: ブラウザで`http://localhost:8000`にアクセスして、「Hello from Docker!」が表示されることを確認してください。
+
+> 🚀 **ここから先は、自分の力で実装してみましょう！**
 
 ---
 
@@ -188,36 +203,15 @@ echo "商品名: {$product_name}<br>";
 
 ---
 
-## 🏃 実践: 一緒に作ってみましょう！
+## 🏃 実践
 
 ちゃんとできましたか？PHPの基本は変数と演算です。一緒に手を動かしながら、商品価格計算プログラムを作っていきましょう。
 
 > 📌 **注意**: ここからは`sample/`ディレクトリで作業します。自分で作成したコードと比較できるように、別のディレクトリで進めましょう。
 
-### 💭 実装の思考プロセス
+### ⚙️ 環境準備（実践用プロジェクト）
 
-PHPで計算プログラムを作る際、以下の順番で考えると効率的です：
-
-1. **PHPファイルを作成して開始タグを書く**：`<?php`でPHPコードを開始
-2. **入力データを変数に格納**：商品名、価格、数量、税率を定義
-3. **計算を実行**：小計、消費税額、合計を計算
-4. **結果を表示**：`echo`でHTMLを出力
-5. **ブラウザで確認**：意図通りに表示されているかチェック
-
-PHPのプログラムは「データを入力→処理→出力」という流れで考えるとわかりやすいです。
-
----
-
-### 📝 ステップバイステップで実装
-
-#### ステップ1: 実践用ディレクトリに移動し、PHPファイルを作成する
-
-**何を考えているか**：
-- 「`sample/`ディレクトリに`price_calculator.php`を作ろう」
-- 「`<?php`でPHPコードを開始しよう」
-- 「商品情報を変数に格納しよう」
-
-まず、ターミナルで以下のコマンドを実行して、実践用ディレクトリに移動します：
+ターミナルで以下のコマンドを実行して、実践用のファイルを作成します：
 
 ```bash
 # 実践用ディレクトリに移動
@@ -247,6 +241,28 @@ VSCodeのエクスプローラーで`src/7-1-6_hands-on/sample/price_calculator.
 │           └── price_calculator.php    ← これから一緒に作成するファイル
 └── docker-compose.yml
 ```
+
+### 🧠 先輩エンジニアの思考プロセス
+
+先輩エンジニアは要件を以下のように構造化し、実装タスクに落とし込みます：
+
+| Step | やること | 説明 |
+|:-----|:---------|:-----|
+| 1 | PHPファイルを作成・変数を定義する | `<?php`でPHP開始、商品情報を変数に格納 |
+| 2 | 計算を実行する | 小計・消費税額・合計を順番に計算 |
+| 3 | 結果を表示する | `echo`と`number_format()`で見やすく出力 |
+
+PHPのプログラムは「データを入力→処理→出力」という流れで考えるとわかりやすいです。
+
+---
+
+### 📝 ステップバイステップで実装
+
+#### ステップ1: PHPファイルを作成・変数を定義する
+
+**何を考えているか**：
+- 「`<?php`でPHPコードを開始しよう」
+- 「商品情報を変数に格納しよう」
 
 以下のコードを`price_calculator.php`に記述します：
 
@@ -387,11 +403,11 @@ echo "<strong>合計金額: " . number_format($total) . "円</strong><br>";
 
 ---
 
-#### ステップ4: ブラウザで確認する
+### ✨ 完成！
 
-**何を考えているか**：
-- 「ファイルを保存してブラウザで開こう」
-- 「意図通りに表示されているか確認しよう」
+これでPHPで商品価格計算プログラムが完成しました！
+
+ファイルを保存して、ブラウザで確認しましょう。
 
 1. ファイルを保存します
 2. Docker環境が起動していることを確認します（`docker compose up -d`）
@@ -404,31 +420,17 @@ echo "<strong>合計金額: " . number_format($total) . "円</strong><br>";
    - 消費税(10%): 16,000円
    - 合計金額: 176,000円
 
----
-
-### ✨ 完成！
-
-これでPHPで商品価格計算プログラムが完成しました！変数、演算子、文字列連結、関数の使い方を実践できましたね。
-
 **自分で作成したコードと比較してみましょう**：
 - `practice/price_calculator.php`: 自分で作成したコード
 - `sample/price_calculator.php`: 一緒に作成したコード
 
 両方のファイルを見比べて、違いがあれば確認してみてください。
 
----
+**作業が終わったらコンテナを停止**:
 
-## ✅ 完成イメージ
-
-完成すると、ブラウザに以下のように表示されます：
-
-```
-商品名: ノートパソコン
-単価: 80,000円
-数量: 2個
-小計: 160,000円
-消費税(10%): 16,000円
-合計金額: 176,000円
+```bash
+cd ~/php-practice
+docker compose down
 ```
 
 ---
@@ -436,6 +438,8 @@ echo "<strong>合計金額: " . number_format($total) . "円</strong><br>";
 ## 📖 模範解答
 
 自分で実装してから、以下の模範解答を確認してください。
+
+> 💡 模範解答では、見た目を整えるためにHTML/CSSを適用しています。PHPのロジック部分に注目して確認しましょう。
 
 ### price_calculator.php
 
@@ -482,19 +486,19 @@ echo "<strong>合計金額: " . number_format($total) . "円</strong><br>";
 <body>
     <div class="result">
         <h1>商品価格計算</h1>
-        
+
         <?php
         // 変数の定義
         $product_name = "ノートパソコン";
         $price = 80000;
         $quantity = 2;
         $tax_rate = 0.1;
-        
+
         // 計算処理
         $subtotal = $price * $quantity;
         $tax_amount = $subtotal * $tax_rate;
         $total = $subtotal + $tax_amount;
-        
+
         // 結果の表示
         echo "<div class='line'>商品名: {$product_name}</div>";
         echo "<div class='line'>単価: " . number_format($price) . "円</div>";
@@ -507,8 +511,6 @@ echo "<strong>合計金額: " . number_format($total) . "円</strong><br>";
 </body>
 </html>
 ```
-
----
 
 ---
 
@@ -559,21 +561,6 @@ $subtotal = $price * $quantity;
 $subtotal = $price * $quantity;
 $tax_amount = $subtotal * $tax_rate;
 ```
-
----
-
-## 🧪 動作確認の方法
-
-### Docker環境で実行
-
-Tutorial 6で構築したDocker環境を使用します。
-
-1. Docker環境を起動（`cd ~/php-practice && docker compose up -d`）
-2. ブラウザで以下のURLにアクセス：
-   - 自分で作成したコード: `http://localhost:8000/7-1-6_hands-on/practice/price_calculator.php`
-   - 一緒に作成したコード: `http://localhost:8000/7-1-6_hands-on/sample/price_calculator.php`
-
-> 💡 **ヒント**: ファイルを保存すると、ブラウザをリロードするだけで変更が反映されます。
 
 ---
 
@@ -670,7 +657,7 @@ echo "最終スコア: {$score}点<br>";
 
 ---
 
-## ✨ まとめ
+## 🚀 まとめ
 
 **ハンズオンお疲れ様でした！**
 
