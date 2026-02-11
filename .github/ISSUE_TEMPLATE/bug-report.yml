@@ -1,0 +1,66 @@
+name: 教材の問題報告
+description: 教材の誤り・不具合を報告する
+title: "[問題] {Section番号}: "
+labels: ["bug"]
+body:
+  - type: input
+    id: section-number
+    attributes:
+      label: Section番号
+      description: "例: 10-2-4"
+      placeholder: "10-2-4"
+    validations:
+      required: true
+
+  - type: input
+    id: file-path
+    attributes:
+      label: ファイルパス
+      description: "curriculums/ 以下のパス"
+      placeholder: "curriculums/tutorial-10: .../chapter-2: .../10-2-4_middleware_hands_on.md"
+    validations:
+      required: false
+
+  - type: dropdown
+    id: problem-type
+    attributes:
+      label: 問題の種類
+      options:
+        - コード例の誤り
+        - 手順の不備（動作しない）
+        - 誤字・脱字
+        - 内容の矛盾
+        - リンク切れ
+        - 画像の不備
+        - その他
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: 問題の内容
+      description: 具体的に問題を記載してください
+      placeholder: |
+        ステップ3のコード例を実行するとエラーが発生する。
+        `Class "App\Models\Post" not found` というエラーが出る。
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: 期待する動作
+      description: 正しくはどうあるべきか記載してください
+      placeholder: "ステップ3の時点でPostモデルが作成済みであるべき"
+    validations:
+      required: false
+
+  - type: textarea
+    id: suggestion
+    attributes:
+      label: 修正案
+      description: 修正案があれば記載してください
+      placeholder: "ステップ2の後にPostモデル作成の手順を追加する"
+    validations:
+      required: false

@@ -1,0 +1,64 @@
+name: Section修正依頼
+description: 教材Sectionの修正を依頼する
+title: "[修正] {Section番号}: "
+labels: ["section-fix"]
+body:
+  - type: dropdown
+    id: section-type
+    attributes:
+      label: Sectionの種類
+      options:
+        - 通常Section
+        - ハンズオンSection
+    validations:
+      required: true
+
+  - type: input
+    id: section-number
+    attributes:
+      label: Section番号
+      description: "例: 10-2-4"
+      placeholder: "10-2-4"
+    validations:
+      required: true
+
+  - type: input
+    id: file-path
+    attributes:
+      label: ファイルパス
+      description: "curriculums/ 以下のパス"
+      placeholder: "curriculums/tutorial-10: .../chapter-2: .../10-2-4_middleware_hands_on.md"
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: 修正内容
+      description: どのような修正が必要か、具体的に記載してください
+      placeholder: |
+        - 要件セクションが抜けている
+        - ステップ3のコード例が不完全
+        - 完成イメージの画像が未設定
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: 優先度
+      options:
+        - 高（教材として動作しない）
+        - 中（内容に問題がある）
+        - 低（改善提案）
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: 補足情報
+      description: 関連するSectionや参考情報があれば記載してください
+      placeholder: "関連Section: 10-2-1, 10-2-2, 10-2-3"
+    validations:
+      required: false
