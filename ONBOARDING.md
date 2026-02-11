@@ -142,6 +142,34 @@ GitHub Issuesに修正対象が記載されています。不明な場合はIssu
 
 ---
 
+## `local/` ディレクトリの活用
+
+`local/` は `.gitignore` で除外されている個人用の作業スペースです。cloneした時点では存在しないので、必要に応じて作成してください。
+
+```bash
+mkdir -p local/memo local/log local/scratch
+```
+
+### 推奨構成
+
+| ディレクトリ | 用途 | 例 |
+|:-------------|:-----|:---|
+| `local/memo/` | 外部からの入力を保存 | Notionの修正リスト、スプシのエクスポート |
+| `local/log/` | 個人の作業ログ | セッション再開時にClaude Codeへ引き継ぎ |
+| `local/scratch/` | 下書き・作業用 | 修正案の仮置き |
+
+### 活用例: 修正リストからIssue起票
+
+```bash
+# 1. Notionの修正リストをlocal/memo/にコピペ保存
+# 2. Claude Codeに整形・起票を依頼
+claude
+> local/memo/notion-fix-list.md を読んで、
+> トラッキングIssueに整形して起票してください
+```
+
+---
+
 ## 注意事項
 
 - **mainに直接pushしない**（必ずPR経由）

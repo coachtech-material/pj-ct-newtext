@@ -1,7 +1,3 @@
-# Manus時代の参照ファイル（references/に移動済み）
-analysis/
-docs/
-
 # Claude Code個人設定（共有しない）
 .claude/settings.local.json
 
