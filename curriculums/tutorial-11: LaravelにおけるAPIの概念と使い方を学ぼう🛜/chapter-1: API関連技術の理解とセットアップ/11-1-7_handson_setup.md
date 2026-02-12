@@ -2,7 +2,7 @@
 
 ## 📌 このハンズオンについて
 
-Chapter 1で学んだAPI開発の基礎知識を実際に手を動かして確認します。スターターキットを使って環境を構築し、Thunder Clientで疎通確認を行いましょう。
+Chapter 1で学んだAPI開発の基礎知識を実際に手を動かして確認します。スターターキットを使って環境を構築し、Postmanで疎通確認を行いましょう。
 
 > 分からない文法や実装があっても、すぐに答えを見るのではなく、過去の教材を見たり、AIにヒントをもらいながら進めるなど、自身で創意工夫しながら進めてみましょう🔥
 
@@ -51,7 +51,7 @@ API開発専用のプロジェクトをセットアップし、「Hello World」
 ### 📋 要件
 
 - `/api/hello`にGETリクエストを送ると、JSONレスポンスが返ってくる
-- Thunder Clientでリクエスト送信・レスポンス確認ができる
+- Postmanでリクエスト送信・レスポンス確認ができる
 
 ### ✅ 完成チェックリスト
 
@@ -59,12 +59,12 @@ API開発専用のプロジェクトをセットアップし、「Hello World」
 - [ ] ステータスコード`200 OK`が返ってくる
 - [ ] `{"message": "Hello, API!"}`というJSONが返ってくる
 
-> 💡 **動作確認**: Thunder ClientでGETリクエストを送信
+> 💡 **動作確認**: PostmanでGETリクエストを送信
 
 ### ✏️ 実装タスク
 
 1. `routes/api.php`に疎通確認用のAPIを作成する
-2. Thunder Clientで動作確認する
+2. Postmanで動作確認する
 
 ---
 
@@ -255,7 +255,7 @@ cp .env.example .env
 | Step | やること | 説明 |
 |:-----|:---------|:-----|
 | 1 | `routes/api.php`に疎通確認用のAPIを作成する | GETリクエストでJSONを返すシンプルなエンドポイント |
-| 2 | Thunder Clientで動作確認する | ステータスコードとレスポンスを確認 |
+| 2 | Postmanで動作確認する | ステータスコードとレスポンスを確認 |
 
 ---
 
@@ -307,14 +307,14 @@ return response()->json(['message' => 'Hello, API!']);
 
 ---
 
-#### ステップ2: Thunder Clientで動作確認する
+#### ステップ2: Postmanで動作確認する
 
 **何を考えているか**：
 - 「APIが正常に動作するか確認しよう」
-- 「Thunder Clientでリクエストを送信しよう」
+- 「Postmanでリクエストを送信しよう」
 
-1. VS Codeの左サイドバーから、Thunder Clientのアイコンをクリック
-2. 「New Request」をクリック
+1. Postmanを起動する
+2. 「+」タブをクリックして新しいリクエストを作成
 3. メソッド: `GET`
 4. URL: `http://localhost/api/hello`
 5. 「Send」ボタンをクリック
@@ -436,13 +436,13 @@ sail logs
 | Step | 学んだこと |
 |------|-----------|
 | 1 | `routes/api.php`に疎通確認用のAPIを作成する |
-| 2 | Thunder Clientで動作確認する |
+| 2 | Postmanで動作確認する |
 
 **確認できたこと**:
 
 - ✅ Laravelプロジェクトが正常に起動している
 - ✅ `routes/api.php`にルートを定義できる
-- ✅ Thunder ClientでAPIにリクエストを送信できる
+- ✅ PostmanでAPIにリクエストを送信できる
 - ✅ JSONレスポンスが正しく返ってくる
 
 次のChapter 2では、このプロジェクトにタスク管理APIのCRUD機能を実装します。

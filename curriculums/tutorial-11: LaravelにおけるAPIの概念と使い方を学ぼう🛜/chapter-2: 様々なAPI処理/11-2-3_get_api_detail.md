@@ -221,7 +221,7 @@ return response()->json([
 
 ## Step 3: テストと改善
 
-### 3-1. Thunder Clientでテスト
+### 3-1. Postmanでテスト
 
 **1. タスクが見つかる場合**
 

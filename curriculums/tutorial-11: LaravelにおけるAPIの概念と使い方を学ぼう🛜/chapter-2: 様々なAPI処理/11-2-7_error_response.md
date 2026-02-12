@@ -301,7 +301,7 @@ Laravelの`$request->validate()`は、バリデーションエラー時に自動
 
 ## Step 3: テスト
 
-### 3-1. Thunder Clientでテスト
+### 3-1. Postmanでテスト
 
 **1. タスクが見つからない場合（404）**
 
@@ -462,7 +462,7 @@ return new TaskResource($task);
 |------|-----------|
 | Step 1 | エラーレスポンスの形式とエラーコード |
 | Step 2 | コントローラーでの統一的な実装（TaskResource + エラーレスポンス） |
-| Step 3 | Thunder Clientでのテスト方法 |
+| Step 3 | Postmanでのテスト方法 |
 
 **レスポンス設計のポイント**:
 

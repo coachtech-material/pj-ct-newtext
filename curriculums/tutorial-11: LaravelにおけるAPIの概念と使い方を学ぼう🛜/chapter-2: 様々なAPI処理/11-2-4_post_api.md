@@ -61,7 +61,7 @@ return (new TaskResource($task))
 |------|------|------|
 | Step 1 | storeメソッドの実装 | 作成のロジック |
 | Step 2 | HTTPステータスコード | 201と422の使い分け |
-| Step 3 | テスト | Thunder Clientで動作確認 |
+| Step 3 | テスト | Postmanで動作確認 |
 
 > 💡 **ポイント**: POSTリクエストは「新規作成」に使います。
 
@@ -322,7 +322,7 @@ return (new TaskResource($task))
 
 ## Step 3: テスト
 
-### 3-1. Thunder Clientでテスト
+### 3-1. Postmanでテスト
 
 #### 成功する場合
 
@@ -474,7 +474,7 @@ return [
 |------|-----------|
 | Step 1 | storeメソッドの実装とTaskResourceの使い方 |
 | Step 2 | 201 Createdと422 Unprocessable Entityの使い分け |
-| Step 3 | Thunder Clientでのテスト方法 |
+| Step 3 | Postmanでのテスト方法 |
 
 次のセクションでは、PUT APIの実装について学びます。
 

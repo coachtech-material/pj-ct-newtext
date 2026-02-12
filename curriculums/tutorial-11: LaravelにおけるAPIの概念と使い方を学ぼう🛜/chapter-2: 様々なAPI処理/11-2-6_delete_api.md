@@ -52,7 +52,7 @@ return response()->json(null, 204);
 |------|------|------|
 | Step 1 | destroyメソッドの実装 | 削除のロジック |
 | Step 2 | HTTPステータスコード | 204と404の使い分け |
-| Step 3 | テスト | Thunder Clientで動作確認 |
+| Step 3 | テスト | Postmanで動作確認 |
 
 > 💡 **ポイント**: DELETEリクエストは「削除」に使います。
 
@@ -237,7 +237,7 @@ public function destroy(string $id)
 
 ## Step 3: テスト
 
-### 3-1. Thunder Clientでテスト
+### 3-1. Postmanでテスト
 
 **1. 成功する場合**
 
@@ -361,7 +361,7 @@ $task->delete();  // deleted_atに日時が設定される
 |------|-----------|
 | Step 1 | destroyメソッドの実装 |
 | Step 2 | 204 No Contentと404 Not Foundの使い分け |
-| Step 3 | Thunder Clientでのテスト方法 |
+| Step 3 | Postmanでのテスト方法 |
 
 これでCRUD APIが完成しました！
 

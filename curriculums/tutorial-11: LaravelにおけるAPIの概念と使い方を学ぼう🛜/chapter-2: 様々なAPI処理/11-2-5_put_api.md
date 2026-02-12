@@ -343,7 +343,7 @@ public function update(Request $request, string $id)
 
 ---
 
-### 3-4. Thunder Clientでテスト
+### 3-4. Postmanでテスト
 
 **1. 成功する場合**
 

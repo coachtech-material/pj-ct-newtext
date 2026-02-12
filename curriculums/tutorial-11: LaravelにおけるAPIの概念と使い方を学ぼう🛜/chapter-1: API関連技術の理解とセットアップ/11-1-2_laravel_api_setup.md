@@ -271,14 +271,14 @@ $request->input('message')
 
 ---
 
-### 2-5. Thunder Clientでテスト
+### 2-5. Postmanでテスト
 
-> 💡 **Thunder Clientとは**
+> 💡 **Postmanとは**
 >
-> VSCodeの拡張機能で、APIテストを行うツールです。詳しいセットアップ方法は「11-1-4 API開発ツール」で学びます。
-> まだインストールしていない場合は、VSCodeの拡張機能から「Thunder Client」を検索してインストールしてください。
+> 業界標準のAPIテストツールです。詳しいセットアップ方法は「11-1-4 API開発環境の準備」で学びます。
+> まだインストールしていない場合は、[Postman公式サイト](https://www.postman.com/)からダウンロードしてインストールしてください。
 
-Thunder Clientを使って、作成したAPIをテストします。
+Postmanを使って、作成したAPIをテストします。
 
 **1. Hello World API**
 
@@ -313,7 +313,7 @@ Thunder Clientを使って、作成したAPIをテストします。
 
 ```json
 {
-  "message": "Hello from Thunder Client"
+  "message": "Hello from Postman"
 }
 ```
 
@@ -321,7 +321,7 @@ Thunder Clientを使って、作成したAPIをテストします。
 
 ```json
 {
-  "received": "Hello from Thunder Client"
+  "received": "Hello from Postman"
 }
 ```
 
@@ -506,7 +506,7 @@ Web開発では`dd()`を使ってデバッグしますが、APIでは注意が�
 
 | 問題 | 説明 |
 |------|------|
-| `dd()`の出力が崩れる | Thunder Clientの「Preview」タブを見ないと読めない |
+| `dd()`の出力が崩れる | Postmanのレスポンス画面では読みづらい |
 | JSONレスポンスが壊れる | `dd()`がHTMLを出力するため |
 
 ---

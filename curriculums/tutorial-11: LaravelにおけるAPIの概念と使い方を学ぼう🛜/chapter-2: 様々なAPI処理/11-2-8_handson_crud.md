@@ -2,7 +2,7 @@
 
 ## 📌 このハンズオンについて
 
-Chapter 2で学んだCRUD操作を実際に手を動かして確認します。タスク管理APIを実装し、Thunder Clientで各操作のステータスコードとレスポンスを確認しましょう。
+Chapter 2で学んだCRUD操作を実際に手を動かして確認します。タスク管理APIを実装し、Postmanで各操作のステータスコードとレスポンスを確認しましょう。
 
 > 分からない文法や実装があっても、すぐに答えを見るのではなく、過去の教材を見たり、AIにヒントをもらいながら進めるなど、自身で創意工夫しながら進めてみましょう🔥
 
@@ -83,14 +83,14 @@ Chapter 2で学んだCRUD操作を実際に手を動かして確認します。�
 - [ ] バリデーションエラー時に422が返る
 - [ ] 存在しないタスクにアクセスすると404が返る
 
-> 💡 **動作確認**: Thunder Clientで各エンドポイントにリクエストを送信
+> 💡 **動作確認**: Postmanで各エンドポイントにリクエストを送信
 
 ### ✏️ 実装タスク
 
 1. TaskControllerを作成する
 2. CRUDメソッドを実装する
 3. ルーティングを設定する
-4. Thunder Clientで動作確認する
+4. Postmanで動作確認する
 
 ---
 
@@ -298,7 +298,7 @@ cp .env.example .env
 | 1 | TaskControllerを作成する | `make:controller`コマンドで雛形を生成 |
 | 2 | CRUDメソッドを実装する | index → store → show → update → destroy |
 | 3 | ルーティングを設定する | `apiResource`で一括登録 |
-| 4 | Thunder Clientで動作確認する | 各操作のステータスコードを確認 |
+| 4 | Postmanで動作確認する | 各操作のステータスコードを確認 |
 
 ---
 
@@ -637,7 +637,7 @@ Route::apiResource('tasks', TaskController::class);
 
 ---
 
-#### ステップ4: Thunder Clientで動作確認する
+#### ステップ4: Postmanで動作確認する
 
 **何を考えているか**：
 - 「各操作が正しく動作するか確認しよう」
@@ -806,7 +806,7 @@ protected $fillable = [
 
 **原因**: `Accept: application/json`ヘッダーがない
 
-**対処法**: Thunder ClientのHeadersタブで`Accept: application/json`を追加
+**対処法**: PostmanのHeadersタブで`Accept: application/json`を追加
 
 ---
 
@@ -948,7 +948,7 @@ Route::apiResource('tasks', TaskController::class);
 | 1 | TaskControllerを作成する |
 | 2 | CRUDメソッドを実装する |
 | 3 | ルーティングを設定する |
-| 4 | Thunder Clientで動作確認する |
+| 4 | Postmanで動作確認する |
 
 **実装したAPI**:
 
