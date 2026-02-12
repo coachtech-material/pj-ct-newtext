@@ -88,7 +88,7 @@ nothing added to commit but untracked files present (use "git add" to track)
 ```
 
 *   `Untracked files`: Gitがまだ追跡していないファイルの一覧です。
-*   赤色で表示されるファイル名は、まだステージングされていないことを示します。
+*   **赤色**で表示されるファイル名は、まだステージングされていないことを示します。
 *   Gitは親切に「`git add` を使ってください」と次の操作を教えてくれています。
 
 #### 状態3: Staged（ステージング済み）
@@ -108,8 +108,14 @@ Changes to be committed:
 ```
 
 *   `Changes to be committed`: 次のコミットに含まれる変更の一覧です。
-*   緑色で表示されるファイル名は、ステージングされていることを示します。
+*   **緑色**で表示されるファイル名は、ステージングされていることを示します。
 *   `new file:` は、このファイルが新規作成されたことを示しています。
+
+ここで、ステージングした `LICENSE` をコミットしておきましょう。後のチャプターでGitHubにアップロードする際に、このファイルも含まれるようになります。
+
+```bash
+git commit -m "Add LICENSE"
+```
 
 #### 状態4: Modified（変更あり、未ステージング）
 
@@ -131,7 +137,7 @@ Changes not staged for commit:
 
 *   `Changes not staged for commit`: 変更されたが、まだステージングされていないファイルの一覧です。
 *   `modified:` は、このファイルが変更されたことを示しています。
-*   赤色で表示されます。
+*   **赤色**で表示されます。
 
 #### 状態5: 複合状態（複数の状態が混在）
 
