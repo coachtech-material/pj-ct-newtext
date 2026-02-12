@@ -74,11 +74,14 @@ pj-ct-newtext/
 ### Issue修正（「Issue #XX を修正して」と言われた場合）
 
 1. `gh issue view {番号}` でIssue内容を確認する
-2. `git checkout -b fix/{Section番号}-{説明}` でブランチを作成する
-3. 対象ファイルと関連ガイドを読む
-4. 修正案を具体的にリストアップしてユーザーに提示する
-5. ユーザーの承認を得てから修正を実行する
-6. `git commit` → `git push` → `gh pr create`（本文に `Closes #{Issue番号}` を含める）
+2. Issueにマイルストーンが設定されている場合、`gh api` でマイルストーンのDescriptionを取得し、方針を確認する
+3. ブランチを準備する:
+   - マイルストーンあり → `milestone/{マイルストーン名}` ブランチが既にあればチェックアウト、なければ作成する
+   - マイルストーンなし → `git checkout -b fix/{Section番号}-{説明}` でブランチを作成する
+4. 対象ファイルと関連ガイドを読む
+5. 修正案を具体的にリストアップしてユーザーに提示する
+6. ユーザーの承認を得てから修正を実行する
+7. `git commit` → `git push` → `gh pr create`（本文に `Closes #{Issue番号}` を含める）
 
 ### 通常の修正依頼
 
@@ -89,14 +92,20 @@ pj-ct-newtext/
 
 > ⚠️ **重要**: 修正前に必ずユーザー承認を得ること。勝手に修正しない。
 
+### マイルストーンとIssueの作成
+
+1. `gh api` でマイルストーンを作成する（タイトル・Descriptionに方針を記載）
+2. 関連するIssueを起票し、マイルストーンに紐づける
+3. マイルストーン用ブランチを作成する: `git checkout -b milestone/{名前}`
+
 ---
 
 ## ブランチ・PR運用
 
 - **mainに直接pushしない**（必ずPR経由）
-- ブランチ命名: `fix/{Section番号}-{説明}`
-  - 例: `fix/10-2-4-middleware-handson`
-  - 例: `fix/9-1-8-crud-handson`
+- ブランチ命名:
+  - マイルストーン用: `milestone/{マイルストーン名}`（例: `milestone/handson-quality`）
+  - マイルストーンに属さないIssue: `fix/{Section番号}-{説明}`（例: `fix/10-2-4-middleware-handson`）
 - PR作成時はレビューを依頼する
 - CIが通ることを確認してからマージ
 
