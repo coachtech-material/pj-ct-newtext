@@ -1,4 +1,4 @@
-# Tutorial 2-4: VSCodeの基本設定と拡張機能
+# Tutorial 2-1-4: VSCodeの基本設定と拡張機能
 
 ## 🎯 このセクションで学ぶこと
 

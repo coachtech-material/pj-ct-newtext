@@ -1,4 +1,4 @@
-# Tutorial 1-6: AI（ChatGPT）の活用法
+# Tutorial 1-1-6: AI（ChatGPT）の活用法
 
 ## 🎯 このセクションで学ぶこと
 
