@@ -596,7 +596,7 @@ sail artisan route:list --path=api
 
 ---
 
-### 3-3. Thunder Clientでテスト
+### 3-3. Postmanでテスト
 
 #### タスク一覧を取得
 
