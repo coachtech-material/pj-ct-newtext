@@ -82,15 +82,12 @@ claude
 | ラベル | 意味 |
 |:-------|:-----|
 | `bug` | 内容の誤り・不具合 |
-| `critical` | 優先度が高い修正 |
-| `handson` | ハンズオンSectionに関する修正 |
-| `section-fix` | Section内容の修正 |
-| `enhancement` | 改善・機能追加 |
-| `structure` | 構成・構造に関する変更 |
-| `improvement` | 品質向上 |
+| `improvement` | 要改善: 内容に問題がある |
+| `handson` | ハンズオンSection関連 |
+| `section` | 通常Section関連 |
 
 **フィルター例:**
-- ラベルで絞り込み: `label:critical` で優先度の高いIssueだけ表示
+- ラベルで絞り込み: `label:bug` で不具合Issueだけ表示
 - マイルストーンで絞り込み: 特定の修正プロジェクトに関するIssueだけ表示
 
 ### Issueのアサインと着手
@@ -111,15 +108,26 @@ Closes #129
 
 マイルストーンは、関連するIssueをまとめて進捗を管理する機能です。
 
-例えば「ハンズオン品質改善」というマイルストーンに関連Issue 5件を紐づけると、何件完了したかがパーセンテージで表示されます。
+例えば「reviewer-feedback」というマイルストーンに関連Issue 13件を紐づけると、何件完了したかがパーセンテージで表示されます。
+
+**現在のマイルストーン:**
+
+| マイルストーン | 内容 |
+|:---------------|:-----|
+| `reviewer-feedback` | レビュアーのフィードバック対応（最優先） |
+| `section-type-clarity` | 通常/ハンズオンSectionの区別を明確化 |
+| `image-insertion` | 画像挿入・プレースホルダー整備 |
+| `misc-checks` | その他の確認・磨き上げ |
 
 ```
-📦 ハンズオン品質改善（3/5完了・60%）
-  ├── ✅ Issue #126
-  ├── ✅ Issue #129
-  ├── ✅ Issue #130
-  ├── ⬜ Issue #131
-  └── ⬜ Issue #132
+📦 reviewer-feedback（3/13完了・23%）
+  ├── ✅ Issue #139
+  ├── ✅ Issue #140
+  ├── ✅ Issue #141
+  ├── ⬜ Issue #142
+  ├── ⬜ Issue #143
+  │   ...
+  └── ⬜ Issue #151
 ```
 
 **マイルストーンの確認方法:**
