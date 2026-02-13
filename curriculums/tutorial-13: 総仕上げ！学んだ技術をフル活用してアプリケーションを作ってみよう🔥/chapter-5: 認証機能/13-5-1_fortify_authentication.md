@@ -290,7 +290,7 @@ Route::middleware('auth')->group(function () {
         <div class="bg-white rounded-lg shadow-md p-8">
             <h2 class="text-2xl font-bold text-center text-gray-800 mb-6">ログイン</h2>
 
-            <form method="POST" action="{{ route('login') }}">
+            <form method="POST" action="{{ route('login') }}" novalidate>
                 @csrf
 
                 <div class="mb-4">
@@ -336,6 +336,7 @@ Route::middleware('auth')->group(function () {
 | コード | 説明 |
 |:---|:---|
 | `<x-app-layout>` | レイアウトコンポーネントを使用（`components/app-layout.blade.php`） |
+| `novalidate` | ブラウザのHTML5バリデーションを無効化し、Laravelのバリデーションを使用する |
 | `@csrf` | CSRFトークンを埋め込む（必須） |
 | `{{ old('email') }}` | バリデーションエラー時に入力値を復元 |
 | `@error('email') ... @enderror` | エラーメッセージを表示 |
@@ -353,7 +354,7 @@ Route::middleware('auth')->group(function () {
         <div class="bg-white rounded-lg shadow-md p-8">
             <h2 class="text-2xl font-bold text-center text-gray-800 mb-6">新規登録</h2>
 
-            <form method="POST" action="{{ route('register') }}">
+            <form method="POST" action="{{ route('register') }}" novalidate>
                 @csrf
 
                 <div class="mb-4">

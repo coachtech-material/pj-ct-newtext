@@ -264,6 +264,47 @@ public function update(StoreTaskRequest $request, Task $task)
 
 登録画面と編集画面で、同じフォームフィールドが重複しています。
 
+```blade
+{{-- 登録画面: resources/views/tasks/create.blade.php --}}
+<form action="{{ route('tasks.store') }}" method="POST">
+    @csrf
+    <div class="mb-4">
+        <label for="title">タイトル</label>
+        <input type="text" name="title" value="{{ old('title') }}">
+    </div>
+    <div class="mb-4">
+        <label for="priority">優先度</label>
+        <select name="priority">
+            <option value="1">低</option>
+            <option value="2">中</option>
+            <option value="3">高</option>
+        </select>
+    </div>
+    <button type="submit">登録</button>
+</form>
+
+{{-- 編集画面: resources/views/tasks/edit.blade.php --}}
+<form action="{{ route('tasks.update', $task) }}" method="POST">
+    @csrf
+    @method('PUT')
+    <div class="mb-4">
+        <label for="title">タイトル</label>
+        <input type="text" name="title" value="{{ old('title', $task->title) }}">
+    </div>
+    <div class="mb-4">
+        <label for="priority">優先度</label>
+        <select name="priority">
+            <option value="1" {{ $task->priority == 1 ? 'selected' : '' }}>低</option>
+            <option value="2" {{ $task->priority == 2 ? 'selected' : '' }}>中</option>
+            <option value="3" {{ $task->priority == 3 ? 'selected' : '' }}>高</option>
+        </select>
+    </div>
+    <button type="submit">更新</button>
+</form>
+```
+
+タイトル、優先度などのフォームフィールドが両方の画面でほぼ同じ内容になっています。フィールドを追加・変更するたびに、両方のファイルを修正する必要があります。
+
 ### コンポーネントで共通化（良い例）
 
 ```blade

@@ -744,6 +744,8 @@ sail test tests/Feature/TaskControllerTest.php
 sail test --filter=ControllerTest
 ```
 
+> ⚠️ **PHP 8.5以降の場合**: `DEPR`と表示されることがありますが、テストは正常に通っています。これはLaravelの設定ファイルで使用している定数がPHP 8.5で非推奨になったためで、ハンズオンの内容には影響しません。
+
 **期待される出力**:
 
 ```
