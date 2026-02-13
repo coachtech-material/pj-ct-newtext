@@ -262,7 +262,7 @@ DELETE     api/tasks/{task} ......... tasks.destroy › Api\TaskController@destr
 
 ### 3-4. 実践演習
 
-以下のルートを定義してください。
+以下のルートを定義する場合、どのように書くか考えてみましょう。
 
 - **GET /api/users**: ユーザー一覧を取得
 - **POST /api/users**: ユーザーを作成
