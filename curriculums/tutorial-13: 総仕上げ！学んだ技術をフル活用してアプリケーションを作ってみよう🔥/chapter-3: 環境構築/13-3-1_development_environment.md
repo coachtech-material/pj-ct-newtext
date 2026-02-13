@@ -337,6 +337,8 @@ DB_PASSWORD=password
 
 phpMyAdminを追加したので、Sailを再起動します。
 
+> ⚠️ **M1/M2/M3 Macの方**: Step 4で`compose.yaml`にplatform設定を追加していない場合は、先にStep 4の注意事項を確認してください。
+
 ```bash
 sail down
 sail up -d
