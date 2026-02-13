@@ -45,20 +45,53 @@ Laravelには、**PHPUnit**というテストフレームワークが標準で�
 
 テストを実行する際は、本番データベースとは別の**テスト用データベース**を使います。これにより、テストが本番データに影響を与えることを防ぎます。
 
-**`.env.testing`ファイルを作成**
+Laravelプロジェクトには、テスト設定ファイル `phpunit.xml` が最初から含まれています。このファイルの `<php>` セクションには、テスト実行時に使用する環境変数が定義されています。ここにデータベースの設定を追加することで、テスト専用のデータベースを使用できます。
 
-```bash
-docker compose exec php cp .env .env.testing
+**ファイル**: `phpunit.xml`
+
+`<php>` セクション内の `DB_DATABASE` の行を見つけて、以下の2点を修正します。
+
+**1. `DB_CONNECTION` 行を追加**（デフォルトでは存在しません）
+
+**2. `DB_DATABASE` の値を変更**
+
+```xml
+<!-- 変更前 -->
+<env name="DB_DATABASE" value="testing"/>
+
+<!-- 変更後 -->
+<env name="DB_CONNECTION" value="sqlite"/>   <!-- ← この行を追加 -->
+<env name="DB_DATABASE" value=":memory:"/>   <!-- ← 値を変更 -->
 ```
 
-**`.env.testing`を編集**
+**修正後の `<php>` セクション全体**
 
-```
-DB_CONNECTION=sqlite
-DB_DATABASE=:memory:
+```xml
+<php>
+    <env name="APP_ENV" value="testing"/>
+    <env name="BCRYPT_ROUNDS" value="4"/>
+    <env name="CACHE_DRIVER" value="array"/>
+    <env name="DB_CONNECTION" value="sqlite"/>   <!-- ← 追加 -->
+    <env name="DB_DATABASE" value=":memory:"/>   <!-- ← 値を変更 -->
+    <env name="MAIL_MAILER" value="array"/>
+    <env name="QUEUE_CONNECTION" value="sync"/>
+    <env name="SESSION_DRIVER" value="array"/>
+    <env name="TELESCOPE_ENABLED" value="false"/>
+</php>
 ```
 
-これにより、テスト時にはメモリ上のSQLiteデータベースが使われます。
+**コードリーディング**
+
+| 設定 | 値 | 説明 |
+|:---|:---|:---|
+| `APP_ENV` | testing | テスト環境であることを示す |
+| `BCRYPT_ROUNDS` | 4 | パスワードハッシュの計算回数を減らしてテストを高速化 |
+| `CACHE_DRIVER` | array | キャッシュをメモリ上に保持（テスト間で影響しない） |
+| `DB_CONNECTION` | sqlite | テスト用にSQLiteを使用 |
+| `DB_DATABASE` | :memory: | メモリ上にデータベースを作成（高速） |
+| `SESSION_DRIVER` | array | セッションをメモリ上に保持 |
+
+> 💡 **なぜSQLiteを使うのか？**: 本番環境ではMySQLを使用していますが、テストではSQLiteのインメモリデータベースを使用します。これにより、テストが高速に実行され、本番データベースに影響を与えません。`DB_DATABASE` を `:memory:` に設定することで、テストごとにデータベースがリセットされます。
 
 ---
 
