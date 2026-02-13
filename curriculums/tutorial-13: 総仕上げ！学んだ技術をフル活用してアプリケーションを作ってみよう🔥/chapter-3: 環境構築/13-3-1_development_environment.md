@@ -303,7 +303,9 @@ DB_PASSWORD=password
 
 ### 5-2. phpMyAdminの追加
 
-`compose.yaml`（または`docker-compose.yml`）を開き、`mysql`サービスの後に以下の設定を追加します。
+`compose.yaml`（または`docker-compose.yml`）を開き、`mysql`サービスの後に以下の設定を追加して保存します。
+
+> ⚠️ **注意**: YAMLファイルはインデント（字下げ）がずれると正しく動作しません。`phpmyadmin:`の左側のスペース数を、既にある`mysql:`と同じに揃えてください。
 
 ```yaml
     phpmyadmin:

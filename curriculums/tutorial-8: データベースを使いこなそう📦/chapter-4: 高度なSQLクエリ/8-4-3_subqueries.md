@@ -54,6 +54,8 @@ SQLの強力な機能を学んできましたが、それでも一度の単純�
 
 **例：`posts`テーブルの平均文字数より多い文字数の投稿を探す**
 
+> 💡 **補足**: `LENGTH()`は文字列の長さ（バイト数）を返すSQL関数です。`LENGTH(content)`で`content`カラムの文字数を取得できます。
+
 ```sql
 SELECT
     id, title, LENGTH(content) AS content_length
@@ -71,6 +73,8 @@ WHERE
 サブクエリが単一のカラム・複数の行（つまり、値のリスト）を返すパターンです。`IN`演算子と組み合わせることで、「サブクエリの結果リストに含まれる値」という条件を作成できます。
 
 **例：タグが1つも付いていない投稿を探す**
+
+> 💡 **補足**: `DISTINCT`は重複を除いて一意な値のみを取得するSQLキーワードです。`SELECT DISTINCT post_id`で、重複する`post_id`を除外した結果が得られます。
 
 ```sql
 SELECT * FROM posts

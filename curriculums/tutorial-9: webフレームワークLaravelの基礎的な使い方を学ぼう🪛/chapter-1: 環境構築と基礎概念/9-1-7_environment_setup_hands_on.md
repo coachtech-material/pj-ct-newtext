@@ -278,7 +278,9 @@ DB_PASSWORD=password
 **何を考えているか**：
 - 「データベースをブラウザで管理できるようにphpMyAdminを追加しよう」
 
-`compose.yaml`を開き、`mysql`サービスの後に以下の設定を追加します：
+`compose.yaml`を開き、`mysql`サービスの後に以下の設定を追加して保存します。
+
+> ⚠️ **注意**: YAMLファイルはインデント（字下げ）がずれると正しく動作しません。`phpmyadmin:`の左側のスペース数を、既にある`mysql:`と同じに揃えてください。
 
 ```yaml
     phpmyadmin:
