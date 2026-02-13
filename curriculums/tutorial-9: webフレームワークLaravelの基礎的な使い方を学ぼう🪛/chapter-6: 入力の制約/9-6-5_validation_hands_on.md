@@ -270,7 +270,7 @@ mysql:
         </div>
         <div class="form-group">
             <label>メールアドレス</label>
-            <input type="email" name="email" value="{{ old('email') }}" class="@error('email') error @enderror">
+            <input type="text" name="email" value="{{ old('email') }}" class="@error('email') error @enderror">
             @error('email')
                 <p class="error-message">{{ $message }}</p>
             @enderror
@@ -863,7 +863,7 @@ Route::post('/register', [UserController::class, 'store'])->name('register.store
         </div>
         <div class="form-group">
             <label>メールアドレス</label>
-            <input type="email" name="email" value="{{ old('email') }}" class="@error('email') error @enderror">
+            <input type="text" name="email" value="{{ old('email') }}" class="@error('email') error @enderror">
             @error('email')
                 <p class="error-message">{{ $message }}</p>
             @enderror

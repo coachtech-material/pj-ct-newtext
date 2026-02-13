@@ -527,7 +527,7 @@ class ProfileController extends Controller
 > **💡 Bladeテンプレートについて**
 > 
 > 以下のコードには`{{ }}`や`@foreach`などの**Blade構文**が含まれています。
-> Bladeの詳細は次のChapter（Chapter 2: ビューとBladで学びます。
+> Bladeの詳細は次のChapter（Chapter 2: ビューとBlade）で学びます。
 > 今は「こういう書き方をするんだな」と思いながら、**コピペでOK**です。
 
 以下の内容を記述します：
@@ -589,7 +589,7 @@ class ProfileController extends Controller
 **コードリーディング**：
 
 | コード | 説明 |
-|--------|‐-----|
+|--------|------|
 | `{{ $name }}` | Bladeの変数出力構文。コントローラーから渡された`$name`を表示します。自動的にHTMLエスケープされるので安全です。 |
 | `{{ $age }}` | 同様に、年齢を表示します。 |
 | `@foreach ($hobbies as $hobby)` | Bladeの`@foreach`ディレクティブ。配列をループ処理します。 |
