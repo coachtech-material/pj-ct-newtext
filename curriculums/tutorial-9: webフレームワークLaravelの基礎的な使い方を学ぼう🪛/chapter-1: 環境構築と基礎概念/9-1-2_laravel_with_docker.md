@@ -175,6 +175,8 @@ DB_PASSWORD=password
 
 データベースをブラウザで管理できるように、phpMyAdminを追加する場合は、`docker-compose.yml`（または`compose.yaml`）を開き、`services:`の中にある`mysql`サービスの後に、以下の設定を追加して保存します。
 
+> ⚠️ **注意**: YAMLファイルはインデント（字下げ）がずれると正しく動作しません。`phpmyadmin:`の左側のスペース数を、既にある`mysql:`と同じに揃えてください。
+
 ```yaml
     phpmyadmin:
         image: 'phpmyadmin:latest'
