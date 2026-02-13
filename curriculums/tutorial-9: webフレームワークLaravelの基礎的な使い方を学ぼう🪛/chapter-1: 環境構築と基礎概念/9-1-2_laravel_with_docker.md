@@ -110,6 +110,11 @@ docker run --rm \
 作成したプロジェクトディレクトリに移動し、Laravel Sailをインストールします。
 
 ```bash
+# 作成したプロジェクトディレクトリに移動
+cd laravel-project
+```
+
+```bash
 docker run --rm \
     -u "$(id -u):$(id -g)" \
     -v "$(pwd):/var/www/html" \
@@ -168,7 +173,7 @@ DB_PASSWORD=password
 
 ### 5. phpMyAdminの追加
 
-データベースをブラウザで管理できるように、phpMyAdminを追加する場合は、`docker-compose.yml`（または`compose.yaml`）を開き、`mysql`サービスの後に以下の設定を追加します。
+データベースをブラウザで管理できるように、phpMyAdminを追加する場合は、`docker-compose.yml`（または`compose.yaml`）を開き、`services:`の中にある`mysql`サービスの後に、以下の設定を追加して保存します。
 
 ```yaml
     phpmyadmin:
@@ -303,6 +308,10 @@ http://localhost
 
 Laravelのウェルカム画面が表示されれば、環境構築は成功です。
 
+**Laravelウェルカム画面**
+
+<img alt="9-1-2_1.png" src="">
+
 ### phpMyAdminにアクセス
 
 phpMyAdminにアクセスすると、データベースが正しく作成されていることを確認できます。
@@ -312,6 +321,10 @@ http://localhost:8080
 ```
 
 phpMyAdminの画面が表示され、`laravel`データベースが確認できればOKです。
+
+**phpMyAdmin画面**
+
+<img alt="9-1-2_2.png" src="">
 
 ---
 
