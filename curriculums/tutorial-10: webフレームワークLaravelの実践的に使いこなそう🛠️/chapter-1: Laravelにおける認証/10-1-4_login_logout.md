@@ -349,16 +349,15 @@ Fortifyが採用している**セッションベース認証**の仕組みを詳
 
 **設定**
 
-`config/auth.php`で、Remember Meの有効期限を設定できます：
+Remember Meのトークンは、`users`テーブルの`remember_token`カラムに保存されます。ログイン時に`remember`パラメータを送信すると、Laravelが自動的にトークンを生成・管理します。
 
 ```php
-'providers' => [
-    'users' => [
-        'driver' => 'eloquent',
-        'model' => App\Models\User::class,
-    ],
-],
+// ログインフォームで「ログイン状態を保持する」チェックボックスを設置
+Auth::attempt(['email' => $email, 'password' => $password], $remember);
+//                                                           ↑ true なら Remember Me が有効
 ```
+
+> 💡 **ポイント**: Fortifyを使っている場合は、ログインフォームに `name="remember"` のチェックボックスを追加するだけで、自動的にRemember Me機能が有効になります。
 
 ---
 

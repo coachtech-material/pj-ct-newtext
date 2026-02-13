@@ -81,7 +81,7 @@ public function view(User $user, Post $post)
         return true;
     }
 
-    // 下書きは自分のみ閲覧可能
+    // is_publishedがfalseの投稿（未公開の投稿）は自分のみ閲覧可能
     return $user->id === $post->user_id;
 }
 
