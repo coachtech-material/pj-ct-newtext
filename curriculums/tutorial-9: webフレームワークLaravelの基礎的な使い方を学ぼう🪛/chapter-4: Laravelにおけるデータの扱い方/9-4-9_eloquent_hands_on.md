@@ -634,7 +634,7 @@ protected $casts = [
     'published_at' => 'datetime',
 ];
 ```
-→ `$casts`で属性の型変換を定義します。`published_at`を`datetime`型にキャストし、Carbonインスタンスとして扱えるようにします。
+→ `$casts`で属性の型変換を定義します。`published_at`を`datetime`型にキャストし、Carbonインスタンスとして扱えるようにします。Carbonインスタンスにすることで、日付のフォーマット変換（`->format('Y/m/d')`）や日付の比較・計算が簡単にできるようになります。
 
 ---
 
