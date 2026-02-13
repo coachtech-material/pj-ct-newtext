@@ -296,7 +296,7 @@ CookieにSameSite属性を設定することで、CSRF攻撃を防ぎます。
 
 ---
 
-### 💡 実践例：Remember Me機能
+### 🚀 実践例：Remember Me機能
 
 「ログイン状態を保持する」機能を実装する場合、**Remember Me**トークンを使います。
 
