@@ -118,7 +118,7 @@ Chapter 3で学んだ認可機能を実際に手を動かして確認します�
 >
 > 前のハンズオン（10-2-4）のプロジェクトが起動している場合は、先に停止してください。
 > ```bash
-> cd ~/laravel-practice/10-2-4_hands-on/practice
+> cd ~/laravel-practice/10-2-4_hands-on/middleware-app-sample
 > ./vendor/bin/sail down
 > ```
 

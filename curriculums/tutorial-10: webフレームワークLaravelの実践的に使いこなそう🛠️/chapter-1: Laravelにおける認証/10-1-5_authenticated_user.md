@@ -373,11 +373,17 @@ public function dashboard(Request $request)
 ],
 ```
 
-**使用例**
+**コントローラーでの使用例**
 
 ```php
+// 管理者ガードで認証済みユーザーを取得
 $admin = auth('admin')->user();
+```
 
+**ルーティングでの使用例**
+
+```php
+// 管理者ガードで認証が必要なルートを定義
 Route::middleware('auth:admin')->group(function () {
     // 管理者のみがアクセスできるルート
 });

@@ -203,7 +203,10 @@ public function boot(): void
 
 #### ゲートの使用
 
+ゲートは、コントローラーやルートファイルなどのPHPコード内で使用します。
+
 ```php
+// コントローラー内での使用例
 if (Gate::allows('access-admin')) {
     // 管理画面にアクセスできる
 }
@@ -225,13 +228,19 @@ if (Gate::denies('access-admin')) {
 
 ### 🚀 ポリシーの自動検出
 
-Laravelは、モデル名から自動的にポリシーを検出します。例えば、`Post`モデルに対しては、`PostPolicy`が自動的に適用されます。
+Laravelは、**命名規則**に従っていれば、ポリシーを自動的に検出します。例えば、`Post`モデルに対しては、`PostPolicy`という名前のポリシーが自動的に適用されます。
 
-もし、カスタムのポリシー名を使いたい場合は、`app/Providers/AuthServiceProvider.php`で明示的に登録します。
+| モデル名 | 自動検出されるポリシー名 |
+|:---|:---|
+| `Post` | `PostPolicy` |
+| `User` | `UserPolicy` |
+| `Comment` | `CommentPolicy` |
+
+この命名規則に従っている場合、ポリシーの登録は不要です。もし、命名規則と異なるポリシー名を使いたい場合は、`app/Providers/AuthServiceProvider.php`で明示的に登録します。
 
 ```php
 protected $policies = [
-    Post::class => PostPolicy::class,
+    Post::class => PostPolicy::class,  // 命名規則通りなら省略可能
 ];
 ```
 
@@ -263,6 +272,6 @@ if (Gate::allows('update', $post)) {
 *   `@can`ディレクティブを使って、Bladeで権限チェックを行える。
 *   ゲートは、モデルに依存しない汎用的な権限管理に使う。
 
-次のセクションでは、デバッグとエラーハンドリングについて学びます。
+次のセクションでは、ゲートの基礎について学びます。
 
 ---
