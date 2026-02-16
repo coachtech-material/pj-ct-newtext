@@ -71,7 +71,7 @@ GROUP BY
     user_id;
 ```
 
-**[ここに、上記SQLの実行結果のスクリーンショットを挿入。`user_id`と`post_count`が並んだ表]**
+<img alt="8-4-2_1.png" src="">
 
 | user_id | post_count |
 |:---|:---|

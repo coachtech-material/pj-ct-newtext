@@ -51,7 +51,7 @@ git pull <リモート名> <ブランチ名>
 2.  `README.md` ファイルをクリックします。
 3.  ファイル表示画面の右上にある、鉛筆の形をした「Edit this file」アイコンをクリックします。
 
-    <!-- ここにスクリーンショットを挿入: GitHub上でREADME.mdを編集する鉛筆アイコン -->
+    <img alt="4-4-4_1.png" src="">
 
 4.  エディタが開くので、ファイルの末尾に、何か新しい行を追加します。例えば、「`Edited on GitHub.`」と入力します。
 5.  右上にある緑色の「Commit changes...」ボタンをクリックします。ダイアログが表示されるので、コミットメッセージ（例: `Update README.md from GitHub`）を入力し、「Commit changes」ボタンを押します。
