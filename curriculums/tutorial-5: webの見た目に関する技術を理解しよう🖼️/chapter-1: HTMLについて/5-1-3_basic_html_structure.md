@@ -24,6 +24,8 @@ HTML文書には、「**これはHTML文書ですよ**」と宣言し、文書�
 
 早速ですが、これがHTML文書の、最も基本的な構造です。
 
+<img alt="5-1-3_c1.png" src="">
+
 ```html
 <!DOCTYPE html>
 <html lang="ja">

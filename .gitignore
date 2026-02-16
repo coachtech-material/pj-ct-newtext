@@ -3,3 +3,8 @@
 
 # ローカル専用（個人の作業ログ・メモ）
 local/
+
+# エディタ・拡張機能
+.vscode/
+biz-agent-data/
+.banana-diagrams/

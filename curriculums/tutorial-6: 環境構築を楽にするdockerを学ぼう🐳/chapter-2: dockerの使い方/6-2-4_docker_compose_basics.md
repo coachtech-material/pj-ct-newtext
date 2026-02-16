@@ -35,6 +35,8 @@ docker run --name some-nginx --link some-php:php -p 8080:80 -d nginx
 
 この、「**複数のコンテナから構成される、アプリケーション全体を、一つの単位として、簡単に定義し、管理したい**」という、切実なニーズに応えるのが、**Docker Compose** です。
 
+<img alt="6-2-4_c1.png" src="">
+
 ---
 
 ## 詳細解説

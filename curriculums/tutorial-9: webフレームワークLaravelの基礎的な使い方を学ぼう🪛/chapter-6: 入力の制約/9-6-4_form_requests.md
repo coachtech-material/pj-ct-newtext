@@ -35,6 +35,8 @@ public function store(Request $request)
 
 Laravelでは、**フォームリクエスト**を使うことで、バリデーションロジックをコントローラーから分離できます。
 
+<img alt="9-6-4_c1.png" src="">
+
 ---
 
 ## 詳細解説

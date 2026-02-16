@@ -38,6 +38,8 @@ git commit -m "タスクCRUD実装 #3"
 
 Issueを見れば、誰が何をやっているかがわかります。
 
+<img alt="13-3-3_c1.png" src="">
+
 ---
 
 ## Step 1: GitHubリポジトリの作成
