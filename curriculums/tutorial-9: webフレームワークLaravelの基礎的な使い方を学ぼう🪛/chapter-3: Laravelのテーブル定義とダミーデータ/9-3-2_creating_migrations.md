@@ -213,7 +213,7 @@ INFO  Running migrations.
 
 phpMyAdminで確認すると、`posts`テーブルが作成されていることが確認できます。
 
-**[ここに、phpMyAdminで`posts`テーブルを確認したスクリーンショットを挿入]**
+<img alt="9-3-2_1.png" src="">
 
 ---
 
