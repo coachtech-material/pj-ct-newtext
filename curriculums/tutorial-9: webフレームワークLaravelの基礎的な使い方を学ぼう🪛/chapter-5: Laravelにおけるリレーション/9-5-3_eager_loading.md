@@ -19,6 +19,8 @@ Eloquentでは、リレーションシップを持つデータを取得する方
 
 このセクションでは、Eager LoadingとLazy Loadingの違いを理解し、N+1問題を解決する方法を学びます。
 
+<img alt="9-5-3_c1.png" src="">
+
 ---
 
 ## 詳細解説
