@@ -31,6 +31,8 @@ CRUD機能を実装する際、先輩エンジニアは以下のように考え�
 | `update` | PUT/PATCH | /categories/{id} | 更新処理 |
 | `destroy` | DELETE | /categories/{id} | 削除処理 |
 
+<img alt="13-6-1_c1.png" src="">
+
 ---
 
 ## 🔀 ブランチの作成

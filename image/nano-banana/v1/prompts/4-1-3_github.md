@@ -82,3 +82,8 @@
 - [ ] GitとGitHubが「道具」と「場所」として明確に区別されている
 - [ ] Word/Google Driveの比喩が添えられている
 - [ ] push/pullの双方向の矢印が描かれている
+
+
+## 🍌 Graphic Recording
+
+![Graphic Recording](../../../../.banana-diagrams/4-1-3_github_2026-02-16T13-11-38-753Z.png)

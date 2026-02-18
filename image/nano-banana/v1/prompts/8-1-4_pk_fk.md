@@ -79,3 +79,8 @@ ordersのcustomer_id から customersのid へ矢印を引いて参照関係を�
 ## 🍌 Graphic Recording
 
 ![Graphic Recording](../../../../.banana-diagrams/8-1-4_pk_fk_2026-02-16T06-42-00-227Z.png)
+
+
+## 🍌 Graphic Recording
+
+![Graphic Recording](../../../../.banana-diagrams/8-1-4_pk_fk_2026-02-16T13-05-47-430Z.png)

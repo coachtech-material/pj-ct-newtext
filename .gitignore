@@ -1,10 +1,33 @@
 # Claude Code個人設定（共有しない）
 .claude/settings.local.json
 
+# 環境変数（APIキーなど）
+.env
+
 # ローカル専用（個人の作業ログ・メモ）
 local/
+
+# macOSシステムファイル
+.DS_Store
 
 # エディタ・拡張機能
 .vscode/
 biz-agent-data/
 .banana-diagrams/
+
+# BizAgent生成ファイル（.claude/配下）
+.claude/agents/
+.claude/commands/
+.claude/rules/
+.claude/skills/bugfix/
+.claude/skills/frontend/
+.claude/skills/gas/
+.claude/skills/remotion-best-practices/
+.claude/skills/scraping/
+.claude/skills/nanobanana/
+.claude/skills/code-reviewer.md
+.claude/skills/commit-message-generator.md
+.claude/skills/pdf-processor.md
+.claude/skills/slide-generator.md
+.claude/skills/test-generator.md
+scripts/
