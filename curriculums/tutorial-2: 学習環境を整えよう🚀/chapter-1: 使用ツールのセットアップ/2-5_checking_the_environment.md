@@ -90,7 +90,7 @@ VSCodeのコード補完機能が、あなたの入力を助けてくれるは�
 コードが書けたら、いよいよブラウザで表示してみましょう。
 
 1.  作成した `index.html` ファイルを、エクスプローラー（Windows）またはFinder（Mac）で開きます。
-2.  `index.html` ファイルのアイコンを、Google Chromeのアイコンの上にドラッグ＆ドロップするか、ファイルを右クリックして「プログラムから開く」>「Google Chrome」を選択します。
+2.  `index.html` ファイルを Google Chrome のアイコンの上にドラッグ＆ドロップするか、Google Chrome を起動して、メニューバーの「ファイル」>「ファイルを開く...」から index.html ファイルを選択します。
 
 <img alt="2-5_4.png" src="">
 

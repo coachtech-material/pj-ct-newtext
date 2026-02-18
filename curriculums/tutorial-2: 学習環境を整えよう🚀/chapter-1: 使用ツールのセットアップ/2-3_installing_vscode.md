@@ -51,7 +51,7 @@ Webブラウザという「お皿」の準備ができました。次は、プ�
 1.  **インストーラのダウンロード**
     *   前のセクションでインストールしたGoogle Chromeを開き、検索窓で「`vscode`」と検索するか、以下のURLにアクセスします。
     *   **Visual Studio Code公式サイト**: [https://code.visualstudio.com/](https://code.visualstudio.com/)
-    *   トップページに、あなたのOS（WindowsまたはMac）に合わせたダウンロードボタンが大きく表示されています。この青いボタンをクリックしてください。
+    *   トップページに、あなたのOS（WindowsまたはMac）に合わせたダウンロードボタンが大きく表示されています。このボタンをクリックしてください。
     *   <img alt="2-3_1.png" src="">
 
 2.  **インストーラの実行（Windowsの場合）**

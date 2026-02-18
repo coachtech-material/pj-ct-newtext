@@ -270,6 +270,8 @@ $this->authorize('view', $task);
 2. `view` メソッドが `true` を返せば処理を続行
 3. `view` メソッドが `false` を返せば403エラーを自動的に返す
 
+<img alt="13-6-3_c1.png" src="">
+
 ---
 
 ### ステップ5: Bladeテンプレートでの認可チェック
