@@ -37,7 +37,7 @@ CRUD APIが完成したら、次は「レスポンスの整形」です。
 
 しかし、以下の問題があります。
 
-<img alt="11-2-2_c1.png" src="">
+<img alt="11-2-2_c1.png" src="https://s3.ap-northeast-1.amazonaws.com/coachtech-lms-bucket-dev/curriculums/images/11-2-2_c1.png">
 
 | 問題 | 説明 |
 |------|------|

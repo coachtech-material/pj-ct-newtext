@@ -23,7 +23,7 @@ Dockerのインストールが完了し、`hello-world`コンテナを動かす�
 
 ### 🏃 コンテナの実行: `docker run`
 
-<img alt="6-2-2_c1.png" src="">
+<img alt="6-2-2_c1.png" src="https://s3.ap-northeast-1.amazonaws.com/coachtech-lms-bucket-dev/curriculums/images/6-2-2_c1.png">
 
 `docker run`は、新しいコンテナを、作成し、実行するための、最も基本的なコマンドです。`hello-world`の時にも使いましたね。
 

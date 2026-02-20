@@ -36,7 +36,7 @@ Dockerを理解する上で最も重要なキーワードが「**コンテナ (C
 
 このコンテナをDockerがインストールされているマシンに持って行けば、誰でもどこでも全く同じ環境を瞬時に再現し、アプリケーションを動かすことができるのです。
 
-<img alt="6-1-1_c1.png" src="">
+<img alt="6-1-1_c1.png" src="https://s3.ap-northeast-1.amazonaws.com/coachtech-lms-bucket-dev/curriculums/images/6-1-1_c1.png">
 
 ### 🤯 「自分のPCでは動いたのに...」問題の解決
 

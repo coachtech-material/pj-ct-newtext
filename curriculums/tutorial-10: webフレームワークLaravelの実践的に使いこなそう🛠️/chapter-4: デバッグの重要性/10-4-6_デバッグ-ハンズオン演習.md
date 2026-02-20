@@ -52,11 +52,11 @@ Chapter 4で学んだデバッグ手法を実際に手を動かして確認し�
 
 **ユーザー登録フォーム**
 
-<img alt="10-4-6_1.png" src="">
+<img alt="10-4-6_1.png" src="https://s3.ap-northeast-1.amazonaws.com/coachtech-lms-bucket-dev/curriculums/images/10-4-6_1.png">
 
 **ユーザー一覧画面（修正後）**
 
-<img alt="10-4-6_2.png" src="">
+<img alt="10-4-6_2.png" src="https://s3.ap-northeast-1.amazonaws.com/coachtech-lms-bucket-dev/curriculums/images/10-4-6_2.png">
 
 </details>
 
@@ -66,7 +66,7 @@ Chapter 4で学んだデバッグ手法を実際に手を動かして確認し�
 
 **エラー画面**
 
-<img alt="10-4-6_3.png" src="">
+<img alt="10-4-6_3.png" src="https://s3.ap-northeast-1.amazonaws.com/coachtech-lms-bucket-dev/curriculums/images/10-4-6_3.png">
 
 - フォームを送信するとエラーが発生する → 正常に登録できるようにする
 - ユーザー一覧ページに登録したユーザーが表示される

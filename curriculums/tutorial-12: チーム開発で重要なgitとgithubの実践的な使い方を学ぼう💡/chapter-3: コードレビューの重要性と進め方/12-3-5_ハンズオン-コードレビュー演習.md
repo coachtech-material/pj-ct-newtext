@@ -38,11 +38,11 @@ Chapter 3で学んだコードレビューを実際に手を動かして確認�
 
 **レビューコメント**
 
-<img alt="12-3-5_1.png" src="">
+<img alt="12-3-5_1.png" src="https://s3.ap-northeast-1.amazonaws.com/coachtech-lms-bucket-dev/curriculums/images/12-3-5_1.png">
 
 **マージ完了**
 
-<img alt="12-3-5_2.png" src="">
+<img alt="12-3-5_2.png" src="https://s3.ap-northeast-1.amazonaws.com/coachtech-lms-bucket-dev/curriculums/images/12-3-5_2.png">
 
 </details>
 

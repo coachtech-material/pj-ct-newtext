@@ -51,12 +51,12 @@ Chapter 6で学んだセキュリティ対策を実際に手を動かして確�
 **お問い合わせフォーム画面**
 
 <!-- 撮影内容: http://localhost/contact にアクセスしてフォーム画面を撮影 -->
-<img alt="10-6-6_1.png" src="">
+<img alt="10-6-6_1.png" src="https://s3.ap-northeast-1.amazonaws.com/coachtech-lms-bucket-dev/curriculums/images/10-6-6_1.png">
 
 **送信完了画面**
 
 <!-- 撮影内容: フォームを送信して完了画面を撮影 -->
-<img alt="10-6-6_2.png" src="">
+<img alt="10-6-6_2.png" src="https://s3.ap-northeast-1.amazonaws.com/coachtech-lms-bucket-dev/curriculums/images/10-6-6_2.png">
 
 </details>
 

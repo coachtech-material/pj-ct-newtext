@@ -24,7 +24,7 @@ HTML文書には、「**これはHTML文書ですよ**」と宣言し、文書�
 
 早速ですが、これがHTML文書の最も基本的な構造です。
 
-<img alt="5-1-3_c1.png" src="">
+<img alt="5-1-3_c1.png" src="https://s3.ap-northeast-1.amazonaws.com/coachtech-lms-bucket-dev/curriculums/images/5-1-3_c1.png">
 
 ```html
 <!DOCTYPE html>
@@ -80,7 +80,7 @@ HTML文書には、「**これはHTML文書ですよ**」と宣言し、文書�
 2.  ファイルの1行目に、`!`（エクスクラメーションマーク）を、半角で入力します。
 3.  すると、入力候補（Emmet）が表示されるので、そのまま `Enter` キーか `Tab` キーを押します。
 
-    <img alt="5-1-3_1.png" src="">
+    <img alt="5-1-3_1.png" src="https://s3.ap-northeast-1.amazonaws.com/coachtech-lms-bucket-dev/curriculums/images/5-1-3_1.png">
 
 たったこれだけで、先ほど説明したHTMLの基本構造が自動的に挿入されます。これはWeb開発において非常によく使うショートカットなので、必ず覚えておきましょう。
 

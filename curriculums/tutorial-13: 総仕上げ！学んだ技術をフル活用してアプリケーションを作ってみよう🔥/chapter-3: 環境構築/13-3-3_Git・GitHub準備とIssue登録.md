@@ -38,7 +38,7 @@ git commit -m "タスクCRUD実装 #3"
 
 Issueを見れば、誰が何をやっているかがわかります。
 
-<img alt="13-3-3_c1.png" src="">
+<img alt="13-3-3_c1.png" src="https://s3.ap-northeast-1.amazonaws.com/coachtech-lms-bucket-dev/curriculums/images/13-3-3_c1.png">
 
 ---
 

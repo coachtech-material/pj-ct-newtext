@@ -48,7 +48,7 @@ Chapter 1で学んだLaravelの基礎を実際に手を動かして確認しま�
 
 **プロフィールページ完成画面**
 
-<img alt="9-1-8_1.png" src="">
+<img alt="9-1-8_1.png" src="https://s3.ap-northeast-1.amazonaws.com/coachtech-lms-bucket-dev/curriculums/images/9-1-8_1.png">
 
 ---
 

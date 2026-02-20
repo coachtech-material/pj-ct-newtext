@@ -47,7 +47,7 @@ Laravelには、**Eloquent ORM**という強力なORMが標準で組み込まれ
 *   **コードが読みやすい**: オブジェクト指向の構文で、直感的にデータベース操作ができる。
 *   **データベースの種類に依存しない**: MySQL、PostgreSQL、SQLiteなど、どのデータベースでも同じコードで動作する。
 
-<img alt="9-4-1_c1.png" src="">
+<img alt="9-4-1_c1.png" src="https://s3.ap-northeast-1.amazonaws.com/coachtech-lms-bucket-dev/curriculums/images/9-4-1_c1.png">
 
 ---
 

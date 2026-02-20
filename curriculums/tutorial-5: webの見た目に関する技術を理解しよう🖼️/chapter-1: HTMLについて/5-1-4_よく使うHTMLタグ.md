@@ -82,7 +82,7 @@ HTMLには、100種類以上のタグが存在しますが、日常的なWeb制�
 
 **ブラウザでの表示例**
 
-<img alt="5-1-4_1.png" src="">
+<img alt="5-1-4_1.png" src="https://s3.ap-northeast-1.amazonaws.com/coachtech-lms-bucket-dev/curriculums/images/5-1-4_1.png">
 
 ### 📦 グループ化のためのタグ
 
@@ -116,7 +116,7 @@ HTMLには、100種類以上のタグが存在しますが、日常的なWeb制�
 
 **ブラウザでの表示例**
 
-<img alt="5-1-4_2.png" src="">
+<img alt="5-1-4_2.png" src="https://s3.ap-northeast-1.amazonaws.com/coachtech-lms-bucket-dev/curriculums/images/5-1-4_2.png">
 
 > **ブロック vs インライン**: HTMLの要素は、大きく分けて「ブロックレベル要素」と「インラインレベル要素」に分類されます。`<h1>` や `<p>`, `<div>` は、一つのブロックとして扱われ、前後に改行が入ります。一方、`<a>` や `<strong>`, `<span>` は、文章の一部として扱われ、改行は入りません。この違いは、レイアウトを組む上で、非常に重要になります。
 

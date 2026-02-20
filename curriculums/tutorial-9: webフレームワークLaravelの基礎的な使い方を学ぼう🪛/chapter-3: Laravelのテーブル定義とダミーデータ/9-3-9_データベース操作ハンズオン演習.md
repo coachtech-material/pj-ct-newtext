@@ -50,7 +50,7 @@ Chapter 3で学んだLaravelのデータベース操作を実際に手を動か�
 
 **商品一覧ページ**
 
-<img alt="9-3-9_1.png" src="">
+<img alt="9-3-9_1.png" src="https://s3.ap-northeast-1.amazonaws.com/coachtech-lms-bucket-dev/curriculums/images/9-3-9_1.png">
 
 ---
 

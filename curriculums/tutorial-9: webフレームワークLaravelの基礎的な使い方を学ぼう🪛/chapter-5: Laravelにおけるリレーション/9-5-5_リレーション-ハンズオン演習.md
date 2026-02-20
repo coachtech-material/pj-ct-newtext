@@ -55,11 +55,11 @@ Chapter 5で学んだリレーションを実際に手を動かして確認し�
 
 **投稿一覧ページ**
 
-<img alt="9-5-5_1.png" src="">
+<img alt="9-5-5_1.png" src="https://s3.ap-northeast-1.amazonaws.com/coachtech-lms-bucket-dev/curriculums/images/9-5-5_1.png">
 
 **投稿詳細ページ**
 
-<img alt="9-5-5_2.png" src="">
+<img alt="9-5-5_2.png" src="https://s3.ap-northeast-1.amazonaws.com/coachtech-lms-bucket-dev/curriculums/images/9-5-5_2.png">
 
 </details>
 

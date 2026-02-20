@@ -41,7 +41,7 @@
 
 つまり、**GitHubはGitなしでは成り立ちませんが、GitはGitHubがなくても単体で利用可能**です。しかし、現代のチーム開発においてこの2つを切り離して考えることはほとんどありません。
 
-<img alt="4-1-3_c1.png" src="">
+<img alt="4-1-3_c1.png" src="https://s3.ap-northeast-1.amazonaws.com/coachtech-lms-bucket-dev/curriculums/images/4-1-3_c1.png">
 
 ### 🚀 GitHubの主要な機能
 
