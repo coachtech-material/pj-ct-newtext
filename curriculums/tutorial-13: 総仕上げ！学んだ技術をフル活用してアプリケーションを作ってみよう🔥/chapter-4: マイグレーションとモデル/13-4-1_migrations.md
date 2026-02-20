@@ -27,6 +27,8 @@
 | 2 | categories | 他のテーブルから参照される（tasks.category_id） |
 | 3 | tasks | users と categories を参照する |
 
+<img alt="13-4-1_c1.png" src="">
+
 ---
 
 ## 🔀 ブランチの作成

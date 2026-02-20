@@ -44,7 +44,7 @@
 *   `posts`と`post_tag`の関係は「1対多」です。（1つの投稿は、`post_tag`テーブルに複数のレコードを持つことができる）
 *   `tags`と`post_tag`の関係も「1対多」です。（1つのタグは、`post_tag`テーブルに複数のレコードを持つことができる）
 
-**[ここに、posts, post_tag, tagsの3つのエンティティが描かれたER図を挿入。post_tagが中央にあり、postsとtagsの両方から「1対多」の線が引かれている図]**
+<img alt="8-3-3_c1.png" src="">
 
 ### 2. テーブルのSQL実装
 
@@ -141,7 +141,7 @@ INSERT INTO post_tag (post_id, tag_id) VALUES (4, 3);
 
 もしここで、再度 `INSERT INTO post_tag (post_id, tag_id) VALUES (3, 1);` を実行しようとすると、先ほど設定した複合ユニークキー制約によってエラーとなり、重複した関連付けが防がれます。
 
-**[ここに、複合ユニークキー制約違反のエラーメッセージが表示されたスクリーンショットを挿入]**
+<img alt="8-3-3_2.png" src="">
 
 ---
 

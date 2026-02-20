@@ -34,7 +34,8 @@ pj-ct-newtext/
 │           └── {N}-{M}-{S}_{ファイル名}.md
 │
 ├── image/                       # 画像ファイル
-│   └── {N}-{M}-{S}_{連番}.png
+│   ├── {N}-{M}-{S}_{連番}.png
+│   └── nano-banana/             # ナノバナナ概念図（プロンプト・Gem設定）
 │
 ├── guides/                      # 執筆ガイドライン（チーム共有）
 │   ├── writing-rules.md         # 文体・スタイルルール
@@ -170,6 +171,12 @@ pj-ct-newtext/
 - `src`属性は**空**（後でGitHub Actionsで S3 URLに自動置換される）
 - 画像ファイルは `image/` ディレクトリに配置
 
+### 概念図（ナノバナナ）
+
+- ファイル名: `{N}-{M}-{S}_c{連番}.png`（`_c` = concept）
+- スクリーンショットとは別管理。生成ワークフローは `guides/nano-banana-workflow.md` を参照
+- プロンプト・Gem設定は `image/nano-banana/` に配置
+
 ### 完成イメージの表示
 
 - **画像1枚**: トグル不要、直接表示
@@ -198,6 +205,7 @@ Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
 | 文体・表現のチェック | `guides/writing-rules.md` |
 | Sectionの検証 | `guides/verification.md` |
 | 過去のガイドラインの確認 | `references/complete_writing_guidelines_v15.md` |
+| ナノバナナ画像の生成・挿入 | `guides/nano-banana-workflow.md` |
 
 ---
 

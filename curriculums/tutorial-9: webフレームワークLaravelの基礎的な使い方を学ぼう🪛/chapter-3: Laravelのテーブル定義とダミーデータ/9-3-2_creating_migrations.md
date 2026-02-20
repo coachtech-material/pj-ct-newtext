@@ -213,8 +213,6 @@ INFO  Running migrations.
 
 phpMyAdminで確認すると、`posts`テーブルが作成されていることが確認できます。
 
-**[ここに、phpMyAdminで`posts`テーブルを確認したスクリーンショットを挿入]**
-
 ---
 
 ### 🔄 既存のテーブルにカラムを追加する

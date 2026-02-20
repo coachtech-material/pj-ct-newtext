@@ -51,6 +51,7 @@ claude
 | `guides/handson-structure.md` | ハンズオンSection構成 | ハンズオン修正時に読む |
 | `guides/section-structure.md` | 通常Section構成 | 通常Section修正時に読む |
 | `guides/verification.md` | 検証ガイド | 検証作業時に読む |
+| `guides/nano-banana-workflow.md` | ナノバナナ画像生成ワークフロー | 概念図の生成・挿入時に読む |
 
 ---
 

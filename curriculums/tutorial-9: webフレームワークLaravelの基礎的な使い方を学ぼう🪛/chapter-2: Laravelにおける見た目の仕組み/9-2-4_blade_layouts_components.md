@@ -32,6 +32,8 @@
 
 Webサイトでは、ヘッダー、フッター、ナビゲーションなど、**全ページで共通の部分**があります。これらを毎回書くのは非効率なので、**レイアウトファイル**として共通部分をまとめます。
 
+<img alt="9-2-4_c1.png" src="">
+
 ```
 resources/views/
 ├── layouts/
@@ -103,6 +105,8 @@ resources/views/
 *   `@section('content') ... @endsection`: レイアウトの`@yield('content')`にこの内容を渡す。
 
 #### 継承の仕組み（図解）
+
+<img alt="9-2-4_c2.png" src="">
 
 ```
 レイアウト（layouts/app.blade.php）

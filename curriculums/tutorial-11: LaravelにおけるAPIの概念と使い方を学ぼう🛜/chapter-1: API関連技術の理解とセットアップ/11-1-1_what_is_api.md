@@ -34,6 +34,8 @@ Tutorial 10でWebアプリケーションを完成させました。次は「API
 
 API（Application Programming Interface）とは、**アプリケーション同士が通信するための仕組み**です。
 
+<img alt="11-1-1_c1.png" src="">
+
 APIを使うことで、以下のようなことが可能になります。
 
 | 用途 | 説明 |

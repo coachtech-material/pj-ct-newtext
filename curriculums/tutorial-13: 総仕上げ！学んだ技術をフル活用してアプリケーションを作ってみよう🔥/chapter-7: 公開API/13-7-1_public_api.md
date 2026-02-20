@@ -28,6 +28,8 @@
 | 配置場所 | `app/Http/Controllers/` | `app/Http/Controllers/Api/` |
 | ルート定義 | `routes/web.php` | `routes/api.php` |
 
+<img alt="13-7-1_c1.png" src="">
+
 ---
 
 ## 🔀 ブランチの作成

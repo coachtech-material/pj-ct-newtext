@@ -45,7 +45,7 @@ git remote add <ニックネーム> <リモートリポジトリのURL>
 
 1.  **URLをコピーする**: 前のセクションで作成した、GitHubのリモートリポジトリのページを開きます。「Quick setup」のページで、HTTPSのURLをコピーします。通常は、`https://github.com/あなたのユーザー名/my-first-git.git` という形式です。
 
-    <!-- ここにスクリーンショットを挿入: GitHubのQuick setupページで、HTTPSのURLをコピーする場所 -->
+    <img alt="4-4-2_1.png" src="">
 
 2.  **`git remote add` を実行する**: ターミナルで、以下のコマンドを実行します。URLの部分は、あなたがコピーしたものに置き換えてください。
 
