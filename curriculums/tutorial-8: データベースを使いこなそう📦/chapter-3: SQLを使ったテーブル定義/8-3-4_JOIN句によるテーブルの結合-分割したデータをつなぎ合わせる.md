@@ -34,7 +34,7 @@
 
 この問題を一発で解決するのが、リレーショナルデータベースの真骨頂ともいえる**`JOIN`**句です。`JOIN`は、分割された複数のテーブルを、リレーションシップ（主キーと外部キーの関連）を頼りに、あたかも一つの大きなテーブルであるかのように、仮想的に「結合」してデータを取得する機能です。
 
-<img alt="8-3-4_c1.png" src="">
+<img alt="8-3-4_c1.png" src="https://s3.ap-northeast-1.amazonaws.com/coachtech-lms-bucket-dev/curriculums/images/8-3-4_c1.png">
 
 ---
 
@@ -70,7 +70,7 @@ INNER JOIN
     posts ON users.id = posts.user_id;
 ```
 
-<img alt="8-3-4_1.png" src="">
+<img alt="8-3-4_1.png" src="https://s3.ap-northeast-1.amazonaws.com/coachtech-lms-bucket-dev/curriculums/images/8-3-4_1.png">
 
 このSQLを実行すると、データベース内部では以下のことが行われます。
 
@@ -111,7 +111,7 @@ LEFT JOIN
 
 `LEFT JOIN`は、`FROM`句で指定した**左側のテーブル（この場合は`users`）の全レコードを基準**にします。そして、`ON`句の条件に一致するレコードが右側のテーブル（`posts`）にあれば、そのデータを結合します。もし一致するレコードがなくても、左側のテーブルの情報は結果に含まれ、右側のテーブルに対応するカラムは`NULL`として表示されます。
 
-<img alt="8-3-4_2.png" src="">
+<img alt="8-3-4_2.png" src="https://s3.ap-northeast-1.amazonaws.com/coachtech-lms-bucket-dev/curriculums/images/8-3-4_2.png">
 
 | name | title |
 |:---|:---|
@@ -145,7 +145,7 @@ INNER JOIN
     users AS u ON p.user_id = u.id;
 ```
 
-<img alt="8-3-4_3.png" src="">
+<img alt="8-3-4_3.png" src="https://s3.ap-northeast-1.amazonaws.com/coachtech-lms-bucket-dev/curriculums/images/8-3-4_3.png">
 
 このクエリは、以下のように連鎖的にテーブルを結合していきます。
 

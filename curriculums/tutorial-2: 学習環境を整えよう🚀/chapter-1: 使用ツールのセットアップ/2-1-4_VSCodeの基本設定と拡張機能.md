@@ -61,7 +61,7 @@ UIから設定を変更すると、VSCodeが裏側で自動的に `settings.json
 
 左下の歯車アイコンをクリックし、「設定」を選択するか、ショートカットキー（Windowsの場合: `Ctrl + ,` / Macの場合: `Cmd + ,`）で設定画面を開きます。
 
-<img alt="2-4_1.png" src="">
+<img alt="2-4_1.png" src="https://s3.ap-northeast-1.amazonaws.com/coachtech-lms-bucket-dev/curriculums/images/2-4_1.png">
 
 検索窓に、以下の設定項目名を入力して、値を変更していきましょう。
 
@@ -73,7 +73,7 @@ UIから設定を変更すると、VSCodeが裏側で自動的に `settings.json
 | `Files: Auto Save` | `onFocusChange` | ファイルの内容を変更した後、別のファイルやウィンドウに移動した際に、自動で保存してくれる設定。保存忘れを防げます。 |
 | `Format On Save` | `true` (チェックを入れる) | ファイルを保存したタイミングで、後述するフォーマッタ（コード整形ツール）を自動で実行してくれる設定。 |
 
-<img alt="2-4_2.png" src="">
+<img alt="2-4_2.png" src="https://s3.ap-northeast-1.amazonaws.com/coachtech-lms-bucket-dev/curriculums/images/2-4_2.png">
 
 ### ⚙️ 2. おすすめ拡張機能のインストール
 
@@ -81,7 +81,7 @@ UIから設定を変更すると、VSCodeが裏側で自動的に `settings.json
 
 左側のアクティビティバーから「拡張機能」アイコンをクリックし、検索窓に以下の拡張機能名（ID）を入力して、一つずつインストールしていきましょう。
 
-<img alt="2-4_3.png" src="">
+<img alt="2-4_3.png" src="https://s3.ap-northeast-1.amazonaws.com/coachtech-lms-bucket-dev/curriculums/images/2-4_3.png">
 
 #### 必須レベル
 
@@ -120,7 +120,7 @@ VSCodeをインストールする際に、「PATHへの追加」オプション�
 3. `Shell Command: Install 'code' command in PATH`を検索して実行
 4. ターミナルを再起動
 
-<img alt="2-4_4.png" src="">
+<img alt="2-4_4.png" src="https://s3.ap-northeast-1.amazonaws.com/coachtech-lms-bucket-dev/curriculums/images/2-4_4.png">
 
 #### `code .`コマンドの使い方
 
@@ -143,7 +143,7 @@ code .
 
 設定画面の右上にある、書類に矢印がついたようなアイコン（「設定(JSON)を開く」）をクリックしてください。
 
-<img alt="2-4_5.png" src="">
+<img alt="2-4_5.png" src="https://s3.ap-northeast-1.amazonaws.com/coachtech-lms-bucket-dev/curriculums/images/2-4_5.png">
 
 すると、`settings.json` というファイルが開きます。中には、先ほど設定した項目が、以下のような形式で記述されているはずです。
 

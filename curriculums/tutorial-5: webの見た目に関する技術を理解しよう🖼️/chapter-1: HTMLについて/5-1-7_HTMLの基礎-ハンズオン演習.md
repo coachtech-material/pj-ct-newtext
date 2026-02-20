@@ -47,7 +47,7 @@ Chapter 1で学んだHTMLの基礎知識を実際に手を動かして確認し�
 
 **自己紹介ページ**
 
-<img alt="5-1-7_1.png" src="">
+<img alt="5-1-7_1.png" src="https://s3.ap-northeast-1.amazonaws.com/coachtech-lms-bucket-dev/curriculums/images/5-1-7_1.png">
 
 ---
 

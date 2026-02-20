@@ -46,11 +46,11 @@ Issueを作成し、ブランチで開発し、Pull Requestを作成する「Git
 
 **GitHub Issue**
 
-<img alt="12-2-4_1.png" src="">
+<img alt="12-2-4_1.png" src="https://s3.ap-northeast-1.amazonaws.com/coachtech-lms-bucket-dev/curriculums/images/12-2-4_1.png">
 
 **GitHub Pull Request**
 
-<img alt="12-2-4_2.png" src="">
+<img alt="12-2-4_2.png" src="https://s3.ap-northeast-1.amazonaws.com/coachtech-lms-bucket-dev/curriculums/images/12-2-4_2.png">
 
 </details>
 

@@ -32,7 +32,7 @@
 
 Webサイトでは、ヘッダー、フッター、ナビゲーションなど、**全ページで共通の部分**があります。これらを毎回書くのは非効率なので、**レイアウトファイル**として共通部分をまとめます。
 
-<img alt="9-2-4_c1.png" src="">
+<img alt="9-2-4_c1.png" src="https://s3.ap-northeast-1.amazonaws.com/coachtech-lms-bucket-dev/curriculums/images/9-2-4_c1.png">
 
 ```
 resources/views/
@@ -106,7 +106,7 @@ resources/views/
 
 #### 継承の仕組み（図解）
 
-<img alt="9-2-4_c2.png" src="">
+<img alt="9-2-4_c2.png" src="https://s3.ap-northeast-1.amazonaws.com/coachtech-lms-bucket-dev/curriculums/images/9-2-4_c2.png">
 
 ```
 レイアウト（layouts/app.blade.php）

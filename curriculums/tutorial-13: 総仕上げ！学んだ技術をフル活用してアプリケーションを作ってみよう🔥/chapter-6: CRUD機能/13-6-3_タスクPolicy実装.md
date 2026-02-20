@@ -270,7 +270,7 @@ $this->authorize('view', $task);
 2. `view` メソッドが `true` を返せば処理を続行
 3. `view` メソッドが `false` を返せば403エラーを自動的に返す
 
-<img alt="13-6-3_c1.png" src="">
+<img alt="13-6-3_c1.png" src="https://s3.ap-northeast-1.amazonaws.com/coachtech-lms-bucket-dev/curriculums/images/13-6-3_c1.png">
 
 ---
 

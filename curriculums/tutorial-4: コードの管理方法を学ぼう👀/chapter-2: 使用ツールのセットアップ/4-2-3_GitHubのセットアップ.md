@@ -30,7 +30,7 @@ GitHubアカウントは、現代のエンジニアにとって、**「名刺」
 
 2.  **サインアップを開始する**: 画面の右上にある「Sign up」ボタンをクリックするか、中央のフォームにメールアドレスを入力して、アカウント作成を開始します。
 
-    <img alt="4-2-3_1.png" src="">
+    <img alt="4-2-3_1.png" src="https://s3.ap-northeast-1.amazonaws.com/coachtech-lms-bucket-dev/curriculums/images/4-2-3_1.png">
 
 ### 📝 必要情報の入力
 
@@ -77,7 +77,7 @@ GitHubのアカウント作成プロセスは、対話形式で進んでいき�
 
 おめでとうございます！全ての手順が完了すると、あなたのGitHubダッシュボードが表示されます。これが、あなたのGitHub上でのホーム画面になります。
 
-<img alt="4-2-3_2.png" src="">
+<img alt="4-2-3_2.png" src="https://s3.ap-northeast-1.amazonaws.com/coachtech-lms-bucket-dev/curriculums/images/4-2-3_2.png">
 
 ---
 
@@ -94,7 +94,7 @@ SSHは、ネットワーク上で安全に通信するための仕組みです�
 
 この2つの鍵がペアになっていることで、「この通信は確かにあなたからのものである」ということを、パスワードなしで証明できるようになります。
 
-<img alt="4-2-3_c1.png" src="">
+<img alt="4-2-3_c1.png" src="https://s3.ap-northeast-1.amazonaws.com/coachtech-lms-bucket-dev/curriculums/images/4-2-3_c1.png">
 
 ### 🔑 SSHキーの生成
 
