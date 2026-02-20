@@ -62,11 +62,12 @@ pj-ct-newtext/
 ## セクション命名規則
 
 ```
-{Tutorial番号}-{Chapter番号}-{Section番号}_{名前}.md
+{Tutorial番号}-{Chapter番号}-{Section番号}_{見出し名}.md
 ```
 
-- 通常Section: `10-2-1_what_is_middleware.md`
-- ハンズオンSection: `10-2-4_middleware_hands_on.md`（末尾は `_hands_on.md`）
+- 見出し名は `# X-Y-Z: 見出し名` の「見出し名」をそのまま使用（スペースは除去）
+- 括弧付き補足は除外する（例: 「リポジトリの作成 (git init)」→「リポジトリの作成」）
+- 例: `10-2-1_ミドルウェアとは.md`、`10-2-4_ミドルウェア-ハンズオン演習.md`
 
 ---
 
