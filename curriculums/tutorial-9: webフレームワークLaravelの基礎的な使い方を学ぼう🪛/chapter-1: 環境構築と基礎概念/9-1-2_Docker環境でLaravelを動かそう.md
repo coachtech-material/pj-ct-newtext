@@ -126,7 +126,7 @@ docker run --rm \
 
 ### 3. Sailの設定ファイルをパブリッシュ
 
-次に、Sailの設定ファイル（`docker-compose.yml`）を生成します。MySQLを使用するように指定します。
+次に、Sailの設定ファイル（`docker-compose.yml`または`compose.yaml`）を生成します。MySQLを使用するように指定します。
 
 ```bash
 docker run --rm \
@@ -140,7 +140,7 @@ docker run --rm \
 
 このコマンドを実行すると、以下のファイルが生成されます。
 
-*   `docker-compose.yml`: Docker Composeの設定ファイル
+*   `docker-compose.yml`（または`compose.yaml`）: Docker Composeの設定ファイル
 *   `.env`ファイルの更新: データベース接続情報が自動設定される
 
 > 💡 **ポイント**: `--with=mysql`オプションで、MySQLを使用することを指定しています。他にも`pgsql`（PostgreSQL）、`redis`、`memcached`などを指定できます。
