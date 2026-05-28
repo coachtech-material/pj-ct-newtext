@@ -62,6 +62,60 @@ Chapter 2で学んだBladeテンプレートを実際に手を動かして確認
 
 ---
 
+### 📦 GitHubでのコード管理
+
+完成した成果物を **GitHubのpublicリポジトリ** で管理します。
+
+- `~/laravel-practice/9-2-5_hands-on/blade-app-practice/` ディレクトリの中身（Laravelプロジェクト一式）を **publicリポジトリ** で管理する
+- リポジトリ名は **`blade-app-practice`** とする
+- 下記の雛形をもとに、`README.md` を **自分の言葉で** 作成する
+- コミットとpushを完了させる
+
+> 💡 **`practice/` と `sample/` の使い分け**:
+> - **`blade-app-practice/`** が **「提出物」** です。最終的にここにある成果物をGitHubに push します
+> - **`blade-app-sample/`** は **「答え合わせ用」** で、ローカルでの比較確認のみに使います。GitHubには push しません
+
+<details>
+<summary>📄 README.md の雛形（クリックで展開）</summary>
+
+`blade-app-practice/README.md` に、以下の雛形をベースに **自分の言葉で** 記載しましょう（Laravelデフォルトの README を置き換えてOK）。
+
+````markdown
+# blade-app-practice
+
+## 概要
+COACHTECH 教材 Tutorial 9-2「Bladeテンプレート ハンズオン演習」で作成した成果物です。
+（**ここに、何を作ったかを1〜2行で書きましょう**）
+
+## 使用技術
+- PHP 8.x
+- Laravel 10.x
+- Blade テンプレート
+（**他に使ったものがあれば追記してください**）
+
+## 学んだこと
+- （**自分の言葉で2〜3項目書きましょう**）
+- 
+- 
+
+## 動作確認
+（**どうやって動かして確認するかを記載してください**）
+````
+
+> 💡 **「学んだこと」の書き方の例（参考）**:
+> - Blade のレイアウト継承（`@extends`, `@yield`, `@section`）の仕組み
+> - 条件分岐（`@if`）と反復（`@foreach`）でのデータ表示
+> - 提供されたBladeから「必要な変数」を読み解き、コントローラーで準備する流れ
+
+任意で以下も追加すると、より評価されやすくなります:
+- 詰まったポイントと解決方法
+- 開発の工夫
+- 動作確認のスクショ
+
+</details>
+
+---
+
 ### ✅ 完成チェックリスト
 
 - [ ] `/products`にアクセスすると「商品一覧」というタイトルが表示される
@@ -664,6 +718,33 @@ cd ~/laravel-practice/9-2-5_hands-on/blade-app-sample
 ./vendor/bin/sail up -d
 # ブラウザで http://localhost/products にアクセス
 ```
+
+---
+
+## 📤 GitHubに push しよう
+
+5-1-7 で覚えた手順を使って、成果物をGitHubの **publicリポジトリ** に push しましょう。
+
+```bash
+# blade-app-practice ディレクトリに移動
+cd ~/laravel-practice/9-2-5_hands-on/blade-app-practice
+
+# Git の初期化、commit、リモート設定、push
+git init
+git add .
+git commit -m "first commit"
+git remote add origin <あなたのリポジトリのURL>
+git branch -M main
+git push -u origin main
+```
+
+> ⚠️ **詰まったときは**: Tutorial 5-1-7「📤 GitHubに push しよう」や Tutorial 4-4-2〜4-4-3 を見直してみましょう。
+
+### ✅ push 完了チェック
+
+- [ ] GitHub に `blade-app-practice` リポジトリを作成した（**public** で作成）
+- [ ] 「📦 GitHubでのコード管理」の雛形を参考に `README.md` を **自分の言葉で** 作成した
+- [ ] `commit` と `push` を完了して、GitHubに反映されている
 
 ---
 
