@@ -44,69 +44,77 @@ GitHubで新しいリポジトリを作成します。
 
 #### Step 2: README.md を編集
 
-Profile README は **マークダウン** で書きます。以下の雛形を **自分の言葉でカスタマイズ** しましょう。
+Profile README は **マークダウン** で書きます。以下に **構成のひとつの例** を示します。
+
+> ⚠️ **これはあくまで「一例」です**
+>
+> そのままコピペするのではなく、**あなたの個性や強みが伝わるように自由にカスタマイズしてください**。セクションの追加・削除・順番の入れ替えも、自分らしさを出すためのアレンジも歓迎です。「正解の形」はありません。
 
 ````markdown
-# こんにちは、〇〇です 👋
+# こんにちは、<あなたの名前> です 👋
 
-## 🎓 学習中
+<!-- ここに簡単な自己紹介を1〜2行（例: 学習中のこと、興味のある分野） -->
+COACHTECH でフルスタックWeb開発を学習中の<例: Web系エンジニア志望>です。
+<例: ユーザーの体験を考えながらサービスを作ることに興味があります。>
 
-COACHTECH でフルスタックWeb開発を学習中です。
-PHP / Laravel を中心に、HTML / CSS / SQL なども学んでいます。
+---
 
 ## 🛠️ 使える技術
 
-- **バックエンド**: PHP, Laravel
-- **フロントエンド**: HTML5, CSS, Blade
+<!-- 自分が触ったことのある技術を整理。カテゴリ分けすると見やすい -->
+
+- **バックエンド**: PHP / Laravel
+- **フロントエンド**: HTML5 / CSS / Blade
 - **データベース**: MySQL
-- **その他**: Docker, Git/GitHub
+- **その他**: Docker / Git・GitHub
 
-## 📂 学習成果物（COACHTECH ハンズオン）
+## 📂 学習成果物
 
-### Tutorial 5: HTMLの基礎
-- [self-introduction-practice](https://github.com/<あなたのユーザー名>/self-introduction-practice) — 自己紹介ページ
+COACHTECH 教材のハンズオンで作成したリポジトリです。
 
-### Tutorial 7: PHPの基礎
-- [php-basics-practice](https://github.com/<あなたのユーザー名>/php-basics-practice) — 商品価格計算プログラム
-- [php-control-practice](https://github.com/<あなたのユーザー名>/php-control-practice) — 成績判定プログラム
-- [php-oop-practice](https://github.com/<あなたのユーザー名>/php-oop-practice) — オブジェクト指向の実装
-- [php-form-practice](https://github.com/<あなたのユーザー名>/php-form-practice) — フォームとデータ受け渡し
+<!-- ↓ Tutorial 5〜11 で push した自分のリポジトリへのリンクを並べる。
+     並べ方は自由（後述の TIP 参照）。「特に頑張ったもの」を上に持ってくるのもあり。 -->
 
-### Tutorial 9: Laravelの基礎
-- [setup-app-practice](https://github.com/<あなたのユーザー名>/setup-app-practice) — Laravel環境構築
-- [profile-app-practice](https://github.com/<あなたのユーザー名>/profile-app-practice) — Laravelの基本フロー
-- [blade-app-practice](https://github.com/<あなたのユーザー名>/blade-app-practice) — Bladeテンプレート
-- [database-app-practice](https://github.com/<あなたのユーザー名>/database-app-practice) — DB操作
-- [eloquent-app-practice](https://github.com/<あなたのユーザー名>/eloquent-app-practice) — Eloquent ORM
-- [relation-app-practice](https://github.com/<あなたのユーザー名>/relation-app-practice) — リレーション
-- [validation-app-practice](https://github.com/<あなたのユーザー名>/validation-app-practice) — バリデーション
+- [task-api-practice](https://github.com/<あなた>/task-api-practice) — タスク管理APIのCRUD実装（Laravel + REST API）
+- [auth-app-practice](https://github.com/<あなた>/auth-app-practice) — 認証機能の実装（Laravel Fortify）
+- [self-introduction-practice](https://github.com/<あなた>/self-introduction-practice) — 自己紹介ページ（HTML5）
+- ...（他のリポジトリも同じ要領で並べる）
 
-### Tutorial 10: Laravel 応用
-- [auth-app-practice](https://github.com/<あなたのユーザー名>/auth-app-practice) — 認証機能
-- [middleware-app-practice](https://github.com/<あなたのユーザー名>/middleware-app-practice) — ミドルウェア
-- [authorization-app-practice](https://github.com/<あなたのユーザー名>/authorization-app-practice) — 認可機能
-- [debug-app-practice](https://github.com/<あなたのユーザー名>/debug-app-practice) — デバッグ
-- [test-app-practice](https://github.com/<あなたのユーザー名>/test-app-practice) — テスト
-- [security-app-practice](https://github.com/<あなたのユーザー名>/security-app-practice) — Webセキュリティ
+## 🌱 これから挑戦したいこと
 
-### Tutorial 11: API開発
-- [api-setup-practice](https://github.com/<あなたのユーザー名>/api-setup-practice) — API開発環境
-- [task-api-practice](https://github.com/<あなたのユーザー名>/task-api-practice) — タスク管理APIのCRUD実装
+<!-- 卒業後どんなエンジニアになりたいか、興味のある領域などを一行で -->
+<例: チームで価値あるWebサービスを作れるエンジニアになりたいです。最近は API 設計に興味があります。>
 
-## 📫 連絡先
-- Email: your-email@example.com
+## 📫 連絡先・リンク
+
+<!-- 載せたいものだけでOK。全部書く必要はない -->
+- Portfolio: <あれば貼る>
 - Twitter: [@your_twitter](https://twitter.com/your_twitter)
+- Email: your-email@example.com
 ````
 
-> 💡 **学習成果物リストの作り方**: Tutorial 5〜11 で push したリポジトリへのリンクを、Tutorial ごとにまとめておきましょう。リストが長くなりすぎるなら、Tutorial 9〜10 を「Laravel系」とひとまとめにするなど工夫しても良いです。
+> 💡 **学習成果物リストの並べ方の例**:
+> - 例A: 上記のように **1行ずつフラットに**（特に頑張ったものを上に）
+> - 例B: **Tutorial ごとに見出しを分けて整理**
+> - 例C: **「Laravel系」「API系」など技術ジャンルでカテゴリ分け**
+>
+> どれが正解ということはありません。**読み手にとって見やすいかどうか** で選びましょう。
 
-#### Step 3: 自分の言葉でカスタマイズ
+> 💡 **こんなセクションを足してもOK（任意）**:
+> - **📝 ブログ・記事**: Qiita / Zenn の記事リンク
+> - **🎯 学習ログ**: 「○日連続で草を生やしました」など継続の証
+> - **🏆 取り組んだ課題**: 個人開発・コンペ参加など
+> - **🎨 趣味**: 「人柄」が伝わるとさらに◎
 
-雛形をそのままコピーするのではなく、**自分の言葉で書き換える** ことが大事です。
+#### Step 3: 「自分らしさ」を加える
+
+雛形の項目を **そのまま埋めるだけ** にせず、自分の言葉や個性を入れましょう。
 
 - **興味のある分野** を一言（「Webサービスを作るのが楽しいです」「ユーザー体験を考えるのが好きです」など）
 - **これから挑戦したいこと** を一行
 - **趣味や個性** を少しだけ（読み手に「人柄」が伝わると、面談での話題のきっかけになります）
+
+> 💡 **コピペで完成させない**: 雛形通りの README は、他の人と「似たような印象」になりがちです。自分の言葉で1行でも書き換えると、ぐっとあなたらしくなります。
 
 #### Step 4: commit & push
 
