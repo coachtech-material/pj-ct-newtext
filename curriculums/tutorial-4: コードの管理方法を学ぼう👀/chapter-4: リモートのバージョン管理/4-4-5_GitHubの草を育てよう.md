@@ -26,7 +26,7 @@ GitHubのプロフィールページには、自分の活動状況が緑のマ�
 
 **GitHubプロフィールに並ぶcontribution graphのイメージ**
 
-<img alt="4-4-5_1.png" src="">
+<img alt="4-4-5_1.png" src="https://coachtech-lms-bucket.s3.ap-northeast-1.amazonaws.com/question/20260528174914_CleanShot 2026-05-28 at 14.03.21@2x.png">
 
 ### 何が「草」としてカウントされるか
 
