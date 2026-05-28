@@ -107,6 +107,61 @@ Chapter 1で学んだHTMLの基礎知識を実際に手を動かして確認し�
 
 > 💡 **動作確認**: VSCodeで`self-introduction.html`を右クリック →「Finderで表示する」→ ファイルをダブルクリックしてブラウザで開く
 
+#### 3. GitHubでのコード管理
+
+完成した成果物を **GitHubのpublicリポジトリ** で管理します。
+
+- `self-introduction-practice/` ディレクトリの中身を **publicリポジトリ** で管理する
+- リポジトリ名は **`self-introduction-practice`** とする
+- 下記の雛形をもとに、`README.md` を **自分の言葉で** 作成する
+- コミットとpushを完了させる
+
+> 💡 **`practice/` と `sample/` の使い分け**:
+> - **`practice/`** が **「提出物」** です。最終的にここにある成果物をGitHubに push します
+> - **`sample/`** は **「答え合わせ用」** で、ローカルでの比較確認のみに使います。GitHubには push しません
+> - `practice/` で完成できなかった場合は、`sample/` を参考にしながら `practice/` を完成させてから push しましょう（「最終的に動く成果物が残っている」ことが目的です）
+
+> 💡 **なぜpublic？**: あなたの成果物がGitHubのcontribution graph（草）として記録され、フリーランス案件への参画や転職の面談など、**スキルを伝える場面**で有利に働きます。詳しくは Tutorial 4-4-5 を参照してください。
+
+<details>
+<summary>📄 README.md の雛形（クリックで展開）</summary>
+
+`self-introduction-practice/README.md` に、以下の雛形をベースに **自分の言葉で** 記載しましょう。
+
+````markdown
+# self-introduction-practice
+
+## 概要
+COACHTECH 教材 Tutorial 5-1「HTMLの基礎 ハンズオン演習」で作成した成果物です。
+（**ここに、何を作ったかを1〜2行で書きましょう**）
+
+## 使用技術
+- HTML5
+（**他に使ったものがあれば追記してください**）
+
+## 学んだこと
+- （**自分の言葉で2〜3項目書きましょう**）
+- 
+- 
+
+## 動作確認
+（**どうやって動かして確認するかを記載してください**）
+````
+
+> 💡 **「学んだこと」の書き方の例（参考）**:
+> - HTMLの基本構造（DOCTYPE / html / head / body）の役割
+> - 見出し（h1〜h2）の使い分けと、段落・リストの使い方
+> - フォームの基本構造と、`label` によるアクセシビリティ
+>
+> 👆 こんな感じで「**自分が理解したこと**」を書きます。コピペではなく、自分で考えて書くことが評価につながります。
+
+任意で以下も追加すると、より評価されやすくなります:
+- 詰まったポイントと解決方法
+- 画面キャプチャ
+- 開発の工夫
+
+</details>
+
 ---
 
 ## ⚙️ 環境準備（自分で作成する用）
@@ -830,6 +885,86 @@ VSCodeのエクスプローラーに`self-introduction.html`が表示される�
 <!-- ✅ 正しい -->
 <img src="landscape.jpg" alt="好きな風景">
 ```
+---
+
+## 📤 GitHubに push しよう
+
+ハンズオンが完成したら、成果物をGitHubのpublicリポジトリに公開します。Tutorial 4 で学んだ手順を使って push しましょう。
+
+> 💡 **初回なので丁寧に解説します**。次回以降のハンズオンでは、ここで覚えた手順を活用してください。
+
+### Step 1: GitHubでリポジトリを作成
+
+GitHubにログインし、新しいリポジトリを作成します。
+
+1. 右上の「+」→「New repository」をクリック
+2. **Repository name** に `self-introduction-practice` を入力
+3. **Public** を選択
+4. 「Initialize this repository with」のチェックは **すべて外す**（Tutorial 4-4-1 で学んだ通り）
+5. 「Create repository」をクリック
+
+### Step 2: README.md を作成
+
+`practice/` ディレクトリに `README.md` を作成します。
+
+```bash
+cd ~/html-practice/5-1-7_hands-on/self-introduction-practice
+touch README.md
+```
+
+VSCodeで `README.md` を開き、要件3の雛形をベースに **自分の言葉で** 内容を記載しましょう。
+
+### Step 3: ローカルでGit初期化＆commit
+
+```bash
+# practice ディレクトリにいることを確認
+cd ~/html-practice/5-1-7_hands-on/self-introduction-practice
+
+# Git の初期化
+git init
+
+# ファイルをステージング
+git add .
+
+# 初回コミット
+git commit -m "first commit"
+```
+
+### Step 4: リモートと接続して push
+
+GitHub のリポジトリ作成後のページに表示されているコマンドを参考に、リモートと接続します。
+
+```bash
+# リモートを設定（URLは自分のリポジトリのものに置き換える）
+git remote add origin <あなたのリポジトリのURL>
+
+# ブランチ名を main に統一（必要に応じて）
+git branch -M main
+
+# push
+git push -u origin main
+```
+
+> ⚠️ **詰まったときは**: Tutorial 4-4-2「ローカルとリモートの接続」、4-4-3「変更のアップロード」を見直してみましょう。
+
+### Step 5: GitHubで確認
+
+ブラウザで自分のリポジトリページを開き、`self-introduction.html` と `README.md` が表示されていることを確認します。
+
+---
+
+## ✅ 完成チェックリスト
+
+ここまでで、以下が完了していることを確認しましょう。
+
+- [ ] 要件1〜2を満たして、`self-introduction.html` が正しく動く状態になっている
+- [ ] ブラウザで動作確認した
+- [ ] GitHub に `self-introduction-practice` リポジトリを作成した（public）
+- [ ] 要件3の雛形を参考に `README.md` を **自分の言葉で** 作成した
+- [ ] `commit` と `push` を完了して、GitHubに反映されている
+
+> 💡 **これ以降のハンズオンでも README を作ろう**: ここで使った雛形のパターンは、これからのハンズオンでも使っていきます（技術スタックや学んだことの中身は、各ハンズオンの内容に合わせて書き換えてください）。あなたの学習履歴として残り、面談時にも見せられる資産になります。
+
 ---
 
 ## 🚀 まとめ
