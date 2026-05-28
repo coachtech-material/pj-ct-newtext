@@ -73,6 +73,59 @@ Chapter 2で学んだCRUD操作を実際に手を動かして確認します。�
 | PUT | /api/tasks/{id} | 更新 | 200 / 404 / 422 |
 | DELETE | /api/tasks/{id} | 削除 | 204 / 404 |
 
+### 📦 GitHubでのコード管理
+
+完成した成果物を **GitHubのpublicリポジトリ** で管理します。
+
+- `~/api-practice/11-2-8_hands-on/task-api-practice/` ディレクトリの中身（Laravelプロジェクト一式）を **publicリポジトリ** で管理する
+- リポジトリ名は **`task-api-practice`** とする
+- 下記の雛形をもとに、`README.md` を **自分の言葉で** 作成する
+- コミットとpushを完了させる
+
+> 💡 **`practice/` と `sample/` の使い分け**:
+> - **`task-api-practice/`** が **「提出物」** です。最終的にここにある成果物をGitHubに push します
+> - **`task-api-sample/`** は **「答え合わせ用」** で、ローカルでの比較確認のみに使います。GitHubには push しません
+
+<details>
+<summary>📄 README.md の雛形（クリックで展開）</summary>
+
+`task-api-practice/README.md` に、以下の雛形をベースに **自分の言葉で** 記載しましょう（Laravelデフォルトの README を置き換えてOK）。
+
+````markdown
+# task-api-practice
+
+## 概要
+COACHTECH 教材 Tutorial 11-2「タスク管理APIのCRUD実装」で作成した成果物です。
+（**ここに、何を作ったかを1〜2行で書きましょう**）
+
+## 使用技術
+- PHP 8.x
+- Laravel 10.x
+- REST API（CRUD）
+- API Resources、FormRequest（バリデーション）
+（**他に使ったものがあれば追記してください**）
+
+## 学んだこと
+- （**自分の言葉で2〜3項目書きましょう**）
+- 
+- 
+
+## 動作確認
+（**どうやって動かして確認するかを記載してください。例: Postman で各エンドポイントへリクエスト**）
+````
+
+> 💡 **「学んだこと」の書き方の例（参考）**:
+> - REST API の CRUD 実装（GET / POST / PUT / DELETE）と HTTP ステータスコードの使い分け
+> - `apiResource` ルートで5つのアクションを一括定義する方法
+> - API Resources / FormRequest によるレスポンス整形とバリデーション
+
+任意で以下も追加すると、より評価されやすくなります:
+- 詰まったポイントと解決方法
+- 開発の工夫
+- Postman の動作確認スクショ
+
+</details>
+
 ### ✅ 完成チェックリスト
 
 - [ ] `GET /api/tasks`でタスク一覧が取得できる（200）
@@ -982,6 +1035,33 @@ use Illuminate\Support\Facades\Route;
 
 Route::apiResource('tasks', TaskController::class);
 ```
+
+---
+
+## 📤 GitHubに push しよう
+
+5-1-7 で覚えた手順を使って、成果物をGitHubの **publicリポジトリ** に push しましょう。
+
+```bash
+# task-api-practice ディレクトリに移動
+cd ~/api-practice/11-2-8_hands-on/task-api-practice
+
+# Git の初期化、commit、リモート設定、push
+git init
+git add .
+git commit -m "first commit"
+git remote add origin <あなたのリポジトリのURL>
+git branch -M main
+git push -u origin main
+```
+
+> ⚠️ **詰まったときは**: Tutorial 5-1-7「📤 GitHubに push しよう」や Tutorial 4-4-2〜4-4-3 を見直してみましょう。
+
+### ✅ push 完了チェック
+
+- [ ] GitHub に `task-api-practice` リポジトリを作成した（**public** で作成）
+- [ ] 「📦 GitHubでのコード管理」の雛形を参考に `README.md` を **自分の言葉で** 作成した
+- [ ] `commit` と `push` を完了して、GitHubに反映されている
 
 ---
 
