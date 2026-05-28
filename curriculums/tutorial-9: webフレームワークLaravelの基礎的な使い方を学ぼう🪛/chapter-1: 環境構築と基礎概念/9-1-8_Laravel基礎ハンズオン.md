@@ -65,6 +65,60 @@ Chapter 1で学んだLaravelの基礎を実際に手を動かして確認しま�
 
 ---
 
+### 📦 GitHubでのコード管理
+
+完成した成果物を **GitHubのpublicリポジトリ** で管理します。
+
+- `~/laravel-practice/9-1-8_hands-on/profile-app-practice/` ディレクトリの中身（Laravelプロジェクト一式）を **publicリポジトリ** で管理する
+- リポジトリ名は **`profile-app-practice`** とする
+- 下記の雛形をもとに、`README.md` を **自分の言葉で** 作成する
+- コミットとpushを完了させる
+
+> 💡 **`practice/` と `sample/` の使い分け**:
+> - **`profile-app-practice/`** が **「提出物」** です。最終的にここにある成果物をGitHubに push します
+> - **`profile-app-sample/`** は **「答え合わせ用」** で、ローカルでの比較確認のみに使います。GitHubには push しません
+
+<details>
+<summary>📄 README.md の雛形（クリックで展開）</summary>
+
+`profile-app-practice/README.md` に、以下の雛形をベースに **自分の言葉で** 記載しましょう（Laravelデフォルトの README を置き換えてOK）。
+
+````markdown
+# profile-app-practice
+
+## 概要
+COACHTECH 教材 Tutorial 9-1「Laravel基礎ハンズオン」で作成した成果物です。
+（**ここに、何を作ったかを1〜2行で書きましょう**）
+
+## 使用技術
+- PHP 8.x
+- Laravel 10.x
+- Blade テンプレート
+（**他に使ったものがあれば追記してください**）
+
+## 学んだこと
+- （**自分の言葉で2〜3項目書きましょう**）
+- 
+- 
+
+## 動作確認
+（**どうやって動かして確認するかを記載してください**）
+````
+
+> 💡 **「学んだこと」の書き方の例（参考）**:
+> - Laravel の「ルーティング → コントローラー → ビュー」の基本フロー
+> - Blade テンプレートでの変数表示（`{{ $name }}`）と `@foreach` ループ
+> - コントローラーからビューへのデータ受け渡し（`view()` の第2引数）
+
+任意で以下も追加すると、より評価されやすくなります:
+- 詰まったポイントと解決方法
+- 開発の工夫
+- 動作確認のスクショ
+
+</details>
+
+---
+
 ### ✅ 完成チェックリスト
 
 - [ ] `/profile`にアクセスすると「プロフィール」というタイトルが表示される
@@ -766,6 +820,33 @@ cd ~/laravel-practice/9-1-8_hands-on/profile-app-sample
 ./vendor/bin/sail up -d
 # ブラウザで http://localhost/profile にアクセス
 ```
+
+---
+
+## 📤 GitHubに push しよう
+
+5-1-7 で覚えた手順を使って、成果物をGitHubの **publicリポジトリ** に push しましょう。
+
+```bash
+# profile-app-practice ディレクトリに移動
+cd ~/laravel-practice/9-1-8_hands-on/profile-app-practice
+
+# Git の初期化、commit、リモート設定、push
+git init
+git add .
+git commit -m "first commit"
+git remote add origin <あなたのリポジトリのURL>
+git branch -M main
+git push -u origin main
+```
+
+> ⚠️ **詰まったときは**: Tutorial 5-1-7「📤 GitHubに push しよう」や Tutorial 4-4-2〜4-4-3 を見直してみましょう。
+
+### ✅ push 完了チェック
+
+- [ ] GitHub に `profile-app-practice` リポジトリを作成した（**public** で作成）
+- [ ] 「📦 GitHubでのコード管理」の雛形を参考に `README.md` を **自分の言葉で** 作成した
+- [ ] `commit` と `push` を完了して、GitHubに反映されている
 
 ---
 
