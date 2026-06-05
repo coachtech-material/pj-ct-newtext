@@ -77,22 +77,22 @@ Chapter 2で学んだCRUD操作を実際に手を動かして確認します。�
 
 完成した成果物を **GitHubのpublicリポジトリ** で管理します。
 
-- `~/api-practice/11-2-8_hands-on/task-api-practice/` ディレクトリの中身（Laravelプロジェクト一式）を **publicリポジトリ** で管理する
-- リポジトリ名は **`task-api-practice`** とする
+- `~/api-practice/11-2-8_hands-on/task-crud-practice/` ディレクトリの中身（Laravelプロジェクト一式）を **publicリポジトリ** で管理する
+- リポジトリ名は **`task-crud-practice`** とする
 - 下記の雛形をもとに、`README.md` を **自分の言葉で** 作成する
 - コミットとpushを完了させる
 
 > 💡 **`practice/` と `sample/` の使い分け**:
-> - **`task-api-practice/`** が **「提出物」** です。最終的にここにある成果物をGitHubに push します
-> - **`task-api-sample/`** は **「答え合わせ用」** で、ローカルでの比較確認のみに使います。GitHubには push しません
+> - **`task-crud-practice/`** が **「提出物」** です。最終的にここにある成果物をGitHubに push します
+> - **`task-crud-sample/`** は **「答え合わせ用」** で、ローカルでの比較確認のみに使います。GitHubには push しません
 
 <details>
 <summary>📄 README.md の雛形（クリックで展開）</summary>
 
-`task-api-practice/README.md` に、以下の雛形をベースに **自分の言葉で** 記載しましょう（Laravelデフォルトの README を置き換えてOK）。
+`task-crud-practice/README.md` に、以下の雛形をベースに **自分の言葉で** 記載しましょう（Laravelデフォルトの README を置き換えてOK）。
 
 ````markdown
-# task-api-practice
+# task-crud-practice
 
 ## 概要
 COACHTECH 教材 Tutorial 11-2「タスク管理APIのCRUD実装」で作成した成果物です。
@@ -1043,8 +1043,8 @@ Route::apiResource('tasks', TaskController::class);
 5-1-7 で覚えた手順を使って、成果物をGitHubの **publicリポジトリ** に push しましょう。
 
 ```bash
-# task-api-practice ディレクトリに移動
-cd ~/api-practice/11-2-8_hands-on/task-api-practice
+# task-crud-practice ディレクトリに移動
+cd ~/api-practice/11-2-8_hands-on/task-crud-practice
 
 # Git の初期化、commit、リモート設定、push
 git init
@@ -1059,7 +1059,7 @@ git push -u origin main
 
 ### ✅ push 完了チェック
 
-- [ ] GitHub に `task-api-practice` リポジトリを作成した（**public** で作成）
+- [ ] GitHub に `task-crud-practice` リポジトリを作成した（**public** で作成）
 - [ ] 「📦 GitHubでのコード管理」の雛形を参考に `README.md` を **自分の言葉で** 作成した
 - [ ] `commit` と `push` を完了して、GitHubに反映されている
 
