@@ -183,6 +183,8 @@ COACHTECH 教材 Tutorial 9-4「Eloquent ORM ハンズオン演習」で作成�
 > ./vendor/bin/sail down
 > ```
 
+> 🪟 **Windowsの方へ**：以下のコマンドは **WSL（Ubuntu）のターミナル**で実行してください（PowerShellでは動きません）。WSLの準備は **6-2-1** を参照してください。
+
 ```bash
 # laravel-practiceディレクトリに移動
 cd ~/laravel-practice

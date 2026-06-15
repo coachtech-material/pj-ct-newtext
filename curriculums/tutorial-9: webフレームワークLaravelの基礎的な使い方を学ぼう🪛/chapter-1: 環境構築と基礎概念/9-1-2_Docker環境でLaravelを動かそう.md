@@ -75,6 +75,8 @@ cd laravel-practice
 
 本教材では**Laravel 10.x**の環境を中心に解説を行うため、以下のDockerコマンドで**Laravel 10.x**を明示的に指定してプロジェクトを作成します。
 
+> 🪟 **Windowsの方へ**：以下のコマンドは **WSL（Ubuntu）のターミナル**で実行してください（PowerShellでは動きません）。WSLの準備は **6-2-1** を参照してください。
+
 ```bash
 docker run --rm \
     -u "$(id -u):$(id -g)" \

@@ -126,6 +126,8 @@ SSHは、ネットワーク上で安全に通信するための仕組みです�
     Your public key has been saved in /c/Users/あなたのユーザー名/.ssh/id_ed25519.pub
     ```
 
+> 💡 **Windowsの方へ**：ここで作るSSHキーは **Windows側** に保存されます。Tutorial 6でDocker（WSL）を導入した後は、WSL（Ubuntu）側でも同じ手順でSSHキーを作成します（詳しくは 6-2-1 を参照）。いまはこのまま進めてください。
+
 #### Macの場合（ターミナル）
 
 1.  **ターミナルを開く**: Spotlight検索（`Cmd + Space`）で「ターミナル」と入力して起動します。
