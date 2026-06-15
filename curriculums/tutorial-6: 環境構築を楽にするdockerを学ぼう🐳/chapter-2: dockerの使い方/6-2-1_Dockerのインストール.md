@@ -74,6 +74,89 @@ docker run hello-world
 
 ---
 
+### 🪟 Windowsの方へ：これからの開発は「WSL（Ubuntu）」で行います
+
+ここまでで、WindowsにWSL 2（Linuxの実行環境）がインストールされました。**Windowsの方は、これ以降のコマンド操作を、PowerShellではなく「WSL（Ubuntu）」のターミナルで行います。** 少しだけ準備をしておきましょう。
+
+#### なぜWSL（Ubuntu）を使うのか？
+
+この教材で登場するコマンド（`docker run ...` や `sail ...` など）は、Linux/Macで使われる書き方で書かれています。WindowsのPowerShellでは、この書き方の一部（改行の `\` や `$(...)` など）が動きません。
+
+WSLは「Windowsの中で動く本物のLinux」なので、**教材のコマンドをそのまま、書き換えずに実行できます**。実務でも、WindowsでWeb開発をする際はWSLを使うのが一般的です。ここで慣れておきましょう。
+
+> 💡 **TIP**: Macの方は、お使いの「ターミナル」をそのまま使えます。この節は読み飛ばして、次の「Docker Desktopの使い方」に進んでください。
+
+#### 1. Ubuntu（WSL）のターミナルを開く
+
+スタートメニューで「**Ubuntu**」と検索し、起動します。初回起動時は、WSL内で使う**ユーザー名**と**パスワード**の設定を求められるので、入力してください（このパスワードは、後で `sudo` コマンドを使うときに必要になります）。
+
+> 💡 **TIP**: ここで作るユーザー名・パスワードは、Windowsのログイン情報とは別物です。WSL（Ubuntu）専用のものとして、忘れないようにメモしておきましょう。
+
+#### 2. VSCodeをWSLに接続する
+
+WSL内のファイルを、いつものVSCodeで編集できるようにします。
+
+1. VSCodeを開き、拡張機能から「**WSL**」を検索し、Microsoft製の「WSL」拡張機能をインストールします。
+2. Ubuntuのターミナルで、以下を実行します。
+
+   ```bash
+   code .
+   ```
+
+   初回は必要なコンポーネントが自動でインストールされ、WSLに接続された状態のVSCodeが開きます。VSCodeの左下に「**WSL: Ubuntu**」と表示されていれば成功です。
+
+> 💡 **TIP**: 左下が「WSL: Ubuntu」のとき、VSCode内のターミナル（`Ctrl + @`）は自動的にUbuntuのbashになります。つまり、**VSCode内のターミナルがそのままWSLの操作画面になります**。
+
+#### 3. 作業フォルダはWSL（Linux）側に置く
+
+WSLで開発するときは、**ファイルをWSL側のホームディレクトリ（`~`）に置く**のがおすすめです。WindowsのCドライブ（`/mnt/c/...`）に置くと、動作が遅くなったり、改行コードの違いで不具合が出ることがあります。
+
+```bash
+# WSLのホームに移動（ここが今後の作業の拠点）
+cd ~
+```
+
+> ⚠️ **注意**: Docker Desktopを開き、「Settings」>「Resources」>「WSL Integration」で「Ubuntu」がオンになっていることを確認してください。これがオフだと、Ubuntu内で `docker` コマンドが使えません。
+
+#### 4. Git設定とSSHキーを、WSL側にも用意する（重要）
+
+Tutorial 4で行ったGitの初期設定やSSHキーは、**Windows側**に保存されています。WSL（Ubuntu）は別の環境なので、**そのままではGitHubへpushできません**（`git push` 時に `Permission denied (publickey)` というエラーになります）。WSL内で、もう一度だけ設定しておきましょう。
+
+**(1) Gitの名前とメールを設定**（Tutorial 4-2-2と同じ内容）
+
+```bash
+git config --global user.name "Your Name"
+git config --global user.email "your_email@example.com"
+```
+
+**(2) SSHキーをWSL内で新しく作成**（Tutorial 4-2-3と同じ手順）
+
+```bash
+ssh-keygen -t ed25519 -C "your_email@example.com"
+```
+
+保存場所・パスフレーズの確認では、そのままEnterを押せばOKです。鍵は `~/.ssh/id_ed25519`（WSL側）に作られます。
+
+**(3) 公開鍵を表示してGitHubに登録**
+
+```bash
+cat ~/.ssh/id_ed25519.pub
+```
+
+表示された文字列をすべてコピーし、GitHubの「Settings」>「SSH and GPG keys」>「New SSH key」に貼り付けて登録します（Tutorial 4-2-3と同じ操作です）。
+
+**(4) 接続を確認**
+
+```bash
+ssh -T git@github.com
+```
+
+`Hi <ユーザー名>! You've successfully authenticated...` と表示されれば成功です。これで、WSL内からGitHubへpushできるようになりました。
+
+> 💡 **TIP**: なぜ作り直すの？ … SSHキーは「環境ごと」に持つのが基本です。Windows側とWSL側は別の場所なので、WSLで作業するならWSL側にも鍵が必要、というだけのことです。
+
+---
+
 ## 🖥️ Docker Desktopの使い方
 
 Docker Desktopは、コマンドラインだけでなく、GUI（グラフィカルユーザーインターフェース）でも、コンテナを管理することができます。特に、「コンテナが動いているかどうか」を確認したい時に、非常に便利です。

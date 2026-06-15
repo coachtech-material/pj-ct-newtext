@@ -87,6 +87,8 @@ cd laravel-api-starter
 
 ### 1-3. 依存パッケージのインストール
 
+> 🪟 **Windowsの方へ**：以下のコマンドは **WSL（Ubuntu）のターミナル**で実行してください（PowerShellでは動きません）。WSLの準備は **6-2-1** を参照してください。
+
 ```bash
 docker run --rm \
     -u "$(id -u):$(id -g)" \

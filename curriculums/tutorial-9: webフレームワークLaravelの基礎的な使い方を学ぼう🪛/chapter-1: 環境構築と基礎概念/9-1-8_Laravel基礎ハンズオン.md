@@ -149,6 +149,8 @@ COACHTECH 教材 Tutorial 9-1「Laravel基礎ハンズオン」で作成した�
 > 
 > 以下のコマンドを実行する前に、Docker Desktop（またはDocker Engine）が起動していることを確認してください。
 
+> 🪟 **Windowsの方へ**：以下のコマンドは **WSL（Ubuntu）のターミナル**で実行してください（PowerShellでは動きません）。WSLの準備は **6-2-1** を参照してください。
+
 ```bash
 # laravel-practiceディレクトリに移動
 cd ~/laravel-practice
