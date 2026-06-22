@@ -36,9 +36,9 @@ WindowsでDocker Desktopを利用するには、**WSL 2 (Windows Subsystem for L
 
     このコマンドが、必要なコンポーネントの有効化や、デフォルトのLinuxディストリビューション（通常はUbuntu）のインストールなどを、自動的に行ってくれます。完了後、PCの再起動を求められる場合があります。
 
-2.  **Docker Desktopのダウンロード**: 公式サイトの、[Docker Desktop for Windows](https://docs.docker.com/desktop/install/windows-install/) のページにアクセスし、「Docker Desktop for Windows」のボタンをクリックして、インストーラーをダウンロードします。
+2.  **Docker Desktopのダウンロード**: 公式サイトの、[Docker Desktop for Windows](https://docs.docker.com/desktop/setup/install/windows-install/) のページにアクセスし、「Docker Desktop for Windows」のボタンをクリックして、インストーラーをダウンロードします。
 
-3.  **インストーラーの実行**: ダウンロードした `.exe` ファイルをダブルクリックして、インストーラーを起動します。設定画面では、「Use WSL 2 instead of Hyper-V (recommended)」のチェックボックスが、オンになっていることを確認し、OKボタンを押します。インストールが完了したら、「Close and restart」ボタンで、PCを再起動します。
+3.  **インストーラーの実行**: ダウンロードした `.exe` ファイルをダブルクリックして、インストーラーを起動します。設定画面が表示されたら、特に変更せず、そのまま「OK」ボタンを押します（最近の環境では、WSL 2 が自動的に使われる設定になっているため、バックエンドを選ぶ項目は表示されません）。インストールが完了したら、「Close and restart」ボタンで、PCを再起動します。
 
 4.  **初回起動**: 再起動後、Docker Desktopが自動的に起動します。初回起動時には、利用規約への同意を求める画面が表示されるので、「I accept the terms」にチェックを入れ、「Accept」ボタンをクリックします。
 
@@ -46,7 +46,7 @@ WindowsでDocker Desktopを利用するには、**WSL 2 (Windows Subsystem for L
 
 Macへのインストールは、Windowsよりも、シンプルです。
 
-1.  **Docker Desktopのダウンロード**: 公式サイトの、[Docker Desktop for Mac](https://docs.docker.com/desktop/install/mac-install/) のページにアクセスします。お使いのMacのチップに応じて、「**Mac with Intel chip**」または「**Mac with Apple silicon**」の、どちらかのボタンをクリックして、インストーラー（`.dmg` ファイル）をダウンロードします。
+1.  **Docker Desktopのダウンロード**: 公式サイトの、[Docker Desktop for Mac](https://docs.docker.com/desktop/setup/install/mac-install/) のページにアクセスします。お使いのMacのチップに応じて、「**Mac with Intel chip**」または「**Mac with Apple silicon**」の、どちらかのボタンをクリックして、インストーラー（`.dmg` ファイル）をダウンロードします。
 
     *   **チップの確認方法**: 画面左上の、Appleメニュー >「このMacについて」を選択すると、プロセッサの項目に、「Intel」または「Apple M1/M2」などのチップ名が表示されます。
 
@@ -56,7 +56,9 @@ Macへのインストールは、Windowsよりも、シンプルです。
 
 ### ✅ インストールの確認
 
-Docker Desktopが、正しくインストールされ、起動していることを確認するために、ターミナル（Windowsの場合は、PowerShellまたはコマンドプロンプト）を開き、以下のコマンドを実行してみましょう。
+Docker Desktopが、正しくインストールされ、起動していることを確認しましょう。ターミナルを開き、以下のコマンドを実行してみます。
+
+> ⚠️ **Windowsの方へ**: この教材では、**6-2-1以降のコマンド操作を「WSL（Ubuntu）」のターミナルで行います**（理由は下の「これからの開発は『WSL（Ubuntu）』で行います」で説明します）。そのため、下の動作確認は、**WSLの準備（特に次に出てくる「WSL Integration」をオンにする手順）が終わってから、Ubuntuのターミナルで**実行してください。もしUbuntuで `docker --version` を実行して `The command 'docker' could not be found in this WSL 2 distro.`（dockerコマンドが見つからない）と表示される場合は、Docker DesktopのWSL連携がオフになっています。
 
 ```bash
 docker --version
@@ -92,7 +94,28 @@ WSLは「Windowsの中で動く本物のLinux」なので、**教材のコマン
 
 > 💡 **TIP**: ここで作るユーザー名・パスワードは、Windowsのログイン情報とは別物です。WSL（Ubuntu）専用のものとして、忘れないようにメモしておきましょう。
 
-#### 2. VSCodeをWSLに接続する
+#### 2. Docker DesktopとWSL（Ubuntu）を連携させる
+
+WindowsにインストールしたDocker Desktopを、WSL（Ubuntu）から使えるようにするための、大切な設定です。**この連携がオフだと、Ubuntuのターミナルで `docker` コマンドを実行したときに、次のようなエラーが表示されます。**
+
+```text
+The command 'docker' could not be found in this WSL 2 distro.
+We recommend to activate the WSL integration in Docker Desktop settings.
+```
+
+次の手順で、連携をオンにしましょう。
+
+1. **Docker Desktop** を起動します。
+2. 右上の歯車アイコン（**Settings**）をクリックします。
+3. 左メニューの **Resources** > **WSL Integration** を開きます。
+4. 「**Enable integration with my default WSL distro**」をオンにし、さらに下の一覧にある「**Ubuntu**」のトグルもオンにします。
+5. 右下の「**Apply & restart**」をクリックします。
+
+設定できたら、Ubuntuのターミナルで `docker --version` を実行してみましょう。バージョン情報が表示されれば、連携は成功です。
+
+> 💡 **TIP**: Docker Desktopが起動していないと、Ubuntu内の `docker` コマンドも動きません。開発中は、Docker Desktopを起動したままにしておきましょう。
+
+#### 3. VSCodeをWSLに接続する
 
 WSL内のファイルを、いつものVSCodeで編集できるようにします。
 
@@ -107,7 +130,7 @@ WSL内のファイルを、いつものVSCodeで編集できるようにしま�
 
 > 💡 **TIP**: 左下が「WSL: Ubuntu」のとき、VSCode内のターミナル（`Ctrl + @`）は自動的にUbuntuのbashになります。つまり、**VSCode内のターミナルがそのままWSLの操作画面になります**。
 
-#### 3. 作業フォルダはWSL（Linux）側に置く
+#### 4. 作業フォルダはWSL（Linux）側に置く
 
 WSLで開発するときは、**ファイルをWSL側のホームディレクトリ（`~`）に置く**のがおすすめです。WindowsのCドライブ（`/mnt/c/...`）に置くと、動作が遅くなったり、改行コードの違いで不具合が出ることがあります。
 
@@ -116,9 +139,7 @@ WSLで開発するときは、**ファイルをWSL側のホームディレクト
 cd ~
 ```
 
-> ⚠️ **注意**: Docker Desktopを開き、「Settings」>「Resources」>「WSL Integration」で「Ubuntu」がオンになっていることを確認してください。これがオフだと、Ubuntu内で `docker` コマンドが使えません。
-
-#### 4. Git設定とSSHキーを、WSL側にも用意する（重要）
+#### 5. Git設定とSSHキーを、WSL側にも用意する（重要）
 
 Tutorial 4で行ったGitの初期設定やSSHキーは、**Windows側**に保存されています。WSL（Ubuntu）は別の環境なので、**そのままではGitHubへpushできません**（`git push` 時に `Permission denied (publickey)` というエラーになります）。WSL内で、もう一度だけ設定しておきましょう。
 
