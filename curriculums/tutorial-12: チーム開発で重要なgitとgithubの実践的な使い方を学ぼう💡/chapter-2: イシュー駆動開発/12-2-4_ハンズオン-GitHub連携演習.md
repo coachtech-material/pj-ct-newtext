@@ -160,7 +160,7 @@ git commit -m "Initial commit"
 
 ```bash
 # リモートリポジトリを追加（URLは自分のものに置き換え）
-git remote add origin https://github.com/あなたのユーザー名/github-collab-practice.git
+git remote add origin git@github.com:あなたのユーザー名/github-collab-practice.git
 
 # プッシュ
 git push -u origin main
@@ -239,7 +239,7 @@ git commit -m "Initial commit"
 
 ```bash
 # リモートリポジトリを追加（URLは自分のものに置き換え）
-git remote add origin https://github.com/あなたのユーザー名/github-collab-sample.git
+git remote add origin git@github.com:あなたのユーザー名/github-collab-sample.git
 
 # プッシュ
 git push -u origin main
