@@ -79,7 +79,7 @@ git commit -m "Initial commit"
 git branch -M main
 
 # リモートリポジトリを追加
-git remote add origin https://github.com/あなたのユーザー名/task-manager.git
+git remote add origin git@github.com:あなたのユーザー名/task-manager.git
 
 # プッシュ
 git push -u origin main
