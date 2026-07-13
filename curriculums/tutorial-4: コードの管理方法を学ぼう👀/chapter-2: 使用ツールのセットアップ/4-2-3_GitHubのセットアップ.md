@@ -102,7 +102,7 @@ https://github.com/あなたのユーザー名
 
 **LMSの設定画面（「GitHub URL」の入力欄）**
 
-<img alt="4-2-3_3.png" src="">
+<img alt="4-2-3_3.png" src="https://coachtech-lms-bucket.s3.ap-northeast-1.amazonaws.com/question/20260713102617_CleanShot_2026-07-13_at_10.25.42_2x.png">
 
 > ⚠️ **注意**: 登録できるのは、`https://github.com/あなたのユーザー名` という形式のURLだけです。ユーザー名の後ろに、さらに `/` で続きがあるURLは登録できません。
 
