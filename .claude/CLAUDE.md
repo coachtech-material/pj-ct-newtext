@@ -25,8 +25,19 @@
 pj-ct-newtext/
 ├── .claude/                     # Claude Code設定
 │   ├── CLAUDE.md                # このファイル（プロジェクトルール）
+│   ├── settings.json            # 共有設定（編集時lintフック等）
+│   ├── agents/                  # サブエージェント定義
+│   │   ├── section-writer.md    # 執筆担当（量産ループの書き手）
+│   │   ├── independent-reviewer.md  # 独立レビュアー（検収）
+│   │   ├── learner-persona.md   # 学習者ペルソナ（通読レビュー）
+│   │   └── handson-verifier.md  # ハンズオン実機検証
+│   ├── hooks/                   # post-edit-lint.py（編集時の機械チェック）
+│   ├── scripts/                 # lint_curriculum.py（教材の機械チェック。書式・構造の単一の正）
 │   └── skills/                  # Claude Codeスキル
-│       └── verify-handson/      # /verify-handson スキル
+│       ├── section-write/       # 新規Section執筆（量産ループ）
+│       ├── style-lock/          # 量産前の様式ロック
+│       ├── section-fix/         # 既存Section修正ワークフロー
+│       └── verify-handson/      # ハンズオン検証（静的＋実機）
 │
 ├── curriculums/                 # 教材本体
 │   └── tutorial-{N}: {タイトル}/
@@ -41,6 +52,8 @@ pj-ct-newtext/
 │   ├── writing-rules.md         # 文体・スタイルルール
 │   ├── handson-structure.md     # ハンズオンSection構成ガイド
 │   ├── section-structure.md     # 通常Section構成ガイド
+│   ├── design-section-structure.md  # 設計Section構成ガイド（T14）
+│   ├── ai-exercise-structure.md # AI演習Section構成ガイド（T15/T16）＋フェーズ定型文の正本
 │   └── verification.md          # 検証ガイド
 │
 ├── references/                  # 過去の執筆ガイドライン（参照用）
@@ -203,10 +216,15 @@ Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
 |:---------|:---------------|
 | ハンズオンSectionの修正 | `guides/handson-structure.md` |
 | 通常Sectionの修正 | `guides/section-structure.md` |
+| 設計Section（T14）の執筆・修正 | `guides/design-section-structure.md` |
+| AI演習Section（T15/T16）の執筆・修正 | `guides/ai-exercise-structure.md` |
+| フェーズ別AIスタンス定型文の確認 | `guides/ai-exercise-structure.md`（P1〜P4の正本） |
 | 文体・表現のチェック | `guides/writing-rules.md` |
 | Sectionの検証 | `guides/verification.md` |
 | 過去のガイドラインの確認 | `references/complete_writing_guidelines_v15.md` |
 | ナノバナナ画像の生成・挿入 | `guides/nano-banana-workflow.md` |
+
+新規Sectionの量産執筆は `section-write` スキル、量産前の様式固めは `style-lock` スキルを使う。教材本文（`curriculums/**/*.md`）の編集時は PostToolUse フックが `.claude/scripts/lint_curriculum.py` を自動実行し、🔴 違反をフィードバックする（手動実行: `python3 .claude/scripts/lint_curriculum.py <file|dir>`）。
 
 ---
 

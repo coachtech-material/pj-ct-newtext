@@ -10,9 +10,9 @@
 # ローカル専用（個人の作業ログ・メモ・退避データ）
 local/
 
-# 画像生成の作業用ファイル（ローカル）
+# 画像生成の作業用ファイル（ローカル。ルートの scripts/ のみ。.claude/scripts/ は共有ツール）
 .banana-diagrams/
-scripts/
+/scripts/
 
 # エディタ設定（個人）
 .vscode/
