@@ -26,7 +26,7 @@ description: 新Tutorial量産前の様式ロック。決定録の確定→パ�
 
 ## 3. パイロット Section の試作
 
-- 対象は代表性で選ぶ: 概念 Section と演習 Section の両方の型を含む Chapter が望ましい（Stage 1 は 14-2-2 想定。導入章は性格が特殊なので避ける）
+- 対象は代表性で選ぶ: 概念 Section と演習 Section の両方の型を含む Chapter が望ましい（Stage 1 は 13-2-2 想定。導入章は性格が特殊なので避ける）
 - 執筆は `section-writer` エージェントに委任する（渡し方は `.claude/skills/section-write/SKILL.md` の「サブエージェントへの渡し方」に従う）。パイロットはロック前だが、このスキル経由の執筆はゲートの対象外
 
 ## 4. 検証（4点セット）

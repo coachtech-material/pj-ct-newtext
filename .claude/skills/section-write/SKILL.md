@@ -1,6 +1,6 @@
 ---
 name: section-write
-description: 新規Sectionの執筆ワークフロー（マイルストーンの章Issueベース）。「#276を執筆して」「14-1を書いて」「T14 Ch1を量産して」「次の章を書いて」など、新設Tutorial（T14/T15/T16等）のSectionを書き起こす依頼で必ず使う。既存Sectionの修正・Issue対応は section-fix を使う（棲み分け）。複数Sectionの量産はサブエージェント分担の量産ループで回す。
+description: 新規Sectionの執筆ワークフロー（マイルストーンの章Issueベース）。「#276を執筆して」「13-1を書いて」「T13 Ch1を量産して」「次の章を書いて」など、新設Tutorial（T13/T14/T15等）のSectionを書き起こす依頼で必ず使う。既存Sectionの修正・Issue対応は section-fix を使う（棲み分け）。複数Sectionの量産はサブエージェント分担の量産ループで回す。
 ---
 
 # 新規 Section 執筆ワークフロー (section-write)
@@ -12,8 +12,8 @@ description: 新規Sectionの執筆ワークフロー（マイルストーンの
 | 入力 | 対象 |
 |:--|:--|
 | `#276` / 「Issue 276」 | 章 Issue の全 Section（量産ループ） |
-| `14-1`（章番号） | `gh issue list --milestone` で対応する章 Issue を特定し、その全 Section |
-| `14-1-2`（節番号） | Section 単体 |
+| `13-1`（章番号） | `gh issue list --milestone` で対応する章 Issue を特定し、その全 Section |
+| `13-1-2`（節番号） | Section 単体 |
 
 ## 1. ゲート検査（最初に）
 
@@ -27,8 +27,8 @@ description: 新規Sectionの執筆ワークフロー（マイルストーンの
 
    | 対象 | 種別ガイド |
    |:--|:--|
-   | T14 の概念・設計演習 Section | `guides/design-section-structure.md` |
-   | T15 / T16 の概念・AI演習 Section | `guides/ai-exercise-structure.md` |
+   | T13 の概念・設計演習 Section | `guides/design-section-structure.md` |
+   | T14 / T15 の概念・AI演習 Section | `guides/ai-exercise-structure.md` |
    | 従来型ハンズオン Section | `guides/handson-structure.md` |
    | 通常 Section | `guides/section-structure.md` |
 

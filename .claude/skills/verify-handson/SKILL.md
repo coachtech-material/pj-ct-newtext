@@ -18,7 +18,7 @@ description: ハンズオン・演習Sectionの検証。要件・手順の完全
 
 1. `guides/handson-structure.md` - ハンズオン構成ガイド
 2. `guides/verification.md` - 検証ガイド
-3. AI演習Section（T15/T16）の場合: `guides/ai-exercise-structure.md`（「AI出力は毎回変わる」前提の検証観点）
+3. AI演習Section（T14/T15）の場合: `guides/ai-exercise-structure.md`（「AI出力は毎回変わる」前提の検証観点）
 
 ## ①静的チェックのワークフロー
 
@@ -58,7 +58,7 @@ description: ハンズオン・演習Sectionの検証。要件・手順の完全
 - [ ] 各ステップの文言が統一されているか
 - [ ] コードの一貫性（ステップ・模範解答・Blade）が保たれているか
 
-**5. AI演習Section（T15/T16）の追加観点**
+**5. AI演習Section（T14/T15）の追加観点**
 
 - [ ] 完成チェックリストが検証手段（テスト・受け入れ条件・動作確認）で書かれているか
 - [ ] 出力例・進行例に「毎回変わる」注記があるか

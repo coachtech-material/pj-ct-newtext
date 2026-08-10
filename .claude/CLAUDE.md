@@ -52,8 +52,8 @@ pj-ct-newtext/
 │   ├── writing-rules.md         # 文体・スタイルルール
 │   ├── handson-structure.md     # ハンズオンSection構成ガイド
 │   ├── section-structure.md     # 通常Section構成ガイド
-│   ├── design-section-structure.md  # 設計Section構成ガイド（T14）
-│   ├── ai-exercise-structure.md # AI演習Section構成ガイド（T15/T16）＋フェーズ定型文の正本
+│   ├── design-section-structure.md  # 設計Section構成ガイド（T13）
+│   ├── ai-exercise-structure.md # AI演習Section構成ガイド（T14/T15）＋フェーズ定型文の正本
 │   └── verification.md          # 検証ガイド
 │
 ├── references/                  # 過去の執筆ガイドライン（参照用）
@@ -217,8 +217,8 @@ Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
 |:---------|:---------------|
 | ハンズオンSectionの修正 | `guides/handson-structure.md` |
 | 通常Sectionの修正 | `guides/section-structure.md` |
-| 設計Section（T14）の執筆・修正 | `guides/design-section-structure.md` |
-| AI演習Section（T15/T16）の執筆・修正 | `guides/ai-exercise-structure.md` |
+| 設計Section（T13）の執筆・修正 | `guides/design-section-structure.md` |
+| AI演習Section（T14/T15）の執筆・修正 | `guides/ai-exercise-structure.md` |
 | フェーズ別AIスタンス定型文の確認 | `guides/ai-exercise-structure.md`（P1〜P4の正本） |
 | 文体・表現のチェック | `guides/writing-rules.md` |
 | Sectionの検証 | `guides/verification.md` |

@@ -147,7 +147,7 @@
 執筆中のマイルストーンブランチでは、プレビューで画像を確認できるよう `src` に**リポジトリ内の相対パス**を入れてよい（altと同名のファイルを指すこと）。
 
 ```html
-<img alt="14-2-2_1.png" src="../../../image/14-2-2_1.png">
+<img alt="13-2-2_1.png" src="../../../image/13-2-2_1.png">
 ```
 
 - ローカルエディタのプレビューとGitHub上の表示で画像が見える
@@ -155,7 +155,7 @@
 - 復元コマンド（対象Tutorialを指定して実行）:
 
 ```bash
-find "curriculums/tutorial-14: システム設計を学ぼう📐" -name '*.md' \
+find "curriculums/tutorial-13: システム設計を学ぼう📐" -name '*.md' \
   -exec perl -i -pe 's#src="(?:\.\./)+image/[^"]*"#src=""#g' {} +
 ```
 
