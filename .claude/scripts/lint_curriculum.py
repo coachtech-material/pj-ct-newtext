@@ -8,7 +8,8 @@
 使い方:
     python3 .claude/scripts/lint_curriculum.py [--release] [--json] <file|dir>...
 
-    --release はリリース（LMS反映）前検査: 執筆中は 🟡 の残作業（画像ファイル未配置）を 🔴 に昇格する。
+    --release はリリース（LMS反映）前検査: 執筆中は 🟡 の残作業（画像ファイル未配置）を 🔴 に昇格し、
+    執筆中の相対パス src の残存（img-src-not-restored）を 🔴 で検出する。
 
 検出ルール:
     🔴 broken-bold             CommonMark/GFM で太字が実際に壊れる ** の使い方
@@ -21,8 +22,11 @@
     🔴 absolute-path           環境依存の絶対パス（/Users/ /home/）。教材上のプレースホルダー
                                （YourName・あなたのユーザー名 等）は許容する
     🔴 img-alt-missing         <img> タグに alt 属性が無い・空
-    🔴 img-src-invalid         <img> タグの src が「空」でも「https URL」でもない
-                               （src は空にして GitHub Actions の S3 置換に任せるのが規約）
+    🔴 img-src-invalid         <img> タグの src が「空」「https URL」「執筆中の相対パス
+                               （../../../image/ファイル名。alt と同名）」のいずれでもない
+                               （リリース時は src を空にして GitHub Actions の S3 置換に任せるのが規約）
+    🔴 img-src-not-restored    執筆中の相対パス src の残存（--release のみ検出。
+                               リリース前に src="" へ一括復元する。guides/writing-rules.md 参照）
     🔴 phase-boilerplate-drift フェーズ別AIスタンス定型文（> 🔥 で始まる引用）が正本と不一致
                                （正本は guides/ai-exercise-structure.md の P1〜P4。コピーして使う運用）
     🟡 sentence-bold           文全体の太字（** の中身が 30 字以上。太字は語句・キーフレーズに限定する）
@@ -95,6 +99,9 @@ IMG_SRC_RE = re.compile(r'\bsrc\s*=\s*"([^"]*)"', re.IGNORECASE)
 
 # 画像ファイル名の命名規則: {T}-{C}-{S}_{連番}.png（旧形式 {T}-{C}_{連番}・概念図 _c{連番}・_v{版} 追記を許容）
 IMG_FILENAME_RE = re.compile(r"^\d+(-\d+){1,2}_c?\d+(_v\d+)?\.(png|jpg|jpeg|gif)$", re.IGNORECASE)
+
+# 執筆中の相対パス src（リポジトリの image/ を指す。リリース前に空へ戻す運用）
+REL_IMG_SRC_RE = re.compile(r"^(?:\.\./)+image/[^/\"]+$")
 
 # Markdown 形式画像（URL は空白か ) まで）
 MD_IMAGE_RE = re.compile(r"!\[([^\]]*)\]\(\s*([^)\s]*)[^)]*\)")
@@ -346,11 +353,34 @@ def lint_file(path: Path, phase_boilerplates: dict[str, str],
                     "（公開時に GitHub Actions が S3 URL へ自動置換します）",
                 ))
             elif src and not src.startswith(("https://", "http://")):
-                findings.append(Finding(
-                    display, lineno, SEVERITY_ERROR, "img-src-invalid",
-                    f'src「{src}」は規約外です。src="" と空で書くか（S3 置換用）、'
-                    "置換済みの https URL のままにしてください",
-                ))
+                if not REL_IMG_SRC_RE.match(src):
+                    findings.append(Finding(
+                        display, lineno, SEVERITY_ERROR, "img-src-invalid",
+                        f'src「{src}」は規約外です。空（S3 置換用）・置換済みの https URL・'
+                        '執筆中の相対パス（src="../../../image/ファイル名"）のいずれかにしてください',
+                    ))
+                else:
+                    # 執筆中の相対パス: リリース前検査では復元漏れとして 🔴
+                    if release:
+                        findings.append(Finding(
+                            display, lineno, SEVERITY_ERROR, "img-src-not-restored",
+                            f'執筆中の相対パス src「{src}」が残っています。リリース（LMS 反映）前に'
+                            ' src="" へ一括で戻してください（復元コマンドは guides/writing-rules.md 参照）',
+                        ))
+                    if alt:
+                        target = (Path(display).parent / src).resolve()
+                        if target != (IMAGE_DIR / alt).resolve():
+                            findings.append(Finding(
+                                display, lineno, SEVERITY_ERROR, "img-src-invalid",
+                                f'相対パス src「{src}」が alt「{alt}」の画像（image/{alt}）を指していません。'
+                                "src のファイル名は alt と同名にし、階層の深さを合わせてください",
+                            ))
+                        elif not target.is_file():
+                            findings.append(Finding(
+                                display, lineno, residue_severity, "image-file-missing",
+                                f"画像ファイル「image/{alt}」がまだありません"
+                                "（撮影後に配置してください。LMS 反映前には必須です）",
+                            ))
             # 画像ファイルの実在（src が空＝未置換のときだけ確認する）
             if alt and IMG_FILENAME_RE.match(alt) and src == "":
                 if not (IMAGE_DIR / alt).is_file():
@@ -460,7 +490,7 @@ def main(argv: list[str]) -> int:
     )
     parser.add_argument("paths", nargs="+", metavar="<file|dir>", help="検査対象の .md ファイルまたはディレクトリ")
     parser.add_argument("--release", action="store_true",
-                        help="リリース前検査（画像ファイル未配置を 🔴 に昇格）")
+                        help="リリース前検査（画像ファイル未配置を 🔴 に昇格し、相対パス src の残存を 🔴 で検出）")
     parser.add_argument("--json", action="store_true", dest="as_json", help="結果を JSON 配列で出力する")
     try:
         args = parser.parse_args(argv)

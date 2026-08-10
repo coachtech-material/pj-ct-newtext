@@ -182,7 +182,8 @@ pj-ct-newtext/
 ```
 
 - `alt`属性にファイル名を記載
-- `src`属性は**空**（後でGitHub Actionsで S3 URLに自動置換される）
+- `src`属性は**リリース時は空**（後でGitHub Actionsで S3 URLに自動置換される）
+- 執筆・レビュー中は `src` に相対パス（`../../../image/{ファイル名}`）を入れてプレビューしてよい。**リリース前に一括で空へ戻す**（`lint_curriculum.py --release` が復元漏れを検出。手順は `guides/writing-rules.md`）
 - 画像ファイルは `image/` ディレクトリに配置
 
 ### 概念図（ナノバナナ）

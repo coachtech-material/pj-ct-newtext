@@ -139,8 +139,25 @@
 ```
 
 - `alt`属性にファイル名を記載
-- `src`属性は空（GitHub Actionsで S3 URLに自動置換される）
+- `src`属性は**リリース時は空**（GitHub Actionsで S3 URLに自動置換される）
 - 画像の前に説明テキストを記載
+
+### 執筆・レビュー中のsrc（相対パス運用）
+
+執筆中のマイルストーンブランチでは、プレビューで画像を確認できるよう `src` に**リポジトリ内の相対パス**を入れてよい（altと同名のファイルを指すこと）。
+
+```html
+<img alt="14-2-2_1.png" src="../../../image/14-2-2_1.png">
+```
+
+- ローカルエディタのプレビューとGitHub上の表示で画像が見える
+- **リリース（LMS反映）前に一括で空へ戻す**。復元漏れは `python3 .claude/scripts/lint_curriculum.py --release curriculums/` が 🔴（img-src-not-restored）で検出する
+- 復元コマンド（対象Tutorialを指定して実行）:
+
+```bash
+find "curriculums/tutorial-14: システム設計を学ぼう📐" -name '*.md' \
+  -exec perl -i -pe 's#src="(?:\.\./)+image/[^"]*"#src=""#g' {} +
+```
 
 ### 配置ルール
 
