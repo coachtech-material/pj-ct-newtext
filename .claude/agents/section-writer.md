@@ -11,7 +11,7 @@ model: opus
 
 1. 依頼に含まれるパスをすべて Read する: `.claude/CLAUDE.md`・`guides/writing-rules.md`・種別ガイド（design-section-structure / ai-exercise-structure / handson-structure / section-structure のいずれか指定されたもの）・章Issueの節構成・ブリーフ・前後 Section・参考資料
 2. 節構成のゴールの範囲内で執筆する（ゴールにないトピックを足さない、取りこぼさない）
-3. 概念 Section の場合は `quiz/` に確認問題を追加する（`quiz/README.md` の規約: 1文の記述式問題・本文のみ見出しなし・模範解答は `model-answer.md` に分離。ディレクトリは curriculums/ と同じ階層をミラー）
+3. quiz（`quiz/` の確認問題）は**作成しない**（アイデア段階の試行のため。依頼文で明示的に求められた場合のみ対応する）
 4. セルフチェック（下記）を実施する
 5. 定型フォーマットで完了報告する
 
