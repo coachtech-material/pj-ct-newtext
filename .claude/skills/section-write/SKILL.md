@@ -13,6 +13,7 @@ description: 新規Sectionの執筆ワークフロー（マイルストーンの
 |:--|:--|
 | `#276` / 「Issue 276」 | 章 Issue の全 Section（量産ループ） |
 | `13-1`（章番号） | `gh issue list --milestone` で対応する章 Issue を特定し、その全 Section |
+| `T13` / `13`（Tutorial番号） | Tutorial 全体。対応するマイルストーン（Stage 1 は `stage1-design-ai`）から配下の章 Issue を特定し、章順に量産ループで処理 |
 | `13-1-2`（節番号） | Section 単体 |
 
 ## 1. ゲート検査（最初に）
@@ -47,18 +48,18 @@ description: 新規Sectionの執筆ワークフロー（マイルストーンの
 ## 4. 執筆
 
 - **単一 Section**: このセッションで執筆してよい。種別ガイドと執筆規律（`.claude/agents/section-writer.md` の「執筆規律」）に従う。quiz（`quiz/` の確認問題）はアイデア段階の試行のため**新規Sectionでは作成しない**
-- **複数 Section（章 Issue 単位以上）**: `references/production-loop.md` を Read し、そのプロトコルで進める。メインセッションはオーケストレーションに徹し、執筆・セルフチェックは `section-writer`、検収は `independent-reviewer` に分担する（書き手と審査員の分離）
+- **複数 Section（章 Issue 単位以上）**: `references/production-loop.md` を Read し、そのプロトコルで進める。量産ループのタスク単位は**1章**（1体の `section-writer` が章の全節を一括執筆する。ガイド・ブリーフの読み込みが章1回で済み、章内の用語・題材の一貫性も上がる）。メインセッションはオーケストレーションに徹し、執筆・セルフチェックは `section-writer`、検収は `independent-reviewer` に分担する（書き手と審査員の分離）
 
 ### サブエージェントへの渡し方
 
 - **ファイルパスで渡す**: ガイド類・章 Issue の節構成（本文を貼る）・ブリーフ・前後 Section・AI臭チェック基準（`.claude/skills/section-write/references/ai-slop-curriculum.md`）はパスで渡し、サブエージェント自身に Read させる。ルールの要約をプロンプトに埋め込まない
-- **完了報告は定型で受け取る**: `section-writer` の STATUS / FILES_CHANGED / REFERENCES_CONSULTED / SELF_CHECK / SCORE / CONCERNS。定型フィールド以外の自己申告は成果の根拠にしない
+- **完了報告は定型で受け取る**: `section-writer` の STATUS / FILES_CHANGED / REFERENCES_CONSULTED / SELF_CHECK / FIRST_TIME_SKILLS / SCORE / CONCERNS（章タスクでは FILES_CHANGED・SELF_CHECK・SCORE 等が節別に列挙される）。定型フィールド以外の自己申告は成果の根拠にしない
 - **検収条件**: REFERENCES_CONSULTED に種別ガイドが含まれていない報告は不合格として差し戻す
 
 ## 5. セルフチェック・検収
 
 1. **機械的検証**: `python3 .claude/scripts/lint_curriculum.py <対象>` — **新規ファイルは 🔴🟡 ともゼロ**（編集時 hook は 🔴 のみ通知するため、🟡 はここで必ず拾う）
-2. **独立レビュー**: `independent-reviewer` エージェントに対象パス・章 Issue 番号・種別ガイドを渡して検証させる。REJECTED なら REMEDIATION に沿って修正して再依頼する（最大2回。3回目も REJECTED ならユーザーにエスカレーション。量産ループ中は診断サブエージェントが置き換える）
+2. **独立レビュー**: `independent-reviewer` エージェントを**章まとめて1回**起動し、対象パス（章の全節）・章 Issue 番号・種別ガイドを渡して、**節別の指摘表**で返させる（単一 Section の執筆ではその Section だけを渡す）。REJECTED なら REMEDIATION に沿って一括修正し、**構造級の指摘**（説明の運び・節構成レベル）があった場合のみフル再レビューを再依頼する（最大2回。3回目も REJECTED ならユーザーにエスカレーション。量産ループ中は診断サブエージェントが置き換える）。**軽微**（文言・表記）のみなら一括修正後に lint ＋変更差分の確認で通す
 3. **quizを作っていないこと**: quiz はアイデア段階の試行のため、新規 Section では作成しない（誤って作られていたら削除する）
 
 ## 6. 完了処理
