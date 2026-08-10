@@ -11,13 +11,14 @@ Mermaidに標準記法の図種がない図（ユースケース図・ワイヤ�
 ```bash
 # リポジトリルートで実行。--window-size はSVGの width/height に合わせる
 "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --headless --disable-gpu \
-  --screenshot=image/14-2-2_1.png --window-size=920,560 --force-device-scale-factor=2 \
-  --default-background-color=FFFFFFFF "file://$(pwd)/image/diagram-src/14-2-2_1.svg"
+  --screenshot=image/13-2-2_1.png --window-size=920,560 --force-device-scale-factor=2 \
+  --default-background-color=FFFFFFFF "file://$(pwd)/image/diagram-src/13-2-2_1.svg"
 ```
 
 ## ファイル一覧
 
 | SVG | 出力PNG | サイズ | 内容 |
 |:----|:--------|:-------|:-----|
-| `14-2-2_1.svg` | `image/14-2-2_1.png` | 920×560 | ユースケース図の実例（図書館アプリ・アクター2） |
-| `14-2-2_2.svg` | `image/14-2-2_2.png` | 760×520 | 🏃答え合わせ（9-4-9ブログシステム・アクター1） |
+| `13-2-2_1.svg` | `image/13-2-2_1.png` | 920×560 | ユースケース図の実例（図書館アプリ・アクター2） |
+| `13-2-2_2.svg` | `image/13-2-2_2.png` | 760×520 | 🏃答え合わせ（9-4-9ブログシステム・アクター1） |
+| `13-2-3_1.svg` | `image/13-2-3_1.png` | 920×560 | 📖模範解答（カフェのモバイルオーダーアプリ・アクター2） |
