@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="790" viewBox="0 0 640 790">
+  <defs>
+    <style>
+      text { font-family: "Hiragino Sans", "Hiragino Kaku Gothic ProN", sans-serif; fill: #1a1a1a; }
+      .frame { fill: none; stroke: #1a1a1a; stroke-width: 2; }
+      .box { fill: #ffffff; stroke: #1a1a1a; stroke-width: 1.4; }
+      .divider { stroke: #1a1a1a; stroke-width: 1.4; }
+      .title { font-size: 17px; font-weight: 700; }
+      .name { font-size: 15px; font-weight: 600; }
+      .label { font-size: 14px; }
+      .small { font-size: 13px; }
+      .desc { font-size: 12.5px; fill: #555555; }
+      .note { font-size: 13px; fill: #555555; }
+    </style>
+  </defs>
+  <rect x="0" y="0" width="640" height="790" fill="#ffffff"/>
+
+  <!-- 画面1枚ぶんの外枠 -->
+  <rect x="60" y="30" width="520" height="720" class="frame"/>
+
+  <!-- 見出し -->
+  <rect x="90" y="46" width="200" height="42" class="box"/>
+  <text x="190" y="73" text-anchor="middle" class="title">メニュー</text>
+  <rect x="380" y="46" width="170" height="42" class="box"/>
+  <text x="465" y="72" text-anchor="middle" class="small">注文の状況を見る</text>
+
+  <!-- ドリンクの区分 -->
+  <rect x="90" y="104" width="150" height="38" class="box"/>
+  <text x="165" y="129" text-anchor="middle" class="label">ドリンク</text>
+
+  <!-- 商品1 -->
+  <rect x="90" y="156" width="460" height="118" class="box"/>
+  <text x="108" y="185" class="name">ブレンドコーヒー</text>
+  <text x="532" y="185" text-anchor="end" class="name">400円</text>
+  <text x="108" y="209" class="desc">深煎りの豆を、注文のたびに一杯ずつ淹れます</text>
+  <rect x="108" y="224" width="104" height="34" class="box"/>
+  <text x="160" y="246" text-anchor="middle" class="small">個数</text>
+  <rect x="326" y="224" width="210" height="34" class="box"/>
+  <text x="431" y="246" text-anchor="middle" class="small">カートに入れる</text>
+
+  <!-- 商品2（売り切れ） -->
+  <rect x="90" y="288" width="460" height="118" class="box"/>
+  <text x="108" y="317" class="name">カフェラテ</text>
+  <rect x="204" y="301" width="86" height="24" class="box"/>
+  <text x="247" y="318" text-anchor="middle" class="small">売り切れ</text>
+  <text x="532" y="317" text-anchor="end" class="name">450円</text>
+  <text x="108" y="341" class="desc">ミルクをたっぷり合わせた、飲みやすい一杯です</text>
+  <rect x="108" y="356" width="190" height="34" class="box"/>
+  <text x="203" y="378" text-anchor="middle" class="small">個数（選べません）</text>
+  <rect x="326" y="356" width="210" height="34" class="box"/>
+  <text x="431" y="378" text-anchor="middle" class="small">カートに入れる（押せません）</text>
+
+  <text x="320" y="434" text-anchor="middle" class="note">以下同じ</text>
+
+  <!-- 区切り -->
+  <line x1="60" y1="456" x2="580" y2="456" class="divider"/>
+
+  <!-- フードの区分 -->
+  <rect x="90" y="474" width="150" height="38" class="box"/>
+  <text x="165" y="499" text-anchor="middle" class="label">フード</text>
+
+  <!-- 商品3 -->
+  <rect x="90" y="526" width="460" height="118" class="box"/>
+  <text x="108" y="555" class="name">クロワッサン</text>
+  <text x="532" y="555" text-anchor="end" class="name">250円</text>
+  <text x="108" y="579" class="desc">朝に焼き上げた、バターの香るクロワッサンです</text>
+  <rect x="108" y="594" width="104" height="34" class="box"/>
+  <text x="160" y="616" text-anchor="middle" class="small">個数</text>
+  <rect x="326" y="594" width="210" height="34" class="box"/>
+  <text x="431" y="616" text-anchor="middle" class="small">カートに入れる</text>
+
+  <text x="320" y="686" text-anchor="middle" class="note">以下同じ</text>
+</svg>
