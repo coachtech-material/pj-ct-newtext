@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="520" viewBox="0 0 760 520">
+  <defs>
+    <style>
+      text { font-family: "Hiragino Sans", "Hiragino Kaku Gothic ProN", sans-serif; fill: #1a1a1a; }
+      .frame { fill: none; stroke: #1a1a1a; stroke-width: 2; }
+      .box { fill: #ffffff; stroke: #1a1a1a; stroke-width: 1.4; }
+      .title { font-size: 17px; font-weight: 700; }
+      .label { font-size: 15px; }
+      .btn { font-size: 15px; font-weight: 600; }
+    </style>
+  </defs>
+  <rect x="0" y="0" width="760" height="520" fill="#ffffff"/>
+
+  <!-- 画面1枚ぶんの外枠 -->
+  <rect x="40" y="30" width="680" height="460" class="frame"/>
+
+  <!-- 見出し -->
+  <rect x="70" y="46" width="620" height="42" class="box"/>
+  <text x="96" y="73" class="title">投稿作成</text>
+
+  <!-- タイトル -->
+  <rect x="70" y="110" width="130" height="44" class="box"/>
+  <text x="135" y="138" text-anchor="middle" class="label">タイトル</text>
+  <rect x="216" y="110" width="470" height="44" class="box"/>
+
+  <!-- 内容 -->
+  <rect x="70" y="176" width="130" height="44" class="box"/>
+  <text x="135" y="204" text-anchor="middle" class="label">内容</text>
+  <rect x="216" y="176" width="470" height="118" class="box"/>
+
+  <!-- 作成ボタン -->
+  <rect x="216" y="318" width="150" height="50" class="box"/>
+  <text x="291" y="349" text-anchor="middle" class="btn">作成</text>
+
+  <!-- 一覧に戻るリンク -->
+  <rect x="70" y="398" width="200" height="44" class="box"/>
+  <text x="170" y="426" text-anchor="middle" class="label">← 一覧に戻る</text>
+</svg>

@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="700" viewBox="0 0 640 700">
+  <defs>
+    <style>
+      text { font-family: "Hiragino Sans", "Hiragino Kaku Gothic ProN", sans-serif; fill: #1a1a1a; }
+      .frame { fill: none; stroke: #1a1a1a; stroke-width: 2; }
+      .box { fill: #ffffff; stroke: #1a1a1a; stroke-width: 1.4; }
+      .divider { stroke: #1a1a1a; stroke-width: 1.4; }
+      .title { font-size: 17px; font-weight: 700; }
+      .label { font-size: 15px; }
+      .sub { font-size: 13.5px; fill: #555555; }
+      .btn { font-size: 15px; font-weight: 600; }
+    </style>
+  </defs>
+  <rect x="0" y="0" width="640" height="700" fill="#ffffff"/>
+
+  <!-- 画面1枚ぶんの外枠 -->
+  <rect x="60" y="30" width="520" height="630" class="frame"/>
+
+  <!-- 見出し -->
+  <rect x="90" y="46" width="460" height="42" class="box"/>
+  <text x="320" y="73" text-anchor="middle" class="title">連絡先の入力</text>
+
+  <!-- 前の画面までに選んだもの（表示） -->
+  <rect x="90" y="108" width="460" height="54" class="box"/>
+  <text x="108" y="141" class="label">定期健診 ／ 10月3日 14:00</text>
+
+  <!-- 区切り -->
+  <line x1="60" y1="186" x2="580" y2="186" class="divider"/>
+
+  <!-- お名前 -->
+  <rect x="90" y="210" width="150" height="48" class="box"/>
+  <text x="165" y="240" text-anchor="middle" class="label">お名前</text>
+  <rect x="256" y="210" width="294" height="48" class="box"/>
+
+  <!-- 電話番号 -->
+  <rect x="90" y="280" width="150" height="48" class="box"/>
+  <text x="165" y="310" text-anchor="middle" class="label">電話番号</text>
+  <rect x="256" y="280" width="294" height="48" class="box"/>
+
+  <!-- メールアドレス -->
+  <rect x="90" y="350" width="150" height="48" class="box"/>
+  <text x="165" y="380" text-anchor="middle" class="label">メールアドレス</text>
+  <rect x="256" y="350" width="294" height="48" class="box"/>
+
+  <!-- ご希望の連絡方法 -->
+  <rect x="90" y="420" width="150" height="48" class="box"/>
+  <text x="165" y="443" text-anchor="middle" class="sub">ご希望の</text>
+  <text x="165" y="460" text-anchor="middle" class="sub">連絡方法</text>
+  <rect x="256" y="420" width="92" height="48" class="box"/>
+  <text x="302" y="450" text-anchor="middle" class="label">電話</text>
+  <rect x="364" y="420" width="110" height="48" class="box"/>
+  <text x="419" y="450" text-anchor="middle" class="label">メール</text>
+
+  <!-- 区切り -->
+  <line x1="60" y1="498" x2="580" y2="498" class="divider"/>
+
+  <!-- ボタン -->
+  <rect x="170" y="530" width="300" height="60" class="box"/>
+  <text x="320" y="567" text-anchor="middle" class="btn">入力内容を確認する</text>
+</svg>
