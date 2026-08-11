@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="700" viewBox="0 0 640 700">
+  <defs>
+    <style>
+      text { font-family: "Hiragino Sans", "Hiragino Kaku Gothic ProN", sans-serif; fill: #1a1a1a; }
+      .frame { fill: none; stroke: #1a1a1a; stroke-width: 2; }
+      .box { fill: #ffffff; stroke: #1a1a1a; stroke-width: 1.4; }
+      .title { font-size: 17px; font-weight: 700; }
+      .name { font-size: 15px; font-weight: 600; }
+      .label { font-size: 14px; }
+      .small { font-size: 13px; }
+      .note { font-size: 13px; fill: #555555; }
+    </style>
+  </defs>
+  <rect x="0" y="0" width="640" height="700" fill="#ffffff"/>
+
+  <!-- 画面1枚ぶんの外枠 -->
+  <rect x="60" y="30" width="520" height="630" class="frame"/>
+
+  <!-- 見出し -->
+  <rect x="90" y="46" width="240" height="42" class="box"/>
+  <text x="210" y="73" text-anchor="middle" class="title">経費を申請する</text>
+
+  <!-- 使った日 -->
+  <rect x="90" y="112" width="150" height="34" class="box"/>
+  <text x="165" y="134" text-anchor="middle" class="label">使った日</text>
+  <rect x="256" y="112" width="200" height="34" class="box"/>
+  <text x="356" y="134" text-anchor="middle" class="small">年 / 月 / 日</text>
+  <text x="472" y="134" class="note">必須</text>
+
+  <!-- 金額 -->
+  <rect x="90" y="164" width="150" height="34" class="box"/>
+  <text x="165" y="186" text-anchor="middle" class="label">金額</text>
+  <rect x="256" y="164" width="150" height="34" class="box"/>
+  <text x="331" y="186" text-anchor="middle" class="small">半角の数字</text>
+  <text x="416" y="186" class="small">円</text>
+  <text x="472" y="186" class="note">必須</text>
+
+  <!-- 費目 -->
+  <rect x="90" y="216" width="150" height="34" class="box"/>
+  <text x="165" y="238" text-anchor="middle" class="label">費目</text>
+  <rect x="256" y="216" width="200" height="34" class="box"/>
+  <text x="356" y="238" text-anchor="middle" class="small">選んでください</text>
+  <text x="472" y="238" class="note">必須</text>
+  <text x="256" y="270" class="note">交通費 / 書籍代 / 会議費 / その他 から1つ</text>
+
+  <!-- 用途 -->
+  <rect x="90" y="292" width="150" height="34" class="box"/>
+  <text x="165" y="314" text-anchor="middle" class="label">用途</text>
+  <rect x="256" y="292" width="200" height="34" class="box"/>
+  <text x="356" y="314" text-anchor="middle" class="small">何に使ったか</text>
+  <text x="472" y="314" class="note">必須</text>
+  <text x="256" y="346" class="note">100文字以内</text>
+
+  <!-- 差し戻しの理由（差し戻された申請を書き直すときだけ表示） -->
+  <rect x="90" y="382" width="460" height="96" class="box"/>
+  <text x="108" y="410" class="name">差し戻しの理由</text>
+  <text x="108" y="436" class="small">費目が会議費ではなく、交通費に見えます。</text>
+  <text x="108" y="460" class="note">差し戻された申請を書き直すときだけ表示する</text>
+
+  <!-- ボタン -->
+  <rect x="90" y="510" width="200" height="44" class="box"/>
+  <text x="190" y="538" text-anchor="middle" class="label">提出する</text>
+  <rect x="350" y="510" width="200" height="44" class="box"/>
+  <text x="450" y="538" text-anchor="middle" class="label">やめる</text>
+
+  <text x="320" y="600" text-anchor="middle" class="note">「提出する」を押すと、申請一覧画面へ戻る</text>
+</svg>
