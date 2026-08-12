@@ -219,7 +219,7 @@ Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
 | 通常Sectionの修正 | `guides/section-structure.md` |
 | 設計Section（T13）の執筆・修正 | `guides/design-section-structure.md` |
 | AI演習Section（T14/T15）の執筆・修正 | `guides/ai-exercise-structure.md` |
-| フェーズ別AIスタンス定型文の確認 | `guides/ai-exercise-structure.md`（P1〜P4の正本） |
+| AIスタンス・フェーズ定型文の確認 | `guides/ai-exercise-structure.md`（P1・P2の正本。P3・P4は廃止） |
 | 文体・表現のチェック | `guides/writing-rules.md` |
 | Sectionの検証 | `guides/verification.md` |
 | 過去のガイドラインの確認 | `references/complete_writing_guidelines_v15.md` |

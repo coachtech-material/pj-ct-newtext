@@ -28,7 +28,20 @@
     🔴 img-src-not-restored    執筆中の相対パス src の残存（--release のみ検出。
                                リリース前に src="" へ一括復元する。guides/writing-rules.md 参照）
     🔴 phase-boilerplate-drift フェーズ別AIスタンス定型文（> 🔥 で始まる引用）が正本と不一致
-                               （正本は guides/ai-exercise-structure.md の P1〜P4。コピーして使う運用）
+                               （正本は guides/ai-exercise-structure.md の P1・P2。T1〜T12 のみで使う）
+    🟡 phase-boilerplate-obsolete
+                               T13 以降に > 🔥 の定型文が残っている（P3・P4 は廃止。
+                               AI との距離感は Tutorial 冒頭で一度だけ書く）
+
+  文体ルール（guides/writing-rules.md「地の文の書き方」の機械判定分。すべて 🟡）:
+    🟡 transition-announce     節末の移行アナウンス（「次のセクション（14-2-3）では〜」）。
+                               次節タイトルと同じ情報なので置かない。積み残しの論点を渡す場合は
+                               内容を1文で書く（「〜は 13-4-2 で表にします」）
+    🟡 count-preview           個数予告の独立文（「手順は5つです。」）。直後のリストで数は分かる
+    🟡 rhetorical-question     反語（「では、〜のでしょうか。」）。答えから書く
+    🟡 mind-reading            読者の内心の代弁（「〜と思うかもしれません」）
+    🟡 wordy-phrase            冗長表現（〜することができます／〜を行います／〜という形になります）
+    🟡 contrast-overuse        二項対比「〜ではなく〜」が 1 ファイルに 3 箇所以上
     🟡 sentence-bold           文全体の太字（** の中身が 30 字以上。太字は語句・キーフレーズに限定する）
     🟡 img-alt-format          alt が画像ファイル名の命名規則（{N}-{M}-{S}_{連番}.png 等）に合っていない
     🟡 image-file-missing      src が空の <img> の alt が指す画像ファイルが image/ に無い（--release で 🔴）
@@ -109,6 +122,42 @@ MD_IMAGE_RE = re.compile(r"!\[([^\]]*)\]\(\s*([^)\s]*)[^)]*\)")
 # フェーズ別AIスタンス定型文（正本ガイドの見出しと引用行）
 PHASE_HEADING_RE = re.compile(r"^###\s+(P\d)\b")
 PHASE_QUOTE_PREFIX_RE = re.compile(r"^ {0,3}>\s*🔥")
+
+# 定型文を廃止した Tutorial（T13 以降。P3・P4 廃止）
+NO_BOILERPLATE_TUTORIAL_RE = re.compile(r"tutorial-(1[3-9]|[2-9]\d)")
+
+# --- 文体ルール（guides/writing-rules.md「地の文の書き方」の機械判定分） ---
+
+# 節末の移行アナウンス（次節タイトルと同じ情報。積み残しの論点を渡す形は別記法にする）
+TRANSITION_RE = re.compile(r"次の(?:セクション|Section|節)\s*[（(]\s*\d+-\d+-\d+")
+
+# 個数予告の独立文（直後にリスト・表が来るのに個数だけ宣言する1文段落）
+COUNT_PREVIEW_RE = re.compile(
+    r"^[^\s|>*+#-].{0,30}?[はが]\s*[0-9０-９一二三四五六七八九十]+\s*つ(?:です|あります)。$"
+)
+
+# 反語（答えが決まっている問いを投げ、次の段落で自分で答える）
+# 地の文のみを対象にする。引用（依頼者の相談文）・表・箇条書き（演習で学習者に
+# 考えさせる問い、設計の穴の例示リスト）は正当な用法なので除外する。
+RHETORICAL_RE = re.compile(r"(?:のでしょうか|でしょうか)。")
+NON_PROSE_LINE_RE = re.compile(r"^\s*(?:[>|]|[-*+]\s|\d+[.)]\s|#{1,6}\s)")
+
+# 読者の内心の代弁
+MIND_READING_RE = re.compile(r"(?:と思う|気になる|感じる|思われる)かもしれません")
+
+# 冗長表現（同義でより短い形がある）
+WORDY_PHRASES = {
+    "することができ": "〜できます",
+    "することが可能": "〜できます",
+    "を行います": "〜します",
+    "を行う": "〜する",
+    "という形になります": "〜になります",
+    "といった形になります": "〜になります",
+}
+
+# 二項対比（1 Section に 2 回まで）
+CONTRAST_RE = re.compile(r"ではなく")
+CONTRAST_LIMIT = 2
 
 # Step 見出し（## / ### / #### の「Step N」。🏃 等の前置きも許容）
 STEP_HEADING_RE = re.compile(r"^ {0,3}#{2,4}\s*[^#\n]*?\bStep\s*(\d+)\b")
@@ -258,6 +307,11 @@ def lint_file(path: Path, phase_boilerplates: dict[str, str],
 
     residue_severity = SEVERITY_ERROR if release else SEVERITY_WARNING
 
+    # T13 以降はフェーズ定型文を廃止済み（残っていれば書き直しの残作業として 🟡）
+    boilerplate_obsolete = bool(NO_BOILERPLATE_TUTORIAL_RE.search(display))
+
+    contrast_hits: list[int] = []  # 二項対比の出現行（上限超過を1件にまとめて報告する）
+
     for lineno, raw in enumerate(lines, start=1):
         # blockquote 記号（> ）を剥がしてフェンス判定する（引用内のコードブロックに対応）
         bq = BLOCKQUOTE_PREFIX_RE.match(raw)
@@ -314,13 +368,20 @@ def lint_file(path: Path, phase_boilerplates: dict[str, str],
                 ))
             step_expect = n + 1
 
-        # フェーズ別AIスタンス定型文の正本一致（> 🔥 で始まる引用行）
-        if phase_boilerplates and PHASE_QUOTE_PREFIX_RE.match(visible):
-            if visible.rstrip() not in phase_boilerplates.values():
+        # フェーズ別AIスタンス定型文（> 🔥 で始まる引用行）
+        if PHASE_QUOTE_PREFIX_RE.match(visible):
+            if boilerplate_obsolete:
+                findings.append(Finding(
+                    display, lineno, SEVERITY_WARNING, "phase-boilerplate-obsolete",
+                    "廃止済みのフェーズ定型文（> 🔥）が残っています。P3・P4 は廃止しました。"
+                    "AI との距離感は Tutorial の冒頭で一度だけ書きます"
+                    "（guides/ai-exercise-structure.md「廃止したP3・P4」）",
+                ))
+            elif phase_boilerplates and visible.rstrip() not in phase_boilerplates.values():
                 findings.append(Finding(
                     display, lineno, SEVERITY_ERROR, "phase-boilerplate-drift",
                     "フェーズ別AIスタンス定型文（> 🔥）が正本と一致しません。"
-                    "guides/ai-exercise-structure.md の P1〜P4 からコピーしてください"
+                    "guides/ai-exercise-structure.md の P1・P2 からコピーしてください"
                     "（文言を変える場合はガイドを先に更新し、全 Section へ一括反映する運用です）",
                 ))
 
@@ -403,6 +464,48 @@ def lint_file(path: Path, phase_boilerplates: dict[str, str],
         # 以降はインラインコードを除外した本文で検査
         work = mask_inline_code(visible)
 
+        # ---- 文体ルール（guides/writing-rules.md「地の文の書き方」） ----
+
+        if TRANSITION_RE.search(work):
+            findings.append(Finding(
+                display, lineno, SEVERITY_WARNING, "transition-announce",
+                "節末の移行アナウンスです。次節のタイトルが同じ情報を持つため置きません。"
+                "積み残した論点を渡す場合だけ、1文で内容を書いてください"
+                "（例: 「誰がどの機能を使ってよいかは 13-4-2 で表にします」）",
+            ))
+
+        stripped = work.strip()
+        if COUNT_PREVIEW_RE.match(stripped):
+            findings.append(Finding(
+                display, lineno, SEVERITY_WARNING, "count-preview",
+                f"個数予告の独立文です（「{stripped}」）。直後のリストを見れば数は分かるため、"
+                "予告せずリストを出してください",
+            ))
+
+        if RHETORICAL_RE.search(work) and not NON_PROSE_LINE_RE.match(work):
+            findings.append(Finding(
+                display, lineno, SEVERITY_WARNING, "rhetorical-question",
+                "反語で読者を引っ張る書き方です（答えが決まっている問いを投げ、"
+                "次の段落で自分で答える形）。答えから書いてください。"
+                "演習で学習者に考えさせる問いなら、箇条書きにするか設問として明示してください",
+            ))
+
+        if MIND_READING_RE.search(work):
+            findings.append(Finding(
+                display, lineno, SEVERITY_WARNING, "mind-reading",
+                "読者の内心の代弁です。読者が思っていない疑問を代弁してから否定する形は使いません",
+            ))
+
+        for phrase, better in WORDY_PHRASES.items():
+            if phrase in work:
+                findings.append(Finding(
+                    display, lineno, SEVERITY_WARNING, "wordy-phrase",
+                    f"冗長表現「{phrase}」です。「{better}」の形にしてください",
+                ))
+
+        if CONTRAST_RE.search(work):
+            contrast_hits.append(lineno)
+
         # ダッシュ記号
         dashes = sorted({ch for ch in work if ch in DASH_CHARS})
         if dashes:
@@ -438,6 +541,16 @@ def lint_file(path: Path, phase_boilerplates: dict[str, str],
                 ))
 
     # ---- ファイル全体の構造チェック ----
+    if len(contrast_hits) > CONTRAST_LIMIT:
+        shown = "・".join(str(n) for n in contrast_hits[:8])
+        more = f" ほか{len(contrast_hits) - 8}箇所" if len(contrast_hits) > 8 else ""
+        findings.append(Finding(
+            display, contrast_hits[0], SEVERITY_WARNING, "contrast-overuse",
+            f"二項対比「〜ではなく〜」が {len(contrast_hits)} 箇所あります"
+            f"（上限 {CONTRAST_LIMIT}。行: {shown}{more}）。"
+            "多くは「〜です」と直接書けます",
+        ))
+
     if not has_goal:
         findings.append(Finding(
             display, 1, SEVERITY_WARNING, "missing-goal-heading",

@@ -16,7 +16,7 @@ description: 新Tutorial量産前の様式ロック。決定録の確定→パ�
 論点の探し方:
 
 - 種別ガイド（`guides/design-section-structure.md`・`guides/ai-exercise-structure.md`）と既存ガイド（writing-rules / handson-structure / section-structure）の間で、まだ決まっていないこと・矛盾しうることを突き合わせる
-- 例: 設計演習の見出し文言の確定形、教材に載せる Mermaid 図のスタイル（テーマ・方向）、draw.io 操作説明の画像密度、概念 Section での quiz の粒度、演習 Section への 4,000 字基準の適用有無、模範解答の折りたたみ有無
+- 例: 設計演習の見出し文言の確定形、教材に載せる図の書き出し設定（画像サイズ・解像度）、draw.io 操作説明の画像密度、概念 Section での quiz の粒度、模範解答の折りたたみ有無
 
 **確定値の記録先はガイド本体**です（このリポジトリは guides/ が様式の単一の正）。承認された決定は該当ガイドへ反映し、決定録ファイルを別に作りません。
 
