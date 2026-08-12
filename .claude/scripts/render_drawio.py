@@ -78,13 +78,17 @@ def scale_styles(xml: str, factor: float) -> str:
     return re.sub(r'style="([^"]*)"', repl, xml)
 
 
-def content_size(xml: str) -> tuple[float, float]:
-    """図形の座標から、描画に必要な幅と高さを見積もる。"""
+def _extent(xml: str) -> tuple[list[float], list[float]]:
+    """図形の外接矩形と、線の端点・折れ点（mxPoint）から座標の範囲を集める。
+
+    自由に置いた線（source/target を持たず mxPoint だけで位置を決める線）は
+    mxGeometry を持たないため、mxPoint も見ないと図の左右がずれる。
+    """
     xs: list[float] = []
     ys: list[float] = []
     for m in re.finditer(r"<mxGeometry\b[^>]*/?>", xml):
         tag = m.group(0)
-        if 'as="geometry"' not in tag:
+        if 'as="geometry"' not in tag or 'relative="1"' in tag:
             continue
         x = re.search(r'\bx="(-?[\d.]+)"', tag)
         y = re.search(r'\by="(-?[\d.]+)"', tag)
@@ -94,6 +98,20 @@ def content_size(xml: str) -> tuple[float, float]:
             xs.extend([float(x.group(1)), float(x.group(1)) + float(w.group(1))])
         if y and h:
             ys.extend([float(y.group(1)), float(y.group(1)) + float(h.group(1))])
+    for m in re.finditer(r"<mxPoint\b[^>]*/?>", xml):
+        tag = m.group(0)
+        x = re.search(r'\bx="(-?[\d.]+)"', tag)
+        y = re.search(r'\by="(-?[\d.]+)"', tag)
+        if x:
+            xs.append(float(x.group(1)))
+        if y:
+            ys.append(float(y.group(1)))
+    return xs, ys
+
+
+def content_size(xml: str) -> tuple[float, float]:
+    """図形の座標から、描画に必要な幅と高さを見積もる。"""
+    xs, ys = _extent(xml)
     if not xs or not ys:
         raise SystemExit("図形の座標を読み取れませんでした（mxGeometry が見つかりません）")
     return max(xs) - min(xs), max(ys) - min(ys)
@@ -105,20 +123,7 @@ def add_padding(xml: str, margin: float) -> str:
     draw.io は図形の外接矩形に合わせて描画位置を決めるため、線端の ER 記号が
     図形の外へはみ出すぶんだけ左右が切れる。透明な枠を置いて外接矩形を広げる。
     """
-    xs: list[float] = []
-    ys: list[float] = []
-    for m in re.finditer(r"<mxGeometry\b[^>]*/?>", xml):
-        tag = m.group(0)
-        if 'as="geometry"' not in tag:
-            continue
-        x = re.search(r'\bx="(-?[\d.]+)"', tag)
-        y = re.search(r'\by="(-?[\d.]+)"', tag)
-        w = re.search(r'\bwidth="(-?[\d.]+)"', tag)
-        h = re.search(r'\bheight="(-?[\d.]+)"', tag)
-        if x and w:
-            xs.extend([float(x.group(1)), float(x.group(1)) + float(w.group(1))])
-        if y and h:
-            ys.extend([float(y.group(1)), float(y.group(1)) + float(h.group(1))])
+    xs, ys = _extent(xml)
     pad = (
         f'<mxCell id="__pad" value="" '
         f'style="rounded=0;fillColor=none;strokeColor=none;" vertex="1" parent="1">'
