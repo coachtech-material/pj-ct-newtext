@@ -1,0 +1,63 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="13-6-4_2">
+    <mxGraphModel dx="900" dy="600" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <mxCell id="start" value="" style="ellipse;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#000000;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="100" y="40" width="30" height="30" as="geometry" />
+        </mxCell>
+
+        <mxCell id="s1" value="支払い待ち" style="rounded=0;whiteSpace=wrap;html=1;fontSize=15;fontStyle=1;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="30" y="140" width="170" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="s2" value="受け取り前" style="rounded=0;whiteSpace=wrap;html=1;fontSize=15;fontStyle=1;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="30" y="360" width="170" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="s3" value="受け渡し済み" style="rounded=0;whiteSpace=wrap;html=1;fontSize=15;fontStyle=1;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="30" y="580" width="170" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="s4" value="取り消し済み" style="rounded=0;whiteSpace=wrap;html=1;fontSize=15;fontStyle=1;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="470" y="250" width="170" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="end1" value="" style="ellipse;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#000000;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="98" y="720" width="34" height="34" as="geometry" />
+        </mxCell>
+        <mxCell id="end1i" value="" style="ellipse;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#000000;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="105" y="727" width="20" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="end2" value="" style="ellipse;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#000000;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="538" y="400" width="34" height="34" as="geometry" />
+        </mxCell>
+        <mxCell id="end2i" value="" style="ellipse;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#000000;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="545" y="407" width="20" height="20" as="geometry" />
+        </mxCell>
+
+        <mxCell id="t1" value="" style="html=1;rounded=0;strokeWidth=1.5;fontSize=13;labelBackgroundColor=#FFFFFF;endArrow=classic;endFill=1;endSize=8;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="start" target="s1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="t2" value="支払いが済んだ知らせが届く" style="html=1;rounded=0;strokeWidth=1.5;fontSize=13;labelBackgroundColor=#FFFFFF;endArrow=classic;endFill=1;endSize=8;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="s1" target="s2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="t3" value="支払いが済まないまま終わる" style="html=1;rounded=0;strokeWidth=1.5;fontSize=13;labelBackgroundColor=#FFFFFF;endArrow=classic;endFill=1;endSize=8;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.25;entryDx=0;entryDy=0;" edge="1" parent="1" source="s1" target="s4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="t4" value="お客さまが取り消す" style="html=1;rounded=0;strokeWidth=1.5;fontSize=13;labelBackgroundColor=#FFFFFF;endArrow=classic;endFill=1;endSize=8;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.75;entryDx=0;entryDy=0;" edge="1" parent="1" source="s2" target="s4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="t5" value="店員が受け渡し済みにする" style="html=1;rounded=0;strokeWidth=1.5;fontSize=13;labelBackgroundColor=#FFFFFF;endArrow=classic;endFill=1;endSize=8;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="s2" target="s3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="t6" value="" style="html=1;rounded=0;strokeWidth=1.5;fontSize=13;labelBackgroundColor=#FFFFFF;endArrow=classic;endFill=1;endSize=8;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="s3" target="end1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="t7" value="" style="html=1;rounded=0;strokeWidth=1.5;fontSize=13;labelBackgroundColor=#FFFFFF;endArrow=classic;endFill=1;endSize=8;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="s4" target="end2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

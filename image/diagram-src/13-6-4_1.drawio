@@ -1,0 +1,78 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="13-6-4_1">
+    <mxGraphModel dx="900" dy="600" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <mxCell id="p1" value="お客さま" style="rounded=0;whiteSpace=wrap;html=1;fontSize=15;fontStyle=1;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="40" y="40" width="210" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="p2" value="アプリ" style="rounded=0;whiteSpace=wrap;html=1;fontSize=15;fontStyle=1;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="330" y="40" width="210" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="p3" value="データベース" style="rounded=0;whiteSpace=wrap;html=1;fontSize=15;fontStyle=1;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="620" y="40" width="210" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="p4" value="外部の決済サービス" style="rounded=0;whiteSpace=wrap;html=1;fontSize=15;fontStyle=1;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="910" y="40" width="210" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="l1" style="html=1;rounded=0;strokeWidth=1.5;endArrow=none;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" edge="1" parent="1" source="p1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="145" y="710" as="targetPoint" /></mxGeometry>
+        </mxCell>
+        <mxCell id="l2" style="html=1;rounded=0;strokeWidth=1.5;endArrow=none;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" edge="1" parent="1" source="p2">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="435" y="710" as="targetPoint" /></mxGeometry>
+        </mxCell>
+        <mxCell id="l3" style="html=1;rounded=0;strokeWidth=1.5;endArrow=none;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" edge="1" parent="1" source="p3">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="725" y="710" as="targetPoint" /></mxGeometry>
+        </mxCell>
+        <mxCell id="l4" style="html=1;rounded=0;strokeWidth=1.5;endArrow=none;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" edge="1" parent="1" source="p4">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="1015" y="710" as="targetPoint" /></mxGeometry>
+        </mxCell>
+
+        <mxCell id="m1" value="選んだ商品と個数を送る" style="html=1;rounded=0;strokeWidth=1.5;fontSize=13;labelBackgroundColor=#FFFFFF;verticalAlign=bottom;endArrow=classic;endFill=1;endSize=8;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="145" y="140" as="sourcePoint" /><mxPoint x="435" y="140" as="targetPoint" /></mxGeometry>
+        </mxCell>
+        <mxCell id="m2" value="商品の値段と、売り切れかどうかを読む" style="html=1;rounded=0;strokeWidth=1.5;fontSize=13;labelBackgroundColor=#FFFFFF;verticalAlign=bottom;endArrow=classic;endFill=1;endSize=8;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="435" y="188" as="sourcePoint" /><mxPoint x="725" y="188" as="targetPoint" /></mxGeometry>
+        </mxCell>
+        <mxCell id="m3" value="商品の情報を返す" style="html=1;rounded=0;strokeWidth=1.5;fontSize=13;labelBackgroundColor=#FFFFFF;verticalAlign=bottom;endArrow=classic;endFill=1;endSize=8;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="725" y="236" as="sourcePoint" /><mxPoint x="435" y="236" as="targetPoint" /></mxGeometry>
+        </mxCell>
+        <mxCell id="m4" value="注文と注文明細を書き込む" style="html=1;rounded=0;strokeWidth=1.5;fontSize=13;labelBackgroundColor=#FFFFFF;verticalAlign=bottom;endArrow=classic;endFill=1;endSize=8;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="435" y="284" as="sourcePoint" /><mxPoint x="725" y="284" as="targetPoint" /></mxGeometry>
+        </mxCell>
+        <mxCell id="m5" value="書き込めたことを返す" style="html=1;rounded=0;strokeWidth=1.5;fontSize=13;labelBackgroundColor=#FFFFFF;verticalAlign=bottom;endArrow=classic;endFill=1;endSize=8;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="725" y="332" as="sourcePoint" /><mxPoint x="435" y="332" as="targetPoint" /></mxGeometry>
+        </mxCell>
+        <mxCell id="m6" value="注文番号と、支払いに進む先を返す" style="html=1;rounded=0;strokeWidth=1.5;fontSize=13;labelBackgroundColor=#FFFFFF;verticalAlign=bottom;endArrow=classic;endFill=1;endSize=8;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="435" y="380" as="sourcePoint" /><mxPoint x="145" y="380" as="targetPoint" /></mxGeometry>
+        </mxCell>
+        <mxCell id="m7" value="支払いの手続きをする" style="html=1;rounded=0;strokeWidth=1.5;fontSize=13;labelBackgroundColor=#FFFFFF;verticalAlign=bottom;endArrow=classic;endFill=1;endSize=8;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="145" y="428" as="sourcePoint" /><mxPoint x="1015" y="428" as="targetPoint" /></mxGeometry>
+        </mxCell>
+        <mxCell id="m8" value="支払いが済んだことを知らせる" style="html=1;rounded=0;strokeWidth=1.5;fontSize=13;labelBackgroundColor=#FFFFFF;verticalAlign=bottom;endArrow=classic;endFill=1;endSize=8;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="1015" y="476" as="sourcePoint" /><mxPoint x="435" y="476" as="targetPoint" /></mxGeometry>
+        </mxCell>
+        <mxCell id="m9" value="注文の状態を書き換える" style="html=1;rounded=0;strokeWidth=1.5;fontSize=13;labelBackgroundColor=#FFFFFF;verticalAlign=bottom;endArrow=classic;endFill=1;endSize=8;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="435" y="524" as="sourcePoint" /><mxPoint x="725" y="524" as="targetPoint" /></mxGeometry>
+        </mxCell>
+        <mxCell id="m10" value="書き換えられたことを返す" style="html=1;rounded=0;strokeWidth=1.5;fontSize=13;labelBackgroundColor=#FFFFFF;verticalAlign=bottom;endArrow=classic;endFill=1;endSize=8;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="725" y="572" as="sourcePoint" /><mxPoint x="435" y="572" as="targetPoint" /></mxGeometry>
+        </mxCell>
+        <mxCell id="m11" value="支払いを終えて戻ってくる" style="html=1;rounded=0;strokeWidth=1.5;fontSize=13;labelBackgroundColor=#FFFFFF;verticalAlign=bottom;endArrow=classic;endFill=1;endSize=8;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="145" y="620" as="sourcePoint" /><mxPoint x="435" y="620" as="targetPoint" /></mxGeometry>
+        </mxCell>
+        <mxCell id="m12" value="注文完了画面を映す" style="html=1;rounded=0;strokeWidth=1.5;fontSize=13;labelBackgroundColor=#FFFFFF;verticalAlign=bottom;endArrow=classic;endFill=1;endSize=8;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="435" y="668" as="sourcePoint" /><mxPoint x="145" y="668" as="targetPoint" /></mxGeometry>
+        </mxCell>
+
+        <mxCell id="frame" value="" style="rounded=0;fillColor=none;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry x="40" y="40" width="1080" height="670" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

@@ -37,10 +37,17 @@ SCALED_STYLE_KEYS = ("fontSize", "strokeWidth")
 
 
 def scale_geometry(xml: str, factor: float) -> str:
-    """mxGeometry の座標・寸法を factor 倍にする。"""
+    """mxGeometry の座標・寸法と、mxPoint（線の折れ点）を factor 倍にする。
+
+    折れ点は `<mxGeometry relative="1">` の子要素として別タグで持つため、
+    mxGeometry だけを倍にすると図形と折れ点の縮尺がずれる（線が図形を突き抜ける）。
+    ただし `<mxGeometry relative="1" x="0.5">` の x/y は線上の相対位置（-1〜1）なので倍にしない。
+    """
 
     def repl(m: re.Match[str]) -> str:
         tag = m.group(0)
+        if 'relative="1"' in tag:
+            return tag
         for attr in GEOMETRY_ATTRS:
             tag = re.sub(
                 rf'\b{attr}="(-?[\d.]+)"',
@@ -49,7 +56,7 @@ def scale_geometry(xml: str, factor: float) -> str:
             )
         return tag
 
-    return re.sub(r"<mxGeometry\b[^>]*/?>", repl, xml)
+    return re.sub(r"<(?:mxGeometry|mxPoint)\b[^>]*/?>", repl, xml)
 
 
 def scale_styles(xml: str, factor: float) -> str:

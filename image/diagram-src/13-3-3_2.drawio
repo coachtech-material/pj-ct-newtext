@@ -1,0 +1,47 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="13-3-3_2">
+    <mxGraphModel dx="900" dy="600" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <mxCell id="frame" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="40" y="40" width="520" height="530" as="geometry" />
+        </mxCell>
+
+        <mxCell id="title" value="投稿編集" style="rounded=0;whiteSpace=wrap;html=1;fontSize=17;fontStyle=1;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="70" y="56" width="200" height="42" as="geometry" />
+        </mxCell>
+
+        <mxCell id="l1" value="タイトル" style="rounded=0;whiteSpace=wrap;html=1;fontSize=15;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="70" y="126" width="150" height="44" as="geometry" />
+        </mxCell>
+        <mxCell id="f1" value="" style="rounded=0;whiteSpace=wrap;html=1;fontSize=15;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="236" y="126" width="294" height="44" as="geometry" />
+        </mxCell>
+
+        <mxCell id="l2" value="カテゴリ" style="rounded=0;whiteSpace=wrap;html=1;fontSize=15;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="70" y="190" width="150" height="44" as="geometry" />
+        </mxCell>
+        <mxCell id="f2" value="お知らせ ／ 技術メモ ／ 雑記" style="rounded=0;whiteSpace=wrap;html=1;fontSize=13;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="236" y="190" width="294" height="44" as="geometry" />
+        </mxCell>
+
+        <mxCell id="l3" value="本文" style="rounded=0;whiteSpace=wrap;html=1;fontSize=15;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="70" y="254" width="150" height="44" as="geometry" />
+        </mxCell>
+        <mxCell id="f3" value="" style="rounded=0;whiteSpace=wrap;html=1;fontSize=15;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="236" y="254" width="294" height="150" as="geometry" />
+        </mxCell>
+
+        <mxCell id="btn" value="更新" style="rounded=0;whiteSpace=wrap;html=1;fontSize=15;fontStyle=1;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="70" y="440" width="190" height="56" as="geometry" />
+        </mxCell>
+        <mxCell id="cancel" value="キャンセル" style="rounded=0;whiteSpace=wrap;html=1;fontSize=15;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="290" y="440" width="190" height="56" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

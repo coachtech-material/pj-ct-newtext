@@ -111,7 +111,7 @@ IMG_ALT_RE = re.compile(r'\balt\s*=\s*"([^"]*)"', re.IGNORECASE)
 IMG_SRC_RE = re.compile(r'\bsrc\s*=\s*"([^"]*)"', re.IGNORECASE)
 
 # 画像ファイル名の命名規則: {T}-{C}-{S}_{連番}.png（旧形式 {T}-{C}_{連番}・概念図 _c{連番}・_v{版} 追記を許容）
-IMG_FILENAME_RE = re.compile(r"^\d+(-\d+){1,2}_c?\d+(_v\d+)?\.(png|jpg|jpeg|gif)$", re.IGNORECASE)
+IMG_FILENAME_RE = re.compile(r"^\d+(-\d+){1,2}_[cs]?\d+(_v\d+)?\.(png|jpg|jpeg|gif)$", re.IGNORECASE)
 
 # 執筆中の相対パス src（リポジトリの image/ を指す。リリース前に空へ戻す運用）
 REL_IMG_SRC_RE = re.compile(r"^(?:\.\./)+image/[^/\"]+$")
