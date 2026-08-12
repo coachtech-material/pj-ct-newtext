@@ -30,7 +30,7 @@ import sys
 import urllib.parse
 from pathlib import Path
 
-MARGIN = 60  # 図の周囲に残す余白（描画後の px）
+MARGIN = 100  # 図の周囲に残す余白（描画後の px。線端の記号がはみ出す分を含む）
 
 GEOMETRY_ATTRS = ("x", "y", "width", "height")
 SCALED_STYLE_KEYS = ("fontSize", "strokeWidth")
@@ -92,6 +92,36 @@ def content_size(xml: str) -> tuple[float, float]:
     return max(xs) - min(xs), max(ys) - min(ys)
 
 
+def add_padding(xml: str, margin: float) -> str:
+    """図全体を囲む透明な四角を1つ足して、線端の記号が見切れないようにする。
+
+    draw.io は図形の外接矩形に合わせて描画位置を決めるため、線端の ER 記号が
+    図形の外へはみ出すぶんだけ左右が切れる。透明な枠を置いて外接矩形を広げる。
+    """
+    xs: list[float] = []
+    ys: list[float] = []
+    for m in re.finditer(r"<mxGeometry\b[^>]*/?>", xml):
+        tag = m.group(0)
+        if 'as="geometry"' not in tag:
+            continue
+        x = re.search(r'\bx="(-?[\d.]+)"', tag)
+        y = re.search(r'\by="(-?[\d.]+)"', tag)
+        w = re.search(r'\bwidth="(-?[\d.]+)"', tag)
+        h = re.search(r'\bheight="(-?[\d.]+)"', tag)
+        if x and w:
+            xs.extend([float(x.group(1)), float(x.group(1)) + float(w.group(1))])
+        if y and h:
+            ys.extend([float(y.group(1)), float(y.group(1)) + float(h.group(1))])
+    pad = (
+        f'<mxCell id="__pad" value="" '
+        f'style="rounded=0;fillColor=none;strokeColor=none;" vertex="1" parent="1">'
+        f'<mxGeometry x="{min(xs) - margin:g}" y="{min(ys) - margin:g}" '
+        f'width="{max(xs) - min(xs) + margin * 2:g}" '
+        f'height="{max(ys) - min(ys) + margin * 2:g}" as="geometry" /></mxCell>'
+    )
+    return xml.replace("</root>", pad + "</root>", 1)
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("source", help=".drawio ファイル")
@@ -108,6 +138,7 @@ def main() -> int:
 
     w, h = content_size(xml)
     xml = scale_styles(scale_geometry(xml, args.scale), args.scale)
+    xml = add_padding(xml, MARGIN)
 
     url = (
         "https://app.diagrams.net/?splash=0&ui=min&chrome=0#R"

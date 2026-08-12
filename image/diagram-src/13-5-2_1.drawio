@@ -18,13 +18,13 @@
           <mxGeometry x="470" y="280" width="170" height="50" as="geometry" />
         </mxCell>
 
-        <mxCell id="e1" value="1人の講師は、&#10;複数のレッスンを担当する" style="endArrow=none;html=1;rounded=0;strokeWidth=1.5;fontSize=13;verticalAlign=middle;labelBackgroundColor=#FFFFFF;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="teachers" target="lessons">
+        <mxCell id="e1" value="1人の講師は、&#10;複数のレッスンを担当する" style="html=1;rounded=0;strokeWidth=1.5;fontSize=13;verticalAlign=middle;labelBackgroundColor=#FFFFFF;startArrow=ERmandOne;startFill=0;startSize=14;endArrow=ERzeroToMany;endFill=0;endSize=14;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="teachers" target="lessons">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="e2" value="1人の受講者は、&#10;複数の申し込みをする" style="endArrow=none;html=1;rounded=0;strokeWidth=1.5;fontSize=13;verticalAlign=middle;labelBackgroundColor=#FFFFFF;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="students" target="applications">
+        <mxCell id="e2" value="1人の受講者は、&#10;複数の申し込みをする" style="html=1;rounded=0;strokeWidth=1.5;fontSize=13;verticalAlign=middle;labelBackgroundColor=#FFFFFF;startArrow=ERmandOne;startFill=0;startSize=14;endArrow=ERzeroToMany;endFill=0;endSize=14;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="students" target="applications">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="e3" value="1回のレッスンには、&#10;複数の申し込みが入る" style="endArrow=none;html=1;rounded=0;strokeWidth=1.5;fontSize=13;verticalAlign=middle;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="lessons" target="applications">
+        <mxCell id="e3" value="1回のレッスンには、&#10;複数の申し込みが入る" style="html=1;rounded=0;strokeWidth=1.5;fontSize=13;verticalAlign=middle;labelBackgroundColor=#FFFFFF;startArrow=ERmandOne;startFill=0;startSize=14;endArrow=ERzeroToMany;endFill=0;endSize=14;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="lessons" target="applications">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
 
