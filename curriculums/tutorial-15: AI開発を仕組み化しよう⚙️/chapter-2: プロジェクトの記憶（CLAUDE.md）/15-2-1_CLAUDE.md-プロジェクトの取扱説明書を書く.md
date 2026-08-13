@@ -178,13 +178,10 @@ claude
 
 ### Step 5: コミットする
 
-削り終えたら記録します。`/exit` でClaude Codeを抜けてから、ターミナルで打ちます。
+削り終えたら記録します。
 
-```bash
-# アプリのフォルダの中で実行する
-git add CLAUDE.md
-git commit -m "CLAUDE.mdを追加"
-git push origin main
+```text
+CLAUDE.md をコミットして、main に push してください。
 ```
 
 この1枚は、コードと同じくプロジェクトの一部です。だから一緒に記録します。効く相手は、次に起動したときの自分と、来月このアプリに戻ってきた自分です。

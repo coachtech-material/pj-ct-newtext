@@ -168,13 +168,8 @@ Claude Codeの入力欄に `/clear` を打ちます。ここまでのやり取�
 
 #### Step 6: コミットしてGitHubへ送る
 
-`/exit` でClaude Codeを抜けてから、ターミナルで打ちます。
-
-```bash
-# アプリのフォルダの中で実行する
-git add CLAUDE.md
-git commit -m "CLAUDE.mdを更新"
-git push origin main
+```text
+CLAUDE.md をコミットして、main に push してください。
 ```
 
 GitHubでリポジトリのページを開いて、`CLAUDE.md` が表示されていることを確かめたら完了です。

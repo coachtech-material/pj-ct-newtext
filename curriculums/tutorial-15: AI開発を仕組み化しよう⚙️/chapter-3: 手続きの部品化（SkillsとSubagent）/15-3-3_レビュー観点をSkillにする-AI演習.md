@@ -220,11 +220,8 @@ git status
 
 差分が出ているのは `.claude/` だけで、`app/` のファイルは変わっていないはずです。`SKILL.md` の最後の1行が効いています。確かめたら、作った部品を記録します。
 
-```bash
-# アプリのフォルダの中で実行する
-git add .claude/skills
-git commit -m "Add review-checklist skill"
-git push origin main
+```text
+.claude/skills をコミットして、main に push してください。
 ```
 
 15-3-2と同じく、機能を作る作業ではないので、ブランチを切らずに `main` へ送ります。GitHubでリポジトリを開き、`.claude/skills/review-checklist/SKILL.md` が見えることを確かめてください。
