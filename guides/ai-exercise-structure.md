@@ -10,7 +10,7 @@
 - **土台**: 文体・分量・マークダウン要素は `guides/writing-rules.md` に従う。設計成果物の扱いは `guides/design-section-structure.md` と接続する
 - **確定事項**:
   - 受講生のAIツールは **Claude Code Proプラン** を標準とする
-  - 作図はT14以降Mermaid（AIに起こさせ、人が読んで検証する）。T13は draw.io で手描き（`guides/design-section-structure.md`）
+  - 作図はT14以降Mermaid（AIに起こさせ、人が読んで検証する）。T13は draw.io で手描き（`guides/design-section-structure.md`）。**Mermaid自体は8-1-5・8-3-1で既出**なので、T14で新記法として紹介しない。新しいのは「図を画像でなくテキストで持つ」ことのほう
   - GitHub操作は **`gh` コマンドでAIにやらせる**。T12（Web UI）は改稿しないので、T14の初出箇所で「12章では画面から操作したが、ここからはコマンドでAIにやらせる」と接続を明示する
 
 ---
