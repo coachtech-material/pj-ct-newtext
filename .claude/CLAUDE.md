@@ -222,7 +222,7 @@ Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
 | AIスタンス・フェーズ定型文の確認 | `guides/ai-exercise-structure.md`（P1・P2の正本。P3・P4は廃止） |
 | 文体・表現のチェック | `guides/writing-rules.md` |
 | Sectionの検証 | `guides/verification.md` |
-| 過去のガイドラインの確認 | `references/complete_writing_guidelines_v15.md` |
+| 過去のガイドラインの確認 | `references/complete_writing_guidelines_v15.md`（**歴史記録。現行ルールではない**。分量の「最低4,000文字」は廃止済みで、`guides/writing-rules.md` が正） |
 | ナノバナナ画像の生成・挿入 | `guides/nano-banana-workflow.md` |
 
 新規Sectionの量産執筆は `section-write` スキル、量産前の様式固めは `style-lock` スキルを使う。教材本文（`curriculums/**/*.md`）の編集時は PostToolUse フックが `.claude/scripts/lint_curriculum.py` を自動実行し、🔴 違反をフィードバックする（手動実行: `python3 .claude/scripts/lint_curriculum.py <file|dir>`）。

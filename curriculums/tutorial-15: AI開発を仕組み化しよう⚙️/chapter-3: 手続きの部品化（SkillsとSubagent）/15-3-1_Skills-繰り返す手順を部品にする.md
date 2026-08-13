@@ -53,7 +53,8 @@ Claude Codeの公式ドキュメント（2026年8月時点）は、Skillを作�
 │           └── SKILL.md            ← これから作るもの
 └── docs/
     ├── comment.md
-    └── draft.md
+    ├── draft.md
+    └── structure.md
 ```
 
 `.claude/` の下に `skills/` があり、その下にSkill 1つにつき1つのフォルダを作り、その中に `SKILL.md` を置きます。ここに決まりが2つあります。

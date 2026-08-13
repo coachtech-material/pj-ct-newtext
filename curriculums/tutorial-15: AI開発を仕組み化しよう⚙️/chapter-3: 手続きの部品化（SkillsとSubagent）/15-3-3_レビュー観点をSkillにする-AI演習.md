@@ -222,7 +222,7 @@ git status
 
 ```bash
 # アプリのフォルダの中で実行する
-git add .claude
+git add .claude/skills
 git commit -m "Add review-checklist skill"
 git push origin main
 ```

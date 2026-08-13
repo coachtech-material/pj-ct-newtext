@@ -35,6 +35,16 @@
           </mxGeometry>
         </mxCell>
 
+        <mxCell id="l4" value="0件または1件" style="text;html=1;align=left;verticalAlign=middle;fontSize=15;" vertex="1" parent="1">
+          <mxGeometry x="230" y="245" width="180" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="e4" value="" style="html=1;rounded=0;strokeWidth=1.5;startArrow=none;endArrow=ERzeroToOne;endFill=0;endSize=16;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="40" y="260" as="sourcePoint" />
+            <mxPoint x="200" y="260" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
       </root>
     </mxGraphModel>
   </diagram>
