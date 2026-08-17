@@ -24,12 +24,35 @@ CLAUDE_CONFIG_DIR=~/.claude-capture claude
 # 初回はログインを求められる。撮影用アカウントでログインする
 ```
 
+プロファイルを作ったら、撮る前に次まで済ませておく（どれも画面に写るため）。
+
+| やること | 手順 | 理由 |
+|:--|:--|:--|
+| モデルを Sonnet に | `/model` → Sonnet → Enter | 教材の標準がSonnet。ヘッダの表示が変わる |
+| エフォートを high に | `/effort` → high → Enter | 同上 |
+| Chrome連携を切る | `/chrome` → `Enabled by default` を No | 拡張機能を入れている人だけ起動時に確認が出る |
+
 ### 2. tmuxでセッションを操作して撮る
 
+tmuxの通知行（`tmux detected · scroll with PgUp/PgDn`／`tmux focus-events off`）が
+Claude Codeの入力欄の上に出る。受講生の画面には出ないので、撮影用のtmux設定で消す。
+
 ```bash
-tmux new-session -d -s cap -x 100 -y 32 -c /path/to/題材アプリ
-tmux send-keys -t cap "CLAUDE_CONFIG_DIR=~/.claude-capture claude" Enter
-sleep 8
+# capture.tmux.conf
+set -g mouse on
+set -g focus-events on
+set -g status off
+set -g default-terminal "xterm-256color"
+```
+
+`CLAUDE_CONFIG_DIR` はコマンド行に書くと画面に写る。`clear` の前に export しておく。
+シェルのプロンプトも `PS1` を差し替えて、ホスト名とユーザー名を写さない。
+
+```bash
+tmux -f capture.tmux.conf new-session -d -s cap -x 100 -y 24 -c /path/to/題材アプリ
+tmux send-keys -t cap 'export CLAUDE_CONFIG_DIR=~/.claude-capture; PS1="%1~ %# "; clear' Enter
+tmux send-keys -t cap "claude" Enter
+sleep 12
 tmux capture-pane -e -p -t cap > 01-startup.ans
 tmux send-keys -t cap "/context" Enter
 sleep 8
@@ -37,21 +60,31 @@ tmux capture-pane -e -p -t cap > 02-context.ans
 tmux kill-session -t cap
 ```
 
+「走っている画面」は完了後ではなく**実行の途中**で `capture-pane` する
+（`send-keys` → 短い `sleep` → capture）。
+
 ### 3. マスクしてPNG化する
 
 ```bash
-python3 ansi2png.py 01-startup.ans 14-1-2_1.png 100 --mask mask.json
+python3 ansi2png.py 01-startup.ans 14-1-2_1.png 100 --mask mask.json --drop '▎' --drop '\+1 more'
 ```
 
 `mask.json` は「置換前→置換後」の辞書。**必ず同じ文字数で置換する**（ターミナルは文字グリッドなので、長さが変わると罫線が崩れる。長さ不一致はスクリプトがエラーで止める）。例:
 
 ```json
 {
-  "Welcome back Yotaro!": "Welcome back Wakaba!",
-  "yotaro6163@gmail.com's Organization": "wakaba@example.com's Organization  ",
-  "Sonnet 5 with xhigh effort · Claude Max": "Sonnet 5 with high effort · Claude Pro "
+  "yotaro6163@gmail.com's Organization": "student@example.com's Organization ",
+  "Claude Max": "Claude Pro",
+  "yotaro": "wakaba"
 }
 ```
+
+長いほうの語句から先に書く（辞書は書いた順に適用されるので、`yotaro` を先に置くと
+メールアドレスの項目に届かなくなる）。
+
+`--drop` は正規表現にあたる行を丸ごと落とす。**撮影アカウント固有の告知行**
+（プラン限定機能のお知らせ等、標準プランの受講生には出ないもの）に限って使う。
+本文の内容を消すために使わないこと。
 
 ## 教材への挿入規約
 
