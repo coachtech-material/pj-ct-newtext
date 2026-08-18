@@ -83,7 +83,7 @@ claude
 
 **`/init` が走っている画面**
 
-<img alt="14-1-3_1.png" src="">
+<img alt="14-1-3_1.png" src="../../../image/14-1-3_1.png">
 
 > 💡 **TIP**: すでに `CLAUDE.md` がある状態でもう一度 `/init` を打っても、上書きはされません。改善の案が出るだけです（2026年8月時点）。
 
@@ -105,7 +105,7 @@ claude
 
 **刈ったあとの `CLAUDE.md`**
 
-<img alt="14-1-3_2.png" src="">
+<img alt="14-1-3_2.png" src="../../../image/14-1-3_2.png">
 
 ### Step 4: コミットする
 

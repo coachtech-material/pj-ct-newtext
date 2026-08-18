@@ -5,6 +5,7 @@
 - やりたい操作から、対応するコマンドやキーを引けるようになる。
 - 定額の中で使えるものと、追加課金になるものを見分けられるようになる。
 - ここに載っていないものを、`/help` と公式ドキュメントで探せるようになる。
+- ターミナルを乗り換えたくなったときに、何が変わるのかを判断できるようになる。
 
 ---
 
@@ -124,6 +125,56 @@ Claude Codeのコマンドとキー操作は数が多く、順番に覚えて進
 
 ---
 
+## ターミナルの選び方
+
+Claude Codeは、どのターミナルでも設定なしで動きます。3-1-2で決めたとおり、VS Codeの統合ターミナルのままで最後まで進められます。ここに書くのは、乗り換えたくなったときの判断材料です。
+
+差が出るのは、次の3つです（2026年8月時点の公式ドキュメント）。
+
+**改行のキー**
+
+`Enter` は送信で、改行は `\` を打ってから `Enter`、または `Ctrl+J`。ここはどこでも同じです。`Shift+Enter` で改行できるかどうかだけ、ターミナルによって変わります。
+
+| ターミナル | `Shift+Enter` |
+|:--|:--|
+| Ghostty・Kitty・iTerm2・WezTerm・Warp・macOSのターミナル・Windows Terminal | そのまま使える |
+| VS Code・Cursor・Alacritty・Zed | `/terminal-setup` を1回打つと使えるようになる |
+| gnome-terminal・PyCharmなどのJetBrains系 | 使えない。`Ctrl+J` か `\` で改行する |
+
+`/terminal-setup` は、ターミナル側の設定ファイルに書き込みます。VS Codeでは、統合ターミナルの文字化けを避ける設定も一緒に入ります。
+
+**終わったときの知らせ**
+
+長い作業を回して離席するときに効きます。既定でデスクトップ通知が出るのは Ghostty・Kitty・iTerm2 の3つです。ほかのターミナルでは、`~/.claude/settings.json` に次を書くと、代わりに端末のベルが鳴ります。
+
+```json
+{
+  "preferredNotifChannel": "terminal_bell"
+}
+```
+
+**Optionキーのショートカット（macOS）**
+
+`Option+P` でモデルを切り替える、といったキーは、Optionを修飾キーとして送る設定を入れないと効きません。設定の名前は多くの場合「Use Option as Meta Key」です。iTerm2なら Settings → Profiles → Keys で左右のOptionを `Esc+` にします。VS Codeなら設定に `"terminal.integrated.macOptionIsMeta": true` を足します。
+
+---
+
+上の表に出てくるものの入口は、次のとおりです（2026年8月時点）。どれを使っても、この教材の手順はそのまま通ります。
+
+| 名前 | 入口 |
+|:--|:--|
+| Ghostty | `https://ghostty.org/` |
+| Kitty | `https://sw.kovidgoyal.net/kitty/` |
+| iTerm2（macOS） | `https://iterm2.com/` |
+| WezTerm | `https://wezterm.org/` |
+| Warp | `https://www.warp.dev/` |
+| Alacritty | `https://alacritty.org/` |
+| Windows Terminal | `https://learn.microsoft.com/windows/terminal/` |
+
+> 💡 **TIP**: tmux（1つの画面を分割して複数のセッションを並べる道具）の中でClaude Codeを動かすときは、`~/.tmux.conf` に3行足さないと `Shift+Enter` と通知が届きません。書く中身は公式ドキュメントの Configure your terminal のページにあります。Tutorial 15で複数のセッションを並行させるときに関わってきます。
+
+---
+
 ## Claude Codeが動く場所
 
 Claude Codeはターミナルの中だけのものではありません。
@@ -157,5 +208,6 @@ Claude Codeはターミナルの中だけのものではありません。
 - 操作を思い出せないときは、この表 → `/` を打って出る候補 → 公式ドキュメントの順で引く。
 - 💰 の印が付いたものは定額の外。この教材の演習では使わない。
 - ここに載せたのは教材で使うものだけ。全量は `/help` と `claude --help` で出る。
+- ターミナルはどれでも動く。変わるのは `Shift+Enter` で改行できるか、終わったときに知らせが出るか、Optionのキーが効くかの3つ。
 
 ---

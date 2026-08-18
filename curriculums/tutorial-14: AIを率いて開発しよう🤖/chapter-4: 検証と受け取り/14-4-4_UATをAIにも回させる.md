@@ -28,10 +28,10 @@ MCP（Model Context Protocol）は、AIの道具と、外にある別のプロ�
 
 ```bash
 # どのフォルダで実行しても構わない
-claude mcp add playwright -- npx -y @playwright/mcp@latest
+claude mcp add -s user playwright -- npx -y @playwright/mcp@latest
 ```
 
-`claude mcp add` の後ろは、付ける名前、`--`、起動するコマンドの順です。`--` から後ろが、Claude Codeが立ち上げるプログラムになります。Windows（WSL/Ubuntu）でも同じコマンドで入る想定です（2026年8月時点）。うまく動かないときは、下の「うまく動かないとき」を見てください。
+`claude mcp add` の後ろは、入れる場所の指定（`-s user`）、付ける名前、`--`、起動するコマンドの順です。`--` から後ろが、Claude Codeが立ち上げるプログラムになります。`-s user` は、自分のマシン全体で使える場所に入れる指定です。付けずに打つと、コマンドを打ったフォルダの中でしか使えない設定になり、別のプロジェクトから起動したときには出てきません。ブラウザを動かす道具はこの先どのプロジェクトでも使うので、全体に入れます。Windows（WSL/Ubuntu）でも同じコマンドで入る想定です（2026年8月時点）。うまく動かないときは、下の「うまく動かないとき」を見てください。
 
 入ったかどうかは一覧で見られます。
 
@@ -39,11 +39,11 @@ claude mcp add playwright -- npx -y @playwright/mcp@latest
 claude mcp list
 ```
 
-`playwright: npx -y @playwright/mcp@latest - ✔ Connected` のように、名前と起動コマンドの右に `✔ Connected` と出れば使えます。この設定は手元のClaude Codeに入るだけで、リポジトリにファイルは増えません。1回入れれば、次のセッションからも使えます。セッションの中からは `/mcp` でも一覧を開けます。
+`playwright: npx -y @playwright/mcp@latest - ✔ Connected` のように、名前と起動コマンドの右に `✔ Connected` と出れば使えます。この設定は手元のClaude Codeに入るだけで、リポジトリにファイルは増えません。1回入れれば、次のセッションからも、別のフォルダのプロジェクトからでも使えます。セッションの中からは `/mcp` でも一覧を開けます。
 
 **`claude mcp list` で接続を確かめたところ**
 
-<img alt="14-4-4_1.png" src="">
+<img alt="14-4-4_1.png" src="../../../image/14-4-4_1.png">
 
 > 💡 **TIP**: コマンドと表示は2026年8月時点のものです。違っていたら、`/help` と公式ドキュメントで確かめてください。
 
@@ -63,10 +63,10 @@ claude
 
 ### Step 2: 受け入れ条件とログイン情報を渡す
 
-14-4-3で使ったものと同じ4行を、そのまま渡します。
+14-4-3で使ったものと同じ4行を、そのまま渡します。1行目でPlaywright MCPを名指ししているのは、ブラウザを動かせる道具がほかにも入っていることがあるからです。名指ししておけば、いま入れたものが使われます。
 
 ```text
-ブラウザで http://localhost を開いて、次の4つを順に確かめて。
+Playwright MCP を使って http://localhost を開いて、次の4つを順に確かめて。
 ログインは usera@example.com / password と userb@example.com / password を使って。
 
 - ポストを1件開くと、そのポストとリプライの一覧が見える
@@ -95,7 +95,7 @@ Claude Code: usera でログインし、タイムラインの1件目を開きま
 
 **AIがブラウザを操作して、結果を報告しているところ**
 
-<img alt="14-4-4_2.png" src="">
+<img alt="14-4-4_2.png" src="../../../image/14-4-4_2.png">
 
 ### Step 3: 報告とスクリーンショットを読んで判定する
 
@@ -155,7 +155,7 @@ git status
 ## ✨ まとめ
 
 - MCPは、Claude Codeと外のプログラムをつなぐ決まりごとです。Playwright MCPを足すと、ブラウザの操作を頼めるようになります。
-- 導入は `claude mcp add playwright -- npx -y @playwright/mcp@latest` の1本で、確認は `claude mcp list` の `✔ Connected` です。手元の設定に入るだけで、リポジトリは変わりません。
+- 導入は `claude mcp add -s user playwright -- npx -y @playwright/mcp@latest` の1本で、確認は `claude mcp list` の `✔ Connected` です。手元の設定に入るだけで、リポジトリは変わりません。
 - 渡すのは、14-4-3と同じ受け入れ条件の4行とログイン情報です。教材用に公開している値だけを渡します。
 - 判定に使うのは、行ごとの理由とスクリーンショットです。理由の無い報告は、その行だけ回し直させます。
 - スクリーンショットの置き場所は、依頼で指定します。指定しないと、どこに保存されたのか分からなくなります。
