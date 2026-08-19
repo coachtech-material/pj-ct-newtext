@@ -224,7 +224,7 @@ paths:
 
 **最初から入っているもの**
 
-`/code-review`・`/verify`・`/run`・`/doctor`・`/debug`・`/simplify` は、自分では1行も書かずに使えます。作る前にここを見る、という順番は15-3-1のとおりです。
+`/code-review`・`/verify`・`/run`・`/doctor`・`/debug`・`/simplify`・`/security-review` は、自分では1行も書かずに使えます。作る前にここを見る、という順番は15-3-1のとおりです。最後の1つは、いまのブランチの変更をセキュリティの目だけで通すもので、`/code-review` が広く探すのに対して、狭いところを深く見ます。
 
 出どころは公式ドキュメント（`https://code.claude.com/docs/`）です。`CLAUDE.md`・ルール・Skill・サブエージェント・Hooksの使い分けだけを扱った記事も出ています（"Steering Claude Code" ・2026年8月時点）。
 
