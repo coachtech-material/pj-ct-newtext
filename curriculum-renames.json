@@ -1,16 +1,11 @@
 {
-  "_comment": "LMSへのリネーム指示台帳。sync-curriculums.js が読み、デプロイAPI（POST /deploy/sections/upsert）の payload に renames として同梱する。LMS側はupsertの前に同一トランザクションで適用し、行IDを保ったままtitleだけ更新するため学習進捗が引き継がれる。適用済みの指示は冪等にスキップされるので、反映後もしばらく残しておいてよい（消すと再構築した環境で適用されなくなる）。",
+  "_comment": "LMSへのリネーム指示台帳。sync-curriculums.js が読み、デプロイAPI（POST /deploy/sections/upsert）の payload に renames として同梱する。LMS側はupsertの前に同一トランザクションで適用し、行IDを保ったままtitleだけ更新するため学習進捗が引き継がれる。適用済みの指示は冪等にスキップされるので、反映後もしばらく残しておいてよい（消すと再構築した環境で適用されなくなる）。LMS側が対応しているのは type: curriculum のみ。",
+  "_note": "Stage 1 で新設する tutorial-13（システム設計）と番号が衝突するため、旧 tutorial-13（総仕上げ・8章23節）を改題して残す。新 tutorial-16（総仕上げ・4章17節）は中身が別物なので、改題ではなく新規カリキュラムとして追加される（教材リポジトリに新しいディレクトリがあるので通常のupsertで登録される）。セクションの接頭辞（13-*）は旧カリキュラム配下に残したままにする。新 tutorial-16 とは別カリキュラムなので番号は衝突せず、書き換えると受講中の受講生の進捗表示が壊れる。",
   "renames": [
     {
       "type": "curriculum",
       "from": "tutorial-13: 総仕上げ！学んだ技術をフル活用してアプリケーションを作ってみよう🔥",
-      "to": "tutorial-16: 総仕上げ！学んだ技術をフル活用してアプリケーションを作ってみよう🔥"
-    },
-    {
-      "type": "section_prefix",
-      "curriculum": "tutorial-16: 総仕上げ！学んだ技術をフル活用してアプリケーションを作ってみよう🔥",
-      "from_prefix": "13-",
-      "to_prefix": "16-"
+      "to": "tutorial-13(旧): 総仕上げ！学んだ技術をフル活用してアプリケーションを作ってみよう🔥"
     }
   ]
 }
