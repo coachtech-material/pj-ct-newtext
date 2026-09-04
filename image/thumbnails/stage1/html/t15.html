@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="base.css">
+<style>:root { --theme: #7E57C2; --theme-deep: #5E35B1; }</style>
+</head>
+<body>
+  <div class="inner">
+    <div class="dots tr"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+    <div class="dots bl"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+
+    <svg class="stage" viewBox="0 0 1176 760" xmlns="http://www.w3.org/2000/svg">
+      <g stroke="#7E57C2" stroke-opacity=".34" stroke-width="4" fill="none">
+        <path d="M588 168 L306 375"/>
+        <path d="M588 168 L870 375"/>
+        <path d="M306 375 L588 512"/>
+        <path d="M870 375 L588 512"/>
+        <path d="M306 375 L870 375"/>
+        <path d="M588 168 L588 512"/>
+      </g>
+
+      <!-- 上・最大: 歯車（仕組み化） -->
+      <g transform="translate(588 168)">
+        <g fill="#5E35B1">
+          <rect x="-14" y="-98" width="28" height="32" rx="5"/>
+          <rect x="-14" y="-98" width="28" height="32" rx="5" transform="rotate(45)"/>
+          <rect x="-14" y="-98" width="28" height="32" rx="5" transform="rotate(90)"/>
+          <rect x="-14" y="-98" width="28" height="32" rx="5" transform="rotate(135)"/>
+          <rect x="-14" y="-98" width="28" height="32" rx="5" transform="rotate(180)"/>
+          <rect x="-14" y="-98" width="28" height="32" rx="5" transform="rotate(225)"/>
+          <rect x="-14" y="-98" width="28" height="32" rx="5" transform="rotate(270)"/>
+          <rect x="-14" y="-98" width="28" height="32" rx="5" transform="rotate(315)"/>
+        </g>
+        <circle r="62" fill="#FFFFFF" stroke="#5E35B1" stroke-width="14"/>
+        <circle r="22" fill="#5E35B1"/>
+      </g>
+
+      <!-- 左: プロジェクトの記憶（CLAUDE.md） -->
+      <g transform="translate(306 375)">
+        <path d="M-72 -84 H30 L72 -42 V84 A0 0 0 0 1 72 84 H-72 Z"
+              fill="#FFFFFF" stroke="#7E57C2" stroke-width="9" stroke-linejoin="round"/>
+        <path d="M30 -84 V-42 H72" fill="none" stroke="#7E57C2" stroke-width="9" stroke-linejoin="round"/>
+        <g fill="#7E57C2">
+          <rect x="-46" y="-6" width="92" height="12" rx="6"/>
+          <rect x="-46" y="22" width="92" height="12" rx="6" fill-opacity=".55"/>
+          <rect x="-46" y="50" width="60" height="12" rx="6" fill-opacity=".55"/>
+        </g>
+      </g>
+
+      <!-- 右: 手続きの部品化（Skills / Subagent） -->
+      <g transform="translate(870 375)" fill="#FFFFFF" stroke="#7E57C2" stroke-width="9">
+        <rect x="-78" y="-76" width="72" height="72" rx="10"/>
+        <rect x="8" y="-76" width="72" height="72" rx="10"/>
+        <rect x="-78" y="8" width="72" height="72" rx="10"/>
+        <rect x="8" y="8" width="72" height="72" rx="10" fill="#7E57C2"/>
+      </g>
+
+      <!-- 下: ルールの自動執行（権限と Hooks） -->
+      <g transform="translate(588 512)">
+        <path d="M0 -52 L58 -32 V6 C58 40 30 58 0 68 C-30 58 -58 40 -58 6 V-32 Z"
+              fill="#FFFFFF" stroke="#7E57C2" stroke-width="10" stroke-linejoin="round"/>
+        <path d="M-24 8 L-8 24 L26 -14" fill="none" stroke="#7E57C2" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/>
+      </g>
+    </svg>
+
+    <div class="title">開発の仕組み化</div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,26 @@
+/* Stage 1 サムネイル共通スタイル。既存 v3/v4 の様式に合わせている。
+   1264x848（3:2）／白面＋四辺の極太テーマカラー帯／中央に4要素のダイヤモンド配置／
+   下部に太字ゴシックの日本語タイトル／右上・左下にドットグリッド。
+   各 HTML は --theme / --theme-deep を上書きし、SVG の中央ビジュアルだけを差し替える。 */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { width: 1264px; height: 848px; }
+body {
+  background: var(--theme);
+  font-family: "Hiragino Sans", "Noto Sans JP", "Yu Gothic", sans-serif;
+  overflow: hidden;
+}
+/* 内側の白面。外周に残る帯がテーマカラーの枠になる */
+.inner { position: absolute; inset: 44px; background: #FFFFFF; }
+
+.dots { position: absolute; display: grid; grid-template-columns: repeat(6, 16px); grid-auto-rows: 16px; gap: 22px; }
+.dots span { width: 16px; height: 16px; border-radius: 50%; background: var(--theme); opacity: .32; }
+.dots.tr { top: 46px; right: 52px; }
+.dots.bl { bottom: 150px; left: 52px; }
+
+.stage { position: absolute; inset: 0; }
+
+.title {
+  position: absolute; left: 0; right: 0; bottom: 62px;
+  text-align: center; font-size: 96px; font-weight: 800;
+  letter-spacing: .02em; color: #212121; line-height: 1;
+}
