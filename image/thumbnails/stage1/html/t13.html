@@ -11,56 +11,38 @@
     <div class="dots bl"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
 
     <svg class="stage" viewBox="0 0 1176 760" xmlns="http://www.w3.org/2000/svg">
-      <g stroke="#455A64" stroke-opacity=".34" stroke-width="4" fill="none">
-        <path d="M588 168 L306 375"/>
-        <path d="M588 168 L870 375"/>
-        <path d="M306 375 L588 512"/>
-        <path d="M870 375 L588 512"/>
-        <path d="M306 375 L870 375"/>
-        <path d="M588 168 L588 512"/>
-      </g>
+      <!-- 主役: 設計図（ブラウザ枠）。中に各章の設計成果物を配置する -->
+      <g transform="translate(588 288)">
+        <rect x="-268" y="-172" width="536" height="344" rx="16" fill="#FFFFFF" stroke="#37474F" stroke-width="16"/>
+        <path d="M-268 -104 H268" stroke="#37474F" stroke-width="16"/>
+        <circle cx="-232" cy="-138" r="13" fill="#37474F"/>
+        <circle cx="-192" cy="-138" r="13" fill="#37474F"/>
+        <circle cx="-152" cy="-138" r="13" fill="#FF7043"/>
 
-      <!-- 上・最大: 画面ワイヤーフレーム（画面設計） -->
-      <g transform="translate(588 168)">
-        <rect x="-112" y="-70" width="224" height="160" rx="7" fill="#FFFFFF" stroke="#37474F" stroke-width="10"/>
-        <path d="M-112 -28 H112" stroke="#37474F" stroke-width="10"/>
-        <circle cx="-90" cy="-49" r="7" fill="#37474F"/>
-        <circle cx="-66" cy="-49" r="7" fill="#37474F"/>
-        <rect x="-90" y="-6" width="68" height="74" rx="5" fill="#37474F" fill-opacity=".22"/>
-        <rect x="-6" y="-6" width="96" height="20" rx="5" fill="#37474F" fill-opacity=".55"/>
-        <rect x="-6" y="24" width="96" height="13" rx="5" fill="#37474F" fill-opacity=".3"/>
-        <rect x="-6" y="47" width="64" height="13" rx="5" fill="#37474F" fill-opacity=".3"/>
-      </g>
+        <!-- 左: 画面設計のワイヤーフレーム -->
+        <rect x="-232" y="-64" width="150" height="200" rx="10" fill="#455A64" fill-opacity=".14"/>
+        <rect x="-214" y="-44" width="114" height="16" rx="8" fill="#455A64" fill-opacity=".5"/>
+        <rect x="-214" y="-12" width="114" height="10" rx="5" fill="#455A64" fill-opacity=".32"/>
+        <rect x="-214" y="12" width="80" height="10" rx="5" fill="#455A64" fill-opacity=".32"/>
+        <rect x="-214" y="84" width="70" height="30" rx="8" fill="#FF7043"/>
 
-      <!-- 左: ER図（データ設計） -->
-      <g transform="translate(306 375)">
-        <rect x="-96" y="-68" width="88" height="62" rx="6" fill="#FFFFFF" stroke="#455A64" stroke-width="9"/>
-        <path d="M-96 -46 H-8" stroke="#455A64" stroke-width="9"/>
-        <rect x="10" y="10" width="88" height="62" rx="6" fill="#FFFFFF" stroke="#455A64" stroke-width="9"/>
-        <path d="M10 32 H98" stroke="#455A64" stroke-width="9"/>
-        <path d="M-8 -12 L10 26" stroke="#455A64" stroke-width="9"/>
-      </g>
-
-      <!-- 右: API と権限の設計 -->
-      <g transform="translate(870 375)" stroke="#455A64" stroke-width="11" fill="none" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M-34 -58 C-60 -58 -60 -10 -82 -10 C-60 -10 -60 38 -34 38"/>
-        <path d="M34 -58 C60 -58 60 -10 82 -10 C60 -10 60 38 34 38"/>
-        <circle cx="0" cy="-10" r="8.5" fill="#455A64" stroke="none"/>
-        <circle cx="-30" cy="-10" r="8.5" fill="#455A64" stroke="none"/>
-        <circle cx="30" cy="-10" r="8.5" fill="#455A64" stroke="none"/>
-      </g>
-
-      <!-- 下: シーケンス図（振る舞いの設計） -->
-      <g transform="translate(588 512)">
-        <rect x="-104" y="-58" width="58" height="24" rx="5" fill="#455A64"/>
-        <rect x="46" y="-58" width="58" height="24" rx="5" fill="#455A64"/>
-        <g stroke="#455A64" stroke-width="8" stroke-linecap="round">
-          <path d="M-75 -30 V34" stroke-dasharray="15 13"/>
-          <path d="M75 -30 V34" stroke-dasharray="15 13"/>
+        <!-- 右上: データ設計（ER図） -->
+        <g>
+          <rect x="-44" y="-62" width="118" height="72" rx="8" fill="#FFFFFF" stroke="#455A64" stroke-width="10"/>
+          <path d="M-44 -36 H74" stroke="#455A64" stroke-width="10"/>
+          <rect x="118" y="10" width="118" height="72" rx="8" fill="#FFFFFF" stroke="#455A64" stroke-width="10"/>
+          <path d="M118 36 H236" stroke="#455A64" stroke-width="10"/>
+          <path d="M74 -14 L118 34" stroke="#FF7043" stroke-width="10" stroke-linecap="round"/>
         </g>
-        <g stroke="#455A64" stroke-width="9" fill="none" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M-75 4 H60"/>
-          <path d="M46 -10 L64 4 L46 18"/>
+
+        <!-- 右下: 振る舞いの設計（シーケンス） -->
+        <g transform="translate(56 118)">
+          <rect x="-100" y="-16" width="52" height="22" rx="5" fill="#455A64"/>
+          <rect x="48" y="-16" width="52" height="22" rx="5" fill="#455A64"/>
+          <g stroke="#455A64" stroke-width="8" stroke-linecap="round" fill="none">
+            <path d="M-74 12 H36"/>
+            <path d="M22 -2 L40 12 L22 26"/>
+          </g>
         </g>
       </g>
     </svg>

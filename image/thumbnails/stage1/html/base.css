@@ -24,3 +24,6 @@ body {
   text-align: center; font-size: 96px; font-weight: 800;
   letter-spacing: .02em; color: #212121; line-height: 1;
 }
+
+/* 「総合アプリケーション開発」のような長いタイトル用。既存 v4/t13 と同じく画像幅の約7割に収める */
+.title.long { font-size: 74px; }
