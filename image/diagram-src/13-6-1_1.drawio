@@ -1,0 +1,84 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="13-6-1_1">
+    <mxGraphModel dx="900" dy="600" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <mxCell id="p1" value="受け取る方" style="rounded=0;whiteSpace=wrap;html=1;fontSize=15;fontStyle=1;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="40" y="40" width="220" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="p2" value="再配達受付の画面" style="rounded=0;whiteSpace=wrap;html=1;fontSize=15;fontStyle=1;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="340" y="40" width="220" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="p3" value="再配達受付のシステム" style="rounded=0;whiteSpace=wrap;html=1;fontSize=15;fontStyle=1;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="640" y="40" width="220" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="p4" value="データベース" style="rounded=0;whiteSpace=wrap;html=1;fontSize=15;fontStyle=1;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="940" y="40" width="220" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="l1" style="html=1;rounded=0;strokeWidth=1.5;endArrow=none;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" edge="1" parent="1" source="p1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="150" y="800" as="targetPoint" /></mxGeometry>
+        </mxCell>
+        <mxCell id="l2" style="html=1;rounded=0;strokeWidth=1.5;endArrow=none;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" edge="1" parent="1" source="p2">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="450" y="800" as="targetPoint" /></mxGeometry>
+        </mxCell>
+        <mxCell id="l3" style="html=1;rounded=0;strokeWidth=1.5;endArrow=none;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" edge="1" parent="1" source="p3">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="750" y="800" as="targetPoint" /></mxGeometry>
+        </mxCell>
+        <mxCell id="l4" style="html=1;rounded=0;strokeWidth=1.5;endArrow=none;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" edge="1" parent="1" source="p4">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="1050" y="800" as="targetPoint" /></mxGeometry>
+        </mxCell>
+
+        <mxCell id="m1" value="不在票の番号を入力する" style="html=1;rounded=0;strokeWidth=1.5;fontSize=13;labelBackgroundColor=#FFFFFF;verticalAlign=bottom;endArrow=classic;endFill=1;endSize=8;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="150" y="140" as="sourcePoint" /><mxPoint x="450" y="140" as="targetPoint" /></mxGeometry>
+        </mxCell>
+        <mxCell id="m2" value="入力された番号を送る" style="html=1;rounded=0;strokeWidth=1.5;fontSize=13;labelBackgroundColor=#FFFFFF;verticalAlign=bottom;endArrow=classic;endFill=1;endSize=8;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="450" y="188" as="sourcePoint" /><mxPoint x="750" y="188" as="targetPoint" /></mxGeometry>
+        </mxCell>
+        <mxCell id="m3" value="その番号の荷物を探す" style="html=1;rounded=0;strokeWidth=1.5;fontSize=13;labelBackgroundColor=#FFFFFF;verticalAlign=bottom;endArrow=classic;endFill=1;endSize=8;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="750" y="236" as="sourcePoint" /><mxPoint x="1050" y="236" as="targetPoint" /></mxGeometry>
+        </mxCell>
+        <mxCell id="m4" value="見つかった荷物を返す" style="html=1;rounded=0;strokeWidth=1.5;fontSize=13;labelBackgroundColor=#FFFFFF;verticalAlign=bottom;endArrow=classic;endFill=1;endSize=8;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="1050" y="284" as="sourcePoint" /><mxPoint x="750" y="284" as="targetPoint" /></mxGeometry>
+        </mxCell>
+        <mxCell id="m5" value="空いている日時を読む" style="html=1;rounded=0;strokeWidth=1.5;fontSize=13;labelBackgroundColor=#FFFFFF;verticalAlign=bottom;endArrow=classic;endFill=1;endSize=8;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="750" y="332" as="sourcePoint" /><mxPoint x="1050" y="332" as="targetPoint" /></mxGeometry>
+        </mxCell>
+        <mxCell id="m6" value="空いている日時を返す" style="html=1;rounded=0;strokeWidth=1.5;fontSize=13;labelBackgroundColor=#FFFFFF;verticalAlign=bottom;endArrow=classic;endFill=1;endSize=8;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="1050" y="380" as="sourcePoint" /><mxPoint x="750" y="380" as="targetPoint" /></mxGeometry>
+        </mxCell>
+        <mxCell id="m7" value="選べる日時の一覧を返す" style="html=1;rounded=0;strokeWidth=1.5;fontSize=13;labelBackgroundColor=#FFFFFF;verticalAlign=bottom;endArrow=classic;endFill=1;endSize=8;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="750" y="428" as="sourcePoint" /><mxPoint x="450" y="428" as="targetPoint" /></mxGeometry>
+        </mxCell>
+        <mxCell id="m8" value="選べる日時を映す" style="html=1;rounded=0;strokeWidth=1.5;fontSize=13;labelBackgroundColor=#FFFFFF;verticalAlign=bottom;endArrow=classic;endFill=1;endSize=8;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="450" y="476" as="sourcePoint" /><mxPoint x="150" y="476" as="targetPoint" /></mxGeometry>
+        </mxCell>
+        <mxCell id="m9" value="日時を1つ選ぶ" style="html=1;rounded=0;strokeWidth=1.5;fontSize=13;labelBackgroundColor=#FFFFFF;verticalAlign=bottom;endArrow=classic;endFill=1;endSize=8;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="150" y="524" as="sourcePoint" /><mxPoint x="450" y="524" as="targetPoint" /></mxGeometry>
+        </mxCell>
+        <mxCell id="m10" value="選ばれた日時を送る" style="html=1;rounded=0;strokeWidth=1.5;fontSize=13;labelBackgroundColor=#FFFFFF;verticalAlign=bottom;endArrow=classic;endFill=1;endSize=8;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="450" y="572" as="sourcePoint" /><mxPoint x="750" y="572" as="targetPoint" /></mxGeometry>
+        </mxCell>
+        <mxCell id="m11" value="再配達の依頼を書き込む" style="html=1;rounded=0;strokeWidth=1.5;fontSize=13;labelBackgroundColor=#FFFFFF;verticalAlign=bottom;endArrow=classic;endFill=1;endSize=8;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="750" y="620" as="sourcePoint" /><mxPoint x="1050" y="620" as="targetPoint" /></mxGeometry>
+        </mxCell>
+        <mxCell id="m12" value="書き込めたことを返す" style="html=1;rounded=0;strokeWidth=1.5;fontSize=13;labelBackgroundColor=#FFFFFF;verticalAlign=bottom;endArrow=classic;endFill=1;endSize=8;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="1050" y="668" as="sourcePoint" /><mxPoint x="750" y="668" as="targetPoint" /></mxGeometry>
+        </mxCell>
+        <mxCell id="m13" value="受け付けたことと日時を返す" style="html=1;rounded=0;strokeWidth=1.5;fontSize=13;labelBackgroundColor=#FFFFFF;verticalAlign=bottom;endArrow=classic;endFill=1;endSize=8;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="750" y="716" as="sourcePoint" /><mxPoint x="450" y="716" as="targetPoint" /></mxGeometry>
+        </mxCell>
+        <mxCell id="m14" value="受け付けた日時を映す" style="html=1;rounded=0;strokeWidth=1.5;fontSize=13;labelBackgroundColor=#FFFFFF;verticalAlign=bottom;endArrow=classic;endFill=1;endSize=8;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="450" y="764" as="sourcePoint" /><mxPoint x="150" y="764" as="targetPoint" /></mxGeometry>
+        </mxCell>
+
+        <mxCell id="frame" value="" style="rounded=0;fillColor=none;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry x="40" y="40" width="1120" height="760" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

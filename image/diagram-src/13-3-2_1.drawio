@@ -1,0 +1,49 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="13-3-2_1">
+    <mxGraphModel dx="900" dy="600" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <mxCell id="s1" value="診療選択画面" style="rounded=0;whiteSpace=wrap;html=1;fontSize=15;fontStyle=1;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="300" y="60" width="210" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="s2" value="日時選択画面" style="rounded=0;whiteSpace=wrap;html=1;fontSize=15;fontStyle=1;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="300" y="380" width="210" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="s3" value="連絡先入力画面" style="rounded=0;whiteSpace=wrap;html=1;fontSize=15;fontStyle=1;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="300" y="700" width="210" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="s4" value="予約内容確認画面" style="rounded=0;whiteSpace=wrap;html=1;fontSize=15;fontStyle=1;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="1000" y="700" width="210" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="s5" value="予約完了画面" style="rounded=0;whiteSpace=wrap;html=1;fontSize=15;fontStyle=1;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="1000" y="380" width="210" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="e1" value="「この診療で予約する」を押す" style="html=1;rounded=0;strokeWidth=1.5;fontSize=13;verticalAlign=middle;labelBackgroundColor=#FFFFFF;endArrow=classic;endFill=1;endSize=8;exitX=0.3;exitY=1;exitDx=0;exitDy=0;entryX=0.3;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="s1" target="s2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" value="「次の週を見る」を押す" style="html=1;rounded=0;strokeWidth=1.5;fontSize=13;verticalAlign=middle;labelBackgroundColor=#FFFFFF;endArrow=classic;endFill=1;endSize=8;segment=100;direction=west;" edge="1" parent="1" source="s2" target="s2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e3" value="「この日時にする」を押す" style="html=1;rounded=0;strokeWidth=1.5;fontSize=13;verticalAlign=middle;labelBackgroundColor=#FFFFFF;endArrow=classic;endFill=1;endSize=8;exitX=0.3;exitY=1;exitDx=0;exitDy=0;entryX=0.3;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="s2" target="s3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e4" value="「入力内容を確認する」を押す" style="html=1;rounded=0;strokeWidth=1.5;fontSize=13;verticalAlign=middle;labelBackgroundColor=#FFFFFF;endArrow=classic;endFill=1;endSize=8;exitX=1;exitY=0.3;exitDx=0;exitDy=0;entryX=0;entryY=0.3;entryDx=0;entryDy=0;" edge="1" parent="1" source="s3" target="s4">
+          <mxGeometry x="-0.35" relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e5" value="「入力しなおす」を押す" style="html=1;rounded=0;strokeWidth=1.5;fontSize=13;verticalAlign=middle;labelBackgroundColor=#FFFFFF;endArrow=classic;endFill=1;endSize=8;exitX=0;exitY=0.75;exitDx=0;exitDy=0;entryX=1;entryY=0.75;entryDx=0;entryDy=0;" edge="1" parent="1" source="s4" target="s3">
+          <mxGeometry x="-0.35" relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e6" value="「予約を確定する」を押す" style="html=1;rounded=0;strokeWidth=1.5;fontSize=13;verticalAlign=middle;labelBackgroundColor=#FFFFFF;endArrow=classic;endFill=1;endSize=8;exitX=0.3;exitY=0;exitDx=0;exitDy=0;entryX=0.3;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="s4" target="s5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e7" value="「はじめに戻る」を押す" style="html=1;rounded=0;strokeWidth=1.5;fontSize=13;verticalAlign=middle;labelBackgroundColor=#FFFFFF;endArrow=classic;endFill=1;endSize=8;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="s5" target="s1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

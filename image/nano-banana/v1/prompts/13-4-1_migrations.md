@@ -176,7 +176,7 @@ foreignId('user_id')
 
 ## 挿入情報
 
-- ファイル: `curriculums/tutorial-13: 総仕上げ！学んだ技術をフル活用してアプリケーションを作ってみよう🔥/chapter-4: マイグレーションとモデル/13-4-1_migrations.md`
+- ファイル: `curriculums/tutorial-16: 総仕上げ！学んだ技術をフル活用してアプリケーションを作ってみよう🔥/chapter-4: マイグレーションとモデル/16-4-1_migrations.md`
 - 挿入位置: 「### テーブル作成の順序」のテーブル直後
 - 画像ファイル名: `13-4-1_c1.png`
 

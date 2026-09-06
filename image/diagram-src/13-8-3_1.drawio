@@ -1,0 +1,25 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="13-8-3_1">
+    <mxGraphModel dx="900" dy="600" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <mxCell id="users" value="users" style="rounded=0;whiteSpace=wrap;html=1;fontSize=15;fontStyle=1;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="40" y="40" width="240" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="expenses" value="expenses" style="rounded=0;whiteSpace=wrap;html=1;fontSize=15;fontStyle=1;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="40" y="340" width="240" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="e1" value="1人の社員は、&#10;複数の申請を出す" style="html=1;rounded=0;strokeWidth=1.5;fontSize=13;verticalAlign=middle;labelBackgroundColor=#FFFFFF;startArrow=ERmandOne;startFill=0;startSize=14;endArrow=ERzeroToMany;endFill=0;endSize=14;exitX=0.2;exitY=1;exitDx=0;exitDy=0;entryX=0.2;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="users" target="expenses">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" value="1人の承認者は、&#10;複数の申請を判断する" style="html=1;rounded=0;strokeWidth=1.5;fontSize=13;verticalAlign=middle;labelBackgroundColor=#FFFFFF;startArrow=ERzeroToOne;startFill=0;startSize=14;endArrow=ERzeroToMany;endFill=0;endSize=14;exitX=0.8;exitY=1;exitDx=0;exitDy=0;entryX=0.8;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="users" target="expenses">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

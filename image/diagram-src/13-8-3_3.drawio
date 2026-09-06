@@ -1,0 +1,48 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="13-8-3_3">
+    <mxGraphModel dx="900" dy="600" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <mxCell id="start" value="" style="ellipse;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#000000;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="520" y="180" width="30" height="30" as="geometry" />
+        </mxCell>
+
+        <mxCell id="s1" value="申請中" style="rounded=0;whiteSpace=wrap;html=1;fontSize=15;fontStyle=1;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="450" y="300" width="170" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="s2" value="差し戻し" style="rounded=0;whiteSpace=wrap;html=1;fontSize=15;fontStyle=1;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="40" y="300" width="170" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="s3" value="承認済み" style="rounded=0;whiteSpace=wrap;html=1;fontSize=15;fontStyle=1;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="860" y="300" width="170" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="end1" value="" style="ellipse;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#000000;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="928" y="460" width="34" height="34" as="geometry" />
+        </mxCell>
+        <mxCell id="end1i" value="" style="ellipse;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#000000;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="935" y="467" width="20" height="20" as="geometry" />
+        </mxCell>
+
+        <mxCell id="t1" value="" style="html=1;rounded=0;strokeWidth=1.5;fontSize=13;labelBackgroundColor=#FFFFFF;endArrow=classic;endFill=1;endSize=8;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="start" target="s1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="t2" value="承認者が差し戻す&#10;（差し戻しの理由が書かれていること）" style="html=1;rounded=0;strokeWidth=1.5;fontSize=13;labelBackgroundColor=#FFFFFF;endArrow=classic;endFill=1;endSize=8;exitX=0;exitY=0.15;exitDx=0;exitDy=0;entryX=1;entryY=0.15;entryDx=0;entryDy=0;" edge="1" parent="1" source="s1" target="s2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="t3" value="申請者が書き直して出し直す&#10;（出し直せるのは、その申請を出した本人だけ）" style="html=1;rounded=0;strokeWidth=1.5;fontSize=13;labelBackgroundColor=#FFFFFF;endArrow=classic;endFill=1;endSize=8;exitX=1;exitY=0.85;exitDx=0;exitDy=0;entryX=0;entryY=0.85;entryDx=0;entryDy=0;" edge="1" parent="1" source="s2" target="s1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="t4" value="承認者が承認する" style="html=1;rounded=0;strokeWidth=1.5;fontSize=13;labelBackgroundColor=#FFFFFF;endArrow=classic;endFill=1;endSize=8;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="s1" target="s3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="t5" value="" style="html=1;rounded=0;strokeWidth=1.5;fontSize=13;labelBackgroundColor=#FFFFFF;endArrow=classic;endFill=1;endSize=8;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="s3" target="end1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

@@ -3,5 +3,19 @@
     "deny": [
       "Read(./.env)"
     ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 -B \"${CLAUDE_PROJECT_DIR}/.claude/hooks/post-edit-lint.py\"",
+            "timeout": 90
+          }
+        ]
+      }
+    ]
   }
 }

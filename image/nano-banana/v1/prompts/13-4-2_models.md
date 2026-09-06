@@ -119,7 +119,7 @@ Taskモデル: belongsTo(Category::class) → category() [単数形]
 
 ### 挿入情報
 
-- ファイル: `curriculums/tutorial-13: 総仕上げ！学んだ技術をフル活用してアプリケーションを作ってみよう🔥/chapter-4: マイグレーションとモデル/13-4-2_models_and_relations.md`
+- ファイル: `curriculums/tutorial-16: 総仕上げ！学んだ技術をフル活用してアプリケーションを作ってみよう🔥/chapter-4: マイグレーションとモデル/16-4-2_models_and_relations.md`
 - 挿入位置: 「🧠 先輩エンジニアの思考プロセス」セクションの「リレーションの設計」表の後（L38付近、「---」の直前）
 - 画像ファイル名: `13-4-2_c1.png`
 

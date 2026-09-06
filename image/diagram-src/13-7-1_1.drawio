@@ -1,0 +1,63 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="13-7-1_1">
+    <mxGraphModel dx="900" dy="600" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <mxCell id="rc_name" value="ReportController" style="rounded=0;whiteSpace=wrap;html=1;fontSize=15;fontStyle=1;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="40" y="140" width="170" height="44" as="geometry" />
+        </mxCell>
+        <mxCell id="rc_attr" value="" style="rounded=0;whiteSpace=wrap;html=1;fontSize=15;fontStyle=0;strokeWidth=1.5;align=left;spacingLeft=8;" vertex="1" parent="1">
+          <mxGeometry x="40" y="184" width="170" height="36" as="geometry" />
+        </mxCell>
+        <mxCell id="rc_op1" value="index()" style="rounded=0;whiteSpace=wrap;html=1;fontSize=15;fontStyle=0;strokeWidth=1.5;align=left;spacingLeft=8;" vertex="1" parent="1">
+          <mxGeometry x="40" y="220" width="170" height="36" as="geometry" />
+        </mxCell>
+        <mxCell id="rc_op2" value="show()" style="rounded=0;whiteSpace=wrap;html=1;fontSize=15;fontStyle=0;strokeWidth=1.5;align=left;spacingLeft=8;" vertex="1" parent="1">
+          <mxGeometry x="40" y="256" width="170" height="36" as="geometry" />
+        </mxCell>
+        <mxCell id="rc_op3" value="store()" style="rounded=0;whiteSpace=wrap;html=1;fontSize=15;fontStyle=0;strokeWidth=1.5;align=left;spacingLeft=8;" vertex="1" parent="1">
+          <mxGeometry x="40" y="292" width="170" height="36" as="geometry" />
+        </mxCell>
+
+        <mxCell id="rp_name" value="Report" style="rounded=0;whiteSpace=wrap;html=1;fontSize=15;fontStyle=1;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="430" y="60" width="170" height="44" as="geometry" />
+        </mxCell>
+        <mxCell id="rp_attr1" value="work_date" style="rounded=0;whiteSpace=wrap;html=1;fontSize=15;fontStyle=0;strokeWidth=1.5;align=left;spacingLeft=8;" vertex="1" parent="1">
+          <mxGeometry x="430" y="104" width="170" height="36" as="geometry" />
+        </mxCell>
+        <mxCell id="rp_attr2" value="body" style="rounded=0;whiteSpace=wrap;html=1;fontSize=15;fontStyle=0;strokeWidth=1.5;align=left;spacingLeft=8;" vertex="1" parent="1">
+          <mxGeometry x="430" y="140" width="170" height="36" as="geometry" />
+        </mxCell>
+        <mxCell id="rp_op1" value="comments()" style="rounded=0;whiteSpace=wrap;html=1;fontSize=15;fontStyle=0;strokeWidth=1.5;align=left;spacingLeft=8;" vertex="1" parent="1">
+          <mxGeometry x="430" y="176" width="170" height="36" as="geometry" />
+        </mxCell>
+
+        <mxCell id="cm_name" value="Comment" style="rounded=0;whiteSpace=wrap;html=1;fontSize=15;fontStyle=1;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="820" y="60" width="170" height="44" as="geometry" />
+        </mxCell>
+        <mxCell id="cm_attr1" value="body" style="rounded=0;whiteSpace=wrap;html=1;fontSize=15;fontStyle=0;strokeWidth=1.5;align=left;spacingLeft=8;" vertex="1" parent="1">
+          <mxGeometry x="820" y="104" width="170" height="36" as="geometry" />
+        </mxCell>
+        <mxCell id="cm_op1" value="report()" style="rounded=0;whiteSpace=wrap;html=1;fontSize=15;fontStyle=0;strokeWidth=1.5;align=left;spacingLeft=8;" vertex="1" parent="1">
+          <mxGeometry x="820" y="140" width="170" height="36" as="geometry" />
+        </mxCell>
+
+        <mxCell id="e1" value="使う" style="edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;strokeWidth=1.5;fontSize=13;labelBackgroundColor=#FFFFFF;endArrow=classic;endFill=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="rc_name" target="rp_name">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="320" y="162" />
+              <mxPoint x="320" y="82" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="e2" value="1件の日報には、&#10;複数のコメントが付く" style="html=1;rounded=0;strokeWidth=1.5;fontSize=13;verticalAlign=middle;labelBackgroundColor=#FFFFFF;endArrow=none;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="rp_name" target="cm_name">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

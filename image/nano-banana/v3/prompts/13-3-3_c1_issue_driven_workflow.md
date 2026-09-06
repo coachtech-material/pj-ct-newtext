@@ -1,7 +1,7 @@
 # 13-3-3_c1: Issue駆動ワークフロー
 
 ## 対象Section
-- Tutorial 13-3-3: Git/GitHub準備とIssue登録
+- Tutorial 16-3-3: Git/GitHub準備とIssue登録
 - 説明: Issue駆動開発とPRベースの開発フローを示す概念図
 
 ## リサーチメモ

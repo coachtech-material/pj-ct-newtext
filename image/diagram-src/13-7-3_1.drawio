@@ -1,0 +1,133 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="13-7-3_1">
+    <mxGraphModel dx="900" dy="600" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <mxCell id="pc_name" value="PostController" style="rounded=0;whiteSpace=wrap;html=1;fontSize=15;fontStyle=1;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="100" y="60" width="170" height="44" as="geometry" />
+        </mxCell>
+        <mxCell id="pc_attr" value="" style="rounded=0;whiteSpace=wrap;html=1;fontSize=15;fontStyle=0;strokeWidth=1.5;align=left;spacingLeft=8;" vertex="1" parent="1">
+          <mxGeometry x="100" y="104" width="170" height="36" as="geometry" />
+        </mxCell>
+        <mxCell id="pc_op1" value="index()" style="rounded=0;whiteSpace=wrap;html=1;fontSize=15;fontStyle=0;strokeWidth=1.5;align=left;spacingLeft=8;" vertex="1" parent="1">
+          <mxGeometry x="100" y="140" width="170" height="36" as="geometry" />
+        </mxCell>
+        <mxCell id="pc_op2" value="edit()" style="rounded=0;whiteSpace=wrap;html=1;fontSize=15;fontStyle=0;strokeWidth=1.5;align=left;spacingLeft=8;" vertex="1" parent="1">
+          <mxGeometry x="100" y="176" width="170" height="36" as="geometry" />
+        </mxCell>
+        <mxCell id="pc_op3" value="update()" style="rounded=0;whiteSpace=wrap;html=1;fontSize=15;fontStyle=0;strokeWidth=1.5;align=left;spacingLeft=8;" vertex="1" parent="1">
+          <mxGeometry x="100" y="212" width="170" height="36" as="geometry" />
+        </mxCell>
+        <mxCell id="pc_op4" value="destroy()" style="rounded=0;whiteSpace=wrap;html=1;fontSize=15;fontStyle=0;strokeWidth=1.5;align=left;spacingLeft=8;" vertex="1" parent="1">
+          <mxGeometry x="100" y="248" width="170" height="36" as="geometry" />
+        </mxCell>
+
+        <mxCell id="po_name" value="Post" style="rounded=0;whiteSpace=wrap;html=1;fontSize=15;fontStyle=1;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="490" y="60" width="170" height="44" as="geometry" />
+        </mxCell>
+        <mxCell id="po_attr1" value="title" style="rounded=0;whiteSpace=wrap;html=1;fontSize=15;fontStyle=0;strokeWidth=1.5;align=left;spacingLeft=8;" vertex="1" parent="1">
+          <mxGeometry x="490" y="104" width="170" height="36" as="geometry" />
+        </mxCell>
+        <mxCell id="po_attr2" value="content" style="rounded=0;whiteSpace=wrap;html=1;fontSize=15;fontStyle=0;strokeWidth=1.5;align=left;spacingLeft=8;" vertex="1" parent="1">
+          <mxGeometry x="490" y="140" width="170" height="36" as="geometry" />
+        </mxCell>
+        <mxCell id="po_op1" value="user()" style="rounded=0;whiteSpace=wrap;html=1;fontSize=15;fontStyle=0;strokeWidth=1.5;align=left;spacingLeft=8;" vertex="1" parent="1">
+          <mxGeometry x="490" y="176" width="170" height="36" as="geometry" />
+        </mxCell>
+        <mxCell id="po_op2" value="category()" style="rounded=0;whiteSpace=wrap;html=1;fontSize=15;fontStyle=0;strokeWidth=1.5;align=left;spacingLeft=8;" vertex="1" parent="1">
+          <mxGeometry x="490" y="212" width="170" height="36" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ca_name" value="Category" style="rounded=0;whiteSpace=wrap;html=1;fontSize=15;fontStyle=1;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="880" y="60" width="170" height="44" as="geometry" />
+        </mxCell>
+        <mxCell id="ca_attr1" value="name" style="rounded=0;whiteSpace=wrap;html=1;fontSize=15;fontStyle=0;strokeWidth=1.5;align=left;spacingLeft=8;" vertex="1" parent="1">
+          <mxGeometry x="880" y="104" width="170" height="36" as="geometry" />
+        </mxCell>
+        <mxCell id="ca_op1" value="posts()" style="rounded=0;whiteSpace=wrap;html=1;fontSize=15;fontStyle=0;strokeWidth=1.5;align=left;spacingLeft=8;" vertex="1" parent="1">
+          <mxGeometry x="880" y="140" width="170" height="36" as="geometry" />
+        </mxCell>
+
+        <mxCell id="pp_name" value="PostPolicy" style="rounded=0;whiteSpace=wrap;html=1;fontSize=15;fontStyle=1;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="100" y="420" width="170" height="44" as="geometry" />
+        </mxCell>
+        <mxCell id="pp_attr" value="" style="rounded=0;whiteSpace=wrap;html=1;fontSize=15;fontStyle=0;strokeWidth=1.5;align=left;spacingLeft=8;" vertex="1" parent="1">
+          <mxGeometry x="100" y="464" width="170" height="36" as="geometry" />
+        </mxCell>
+        <mxCell id="pp_op1" value="update()" style="rounded=0;whiteSpace=wrap;html=1;fontSize=15;fontStyle=0;strokeWidth=1.5;align=left;spacingLeft=8;" vertex="1" parent="1">
+          <mxGeometry x="100" y="500" width="170" height="36" as="geometry" />
+        </mxCell>
+        <mxCell id="pp_op2" value="delete()" style="rounded=0;whiteSpace=wrap;html=1;fontSize=15;fontStyle=0;strokeWidth=1.5;align=left;spacingLeft=8;" vertex="1" parent="1">
+          <mxGeometry x="100" y="536" width="170" height="36" as="geometry" />
+        </mxCell>
+
+        <mxCell id="us_name" value="User" style="rounded=0;whiteSpace=wrap;html=1;fontSize=15;fontStyle=1;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="490" y="420" width="170" height="44" as="geometry" />
+        </mxCell>
+        <mxCell id="us_attr1" value="name" style="rounded=0;whiteSpace=wrap;html=1;fontSize=15;fontStyle=0;strokeWidth=1.5;align=left;spacingLeft=8;" vertex="1" parent="1">
+          <mxGeometry x="490" y="464" width="170" height="36" as="geometry" />
+        </mxCell>
+        <mxCell id="us_attr2" value="email" style="rounded=0;whiteSpace=wrap;html=1;fontSize=15;fontStyle=0;strokeWidth=1.5;align=left;spacingLeft=8;" vertex="1" parent="1">
+          <mxGeometry x="490" y="500" width="170" height="36" as="geometry" />
+        </mxCell>
+        <mxCell id="us_attr3" value="password" style="rounded=0;whiteSpace=wrap;html=1;fontSize=15;fontStyle=0;strokeWidth=1.5;align=left;spacingLeft=8;" vertex="1" parent="1">
+          <mxGeometry x="490" y="536" width="170" height="36" as="geometry" />
+        </mxCell>
+        <mxCell id="us_op1" value="posts()" style="rounded=0;whiteSpace=wrap;html=1;fontSize=15;fontStyle=0;strokeWidth=1.5;align=left;spacingLeft=8;" vertex="1" parent="1">
+          <mxGeometry x="490" y="572" width="170" height="36" as="geometry" />
+        </mxCell>
+
+        <mxCell id="e1" value="使う" style="edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;strokeWidth=1.5;fontSize=13;labelBackgroundColor=#FFFFFF;endArrow=classic;endFill=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="pc_name" target="po_name">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="e2" value="1つのカテゴリには、&#10;複数の投稿が入る" style="html=1;rounded=0;strokeWidth=1.5;fontSize=13;verticalAlign=middle;labelBackgroundColor=#FFFFFF;endArrow=none;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="po_name" target="ca_name">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="e3" value="使う" style="edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;strokeWidth=1.5;fontSize=13;labelBackgroundColor=#FFFFFF;endArrow=classic;endFill=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="pc_name" target="ca_name">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="185" y="20" />
+              <mxPoint x="965" y="20" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="e4" value="使う" style="edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;strokeWidth=1.5;fontSize=13;labelBackgroundColor=#FFFFFF;endArrow=classic;endFill=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="pc_name" target="pp_name">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="50" y="82" />
+              <mxPoint x="50" y="442" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="e5" value="使う" style="edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;strokeWidth=1.5;fontSize=13;labelBackgroundColor=#FFFFFF;endArrow=classic;endFill=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="pp_name" target="us_name">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="e6" value="使う" style="edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;strokeWidth=1.5;fontSize=13;labelBackgroundColor=#FFFFFF;endArrow=classic;endFill=1;exitX=1;exitY=0.85;exitDx=0;exitDy=0;entryX=0;entryY=0.75;entryDx=0;entryDy=0;" edge="1" parent="1" source="pp_name" target="po_name">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="400" y="457" />
+              <mxPoint x="400" y="93" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="e7" value="1人のユーザーは、&#10;複数の投稿を持つ" style="edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;strokeWidth=1.5;fontSize=13;verticalAlign=middle;labelBackgroundColor=#FFFFFF;endArrow=none;exitX=1;exitY=0.85;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="po_name" target="us_name">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="770" y="97" />
+              <mxPoint x="770" y="442" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
