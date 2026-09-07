@@ -75,7 +75,7 @@ claude -w edited-mark
 
 **書く場所が開いたところ**
 
-<img alt="15-5-1_1.png" src="../../../image/15-5-1_1.png">
+<img alt="15-5-1_1.png" src="">
 
 新しい書く場所の元になるのは、**リモートの既定ブランチ**です。手元にあるだけでまだpushしていないコミットは、そこには入りません。
 
@@ -280,7 +280,7 @@ git switch -c receive-edited-mark origin/worktree-edited-mark
 
 **「編集済み」が出たタイムライン**
 
-<img alt="15-5-1_2.png" src="../../../image/15-5-1_2.png">
+<img alt="15-5-1_2.png" src="">
 
 落ちた行があれば、直すのは書く場所です。Keepしてある書く場所を `claude -w edited-mark` で開き直し、直させて、もう一度pushします。検証する場所へ戻ったら、受け取り用のブランチのまま `git pull origin worktree-edited-mark` で続きを取り込みます。
 

@@ -138,7 +138,7 @@ claude
 
 **開き直したあとの `/context`**
 
-<img alt="15-2-3_1.png" src="../../../image/15-2-3_1.png">
+<img alt="15-2-3_1.png" src="">
 
 ### Step 4: コミットする
 

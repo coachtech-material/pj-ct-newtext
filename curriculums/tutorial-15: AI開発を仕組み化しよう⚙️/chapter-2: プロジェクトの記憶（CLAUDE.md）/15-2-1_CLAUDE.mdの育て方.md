@@ -218,7 +218,7 @@ claude
 
 **書き足した `CLAUDE.md`**
 
-<img alt="15-2-1_1.png" src="../../../image/15-2-1_1.png">
+<img alt="15-2-1_1.png" src="">
 
 ### Step 4: コミットする
 
@@ -232,7 +232,7 @@ CLAUDE.md をコミットして、main に push して。
 
 **`/context` の Memory files**
 
-<img alt="15-2-1_2.png" src="../../../image/15-2-1_2.png">
+<img alt="15-2-1_2.png" src="">
 
 ここまでで、次を確かめてください。
 
