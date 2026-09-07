@@ -218,7 +218,7 @@ claude
 
 **書き足した `CLAUDE.md`**
 
-<img alt="15-2-1_1.png" src="">
+<img alt="15-2-1_1.png" src="https://s3.ap-northeast-1.amazonaws.com/coachtech-lms-bucket-dev/curriculums/images/15-2-1_1.png">
 
 ### Step 4: コミットする
 
@@ -232,7 +232,7 @@ CLAUDE.md をコミットして、main に push して。
 
 **`/context` の Memory files**
 
-<img alt="15-2-1_2.png" src="">
+<img alt="15-2-1_2.png" src="https://s3.ap-northeast-1.amazonaws.com/coachtech-lms-bucket-dev/curriculums/images/15-2-1_2.png">
 
 ここまでで、次を確かめてください。
 

@@ -161,7 +161,7 @@ Claude Code: （書いた手順がそのまま読み込まれ、docs/reply.md �
 
 **`/uat` を呼んだ結果**
 
-<img alt="15-3-4_1.png" src="">
+<img alt="15-3-4_1.png" src="https://s3.ap-northeast-1.amazonaws.com/coachtech-lms-bucket-dev/curriculums/images/15-3-4_1.png">
 
 Step 2の報告と見比べます。同じ4行に、同じ判定が返っていれば、依頼文を貼り直す作業が部品に移っています。画面の見え方は2026年8月時点のものです。
 

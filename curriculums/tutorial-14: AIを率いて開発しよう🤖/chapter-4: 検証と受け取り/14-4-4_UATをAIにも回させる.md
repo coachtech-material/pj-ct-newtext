@@ -43,7 +43,7 @@ claude mcp list
 
 **`claude mcp list` で接続を確かめたところ**
 
-<img alt="14-4-4_1.png" src="">
+<img alt="14-4-4_1.png" src="https://s3.ap-northeast-1.amazonaws.com/coachtech-lms-bucket-dev/curriculums/images/14-4-4_1.png">
 
 > 💡 **TIP**: コマンドと表示は2026年8月時点のものです。違っていたら、`/help` と公式ドキュメントで確かめてください。
 
@@ -95,7 +95,7 @@ Claude Code: usera でログインし、タイムラインの1件目を開きま
 
 **AIがブラウザを操作して、結果を報告しているところ**
 
-<img alt="14-4-4_2.png" src="">
+<img alt="14-4-4_2.png" src="https://s3.ap-northeast-1.amazonaws.com/coachtech-lms-bucket-dev/curriculums/images/14-4-4_2.png">
 
 ### Step 3: 報告とスクリーンショットを読んで判定する
 

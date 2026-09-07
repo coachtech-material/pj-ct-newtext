@@ -190,7 +190,7 @@ Claude Codeの入力欄に `/clear` を打ちます。ここまでのやり取�
 
 **`/clear` のあとに3問を聞いたところ**
 
-<img alt="15-2-4_1.png" src="">
+<img alt="15-2-4_1.png" src="https://s3.ap-northeast-1.amazonaws.com/coachtech-lms-bucket-dev/curriculums/images/15-2-4_1.png">
 
 答えられなかった問いがあれば、その根拠になる行を足します。15-2-1で見た3つ目の引き金です。足したら、もう一度 `/clear` を打ってから、同じ質問をします。
 

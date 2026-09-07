@@ -66,7 +66,7 @@ cp .env.example .env
 
 **タイムラインの画面**
 
-<img alt="14-1-2_1.png" src="">
+<img alt="14-1-2_1.png" src="https://s3.ap-northeast-1.amazonaws.com/coachtech-lms-bucket-dev/curriculums/images/14-1-2_1.png">
 
 「編集」「削除」の出し分けを決めているのは `app/Policies/PostPolicy.php` です。
 
@@ -273,7 +273,7 @@ claude
 
 **フォルダの確認**
 
-<img alt="14-1-2_2.png" src="">
+<img alt="14-1-2_2.png" src="https://s3.ap-northeast-1.amazonaws.com/coachtech-lms-bucket-dev/curriculums/images/14-1-2_2.png">
 
 ログインでは、ブラウザが開いてサインインを求められます。用意したPro以上のプランのアカウントでサインインしてください。この教材の画面はProより上のプランで撮っているので、プラン名の表示が違って見えることがあります。終わるとターミナルに `Login successful` と表示され、`Enter` を押すと先へ進みます。一度ログインすれば、次からは聞かれません。
 
@@ -281,7 +281,7 @@ claude
 
 **起動した直後の画面**
 
-<img alt="14-1-2_3.png" src="">
+<img alt="14-1-2_3.png" src="https://s3.ap-northeast-1.amazonaws.com/coachtech-lms-bucket-dev/curriculums/images/14-1-2_3.png">
 
 上のほうに、いま選ばれているモデルと、契約しているプランの名前が出ます。この教材の画像は撮影に使ったアカウントのものなので、プランの名前はあなたの画面と違って見えることがあります。
 
@@ -413,7 +413,7 @@ Claude Code: （README.md を読み、末尾に1行を足して、書き換え�
 
 **書き換えた箇所が差分で出ている画面**
 
-<img alt="14-1-2_4.png" src="">
+<img alt="14-1-2_4.png" src="https://s3.ap-northeast-1.amazonaws.com/coachtech-lms-bucket-dev/curriculums/images/14-1-2_4.png">
 
 ここに出るのは、書き換わった瞬間の1回だけです。何ファイルにも及ぶ依頼だと、そのあとの作業に流されて、さかのぼるのが面倒になります。まとめて読み直すときは、VS Codeの**ソース管理**ビューを開きます。左端に縦に並ぶアイコンのうち、枝分かれの形をしたものです。
 
@@ -421,7 +421,7 @@ Claude Code: （README.md を読み、末尾に1行を足して、書き換え�
 
 **VS Codeのソース管理ビュー**
 
-<img alt="14-1-2_5.png" src="">
+<img alt="14-1-2_5.png" src="https://s3.ap-northeast-1.amazonaws.com/coachtech-lms-bucket-dev/curriculums/images/14-1-2_5.png">
 
 AIが何を書いたのかを読む場所は、この2つです。書き換わった瞬間に見るならセッションの画面、あとからまとめて読むならソース管理ビュー。どちらも、まだコミットしていない状態を見ています。
 

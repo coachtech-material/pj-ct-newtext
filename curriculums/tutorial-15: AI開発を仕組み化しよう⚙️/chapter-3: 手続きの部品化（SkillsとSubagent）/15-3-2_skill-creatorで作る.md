@@ -109,7 +109,7 @@ gh pr diff <番号> でリプライ機能の差分を出して、次の順で読
 
 **SKILL.mdができた画面（2026年8月時点）**
 
-<img alt="15-3-2_1.png" src="">
+<img alt="15-3-2_1.png" src="https://s3.ap-northeast-1.amazonaws.com/coachtech-lms-bucket-dev/curriculums/images/15-3-2_1.png">
 
 > 💡 **進行例について**: AIとの開発は毎回違う流れになります。ここに示すのは一つの進行例です。あなたの画面と違っていても、チェックリストを満たしていれば正解です。
 
@@ -136,7 +136,7 @@ VS Codeで `.claude/skills/review-diff/SKILL.md` を開きます。読む前に�
 
 **生成された `SKILL.md`**
 
-<img alt="15-3-2_2.png" src="">
+<img alt="15-3-2_2.png" src="https://s3.ap-northeast-1.amazonaws.com/coachtech-lms-bucket-dev/curriculums/images/15-3-2_2.png">
 
 ### Step 6: 突き合わせ先が無いときの決めを、自分で足す
 

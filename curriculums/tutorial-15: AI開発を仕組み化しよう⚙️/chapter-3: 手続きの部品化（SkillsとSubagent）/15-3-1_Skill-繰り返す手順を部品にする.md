@@ -102,7 +102,7 @@ Claudeが選んだときは、画面に `Skill(review-diff)` と出ます。自�
 
 **Claudeが選んだときの表示（2026年8月時点）**
 
-<img alt="15-3-1_1.png" src="">
+<img alt="15-3-1_1.png" src="https://s3.ap-northeast-1.amazonaws.com/coachtech-lms-bucket-dev/curriculums/images/15-3-1_1.png">
 
 `/` を打つと使えるものの候補が出るところは、14-1-2で見たとおりです。`/review-diff` の後ろに続けて書いた文も、一緒に部品へ渡ります。
 

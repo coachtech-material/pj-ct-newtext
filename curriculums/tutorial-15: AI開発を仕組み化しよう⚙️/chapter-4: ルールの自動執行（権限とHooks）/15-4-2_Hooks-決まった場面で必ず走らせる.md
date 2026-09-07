@@ -91,7 +91,7 @@ Claude Codeは、この数字を見ています。`2` を受け取ると、失�
 
 **場面を選んだ先に出るフックの中身**
 
-<img alt="15-4-2_1.png" src="">
+<img alt="15-4-2_1.png" src="https://s3.ap-northeast-1.amazonaws.com/coachtech-lms-bucket-dev/curriculums/images/15-4-2_1.png">
 
 ### 落ちたときだけ、AIに届く
 

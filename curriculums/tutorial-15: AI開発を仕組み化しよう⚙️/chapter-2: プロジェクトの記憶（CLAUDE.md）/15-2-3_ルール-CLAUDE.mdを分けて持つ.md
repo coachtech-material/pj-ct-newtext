@@ -138,7 +138,7 @@ claude
 
 **開き直したあとの `/context`**
 
-<img alt="15-2-3_1.png" src="">
+<img alt="15-2-3_1.png" src="https://s3.ap-northeast-1.amazonaws.com/coachtech-lms-bucket-dev/curriculums/images/15-2-3_1.png">
 
 ### Step 4: コミットする
 

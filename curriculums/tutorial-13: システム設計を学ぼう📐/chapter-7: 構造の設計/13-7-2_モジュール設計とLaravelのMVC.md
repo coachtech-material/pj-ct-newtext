@@ -44,7 +44,7 @@
 
 **日報アプリの構造図**
 
-<img alt="13-7-2_1.png" src="">
+<img alt="13-7-2_1.png" src="https://s3.ap-northeast-1.amazonaws.com/coachtech-lms-bucket-dev/curriculums/images/13-7-2_1.png">
 
 四角の中は、まとまりの名前だけです。そのまとまりが実物のどこにあり、何を置くのかは、図と一緒に表で持ちます。
 
@@ -160,7 +160,7 @@ git push origin main
 
 **投稿アプリの構造図（解答例）**
 
-<img alt="13-7-2_2.png" src="">
+<img alt="13-7-2_2.png" src="https://s3.ap-northeast-1.amazonaws.com/coachtech-lms-bucket-dev/curriculums/images/13-7-2_2.png">
 
 まとまりと、それぞれの実物の場所は、次のとおりです。
 
