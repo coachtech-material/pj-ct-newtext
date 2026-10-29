@@ -134,7 +134,7 @@ sail artisan route:list --path=logout
 **`config/app.php`**
 
 ```php
-'providers' => [
+'providers' => ServiceProvider::defaultProviders()->merge([
     // ...既存のプロバイダ
 
     /*
@@ -146,7 +146,7 @@ sail artisan route:list --path=logout
     App\Providers\EventServiceProvider::class,
     App\Providers\RouteServiceProvider::class,
     App\Providers\FortifyServiceProvider::class, // ← この行を追加
-],
+])->toArray(),
 ```
 
 > ⚠️ **注意**: この登録を忘れると、Fortifyのルートやビューが機能しません。
