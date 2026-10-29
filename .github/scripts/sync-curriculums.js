@@ -5,6 +5,9 @@ const http = require('http');
 
 const CURRICULUMS_DIR = path.join(process.cwd(), 'curriculums');
 
+/** リネーム台帳（任意）。存在すれば payload に renames を同梱する */
+const RENAMES_FILE = path.join(process.cwd(), 'curriculum-renames.json');
+
 /**
  * ディレクトリ内のサブディレクトリ一覧を取得（ソート済み）
  */
@@ -82,6 +85,62 @@ function collectCurriculums() {
 }
 
 /**
+ * リネーム台帳を読み込む
+ *
+ * ディレクトリ名・ファイル名を変更すると、title 基準の upsert では新規レコードになり
+ * 学習進捗が引き継がれない。台帳を同梱すると LMS 側が upsert の前に title だけを
+ * 更新する（行 ID は不変）。適用済みの指示は LMS 側で冪等にスキップされる。
+ *
+ * 台帳が無い場合は null を返し、従来どおり renames なしで送信する。
+ */
+function loadRenames() {
+  if (!fs.existsSync(RENAMES_FILE)) {
+    return null;
+  }
+
+  let parsed;
+  try {
+    parsed = JSON.parse(fs.readFileSync(RENAMES_FILE, 'utf-8'));
+  } catch (error) {
+    throw new Error(`curriculum-renames.json のJSONが不正です: ${error.message}`);
+  }
+
+  const renames = parsed.renames;
+  if (!Array.isArray(renames)) {
+    throw new Error('curriculum-renames.json に配列の renames がありません');
+  }
+
+  for (const [index, entry] of renames.entries()) {
+    const where = `renames[${index}]`;
+    if (entry === null || typeof entry !== 'object') {
+      throw new Error(`${where} がオブジェクトではありません`);
+    }
+    if (entry.type === 'curriculum') {
+      requireStrings(entry, ['from', 'to'], where);
+    } else if (entry.type === 'section_prefix') {
+      requireStrings(entry, ['curriculum', 'from_prefix', 'to_prefix'], where);
+    } else {
+      throw new Error(
+        `${where}.type「${entry.type}」は未対応です（curriculum / section_prefix のみ）`
+      );
+    }
+  }
+
+  return renames;
+}
+
+/**
+ * 指定キーがすべて空でない文字列であることを確認する
+ */
+function requireStrings(entry, keys, where) {
+  for (const key of keys) {
+    if (typeof entry[key] !== 'string' || entry[key] === '') {
+      throw new Error(`${where}.${key} が空でない文字列ではありません`);
+    }
+  }
+}
+
+/**
  * API に JSON データを送信
  */
 function sendToApi(data, apiUrl, apiKey) {
@@ -153,6 +212,14 @@ async function main() {
   console.log('=== Collecting curriculum data ===');
   const curriculums = collectCurriculums();
 
+  let renames;
+  try {
+    renames = loadRenames();
+  } catch (error) {
+    console.error(`Error: ${error.message}`);
+    process.exit(1);
+  }
+
   const totalCurriculums = curriculums.length;
   const totalChapters = curriculums.reduce((sum, c) => sum + c.chapters.length, 0);
   const totalSections = curriculums.reduce(
@@ -162,8 +229,24 @@ async function main() {
 
   console.log(`Collected: ${totalCurriculums} curriculums, ${totalChapters} chapters, ${totalSections} sections`);
 
+  if (renames) {
+    console.log(`Renames: ${renames.length} entries (curriculum-renames.json)`);
+    for (const entry of renames) {
+      if (entry.type === 'curriculum') {
+        console.log(`  curriculum: "${entry.from}" -> "${entry.to}"`);
+      } else {
+        console.log(
+          `  section_prefix: "${entry.from_prefix}" -> "${entry.to_prefix}" in "${entry.curriculum}"`
+        );
+      }
+    }
+  } else {
+    console.log('Renames: none (curriculum-renames.json が無いため従来どおり送信します)');
+  }
+
   const payload = {
     workspaceId: workspaceId,
+    ...(renames && { renames: renames }),
     curriculums: curriculums
   };
 

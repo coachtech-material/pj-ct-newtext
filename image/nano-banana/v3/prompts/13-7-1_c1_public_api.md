@@ -1,7 +1,7 @@
 # 13-7-1_c1: 公開API
 
 ## 対象Section
-- Tutorial 13-7-1: 公開API実装
+- Tutorial 16-7-1: 公開API実装
 - 説明: WebコントローラとAPIコントローラの違いの概念図
 
 ## リサーチメモ

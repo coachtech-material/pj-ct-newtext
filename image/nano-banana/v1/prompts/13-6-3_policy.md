@@ -110,7 +110,7 @@ Policyを使うメリット:
 
 ## 挿入情報
 
-- ファイル: `curriculums/tutorial-13: 総仕上げ！学んだ技術をフル活用してアプリケーションを作ってみよう🔥/chapter-6: CRUD機能/13-6-3_task_policy.md`
+- ファイル: `curriculums/tutorial-16: 総仕上げ！学んだ技術をフル活用してアプリケーションを作ってみよう🔥/chapter-6: CRUD機能/16-6-3_task_policy.md`
 - 挿入位置: 「authorizeメソッドの動作」の直後（L272付近）
 - 画像ファイル名: `13-6-3_c1.png`
 

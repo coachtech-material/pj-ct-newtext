@@ -1,0 +1,65 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="13-3-3_1">
+    <mxGraphModel dx="900" dy="600" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <mxCell id="frame" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="40" y="40" width="520" height="630" as="geometry" />
+        </mxCell>
+
+        <mxCell id="title" value="連絡先の入力" style="rounded=0;whiteSpace=wrap;html=1;fontSize=17;fontStyle=1;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="70" y="56" width="460" height="42" as="geometry" />
+        </mxCell>
+        <mxCell id="chosen" value="定期健診 ／ 10月3日 14:00" style="rounded=0;whiteSpace=wrap;html=1;fontSize=15;strokeWidth=1.5;align=left;spacingLeft=14;" vertex="1" parent="1">
+          <mxGeometry x="70" y="118" width="460" height="54" as="geometry" />
+        </mxCell>
+
+        <mxCell id="div1" value="" style="shape=line;html=1;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="40" y="186" width="520" height="20" as="geometry" />
+        </mxCell>
+
+        <mxCell id="l1" value="お名前" style="rounded=0;whiteSpace=wrap;html=1;fontSize=15;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="70" y="220" width="150" height="48" as="geometry" />
+        </mxCell>
+        <mxCell id="f1" value="" style="rounded=0;whiteSpace=wrap;html=1;fontSize=15;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="236" y="220" width="294" height="48" as="geometry" />
+        </mxCell>
+
+        <mxCell id="l2" value="電話番号" style="rounded=0;whiteSpace=wrap;html=1;fontSize=15;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="70" y="290" width="150" height="48" as="geometry" />
+        </mxCell>
+        <mxCell id="f2" value="" style="rounded=0;whiteSpace=wrap;html=1;fontSize=15;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="236" y="290" width="294" height="48" as="geometry" />
+        </mxCell>
+
+        <mxCell id="l3" value="メールアドレス" style="rounded=0;whiteSpace=wrap;html=1;fontSize=14;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="70" y="360" width="150" height="48" as="geometry" />
+        </mxCell>
+        <mxCell id="f3" value="" style="rounded=0;whiteSpace=wrap;html=1;fontSize=15;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="236" y="360" width="294" height="48" as="geometry" />
+        </mxCell>
+
+        <mxCell id="l4" value="ご希望の&#10;連絡方法" style="rounded=0;whiteSpace=wrap;html=1;fontSize=14;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="70" y="430" width="150" height="48" as="geometry" />
+        </mxCell>
+        <mxCell id="c1" value="電話" style="rounded=0;whiteSpace=wrap;html=1;fontSize=15;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="236" y="430" width="92" height="48" as="geometry" />
+        </mxCell>
+        <mxCell id="c2" value="メール" style="rounded=0;whiteSpace=wrap;html=1;fontSize=15;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="344" y="430" width="110" height="48" as="geometry" />
+        </mxCell>
+
+        <mxCell id="div2" value="" style="shape=line;html=1;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="40" y="498" width="520" height="20" as="geometry" />
+        </mxCell>
+
+        <mxCell id="btn" value="入力内容を確認する" style="rounded=0;whiteSpace=wrap;html=1;fontSize=15;fontStyle=1;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="150" y="540" width="300" height="60" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

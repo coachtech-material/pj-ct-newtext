@@ -289,7 +289,7 @@ class Post extends Model
 
 ### 📝 モデルの作成
 
-モデルは、`php artisan make:model`コマンドで生成します。
+モデルは、`sail artisan make:model`コマンドで生成します。
 
 ```bash
 sail artisan make:model Post
@@ -395,7 +395,7 @@ $users = User::all();  // 正しい
 *   **`->`（アロー演算子）** は、インスタンスのプロパティ・メソッドにアクセスする。
 *   1つのモデルクラスが、1つのデータベーステーブルに対応する。
 *   Laravelの規約に従うことで、モデル名からテーブル名が自動的に推測される。
-*   `php artisan make:model`コマンドで、モデルを生成できる。
+*   `sail artisan make:model`コマンドで、モデルを生成できる。
 
 次のセクションでは、Eloquentを使って、実際にデータの取得・作成・更新・削除（CRUD操作）を行う方法を学びます。
 

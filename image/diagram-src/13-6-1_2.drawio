@@ -1,0 +1,78 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="13-6-1_2">
+    <mxGraphModel dx="900" dy="600" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <mxCell id="p1" value="ブラウザ" style="rounded=0;whiteSpace=wrap;html=1;fontSize=15;fontStyle=1;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="40" y="40" width="200" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="p2" value="PostController" style="rounded=0;whiteSpace=wrap;html=1;fontSize=15;fontStyle=1;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="320" y="40" width="200" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="p3" value="Post" style="rounded=0;whiteSpace=wrap;html=1;fontSize=15;fontStyle=1;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="600" y="40" width="200" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="p4" value="データベース" style="rounded=0;whiteSpace=wrap;html=1;fontSize=15;fontStyle=1;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="880" y="40" width="200" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="l1" style="html=1;rounded=0;strokeWidth=1.5;endArrow=none;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" edge="1" parent="1" source="p1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="140" y="710" as="targetPoint" /></mxGeometry>
+        </mxCell>
+        <mxCell id="l2" style="html=1;rounded=0;strokeWidth=1.5;endArrow=none;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" edge="1" parent="1" source="p2">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="420" y="710" as="targetPoint" /></mxGeometry>
+        </mxCell>
+        <mxCell id="l3" style="html=1;rounded=0;strokeWidth=1.5;endArrow=none;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" edge="1" parent="1" source="p3">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="700" y="710" as="targetPoint" /></mxGeometry>
+        </mxCell>
+        <mxCell id="l4" style="html=1;rounded=0;strokeWidth=1.5;endArrow=none;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" edge="1" parent="1" source="p4">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="980" y="710" as="targetPoint" /></mxGeometry>
+        </mxCell>
+
+        <mxCell id="m1" value="直したタイトル・カテゴリ・本文を送る" style="html=1;rounded=0;strokeWidth=1.5;fontSize=13;labelBackgroundColor=#FFFFFF;verticalAlign=bottom;endArrow=classic;endFill=1;endSize=8;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="140" y="140" as="sourcePoint" /><mxPoint x="420" y="140" as="targetPoint" /></mxGeometry>
+        </mxCell>
+        <mxCell id="m2" value="この内容で投稿を書き換えるよう頼む" style="html=1;rounded=0;strokeWidth=1.5;fontSize=13;labelBackgroundColor=#FFFFFF;verticalAlign=bottom;endArrow=classic;endFill=1;endSize=8;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="420" y="188" as="sourcePoint" /><mxPoint x="700" y="188" as="targetPoint" /></mxGeometry>
+        </mxCell>
+        <mxCell id="m3" value="その1行を書き換える" style="html=1;rounded=0;strokeWidth=1.5;fontSize=13;labelBackgroundColor=#FFFFFF;verticalAlign=bottom;endArrow=classic;endFill=1;endSize=8;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="700" y="236" as="sourcePoint" /><mxPoint x="980" y="236" as="targetPoint" /></mxGeometry>
+        </mxCell>
+        <mxCell id="m4" value="書き換えられたことを返す" style="html=1;rounded=0;strokeWidth=1.5;fontSize=13;labelBackgroundColor=#FFFFFF;verticalAlign=bottom;endArrow=classic;endFill=1;endSize=8;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="980" y="284" as="sourcePoint" /><mxPoint x="700" y="284" as="targetPoint" /></mxGeometry>
+        </mxCell>
+        <mxCell id="m5" value="書き換えた投稿を返す" style="html=1;rounded=0;strokeWidth=1.5;fontSize=13;labelBackgroundColor=#FFFFFF;verticalAlign=bottom;endArrow=classic;endFill=1;endSize=8;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="700" y="332" as="sourcePoint" /><mxPoint x="420" y="332" as="targetPoint" /></mxGeometry>
+        </mxCell>
+        <mxCell id="m6" value="投稿一覧画面へ行くよう返す" style="html=1;rounded=0;strokeWidth=1.5;fontSize=13;labelBackgroundColor=#FFFFFF;verticalAlign=bottom;endArrow=classic;endFill=1;endSize=8;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="420" y="380" as="sourcePoint" /><mxPoint x="140" y="380" as="targetPoint" /></mxGeometry>
+        </mxCell>
+        <mxCell id="m7" value="投稿一覧を求める" style="html=1;rounded=0;strokeWidth=1.5;fontSize=13;labelBackgroundColor=#FFFFFF;verticalAlign=bottom;endArrow=classic;endFill=1;endSize=8;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="140" y="428" as="sourcePoint" /><mxPoint x="420" y="428" as="targetPoint" /></mxGeometry>
+        </mxCell>
+        <mxCell id="m8" value="新しい順に投稿を取ってくるよう頼む" style="html=1;rounded=0;strokeWidth=1.5;fontSize=13;labelBackgroundColor=#FFFFFF;verticalAlign=bottom;endArrow=classic;endFill=1;endSize=8;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="420" y="476" as="sourcePoint" /><mxPoint x="700" y="476" as="targetPoint" /></mxGeometry>
+        </mxCell>
+        <mxCell id="m9" value="投稿の行と、書いた人とカテゴリを読む" style="html=1;rounded=0;strokeWidth=1.5;fontSize=13;labelBackgroundColor=#FFFFFF;verticalAlign=bottom;endArrow=classic;endFill=1;endSize=8;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="700" y="524" as="sourcePoint" /><mxPoint x="980" y="524" as="targetPoint" /></mxGeometry>
+        </mxCell>
+        <mxCell id="m10" value="読んだ行を返す" style="html=1;rounded=0;strokeWidth=1.5;fontSize=13;labelBackgroundColor=#FFFFFF;verticalAlign=bottom;endArrow=classic;endFill=1;endSize=8;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="980" y="572" as="sourcePoint" /><mxPoint x="700" y="572" as="targetPoint" /></mxGeometry>
+        </mxCell>
+        <mxCell id="m11" value="投稿の一覧を返す" style="html=1;rounded=0;strokeWidth=1.5;fontSize=13;labelBackgroundColor=#FFFFFF;verticalAlign=bottom;endArrow=classic;endFill=1;endSize=8;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="700" y="620" as="sourcePoint" /><mxPoint x="420" y="620" as="targetPoint" /></mxGeometry>
+        </mxCell>
+        <mxCell id="m12" value="投稿一覧画面を返す" style="html=1;rounded=0;strokeWidth=1.5;fontSize=13;labelBackgroundColor=#FFFFFF;verticalAlign=bottom;endArrow=classic;endFill=1;endSize=8;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="420" y="668" as="sourcePoint" /><mxPoint x="140" y="668" as="targetPoint" /></mxGeometry>
+        </mxCell>
+
+        <mxCell id="frame" value="" style="rounded=0;fillColor=none;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry x="40" y="40" width="1040" height="670" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

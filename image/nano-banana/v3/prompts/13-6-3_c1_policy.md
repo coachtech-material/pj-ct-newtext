@@ -1,7 +1,7 @@
 # 13-6-3_c1: タスクPolicy
 
 ## 対象Section
-- Tutorial 13-6-3: タスクPolicy実装
+- Tutorial 16-6-3: タスクPolicy実装
 - 説明: Policyによる認可処理の概念図
 
 ## リサーチメモ
