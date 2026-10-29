@@ -38,7 +38,7 @@ WindowsでDocker Desktopを利用するには、**WSL 2 (Windows Subsystem for L
 
 2.  **Docker Desktopのダウンロード**: 公式サイトの、[Docker Desktop for Windows](https://docs.docker.com/desktop/setup/install/windows-install/) のページにアクセスし、「Docker Desktop for Windows」のボタンをクリックして、インストーラーをダウンロードします。
 
-3.  **インストーラーの実行**: ダウンロードした `.exe` ファイルをダブルクリックして、インストーラーを起動します。設定画面が表示されたら、特に変更せず、そのまま「OK」ボタンを押します（最近の環境では、WSL 2 が自動的に使われる設定になっているため、バックエンドを選ぶ項目は表示されません）。インストールが完了したら、「Close and restart」ボタンで、PCを再起動します。
+3.  **インストーラーの実行**: ダウンロードした `.exe` ファイルをダブルクリックして、インストーラーを起動します。設定画面で、Dockerを動かす仕組み（バックエンド）を選ぶ項目が表示された場合は、**WSL 2** を選んで（「Use WSL 2 instead of Hyper-V」のチェックボックスであれば、オンのまま）、「OK」ボタンを押します。項目が表示されない場合は、WSL 2 が自動的に選ばれているので、そのまま「OK」ボタンを押します。インストールが完了したら、「Close and restart」ボタンで、PCを再起動します。
 
 4.  **初回起動**: 再起動後、Docker Desktopが自動的に起動します。初回起動時には、利用規約への同意を求める画面が表示されるので、「I accept the terms」にチェックを入れ、「Accept」ボタンをクリックします。
 
@@ -109,7 +109,7 @@ We recommend to activate the WSL integration in Docker Desktop settings.
 2. 右上の歯車アイコン（**Settings**）をクリックします。
 3. 左メニューの **Resources** > **WSL Integration** を開きます。
 4. 「**Enable integration with my default WSL distro**」をオンにし、さらに下の一覧にある「**Ubuntu**」のトグルもオンにします。
-5. 右下の「**Apply & restart**」をクリックします。
+5. 右下の「**Apply**」（バージョンによっては「**Apply & restart**」）をクリックします。
 
 設定できたら、Ubuntuのターミナルで `docker --version` を実行してみましょう。バージョン情報が表示されれば、連携は成功です。
 
