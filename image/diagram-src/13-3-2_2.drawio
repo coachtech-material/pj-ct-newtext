@@ -24,13 +24,13 @@
         <mxCell id="e1" value="「ログイン」を押す" style="html=1;rounded=0;strokeWidth=1.5;fontSize=13;verticalAlign=middle;labelBackgroundColor=#FFFFFF;endArrow=classic;endFill=1;endSize=8;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="top" target="login">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="e2" value="「新規登録」を押す" style="html=1;rounded=0;strokeWidth=1.5;fontSize=13;verticalAlign=middle;labelBackgroundColor=#FFFFFF;endArrow=classic;endFill=1;endSize=8;exitX=1;exitY=0.25;exitDx=0;exitDy=0;entryX=0;entryY=0.75;entryDx=0;entryDy=0;" edge="1" parent="1" source="top" target="register">
+        <mxCell id="e2" value="「アカウントを作成」を押す" style="html=1;rounded=0;strokeWidth=1.5;fontSize=13;verticalAlign=middle;labelBackgroundColor=#FFFFFF;endArrow=classic;endFill=1;endSize=8;exitX=1;exitY=0.25;exitDx=0;exitDy=0;entryX=0;entryY=0.75;entryDx=0;entryDy=0;" edge="1" parent="1" source="top" target="register">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="e3" value="「アカウントを作成」を押す" style="html=1;rounded=0;strokeWidth=1.5;fontSize=13;verticalAlign=middle;labelBackgroundColor=#FFFFFF;endArrow=classic;endFill=1;endSize=8;exitX=0.25;exitY=1;exitDx=0;exitDy=0;entryX=0.25;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="login" target="register">
           <mxGeometry x="-0.35" relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="e4" value="「ログインはこちら」を押す" style="html=1;rounded=0;strokeWidth=1.5;fontSize=13;verticalAlign=middle;labelBackgroundColor=#FFFFFF;endArrow=classic;endFill=1;endSize=8;exitX=0.75;exitY=0;exitDx=0;exitDy=0;entryX=0.75;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="register" target="login">
+        <mxCell id="e4" value="「ログイン」を押す" style="html=1;rounded=0;strokeWidth=1.5;fontSize=13;verticalAlign=middle;labelBackgroundColor=#FFFFFF;endArrow=classic;endFill=1;endSize=8;exitX=0.75;exitY=0;exitDx=0;exitDy=0;entryX=0.75;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="register" target="login">
           <mxGeometry x="-0.35" relative="1" as="geometry" />
         </mxCell>
         <mxCell id="e5" value="「ログイン」を押す" style="html=1;rounded=0;strokeWidth=1.5;fontSize=13;verticalAlign=middle;labelBackgroundColor=#FFFFFF;endArrow=classic;endFill=1;endSize=8;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="login" target="index">
@@ -39,7 +39,7 @@
         <mxCell id="e6" value="「登録」を押す" style="html=1;rounded=0;strokeWidth=1.5;fontSize=13;verticalAlign=middle;labelBackgroundColor=#FFFFFF;endArrow=classic;endFill=1;endSize=8;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.25;entryDx=0;entryDy=0;" edge="1" parent="1" source="register" target="index">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="e7" value="「投稿一覧へ」を押す" style="html=1;rounded=0;strokeWidth=1.5;fontSize=13;verticalAlign=middle;labelBackgroundColor=#FFFFFF;endArrow=classic;endFill=1;endSize=8;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="top" target="index">
+        <mxCell id="e7" value="「タイムラインへ」を押す" style="html=1;rounded=0;strokeWidth=1.5;fontSize=13;verticalAlign=middle;labelBackgroundColor=#FFFFFF;endArrow=classic;endFill=1;endSize=8;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="top" target="index">
           <mxGeometry x="-0.35" relative="1" as="geometry" />
         </mxCell>
         <mxCell id="e8" value="「ログアウト」を押す" style="html=1;rounded=0;strokeWidth=1.5;fontSize=13;verticalAlign=middle;labelBackgroundColor=#FFFFFF;endArrow=classic;endFill=1;endSize=8;exitX=0;exitY=0.85;exitDx=0;exitDy=0;entryX=1;entryY=0.85;entryDx=0;entryDy=0;" edge="1" parent="1" source="index" target="top">
